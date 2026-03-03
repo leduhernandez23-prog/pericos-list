@@ -76,10 +76,12 @@
         .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
         .tab-btn { background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 16px; font-weight: bold; color: var(--result-text); transition: color 0.2s; }
         .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); margin-bottom: -2px; }
-        .tab-content { display: none; }
+        
+        /* Mobile Scrolling Fix */
+        .tab-content { display: none; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 15px; }
         .tab-content.active { display: block; }
 
-        table { width: 100%; border-collapse: collapse; background: var(--container-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; table-layout: fixed; }
+        table { width: 100%; min-width: 950px; border-collapse: collapse; background: var(--container-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; table-layout: fixed; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
         th { background-color: var(--th-bg); font-weight: 600; color: var(--text-color); }
         
@@ -132,6 +134,15 @@
         .price-badge { font-weight: bold; color: var(--success-color); display: block; margin-top: 2px; }
         .qty-badge { color: var(--primary-color); font-weight: bold; margin-right: 5px; }
         .tie-badge { color: #d35400; font-size: 11px; font-weight: bold; margin-left: 4px; }
+
+        /* Mobile Screens */
+        @media (max-width: 768px) {
+            .header-container { flex-direction: column; text-align: center; }
+            .dark-mode-btn { position: relative; margin-top: 15px; }
+            .action-btns { justify-content: center; width: 100%; margin-bottom: 15px; }
+            .action-btns button { width: 100%; margin-bottom: 5px; }
+            .supplier-group { width: 100% !important; display: block; margin-right: 0; }
+        }
 
         @media print {
             body { background-color: #fff; margin: 0; padding: 0; color: #000; }
