@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Los Pericos Master List</title>
+    
+    <link rel="apple-touch-icon" href="image_0.png">
+    <link rel="icon" type="image/png" href="image_0.png">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --text-color: #333;
+            --container-bg: #fff;
+            --border-color: #eee;
+            --input-border: #ccc;
+            --input-bg: #fff;
+            --input-text: #333;
+            --th-bg: #f8f9fa;
+            --primary-color: #0056b3; 
+            --primary-hover: #004494;
+            --verdura-color: #008c4a;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --best-deal-bg: #d4edda;
+            --best-deal-text: #155724;
+            --supplier-group-bg: #f8f9fa;
+            --result-text: #666;
+            --header-color: #2c3e50;
+        }
+
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --container-bg: #1e1e1e;
+            --border-color: #333;
+            --input-border: #555;
+            --input-bg: #2c2c2c;
+            --input-text: #fff;
+            --th-bg: #2a2a2a;
+            --primary-color: #4da3ff;
+            --verdura-color: #32cd32;
+            --best-deal-bg: #173a20;
+            --best-deal-text: #81c784;
+            --supplier-group-bg: #2c2c2c;
+            --result-text: #aaa;
+            --header-color: #fff;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .header-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; position: relative; }
+        .pericos-branding { display: flex; align-items: center; gap: 15px; }
+        .header-logo { height: 80px; border-radius: 50%; border: 2px solid var(--border-color); }
+        .main-title { margin: 0; color: var(--header-color); font-size: 32px; font-weight: bold; text-transform: uppercase; }
+
+        .dark-mode-btn { position: absolute; right: 0; background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .dark-mode-btn:hover { border-color: var(--primary-color); }
+        
+        /* THE APP SWITCHER */
+        .app-switcher { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .app-switcher button { flex: 1; max-width: 350px; padding: 16px; font-size: 18px; font-weight: bold; border-radius: 12px; border: 3px solid var(--border-color); background: var(--container-bg); color: var(--result-text); cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .app-switcher button#btn-sysco.active { border-color: var(--primary-color); background: var(--primary-color); color: white; transform: scale(1.05); }
+        .app-switcher button#btn-verdura.active { border-color: var(--verdura-color); background: var(--verdura-color); color: white; transform: scale(1.05); }
+        
+        .app-section { display: none; }
+        .app-section.active-app { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* TABS */
+        .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; white-space: nowrap;}
+        .tab-btn { background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 16px; font-weight: bold; color: var(--result-text); transition: color 0.2s; }
+        .sysco-wrapper .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); margin-bottom: -2px; }
+        .verdura-wrapper .tab-btn.active { color: var(--verdura-color); border-bottom: 3px solid var(--verdura-color); margin-bottom: -2px; }
+        
+        .tab-content { display: none; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 15px; }
+        .tab-content.active { display: block; }
+
+        table { width: 100%; min-width: 950px; border-collapse: collapse; background: var(--container-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; table-layout: fixed; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+        th { background-color: var(--th-bg); font-weight: 600; color: var(--text-color); }
+        
+        th:first-child, td:first-child { width: 20%; border-right: 2px solid var(--border-color); }
+        .supplier-cell { width: 25%; border-right: 1px solid var(--border-color); transition: background-color 0.3s ease; }
+        .supplier-cell:nth-child(4) { border-right: 2px solid var(--border-color); }
+
+        .single-vendor-table { min-width: 500px !important; }
+        .single-vendor-table .supplier-cell { width: auto; border-right: 2px solid var(--border-color); }
+        
+        th.action-col, td.action-col { width: 6%; text-align: center; vertical-align: middle; }
+        .icon-btn, .delete-btn { background: none; border: none; cursor: pointer; font-size: 16px; opacity: 0.5; padding: 4px; transition: 0.2s; margin: 2px 0; }
+        .icon-btn:hover { opacity: 1; transform: scale(1.2); }
+        .delete-btn { color: var(--danger-color); }
+        .delete-btn:hover { opacity: 1; transform: scale(1.2); }
+
+        input[type="text"], input[type="number"], select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--input-text); border-radius: 4px; font-size: 14px; margin-bottom: 6px; }
+        input:focus, select:focus { outline: none; border-color: var(--primary-color); }
+        .verdura-wrapper input:focus, .verdura-wrapper select:focus { border-color: var(--verdura-color); }
+        
+        .input-group { display: flex; gap: 6px; }
+        .input-group input { width: 50%; }
+
+        .qty-label { font-size: 12px; color: var(--result-text); font-weight: bold; white-space: nowrap; width: 70px; display: inline-block; }
+        .order-qty-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+
+        .s-result { font-weight: bold; font-size: 15px; text-align: right; color: var(--result-text); margin-top: 4px; }
+        .best-deal { background-color: var(--best-deal-bg) !important; border-radius: 4px; }
+        .best-deal .s-result { color: var(--best-deal-text); font-size: 16px; }
+        .best-deal input, .best-deal select { background-color: rgba(255,255,255,0.1); }
+
+        .tie-split-ui { display: none; margin-top: 4px; text-align: right; }
+        .tie-split-ui span { font-size: 11px; color: #d35400; font-weight: bold; margin-right: 4px; }
+        .tie-split-ui input { width: 50px !important; padding: 2px !important; font-size: 12px !important; margin-bottom: 0 !important; display: inline-block !important; border: 1.5px solid #e67e22 !important; border-radius: 3px !important; text-align: center; }
+
+        .add-row-btn { color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .sysco-wrapper .add-row-btn { background-color: var(--primary-color); }
+        .verdura-wrapper .add-row-btn { background-color: var(--verdura-color); }
+        
+        .action-btns { float: right; display: flex; gap: 15px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+        .btn-green, .btn-red, .btn-blue { color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .btn-green { background-color: var(--success-color); }
+        .btn-red { background-color: var(--danger-color); }
+        .sysco-wrapper .btn-blue { background-color: var(--primary-color); }
+        .verdura-wrapper .btn-blue { background-color: var(--verdura-color); }
+
+        .shopping-list-panel { margin-top: 40px; background: var(--container-bg); padding: 20px; border-radius: 8px; border-top: 4px solid var(--success-color); }
+        .hide-prices-active .price-badge { display: none !important; }
+        
+        .supplier-grid { display: block; width: 100%; margin-top: 15px; }
+        .supplier-group { display: inline-block; width: 32%; box-sizing: border-box; padding: 15px; background: var(--supplier-group-bg); border-radius: 4px; vertical-align: top; margin-right: 1%; margin-bottom: 15px; }
+        .sysco-wrapper .supplier-group { border-left: 3px solid var(--primary-color); }
+        .verdura-wrapper .supplier-group { border-left: 3px solid var(--verdura-color); }
+        .supplier-group:last-child { margin-right: 0; }
+        .supplier-group h4 { margin: 0 0 10px 0; font-size: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+        .supplier-group ul { margin: 0; padding-left: 20px; }
+        .supplier-group li { padding: 6px 0; font-size: 14px; border-bottom: 1px dashed var(--border-color); }
+        .supplier-group li:last-child { border-bottom: none; }
+        .price-badge { font-weight: bold; color: var(--success-color); display: block; margin-top: 2px; }
+        .qty-badge { color: var(--text-color); font-weight: bold; margin-right: 5px; }
+
+        @media (max-width: 768px) {
+            .header-container { flex-direction: column; text-align: center; }
+            .dark-mode-btn { position: relative; margin-top: 15px; }
+            .app-switcher { flex-direction: column; }
+            .app-switcher button { max-width: 100%; }
+            .action-btns { justify-content: center; width: 100%; margin-bottom: 15px; }
+            .action-btns button { width: 100%; margin-bottom: 5px; }
+            .supplier-group { width: 100% !important; display: block; margin-right: 0; }
+        }
+
+        @media print {
+            body { background-color: #fff; margin: 0; padding: 0; color: #000; }
+            .header-container, .app-switcher, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col { display: none !important; }
+            .shopping-list-panel { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
+            .supplier-grid { display: block !important; width: 100% !important; }
+            .supplier-group { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; background: none; break-inside: avoid; }
+            .supplier-group h4, .supplier-group li { color: #000; border-color: #ddd; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container" id="brand-header">
+        <div class="pericos-branding">
+            <img src="image_0.png" alt="Los Pericos Logo" class="header-logo">
+            <h1 class="main-title">LOS PERICOS MASTER</h1>
+        </div>
+        <button class="dark-mode-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
+    </div>
+
+    <div class="app-switcher">
+        <button id="btn-sysco" class="active" onclick="switchApp('sysco')">📦 Main Inventory (Sysco)</button>
+        <button id="btn-verdura" onclick="switchApp('verdura')">🥦 Produce (Verdura)</button>
+    </div>
+
+    <div id="sysco-wrapper" class="app-section sysco-wrapper active-app">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'sysco', 'Weight_sysco')">Weight & Volume</button>
+            <button class="tab-btn" onclick="openTab(event, 'sysco', 'Unit_sysco')">Unit Count</button>
+            <button class="tab-btn" onclick="openTab(event, 'sysco', 'MFE_sysco')">MFE</button>
+        </div>
+
+        <div id="Weight_sysco" class="tab-content active">
+            <table id="weightTable_sysco" data-has-units="true">
+                <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <button class="add-row-btn" onclick="addRow('weightTable_sysco', 'sysco', 'Total $', 'Total oz', '', '', 'lb', ['Sysco','','','lb',0], ['Ben E Keith','','','lb',0], ['Gordon','','','lb',0])">+ Add Item to Bottom</button>
+        </div>
+
+        <div id="Unit_sysco" class="tab-content">
+            <table id="unitTable_sysco" data-has-units="false" data-unit-label="/ item">
+                <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <button class="add-row-btn" onclick="addRow('unitTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['Sysco','','','oz',0], ['Ben E Keith','','','oz',0], ['Gordon','','','oz',0])">+ Add Item to Bottom</button>
+        </div>
+
+        <div id="MFE_sysco" class="tab-content">
+            <table id="mfeTable_sysco" class="single-vendor-table" data-has-units="false" data-unit-label="/ item">
+                <thead><tr><th>Item & Order Qty</th><th>MFE Vendor Info</th><th class="action-col"></th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <button class="add-row-btn" onclick="addRow('mfeTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['MFE','','','oz',0])">+ Add Item to Bottom</button>
+        </div>
+
+        <div class="shopping-list-panel">
+            <div class="action-btns">
+                <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px;">
+                    <input type="checkbox" onchange="toggleHidePrices('sysco')"> Hide Prices on Print
+                </label>
+                <button class="btn-red" onclick="clearData('sysco')">🗑️ Clear Sysco Data</button>
+                <button class="btn-blue" onclick="downloadPDF('sysco')">📄 Download Sysco PDF</button>
+                <button class="btn-green" onclick="window.print()">🖨️ Print</button>
+            </div>
+            <h2>🛒 Sysco Shopping List</h2>
+            <div id="list-content-sysco" class="supplier-grid"></div>
+        </div>
+    </div>
+
+    <div id="verdura-wrapper" class="app-section verdura-wrapper">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'verdura', 'Weight_verdura')">Weight & Volume</button>
+            <button class="tab-btn" onclick="openTab(event, 'verdura', 'Unit_verdura')">Unit Count</button>
+            <button class="tab-btn" onclick="openTab(event, 'verdura', 'DelComal_verdura')">Del Comal</button>
+        </div>
+
+        <div id="Weight_verdura" class="tab-content active">
+            <table id="weightTable_verdura" data-has-units="true">
+                <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <button class="add-row-btn" onclick="addRow('weightTable_verdura', 'verdura', 'Price $', 'Total oz', '', '', 'lb', ['Mr. Pepper','','','lb',0], ['Cantu','','','lb',0], ['Produce 3','','','lb',0])">+ Add Produce to Bottom</button>
+        </div>
+
+        <div id="Unit_verdura" class="tab-content">
+            <table id="unitTable_verdura" data-has-units="false" data-unit-label="/ item">
+                <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <button class="add-row-btn" onclick="addRow('unitTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Mr. Pepper','','','oz',0], ['Cantu','','','oz',0], ['Produce 3','','','oz',0])">+ Add Produce to Bottom</button>
+        </div>
+
+        <div id="DelComal_verdura" class="tab-content">
+            <table id="delComalTable_verdura" class="single-vendor-table" data-has-units="false" data-unit-label="/ item">
+                <thead><tr><th>Item & Order Qty</th><th>Del Comal Vendor Info</th><th class="action-col"></th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <button class="add-row-btn" onclick="addRow('delComalTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Del Comal','','','oz',0])">+ Add Item to Bottom</button>
+        </div>
+
+        <div class="shopping-list-panel">
+            <div class="action-btns">
+                <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px;">
+                    <input type="checkbox" onchange="toggleHidePrices('verdura')"> Hide Prices on Print
+                </label>
+                <button class="btn-red" onclick="clearData('verdura')">🗑️ Clear Produce Data</button>
+                <button class="btn-blue" onclick="downloadPDF('verdura')">📄 Download Produce PDF</button>
+                <button class="btn-green" onclick="window.print()">🖨️ Print</button>
+            </div>
+            <h2>🛒 Produce Shopping List</h2>
+            <div id="list-content-verdura" class="supplier-grid"></div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- MASTER APP CONTROLS ---
+        function switchApp(appTarget) {
+            document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
+            document.querySelectorAll('.app-switcher button').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(appTarget + '-wrapper').classList.add('active-app');
+            document.getElementById('btn-' + appTarget).classList.add('active');
+            
+            generateShoppingList(appTarget);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('darkModeBtn').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            localStorage.setItem('restaurantCalcDarkMode', isDark);
+        }
+
+        function toggleHidePrices(appName) {
+            const panel = document.querySelector(`#${appName}-wrapper .shopping-list-panel`);
+            panel.classList.toggle('hide-prices-active');
+        }
+
+        function openTab(evt, appName, tabId) {
+            let wrapper = document.getElementById(appName + '-wrapper');
+            wrapper.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+            wrapper.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+            
+            document.getElementById(tabId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // --- ROW LOGIC ---
+        function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal) {
+            let qtyHtml = '';
+            if (hasUnits) {
+                qtyHtml = `
+                <div style="display:flex; width:50%; gap:2px;">
+                    <input type="number" class="s-qty" placeholder="Qty" value="${qtyVal}" style="width:60%; margin-bottom:0;" oninput="processRowUpdate(this)">
+                    <select class="s-unit" style="width:40%; padding:4px; font-size:12px; margin-bottom:0;" onchange="processRowUpdate(this)">
+                        <option value="oz" ${unitVal==='oz'?'selected':''}>oz</option>
+                        <option value="lb" ${unitVal==='lb'?'selected':''}>lb</option>
+                        <option value="fl oz" ${unitVal==='fl oz'?'selected':''}>fl oz</option>
+                        <option value="ml" ${unitVal==='ml'?'selected':''}>ml</option>
+                    </select>
+                </div>`;
+            } else {
+                qtyHtml = `<input type="number" class="s-qty" placeholder="Pack Size" value="${qtyVal}" oninput="processRowUpdate(this)">`;
+            }
+
+            return `
+                <td class="supplier-cell">
+                    <input type="text" class="s-name" placeholder="Supplier Name" value="${supplierName}" oninput="processRowUpdate(this)">
+                    <div class="input-group">
+                        <input type="number" class="s-price" placeholder="Price $" value="${priceVal}" oninput="processRowUpdate(this)">
+                        ${qtyHtml}
+                    </div>
+                    <div class="s-result" data-value="0">$0.00</div>
+                    <div class="tie-split-ui">
+                        <span>Tie Qty:</span>
+                        <input type="number" class="split-qty" min="0" step="0.5" value="${splitVal || 0}" oninput="handleManualSplitChange(this)">
+                    </div>
+                </td>
+            `;
+        }
+
+        function addRow(tableId, appName, pLabel, qLabel, itemName = "", orderQty = "", targetUnit = "oz", s1, s2, s3) {
+            let tbody = document.querySelector(`#${tableId} tbody`);
+            let tr = document.createElement('tr');
+            let hasUnits = document.getElementById(tableId).getAttribute('data-has-units') === 'true';
+            let isSingle = document.getElementById(tableId).classList.contains('single-vendor-table');
+            
+            let targetUnitHtml = '';
+            if (hasUnits) {
+                targetUnitHtml = `
+                <div class="order-qty-row">
+                    <span class="qty-label">Compare Per:</span>
+                    <select class="target-unit" onchange="processRowUpdate(this)" style="padding:4px; font-size:12px; margin-bottom:0;">
+                        <option value="oz" ${targetUnit==='oz'?'selected':''}>oz</option>
+                        <option value="lb" ${targetUnit==='lb'?'selected':''}>lb</option>
+                        <option value="fl oz" ${targetUnit==='fl oz'?'selected':''}>fl oz</option>
+                        <option value="ml" ${targetUnit==='ml'?'selected':''}>ml</option>
+                    </select>
+                </div>`;
+            }
+
+            let html = `<td>
+                <input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)">
+                <div class="order-qty-row">
+                    <span class="qty-label">Order Qty:</span>
+                    <input type="number" class="order-qty" value="${orderQty}" min="0" oninput="processRowUpdate(this)" style="margin-bottom:0;">
+                </div>
+                ${targetUnitHtml}
+            </td>`;
+
+            html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0);
+            
+            if (!isSingle) {
+                html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits?'lb':'oz'), hasUnits, s2[4] || 0);
+                html += createSupplierCellHTML(s3[0], s3[1], s3[2], s3[3] || (hasUnits?'lb':'oz'), hasUnits, s3[4] || 0);
+            }
+            
+            let s1Fallback = `['${s1[0]}','','','${s1[3]||'lb'}',0]`;
+            let s2Fallback = isSingle ? '' : `, ['${s2[0]}','','','${s2[3]||'lb'}',0]`;
+            let s3Fallback = isSingle ? '' : `, ['${s3[0]}','','','${s3[3]||'lb'}',0]`;
+
+            html += `<td class="action-col">
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <button class="icon-btn" onclick="insertRowRelative(this, 'before', '${appName}', ${s1Fallback}${s2Fallback}${s3Fallback})" title="Add Row Above">⬆️</button>
+                    <button class="delete-btn" onclick="deleteRow(this)" title="Delete Item">❌</button>
+                    <button class="icon-btn" onclick="insertRowRelative(this, 'after', '${appName}', ${s1Fallback}${s2Fallback}${s3Fallback})" title="Add Row Below">⬇️</button>
+                </div>
+            </td>`;
+            
+            tr.innerHTML = html;
+            tbody.appendChild(tr);
+            processRowUpdate(tr.querySelector('.item-name')); 
+        }
+
+        function insertRowRelative(btn, direction, appName, s1, s2, s3) {
+            let currentRow = btn.closest('tr');
+            let table = currentRow.closest('table');
+            let tUnit = table.getAttribute('data-has-units') === 'true' ? 'lb' : 'oz';
+            
+            addRow(table.id, appName, 'Price $', 'Qty', '', '', tUnit, s1, s2, s3); 
+            
+            let tbody = table.querySelector('tbody');
+            let newRow = tbody.lastElementChild; 
+            
+            if (direction === 'before') tbody.insertBefore(newRow, currentRow);
+            else if (direction === 'after') tbody.insertBefore(newRow, currentRow.nextSibling);
+            
+            newRow.querySelector('.item-name').focus();
+            saveToLocalStorage(appName); 
+        }
+
+        function processRowUpdate(inputElem) {
+            if(!inputElem) return;
+            let row = inputElem.closest('tr');
+            let table = row.closest('table');
+            let appName = row.closest('.app-section').id.split('-')[0];
+            
+            let hasUnits = table.getAttribute('data-has-units') === 'true';
+            let baseUnitLabel = table.getAttribute('data-unit-label') || "";
+            let cells = row.querySelectorAll('.supplier-cell');
+            let minPrice = Infinity;
+            const conversionFactors = { "oz": 1, "lb": 16, "fl oz": 1, "ml": 0.033814 };
+
+            let targetUnitSelect = row.querySelector('.target-unit');
+            let targetUnit = targetUnitSelect ? targetUnitSelect.value : null;
+            let displayUnitLabel = targetUnit ? `/ ${targetUnit}` : baseUnitLabel;
+
+            cells.forEach(cell => {
+                let price = parseFloat(cell.querySelector('.s-price').value) || 0;
+                let qtyInput = cell.querySelector('.s-qty').value;
+                let qty = parseFloat(qtyInput);
+                if (isNaN(qty)) qty = 1; 
+
+                let finalPrice = 0;
+                if (price > 0) {
+                    if (hasUnits && targetUnit) {
+                        if (qty === 0) qty = 1;
+                        let sUnit = cell.querySelector('.s-unit') ? cell.querySelector('.s-unit').value : targetUnit;
+                        let qtyInBase = qty * conversionFactors[sUnit];
+                        let finalQtyInTargetUnit = qtyInBase / conversionFactors[targetUnit];
+                        finalPrice = price / finalQtyInTargetUnit;
+                    } else {
+                        if (qty === 0) qty = 1;
+                        finalPrice = price / qty;
+                    }
+                }
+
+                let resultDiv = cell.querySelector('.s-result');
+                if (finalPrice > 0) {
+                    resultDiv.innerText = "$" + finalPrice.toFixed(3) + " " + displayUnitLabel;
+                    resultDiv.setAttribute('data-value', finalPrice);
+                    if (finalPrice < minPrice) minPrice = finalPrice;
+                } else {
+                    resultDiv.innerText = "$0.00 " + displayUnitLabel;
+                    resultDiv.setAttribute('data-value', 0);
+                }
+                cell.classList.remove('best-deal');
+            });
+
+            if (minPrice !== Infinity) {
+                cells.forEach(cell => {
+                    let val = parseFloat(cell.querySelector('.s-result').getAttribute('data-value'));
+                    if (val === minPrice && val > 0) cell.classList.add('best-deal');
+                });
+            }
+
+            let winningCells = row.querySelectorAll('.best-deal');
+            let orderQty = parseFloat(row.querySelector('.order-qty').value) || 0;
+
+            if (winningCells.length > 1) {
+                let currentSplitSum = 0;
+                winningCells.forEach(cell => {
+                    currentSplitSum += parseFloat(cell.querySelector('.split-qty').value) || 0;
+                    cell.querySelector('.tie-split-ui').style.display = 'block';
+                });
+                if (Math.abs(currentSplitSum - orderQty) > 0.02) {
+                    let equalSplit = orderQty / winningCells.length;
+                    let displaySplit = equalSplit % 1 === 0 ? equalSplit : equalSplit.toFixed(2);
+                    winningCells.forEach(cell => cell.querySelector('.split-qty').value = displaySplit);
+                }
+                cells.forEach(cell => { if (!cell.classList.contains('best-deal')) cell.querySelector('.tie-split-ui').style.display = 'none'; });
+            } else {
+                cells.forEach(cell => {
+                    cell.querySelector('.tie-split-ui').style.display = 'none';
+                    cell.querySelector('.split-qty').value = cell.classList.contains('best-deal') ? orderQty : 0;
+                });
+            }
+
+            generateShoppingList(appName);
+            saveToLocalStorage(appName);
+        }
+
+        function handleManualSplitChange(splitInput) {
+            let row = splitInput.closest('tr');
+            let appName = row.closest('.app-section').id.split('-')[0];
+            let newTotal = 0;
+            row.querySelectorAll('.best-deal').forEach(c => newTotal += parseFloat(c.querySelector('.split-qty').value) || 0);
+            row.querySelector('.order-qty').value = newTotal;
+            generateShoppingList(appName);
+            saveToLocalStorage(appName);
+        }
+
+        function deleteRow(btn) {
+            let row = btn.closest('tr');
+            let appName = row.closest('.app-section').id.split('-')[0];
+            row.remove();
+            generateShoppingList(appName);
+            saveToLocalStorage(appName);
+        }
+
+        function generateShoppingList(appName) {
+            let wrapper = document.getElementById(appName + '-wrapper');
+            let allRows = wrapper.querySelectorAll('tbody tr');
+            let listBySupplier = {};
+
+            allRows.forEach(row => {
+                let itemName = row.querySelector('.item-name').value.trim();
+                let winningCells = row.querySelectorAll('.best-deal');
+
+                if (itemName && winningCells.length > 0) {
+                    let tieCount = winningCells.length;
+                    winningCells.forEach(wc => {
+                        let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
+                        let lineTotal = ((parseFloat(wc.querySelector('.s-price').value) || 0) * (parseFloat(wc.querySelector('.split-qty').value) || 0)).toFixed(2);
+                        let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
+                        if (aQty > 0) {
+                            if (!listBySupplier[sName]) listBySupplier[sName] = [];
+                            listBySupplier[sName].push(`
+                                <span><span class="qty-badge" style="color:var(--${appName === 'verdura' ? 'verdura' : 'primary'}-color);">${aQty}</span> ${itemName} ${tieCount > 1 ? `<span class="tie-badge">(Tie Split)</span>` : ''}</span> 
+                                <span class="price-badge">${wc.querySelector('.s-result').innerText} <span style="color:var(--result-text); font-weight:normal;">(Total: $${lineTotal})</span></span>
+                            `);
+                        }
+                    });
+                }
+            });
+
+            const container = document.getElementById('list-content-' + appName);
+            container.innerHTML = '';
+            if(Object.keys(listBySupplier).length === 0) {
+                container.innerHTML = `<p style="color:#999; font-style:italic;">Add prices and order quantities above to generate your list.</p>`;
+                return;
+            }
+
+            Object.keys(listBySupplier).forEach(supp => {
+                let html = `<div class="supplier-group"><h4>📦 ${supp}</h4><ul>`;
+                listBySupplier[supp].forEach(itemHtml => { html += `<li>${itemHtml}</li>`; });
+                html += `</ul></div>`;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function downloadPDF(appName) {
+            const printElement = document.createElement('div');
+            printElement.style.padding = "40px";
+            printElement.style.backgroundColor = "#ffffff";
+            printElement.style.color = "#000000";
+            printElement.style.fontFamily = "system-ui, -apple-system, sans-serif";
+            printElement.style.width = "1000px"; 
+
+            const headerHtml = document.getElementById('brand-header').outerHTML;
+            const listHtml = document.querySelector(`#${appName}-wrapper .shopping-list-panel`).outerHTML;
+            printElement.innerHTML = headerHtml + listHtml;
+
+            if(document.querySelector(`#${appName}-wrapper .shopping-list-panel`).classList.contains('hide-prices-active')) {
+                printElement.querySelector('.shopping-list-panel').classList.add('hide-prices-active');
+            }
+
+            printElement.querySelector('.dark-mode-btn').remove();
+            printElement.querySelector('.action-btns').remove();
+
+            let gridContainer = printElement.querySelector('.supplier-grid');
+            if(gridContainer) { gridContainer.style.display = 'flex'; gridContainer.style.flexDirection = 'row'; }
+
+            const opt = {
+                margin: 0.5,
+                filename: `Los_Pericos_${appName}_Order.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } 
+            };
+            html2pdf().set(opt).from(printElement).save();
+        }
+
+        function extractTableData(tableId, targetArray) {
+            document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
+                let rowData = { 
+                    item: row.querySelector('.item-name').value, 
+                    qty: row.querySelector('.order-qty').value, 
+                    targetUnit: row.querySelector('.target-unit') ? row.querySelector('.target-unit').value : null, 
+                    suppliers: [] 
+                };
+                row.querySelectorAll('.supplier-cell').forEach(cell => {
+                    let sUnit = cell.querySelector('.s-unit');
+                    let sSplit = cell.querySelector('.split-qty');
+                    rowData.suppliers.push([
+                        cell.querySelector('.s-name').value,
+                        cell.querySelector('.s-price').value,
+                        cell.querySelector('.s-qty').value,
+                        sUnit ? sUnit.value : 'oz',
+                        sSplit ? sSplit.value : 0
+                    ]);
+                });
+                targetArray.push(rowData);
+            });
+        }
+
+        function saveToLocalStorage(appName) {
+            if(appName === 'sysco') {
+                let data = { weight: [], unit: [], mfe: [] };
+                extractTableData('weightTable_sysco', data.weight);
+                extractTableData('unitTable_sysco', data.unit);
+                extractTableData('mfeTable_sysco', data.mfe);
+                localStorage.setItem('restaurantPriceCalc_Main', JSON.stringify(data));
+            } else if (appName === 'verdura') {
+                let data = { weight: [], unit: [], delComal: [] };
+                extractTableData('weightTable_verdura', data.weight);
+                extractTableData('unitTable_verdura', data.unit);
+                extractTableData('delComalTable_verdura', data.delComal);
+                localStorage.setItem('restaurantPriceCalc_Verdura', JSON.stringify(data));
+            }
+        }
+
+        function rebuildTable(tableId, appName, rowDataArray, pLabel, qLabel, s1def, s2def, s3def) {
+            if(!rowDataArray || rowDataArray.length === 0) { 
+                addRow(tableId, appName, pLabel, qLabel, '', '', 'oz', s1def, s2def, s3def); return; 
+            }
+            rowDataArray.forEach(rd => { 
+                let s1 = rd.suppliers[0] || [s1def[0], "", "", "lb", 0];
+                let s2 = rd.suppliers[1] || [s2def[0], "", "", "lb", 0];
+                let s3 = rd.suppliers[2] || [s3def[0], "", "", "lb", 0];
+                if (s1.length < 5) s1.push(0); if (s2.length < 5) s2.push(0); if (s3.length < 5) s3.push(0);
+                addRow(tableId, appName, pLabel, qLabel, rd.item, rd.qty || "", rd.targetUnit || "oz", s1, s2, s3); 
+            });
+        }
+
+        function loadFromLocalStorage() {
+            if (localStorage.getItem('restaurantCalcDarkMode') === 'true') toggleDarkMode();
+
+            // Load Sysco
+            let syscoDataStr = localStorage.getItem('restaurantPriceCalc_Main');
+            if (!syscoDataStr) {
+                // If totally empty, pre-load just a few defaults so it doesn't break
+                syscoDataStr = JSON.stringify({
+                    weight: [{item: "CHICKEN BREAST", qty:"", targetUnit:"lb", suppliers:[["Sysco","","","lb",0],["Ben E Keith","","","lb",0],["Gordon","","","lb",0]]}],
+                    unit: [{item: "FRENCH FRIES", qty:"", targetUnit:"oz", suppliers:[["Sysco","","","oz",0],["Ben E Keith","","","oz",0],["Gordon","","","oz",0]]}],
+                    mfe: [{item: "BASSA FISH", qty:"", targetUnit:"oz", suppliers:[["MFE","","","oz",0]]}]
+                });
+                localStorage.setItem('restaurantPriceCalc_Main', syscoDataStr);
+            }
+            let syscoData = JSON.parse(syscoDataStr);
+            rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0], ['Ben E Keith','','','lb',0], ['Gordon','','','lb',0]);
+            rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0], ['Ben E Keith','','','oz',0], ['Gordon','','','oz',0]);
+            rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
+
+            // Load Verdura
+            let verduraDataStr = localStorage.getItem('restaurantPriceCalc_Verdura');
+            if (!verduraDataStr) {
+                verduraDataStr = JSON.stringify({
+                    weight: [{item: "JALAPENO", qty:"", targetUnit:"lb", suppliers:[["Mr. Pepper","","","lb",0],["Cantu","","","lb",0],["Produce 3","","","lb",0]]}],
+                    unit: [{item: "AVOCADO", qty:"", targetUnit:"oz", suppliers:[["Mr. Pepper","","","oz",0],["Cantu","","","oz",0],["Produce 3","","","oz",0]]}],
+                    delComal: [{item: "CHIPS", qty:"", targetUnit:"oz", suppliers:[["Del Comal","","","oz",0]]}]
+                });
+                localStorage.setItem('restaurantPriceCalc_Verdura', verduraDataStr);
+            }
+            let verduraData = JSON.parse(verduraDataStr);
+            rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0], ['Cantu','','','lb',0], ['Produce 3','','','lb',0]);
+            rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0], ['Cantu','','','oz',0], ['Produce 3','','','oz',0]);
+            rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
+        }
+
+        function clearData(appName) {
+            if(confirm(`Are you sure you want to delete all items in the ${appName.toUpperCase()} app?`)) {
+                if(appName === 'sysco') localStorage.removeItem('restaurantPriceCalc_Main');
+                if(appName === 'verdura') localStorage.removeItem('restaurantPriceCalc_Verdura');
+                location.reload(); 
+            }
+        }
+
+        window.onload = loadFromLocalStorage;
+    </script>
+</body>
+</html>
