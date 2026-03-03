@@ -76,7 +76,7 @@
         .dark-mode-btn { position: absolute; right: 0; background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .dark-mode-btn:hover { border-color: var(--primary-color); }
         
-        .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
+        .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; white-space: nowrap;}
         .tab-btn { background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 16px; font-weight: bold; color: var(--result-text); transition: color 0.2s; }
         .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); margin-bottom: -2px; }
         
@@ -91,6 +91,10 @@
         th:first-child, td:first-child { width: 20%; border-right: 2px solid var(--border-color); }
         .supplier-cell { width: 25%; border-right: 1px solid var(--border-color); transition: background-color 0.3s ease; }
         .supplier-cell:nth-child(4) { border-right: 2px solid var(--border-color); }
+
+        /* MFE Tab Needs a wider single column */
+        #mfeTable { min-width: 500px; }
+        #mfeTable .supplier-cell { width: auto; border-right: 2px solid var(--border-color); }
         
         th.action-col, td.action-col { width: 6%; text-align: center; vertical-align: middle; }
         .icon-btn { background: none; border: none; cursor: pointer; font-size: 16px; opacity: 0.5; padding: 2px; transition: 0.2s; }
@@ -170,6 +174,7 @@
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab(event, 'Weight')">Weight & Volume</button>
         <button class="tab-btn" onclick="openTab(event, 'Unit')">Unit Count</button>
+        <button class="tab-btn" onclick="openTab(event, 'MFE')">MFE</button>
     </div>
 
     <div id="Weight" class="tab-content active">
@@ -186,6 +191,14 @@
             <tbody></tbody>
         </table>
         <button class="add-row-btn" onclick="addRow('unitTable', 'Bulk $', 'Count')">+ Add Item to Bottom</button>
+    </div>
+
+    <div id="MFE" class="tab-content">
+        <table id="mfeTable" data-has-units="false" data-unit-label="/ item">
+            <thead><tr><th>Item & Order Qty</th><th>MFE Vendor Info</th><th class="action-col"></th></tr></thead>
+            <tbody></tbody>
+        </table>
+        <button class="add-row-btn" onclick="addRow('mfeTable', 'Bulk $', 'Count')">+ Add Item to Bottom</button>
     </div>
 
     <div class="shopping-list-panel" id="final-list-panel">
@@ -265,6 +278,7 @@
             let tbody = document.querySelector(`#${tableId} tbody`);
             let tr = document.createElement('tr');
             let hasUnits = tableId === 'weightTable';
+            let isMfe = tableId === 'mfeTable';
             
             let targetUnitHtml = '';
             if (hasUnits) {
@@ -281,7 +295,7 @@
             }
 
             let html = `<td>
-                <input type="text" class="item-name" placeholder="e.g. Olive Oil" value="${itemName}" oninput="processRowUpdate(this)">
+                <input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)">
                 <div class="order-qty-row">
                     <span class="qty-label">Order Qty:</span>
                     <input type="number" class="order-qty" value="${orderQty}" min="0" oninput="processRowUpdate(this)" style="margin-bottom:0;">
@@ -289,9 +303,17 @@
                 ${targetUnitHtml}
             </td>`;
             
+            if (isMfe) {
+                s1[0] = "MFE"; // Lock name for this tab
+            }
+
             html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits ? 'lb' : 'oz'), hasUnits, s1[4] || 0);
-            html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits ? 'lb' : 'oz'), hasUnits, s2[4] || 0);
-            html += createSupplierCellHTML(s3[0], s3[1], s3[2], s3[3] || (hasUnits ? 'lb' : 'oz'), hasUnits, s3[4] || 0);
+            
+            // Only generate competitors if it's NOT the MFE tab
+            if (!isMfe) {
+                html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits ? 'lb' : 'oz'), hasUnits, s2[4] || 0);
+                html += createSupplierCellHTML(s3[0], s3[1], s3[2], s3[3] || (hasUnits ? 'lb' : 'oz'), hasUnits, s3[4] || 0);
+            }
             
             html += `<td class="action-col">
                 <div style="display:flex; flex-direction:column; align-items:center;">
@@ -313,7 +335,7 @@
             let isWeight = tableId === 'weightTable';
             let tUnit = isWeight ? 'lb' : 'oz';
             
-            addRow(tableId, 'Total $', 'Total oz', '', '', tUnit); 
+            addRow(tableId, 'Price $', 'Qty', '', '', tUnit); 
             
             let tbody = table.querySelector('tbody');
             let newRow = tbody.lastElementChild; 
@@ -446,7 +468,6 @@
         function generateShoppingList() {
             let allRows = document.querySelectorAll('tbody tr');
             let listBySupplier = {};
-            defaultSuppliers.forEach(supp => { listBySupplier[supp] = []; });
 
             allRows.forEach(row => {
                 let itemName = row.querySelector('.item-name').value.trim();
@@ -480,13 +501,14 @@
             container.innerHTML = '';
             const suppliers = Object.keys(listBySupplier);
 
+            if(suppliers.length === 0) {
+                container.innerHTML = `<p style="color:#999; font-style:italic;">Add prices and order quantities above to generate your list.</p>`;
+                return;
+            }
+
             suppliers.forEach(supp => {
                 let html = `<div class="supplier-group"><h4>📦 ${supp}</h4><ul>`;
-                if (listBySupplier[supp].length === 0) {
-                     html += `<li style="color:#999; border:none; font-style:italic;">No items to order.</li>`;
-                } else {
-                    listBySupplier[supp].forEach(itemHtml => { html += `<li>${itemHtml}</li>`; });
-                }
+                listBySupplier[supp].forEach(itemHtml => { html += `<li>${itemHtml}</li>`; });
                 html += `</ul></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
@@ -510,7 +532,6 @@
 
             printElement.querySelector('.dark-mode-btn').remove();
             printElement.querySelector('.action-btns').remove();
-            printElement.querySelector('#helper-text').remove();
 
             let gridContainer = printElement.querySelector('.supplier-grid');
             if(gridContainer) {
@@ -530,7 +551,7 @@
         }
 
         function saveToLocalStorage() {
-            let data = { weight: [], unit: [] };
+            let data = { weight: [], unit: [], mfe: [] };
             function extractTableData(tableId, targetArray) {
                 document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
                     let itemName = row.querySelector('.item-name').value;
@@ -556,6 +577,8 @@
             }
             extractTableData('weightTable', data.weight);
             extractTableData('unitTable', data.unit);
+            extractTableData('mfeTable', data.mfe);
+            
             localStorage.setItem('restaurantPriceCalc_Main', JSON.stringify(data));
         }
 
@@ -568,6 +591,7 @@
                 const weightLbItems = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
                 const weightFlOzItems = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
                 const unitItems = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
+                const mfeItems = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
 
                 const preloadedData = {
                     weight: [
@@ -583,6 +607,10 @@
                     unit: unitItems.map(item => ({
                         item: item, qty: "", targetUnit: "oz",
                         suppliers: [["Sysco", "", "", "oz", 0], ["Ben E Keith", "", "", "oz", 0], ["Gordon", "", "", "oz", 0]]
+                    })),
+                    mfe: mfeItems.map(item => ({
+                        item: item, qty: "", targetUnit: "oz",
+                        suppliers: [["MFE", "", "", "oz", 0]]
                     }))
                 };
                 
@@ -610,6 +638,7 @@
             }
             if(data.weight) rebuildTable('weightTable', data.weight, 'Total $', 'Total oz');
             if(data.unit) rebuildTable('unitTable', data.unit, 'Bulk $', 'Count');
+            if(data.mfe) rebuildTable('mfeTable', data.mfe, 'Bulk $', 'Count');
         }
 
         function clearAllData() {
