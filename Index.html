@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" href="image_0.png">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <style>
@@ -25,7 +25,7 @@
             --primary-color: #0056b3; 
             --primary-hover: #004494;
             --verdura-color: #008c4a;
-            --trends-color: #e67e22;
+            --analytics-color: #8e44ad;
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
@@ -47,7 +47,7 @@
             --th-bg: #2a2a2a;
             --primary-color: #4da3ff;
             --verdura-color: #32cd32;
-            --trends-color: #f39c12;
+            --analytics-color: #b19cd9;
             --best-deal-bg: #173a20;
             --best-deal-text: #81c784;
             --supplier-group-bg: #2c2c2c;
@@ -85,9 +85,12 @@
         .tab-btn { background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 16px; font-weight: bold; color: var(--result-text); transition: color 0.2s; }
         .sysco-wrapper .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); margin-bottom: -2px; }
         .verdura-wrapper .tab-btn.active { color: var(--verdura-color); border-bottom: 3px solid var(--verdura-color); margin-bottom: -2px; }
+        .analytics-wrapper .tab-btn.active { color: var(--analytics-color); border-bottom: 3px solid var(--analytics-color); margin-bottom: -2px; }
         
         .tab-content { display: none; max-height: 65vh; overflow-y: auto; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
         .tab-content.active { display: block; }
+        
+        .analytics-wrapper .tab-content { max-height: none; overflow: visible; border: none; background: transparent; padding: 0;}
 
         table { width: 100%; min-width: 950px; border-collapse: separate; border-spacing: 0; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
@@ -156,9 +159,11 @@
         body.dark-mode .invoice-total { background: rgba(255,255,255,0.02); }
         .invoice-amount { color: var(--success-color); font-size: 18px; }
 
-        /* TRENDS DASHBOARD STYLES */
-        .trends-panel-container { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
-        .trend-box { flex: 1; min-width: 300px; background: var(--container-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        /* ANALYTICS DASHBOARD STYLES */
+        .analytics-box { background: var(--container-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        .trends-panel-container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .trend-box { flex: 1; min-width: 300px; }
         .trend-box.up { border-top: 5px solid var(--danger-color); }
         .trend-box.down { border-top: 5px solid var(--success-color); }
         .trend-box h3 { margin-top: 0; display: flex; align-items: center; gap: 8px; }
@@ -168,6 +173,12 @@
         .trend-diff { font-weight: bold; float: right; }
         .diff-up { color: var(--danger-color); }
         .diff-down { color: var(--success-color); }
+        
+        .chart-container { position: relative; height: 300px; width: 100%; max-width: 500px; margin: 0 auto; }
+        .ledger-item { border: 2px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--supplier-group-bg); }
+        .ledger-item .l-date { font-weight: bold; font-size: 16px; color: var(--primary-color); }
+        .ledger-item .l-total { font-size: 20px; font-weight: bold; color: var(--success-color); }
+        .ledger-item .l-breakdown { font-size: 12px; color: var(--result-text); margin-top: 5px; }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 10px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 1000; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
         body.dark-mode .bottom-nav { background: rgba(30, 30, 30, 0.85); }
@@ -176,9 +187,9 @@
         body.dark-mode .nav-btn:hover { background: rgba(255,255,255,0.05); }
         .nav-btn.active-sysco { color: var(--primary-color); }
         .nav-btn.active-verdura { color: var(--verdura-color); }
-        .nav-btn.active-trends { color: var(--trends-color); }
+        .nav-btn.active-analytics { color: var(--analytics-color); }
         .nav-icon { font-size: 24px; transition: transform 0.2s; }
-        .nav-btn.active-sysco .nav-icon, .nav-btn.active-verdura .nav-icon, .nav-btn.active-trends .nav-icon { transform: scale(1.15); }
+        .nav-btn.active-sysco .nav-icon, .nav-btn.active-verdura .nav-icon, .nav-btn.active-analytics .nav-icon { transform: scale(1.15); }
 
         .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; font-size: 12px; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-color); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
@@ -195,8 +206,8 @@
 
         @media print {
             body { background-color: #fff; margin: 0; padding: 0; color: #000; padding-bottom: 0; }
-            .header-container, .bottom-nav, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp, .cloud-status, #sync-toast { display: none !important; }
-            .shopping-list-panel { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
+            .header-container, .bottom-nav, .tabs, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp, .cloud-status, #sync-toast { display: none !important; }
+            .shopping-list-panel, .analytics-box { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
             .supplier-grid { display: block !important; width: 100% !important; }
             .supplier-group, .trend-box { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; border-top: none !important; background: none; break-inside: avoid; }
             .supplier-group h4, .supplier-group li, .invoice-total { color: #000; border-color: #ddd; }
@@ -259,8 +270,8 @@
                 <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
                     <input type="checkbox" onchange="toggleHidePrices('sysco')"> Hide Prices
                 </label>
-                <button class="btn-yellow" onclick="resetQuantities('sysco')">🔄 New Week Reset</button>
-                <button class="btn-red" onclick="clearData('sysco')">🗑️ Master Clear Cloud</button>
+                <button class="btn-yellow" onclick="resetQuantities('sysco')">🔄 New Week Reset (Save to Ledger)</button>
+                <button class="btn-red" onclick="clearData('sysco')">🗑️ Master Clear</button>
                 <button class="btn-text-msg" onclick="copyForTextMsg('sysco')">💬 Copy for Text</button>
                 <button class="btn-blue" onclick="downloadPDF('sysco')">📄 PDF</button>
             </div>
@@ -309,8 +320,8 @@
                 <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
                     <input type="checkbox" onchange="toggleHidePrices('verdura')"> Hide Prices
                 </label>
-                <button class="btn-yellow" onclick="resetQuantities('verdura')">🔄 New Week Reset</button>
-                <button class="btn-red" onclick="clearData('verdura')">🗑️ Master Clear Cloud</button>
+                <button class="btn-yellow" onclick="resetQuantities('verdura')">🔄 New Week Reset (Save to Ledger)</button>
+                <button class="btn-red" onclick="clearData('verdura')">🗑️ Master Clear</button>
                 <button class="btn-text-msg" onclick="copyForTextMsg('verdura')">💬 Copy for Text</button>
                 <button class="btn-blue" onclick="downloadPDF('verdura')">📄 PDF</button>
             </div>
@@ -319,26 +330,47 @@
         </div>
     </div>
 
-    <div id="trends-wrapper" class="app-section trends-wrapper">
-        <div style="text-align:center; padding: 20px 0;">
-            <h2 style="margin:0; font-size:28px;">📈 Price Trends</h2>
-            <p style="color:var(--result-text); font-size:14px; margin-top:5px;">Comparing today's prices against your last "New Week Reset"</p>
+    <div id="analytics-wrapper" class="app-section analytics-wrapper">
+        <div style="text-align:center; padding: 10px 0;">
+            <h2 style="margin:0; font-size:28px;">📊 Restaurant Analytics</h2>
         </div>
 
-        <div class="trends-panel-container">
-            <div class="trend-box up">
-                <h3 style="color:var(--danger-color);">🔺 Prices Went Up</h3>
-                <ul id="trends-up-list" class="trend-list"></ul>
-            </div>
-            
-            <div class="trend-box down">
-                <h3 style="color:var(--success-color);">🔻 Prices Went Down</h3>
-                <ul id="trends-down-list" class="trend-list"></ul>
+        <div class="tabs" style="justify-content: center;">
+            <button class="tab-btn active" onclick="openTab(event, 'analytics', 'Tab_Trends')">📈 Trends</button>
+            <button class="tab-btn" onclick="openTab(event, 'analytics', 'Tab_Spend')">📊 Spend Analytics</button>
+            <button class="tab-btn" onclick="openTab(event, 'analytics', 'Tab_Ledger')">🗓️ Order Ledger</button>
+        </div>
+
+        <div id="Tab_Trends" class="tab-content active">
+            <p style="color:var(--result-text); font-size:14px; text-align:center; margin-top:0;">Comparing today's prices against your last "New Week Reset"</p>
+            <div class="trends-panel-container">
+                <div class="analytics-box trend-box up">
+                    <h3 style="color:var(--danger-color);">🔺 Prices Went Up</h3>
+                    <ul id="trends-up-list" class="trend-list"></ul>
+                </div>
+                <div class="analytics-box trend-box down">
+                    <h3 style="color:var(--success-color);">🔻 Prices Went Down</h3>
+                    <ul id="trends-down-list" class="trend-list"></ul>
+                </div>
             </div>
         </div>
-        
-        <div style="text-align:center; margin-top: 30px;">
-            <button class="btn-blue" onclick="window.print()">🖨️ Print Trends Report</button>
+
+        <div id="Tab_Spend" class="tab-content">
+            <p style="color:var(--result-text); font-size:14px; text-align:center; margin-top:0;">Live budget breakdown of your current cart</p>
+            <div class="analytics-box">
+                <h3 style="text-align:center; margin-top:0;">Current Cart Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="spendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="Tab_Ledger" class="tab-content">
+            <p style="color:var(--result-text); font-size:14px; text-align:center; margin-top:0;">Saved snapshots from previous resets</p>
+            <div class="analytics-box" style="background:transparent; box-shadow:none; padding:0;">
+                <div id="ledger-sysco-list"></div>
+                <div id="ledger-verdura-list"></div>
+            </div>
         </div>
     </div>
 
@@ -351,9 +383,9 @@
             <span class="nav-icon">🥦</span>
             <span>Produce</span>
         </button>
-        <button id="nav-trends" class="nav-btn" onclick="switchApp('trends')">
-            <span class="nav-icon">📈</span>
-            <span>Trends</span>
+        <button id="nav-analytics" class="nav-btn" onclick="switchApp('analytics')">
+            <span class="nav-icon">📊</span>
+            <span>Analytics</span>
         </button>
         <button class="nav-btn" onclick="scrollToCart()">
             <span class="nav-icon" style="position:relative;">
@@ -381,6 +413,7 @@
         
         let isAppLoading = true; 
         const mySyncId = Math.random().toString(36).substr(2, 9);
+        let spendChartInstance = null; // Holds the pie chart
 
         function showSyncToast() {
             let toast = document.getElementById("sync-toast");
@@ -391,14 +424,14 @@
         // --- MASTER APP CONTROLS ---
         function switchApp(appTarget) {
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-sysco', 'active-verdura', 'active-trends'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-sysco', 'active-verdura', 'active-analytics'));
             
             document.getElementById(appTarget + '-wrapper').classList.add('active-app');
             let navBtn = document.getElementById('nav-' + appTarget);
             if(navBtn) navBtn.classList.add('active-' + appTarget);
             
-            if (appTarget === 'trends') {
-                generateTrendsReport();
+            if (appTarget === 'analytics') {
+                generateAnalyticsDashboard();
             } else {
                 generateShoppingList(appTarget);
             }
@@ -406,7 +439,7 @@
 
         function scrollToCart() {
             let activeApp = document.querySelector('.active-app').id.split('-')[0];
-            if (activeApp === 'trends') { switchApp('sysco'); activeApp = 'sysco'; } // Default to Sysco if clicked from Trends
+            if (activeApp === 'analytics') { switchApp('sysco'); activeApp = 'sysco'; }
             let panel = document.querySelector(`#${activeApp}-wrapper .shopping-list-panel`);
             panel.scrollIntoView({ behavior: 'smooth' });
         }
@@ -416,6 +449,7 @@
             const isDark = document.body.classList.contains('dark-mode');
             document.getElementById('darkModeBtn').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
             localStorage.setItem('restaurantCalcDarkMode', isDark);
+            if(document.querySelector('.active-app').id === 'analytics-wrapper') generateAnalyticsDashboard();
         }
 
         function toggleHidePrices(appName) {
@@ -471,13 +505,43 @@
             }).catch(err => { alert("Oops, your browser blocked the copy. Please download the PDF instead."); });
         }
 
-        // NEW WEEK RESET - NOW LOCKS IN THE BASELINE PRICES
+        // THE WEEKLY LEDGER VAULT LOGIC
         function resetQuantities(appName) {
-            if(confirm(`Ready for a new week? \n\nThis will clear all quantities to 0 AND lock your current prices in as the baseline to track next week's trends!`)) {
+            if(confirm(`Ready for a new week? \n\nThis will clear all quantities to 0 AND permanently save your final cart total to the Order Ledger! (It will also set current prices as your new Trends baseline).`)) {
+                
+                // 1. Calculate the final cart total to push to the Ledger before wiping
+                let grandTotal = 0;
+                let suppTotals = {};
                 let rows = document.querySelectorAll(`#${appName}-wrapper tbody tr`);
+                
+                rows.forEach(row => {
+                    let winningCells = row.querySelectorAll('.best-deal');
+                    winningCells.forEach(wc => {
+                        let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
+                        let price = parseFloat(wc.querySelector('.s-price').value) || 0;
+                        let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
+                        if (aQty > 0) {
+                            let lineTotal = price * aQty;
+                            grandTotal += lineTotal;
+                            if (!suppTotals[sName]) suppTotals[sName] = 0;
+                            suppTotals[sName] += lineTotal;
+                        }
+                    });
+                });
+
+                // 2. Push to Firebase Ledger if they actually ordered something
+                if (grandTotal > 0) {
+                    let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+                    db.ref('ledger/' + appName).push({
+                        date: now,
+                        total: grandTotal,
+                        breakdown: suppTotals
+                    });
+                }
+
+                // 3. Perform the normal clear and lock baselines
                 rows.forEach(row => {
                     row.querySelector('.order-qty').value = '';
-                    // Lock the new baseline price
                     row.querySelectorAll('.s-price').forEach(input => {
                         let currentVal = parseFloat(input.value) || 0;
                         if(currentVal > 0) input.setAttribute('data-baseline', currentVal);
@@ -486,7 +550,7 @@
                 });
                 saveToDatabase(appName);
                 generateShoppingList(appName);
-                alert("✅ Quantities reset & Weekly Baseline locked!");
+                alert("✅ Quantities reset, Baseline locked, and order saved to the Ledger!");
             }
         }
 
@@ -519,7 +583,7 @@
             reader.readAsText(file);
         }
 
-        // --- ROW LOGIC (Hidden arrows during typing) ---
+        // --- ROW LOGIC ---
         function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, oldTrend, baselineVal) {
             let qtyHtml = '';
             if (hasUnits) {
@@ -537,7 +601,6 @@
                 qtyHtml = `<input type="number" class="s-qty" placeholder="Pack Size" value="${qtyVal}" oninput="processRowUpdate(this)">`;
             }
 
-            // Fallback: If no baseline exists, use the current price so it doesn't instantly flag as an increase
             let safeBaseline = baselineVal !== undefined && baselineVal !== "" ? baselineVal : priceVal;
 
             return `
@@ -645,7 +708,6 @@
                 let newPrice = parseFloat(priceInput.value) || 0;
                 let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
 
-                // Auto-set baseline on very first input if it's currently 0 so it doesn't instantly flag as a trend
                 if (baseline === 0 && newPrice > 0) {
                     priceInput.setAttribute('data-baseline', newPrice);
                     baseline = newPrice;
@@ -711,7 +773,7 @@
             }
 
             if(!skipSave && !isAppLoading) {
-                if(appName === 'trends') { generateTrendsReport(); } 
+                if(appName === 'analytics') { generateAnalyticsDashboard(); } 
                 else { generateShoppingList(appName); }
                 saveToDatabase(appName);
             }
@@ -735,9 +797,8 @@
             if(!isAppLoading) saveToDatabase(appName);
         }
 
-        // GENERATE TREND ARROWS IN THE FINAL CHECKOUT LIST
         function generateShoppingList(appName) {
-            if(appName === 'trends') return; // Trends has its own generator
+            if(appName === 'analytics') return; 
             let wrapper = document.getElementById(appName + '-wrapper');
             let allRows = wrapper.querySelectorAll('tbody tr');
             let listBySupplier = {};
@@ -757,7 +818,6 @@
                         let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
                         let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
                         
-                        // Calculate trend arrow only for the final list
                         let trendBadge = '';
                         if (unitPrice > baseline && baseline > 0) {
                             trendBadge = '<span style="font-size:12px; margin-left:4px;" title="Price went up">🔺</span>';
@@ -797,18 +857,14 @@
             });
         }
 
-        // GENERATE THE NEW TRENDS DASHBOARD
-        function generateTrendsReport() {
+        // --- NEW CENTRALIZED ANALYTICS DASHBOARD ---
+        function generateAnalyticsDashboard() {
+            // 1. GENERATE TRENDS (Tab 1)
             let upList = document.getElementById('trends-up-list');
             let downList = document.getElementById('trends-down-list');
-            upList.innerHTML = ''; downList.innerHTML = '';
-            
             let upHTML = ''; let downHTML = '';
             
-            // Scan both Sysco and Verdura tables
-            let allRows = document.querySelectorAll('tbody tr');
-            
-            allRows.forEach(row => {
+            document.querySelectorAll('tbody tr').forEach(row => {
                 let itemName = row.querySelector('.item-name').value.trim();
                 if(!itemName) return;
                 
@@ -818,25 +874,94 @@
                     let price = parseFloat(priceInput.value) || 0;
                     let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
                     
-                    // Check if price changed since last reset
                     if(price > 0 && baseline > 0 && price !== baseline) {
                         let diff = Math.abs(price - baseline).toFixed(2);
                         let isUp = price > baseline;
-                        
                         let li = `<li>
                             <strong>${itemName}</strong> <span style="font-size:12px; color:var(--result-text);">(${sName})</span><br>
                             <span style="color:var(--result-text);">$${baseline.toFixed(2)} ➔ $${price.toFixed(2)}</span> 
                             <span class="trend-diff ${isUp ? 'diff-up' : 'diff-down'}">${isUp ? '+' : '-'}$${diff}</span>
                         </li>`;
-                        
-                        if(isUp) upHTML += li;
-                        else downHTML += li;
+                        if(isUp) upHTML += li; else downHTML += li;
                     }
                 });
             });
-            
             upList.innerHTML = upHTML || '<li style="color:#999; font-style:italic; border:none;">No price increases tracked since last reset.</li>';
             downList.innerHTML = downHTML || '<li style="color:#999; font-style:italic; border:none;">No price decreases tracked since last reset.</li>';
+
+            // 2. GENERATE SPEND ANALYTICS PIE CHART (Tab 2)
+            let suppTotals = {};
+            document.querySelectorAll('tbody tr').forEach(row => {
+                row.querySelectorAll('.best-deal').forEach(wc => {
+                    let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
+                    let price = parseFloat(wc.querySelector('.s-price').value) || 0;
+                    let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
+                    if (aQty > 0) {
+                        if (!suppTotals[sName]) suppTotals[sName] = 0;
+                        suppTotals[sName] += (price * aQty);
+                    }
+                });
+            });
+
+            let labels = Object.keys(suppTotals);
+            let dataPoints = Object.values(suppTotals);
+            
+            const ctx = document.getElementById('spendChart').getContext('2d');
+            if (spendChartInstance) spendChartInstance.destroy(); // Clear old chart
+            
+            if(dataPoints.length > 0) {
+                let isDark = document.body.classList.contains('dark-mode');
+                spendChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: dataPoints,
+                            backgroundColor: ['#0056b3', '#28a745', '#f39c12', '#e74c3c', '#8e44ad', '#34495e'],
+                            borderWidth: 2,
+                            borderColor: isDark ? '#1e1e1e' : '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: isDark ? '#fff' : '#333' } },
+                            tooltip: { callbacks: { label: function(c) { return ' $' + c.raw.toFixed(2); } } }
+                        }
+                    }
+                });
+            }
+
+            // 3. GENERATE LEDGER HISTORY (Tab 3)
+            db.ref('ledger').once('value').then(snapshot => {
+                let ledgerData = snapshot.val();
+                let syscoHtml = '<h3 style="margin-top:0;">📦 Sysco App History</h3>';
+                let verduraHtml = '<h3>🥦 Produce App History</h3>';
+                
+                if (ledgerData && ledgerData.sysco) {
+                    Object.values(ledgerData.sysco).reverse().forEach(entry => {
+                        let breakdownStr = Object.keys(entry.breakdown).map(k => `${k}: $${entry.breakdown[k].toFixed(2)}`).join(' | ');
+                        syscoHtml += `<div class="ledger-item">
+                            <div><div class="l-date">${entry.date}</div><div class="l-breakdown">${breakdownStr}</div></div>
+                            <div class="l-total">$${entry.total.toFixed(2)}</div>
+                        </div>`;
+                    });
+                } else { syscoHtml += '<p style="color:#999; font-style:italic;">No saved resets yet.</p>'; }
+
+                if (ledgerData && ledgerData.verdura) {
+                    Object.values(ledgerData.verdura).reverse().forEach(entry => {
+                        let breakdownStr = Object.keys(entry.breakdown).map(k => `${k}: $${entry.breakdown[k].toFixed(2)}`).join(' | ');
+                        verduraHtml += `<div class="ledger-item">
+                            <div><div class="l-date">${entry.date}</div><div class="l-breakdown">${breakdownStr}</div></div>
+                            <div class="l-total">$${entry.total.toFixed(2)}</div>
+                        </div>`;
+                    });
+                } else { verduraHtml += '<p style="color:#999; font-style:italic;">No saved resets yet.</p>'; }
+
+                document.getElementById('ledger-sysco-list').innerHTML = syscoHtml;
+                document.getElementById('ledger-verdura-list').innerHTML = verduraHtml;
+            });
         }
 
 
@@ -867,7 +992,6 @@
             html2pdf().set(opt).from(printElement).save();
         }
 
-        // SAVE BASELINE TO DATABASE
         function extractTableData(tableId, targetArray) {
             document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
                 let rowData = { 
@@ -888,16 +1012,17 @@
                         cell.querySelector('.s-qty').value,
                         sUnit ? sUnit.value : 'oz',
                         sSplit ? sSplit.value : 0,
-                        '', // Empty space for old trend logic
-                        baseline // Now storing Baseline in position 6!
+                        '', 
+                        baseline 
                     ]);
                 });
                 targetArray.push(rowData);
             });
         }
 
+        // --- LEVEL 2: FIREBASE SYNC & OFFLINE TRACKING ---
         function saveToDatabase(appName) {
-            if(isAppLoading || appName === 'trends') return; 
+            if(isAppLoading || appName === 'analytics') return; 
 
             let now = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
             db.ref('metadata/' + appName).set(now);
@@ -928,7 +1053,7 @@
                 let s1 = rd.suppliers[0] || [s1def[0], "", "", "lb", 0, "", ""];
                 let s2 = rd.suppliers[1] || [s2def[0], "", "", "lb", 0, "", ""];
                 let s3 = rd.suppliers[2] || [s3def[0], "", "", "lb", 0, "", ""];
-                if (s1.length < 7) s1.push(s1[1] || ""); // Auto-fill old baseline
+                if (s1.length < 7) s1.push(s1[1] || ""); 
                 if (s2.length < 7) s2.push(s2[1] || ""); 
                 if (s3.length < 7) s3.push(s3[1] || ""); 
                 addRow(tableId, appName, pLabel, qLabel, rd.item, rd.qty || "", rd.targetUnit || "oz", s1, s2, s3); 
@@ -1021,10 +1146,9 @@
                 document.getElementById('time-sysco').innerText = meta.sysco ? `Last updated: ${meta.sysco}` : 'Last updated: Never';
                 document.getElementById('time-verdura').innerText = meta.verdura ? `Last updated: ${meta.verdura}` : 'Last updated: Never';
 
-                // Also update the Trends dashboard if we are currently looking at it
                 let activeApp = document.querySelector('.active-app');
-                if(activeApp && activeApp.id === 'trends-wrapper') {
-                    generateTrendsReport();
+                if(activeApp && activeApp.id === 'analytics-wrapper') {
+                    generateAnalyticsDashboard();
                 }
 
                 isAppLoading = false; 
