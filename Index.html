@@ -61,9 +61,34 @@
             --header-color: #fff;
         }
 
-        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); max-width: 1200px; margin: 20px auto; padding: 20px; padding-bottom: 120px; transition: 0.3s; }
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); max-width: 1200px; margin: 0 auto; padding: 20px; padding-bottom: 120px; transition: background-color 0.3s, color 0.3s; }
         
-        .header-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; position: relative; }
+        /* NEW: CUSTOM ANIMATED SPLASH SCREEN */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg-color);
+            z-index: 999999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.6s ease-out;
+        }
+        .splash-logo {
+            width: 160px; height: 160px; border-radius: 50%;
+            border: 4px solid var(--primary-color);
+            animation: pulse-ring 2s infinite;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .splash-text {
+            margin-top: 30px; font-size: 18px; font-weight: bold; color: var(--text-color);
+            letter-spacing: 3px; text-transform: uppercase; animation: fade-pulse 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0.4); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(0, 86, 179, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0); }
+        }
+        @keyframes fade-pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        .header-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; position: relative; margin-top: 10px; }
         .pericos-branding { display: flex; align-items: center; gap: 15px; }
         .header-logo { height: 80px; border-radius: 50%; border: 2px solid var(--border-color); }
         .main-title { margin: 0; color: var(--header-color); font-size: 32px; font-weight: bold; text-transform: uppercase; }
@@ -212,7 +237,7 @@
 
         @media print {
             body { background-color: #fff; margin: 0; padding: 0; color: #000; padding-bottom: 0; }
-            .header-container, .bottom-nav, .tabs, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp, .cloud-status, #sync-toast { display: none !important; }
+            .header-container, .bottom-nav, .tabs, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen { display: none !important; }
             .shopping-list-panel, .analytics-box { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
             .supplier-grid { display: block !important; width: 100% !important; }
             .supplier-group, .trend-box { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; border-top: none !important; background: none; break-inside: avoid; }
@@ -221,6 +246,17 @@
     </style>
 </head>
 <body>
+
+    <script>
+        if (localStorage.getItem('restaurantCalcDarkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <div id="splash-screen">
+        <img src="image_0.png" alt="Los Pericos Logo" class="splash-logo">
+        <div class="splash-text">Loading Database...</div>
+    </div>
 
     <div class="header-container" id="brand-header">
         <div class="pericos-branding">
@@ -403,6 +439,11 @@
     </div>
 
     <script>
+        // Check Dark Mode switch for top button text
+        if (localStorage.getItem('restaurantCalcDarkMode') === 'true') {
+            document.getElementById('darkModeBtn').innerText = '☀️ Light Mode';
+        }
+
         // --- LEVEL 2: FIREBASE INITIALIZATION & SYNC IDENTITY ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
@@ -1064,7 +1105,7 @@
 
         function getSyscoDefaults() {
             const syscoWeightLb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
-            const syscoWeightFlOz = ["COCA-COLA", "DIET Coke", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
+            const syscoWeightFlOz = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
             const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
             const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
             return {
@@ -1087,8 +1128,6 @@
         }
 
         function loadFromDatabase() {
-            if (localStorage.getItem('restaurantCalcDarkMode') === 'true') toggleDarkMode();
-
             db.ref('.info/connected').on('value', function(snap) {
                 let sDiv = document.getElementById('conn-sysco');
                 let vDiv = document.getElementById('conn-verdura');
@@ -1151,6 +1190,17 @@
                 let activeApp = document.querySelector('.active-app');
                 if(activeApp && activeApp.id === 'analytics-wrapper') {
                     generateAnalyticsDashboard();
+                }
+
+                // REMOVE SPLASH SCREEN ONCE DATA IS LOADED
+                if (isAppLoading) {
+                    setTimeout(() => {
+                        let splash = document.getElementById('splash-screen');
+                        if(splash) {
+                            splash.style.opacity = '0';
+                            setTimeout(() => splash.remove(), 600);
+                        }
+                    }, 500); // Tiny half-second delay so it doesn't just flash on fast connections
                 }
 
                 isAppLoading = false; 
