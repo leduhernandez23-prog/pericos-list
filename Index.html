@@ -10,6 +10,9 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --bg-color: #f4f4f9;
@@ -69,6 +72,9 @@
         .search-bar { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; background-color: var(--input-bg); color: var(--input-text); box-sizing: border-box; transition: 0.3s; }
         .sysco-wrapper .search-bar:focus { border-color: var(--primary-color); outline: none; }
         .verdura-wrapper .search-bar:focus { border-color: var(--verdura-color); outline: none; }
+        
+        .cloud-status { display: inline-block; padding: 4px 8px; background: #e3f2fd; color: #0d47a1; border-radius: 4px; font-size: 11px; font-weight: bold; margin-bottom: 10px; }
+        body.dark-mode .cloud-status { background: #0d47a1; color: #e3f2fd; }
         .timestamp { font-size: 12px; color: var(--result-text); font-style: italic; margin-bottom: 15px; text-align: right; font-weight: bold; }
 
         .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; white-space: nowrap;}
@@ -81,9 +87,7 @@
 
         table { width: 100%; min-width: 950px; border-collapse: separate; border-spacing: 0; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
-        
         th { background-color: var(--th-bg); font-weight: 600; color: var(--text-color); position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        
         th:first-child, td:first-child { width: 20%; border-right: 2px solid var(--border-color); }
         .supplier-cell { width: 25%; border-right: 1px solid var(--border-color); transition: background-color 0.3s ease; }
         .supplier-cell:nth-child(4) { border-right: 2px solid var(--border-color); }
@@ -171,7 +175,7 @@
 
         @media print {
             body { background-color: #fff; margin: 0; padding: 0; color: #000; padding-bottom: 0; }
-            .header-container, .bottom-nav, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp { display: none !important; }
+            .header-container, .bottom-nav, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp, .cloud-status { display: none !important; }
             .shopping-list-panel { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
             .supplier-grid { display: block !important; width: 100% !important; }
             .supplier-group { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; background: none; break-inside: avoid; }
@@ -187,16 +191,16 @@
             <h1 class="main-title">LOS PERICOS MASTER</h1>
         </div>
         <div class="header-utils">
-            <button class="util-btn" onclick="exportBackup()">💾 Backup Data</button>
-            <label class="util-btn">📂 Restore Data<input type="file" accept=".json" onchange="importBackup(event)" style="display:none"></label>
+            <button class="util-btn" onclick="exportBackup()">💾 Cloud Backup</button>
+            <label class="util-btn">📂 Restore Cloud<input type="file" accept=".json" onchange="importBackup(event)" style="display:none"></label>
             <button class="util-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
         </div>
     </div>
 
     <div id="sysco-wrapper" class="app-section sysco-wrapper active-app">
-        
+        <div class="cloud-status">☁️ Connected to Firebase</div>
         <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Sysco item..." onkeyup="filterTable('sysco', this.value)">
-        <div class="timestamp" id="time-sysco">Last updated: Loading...</div>
+        <div class="timestamp" id="time-sysco">Last updated: Loading Cloud Data...</div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="openTab(event, 'sysco', 'Weight_sysco')">Weight & Volume</button>
@@ -234,7 +238,7 @@
                     <input type="checkbox" onchange="toggleHidePrices('sysco')"> Hide Prices
                 </label>
                 <button class="btn-yellow" onclick="resetQuantities('sysco')">🔄 New Week Reset</button>
-                <button class="btn-red" onclick="clearData('sysco')">🗑️ Master Clear</button>
+                <button class="btn-red" onclick="clearData('sysco')">🗑️ Master Clear Cloud</button>
                 <button class="btn-text-msg" onclick="copyForTextMsg('sysco')">💬 Copy for Text</button>
                 <button class="btn-blue" onclick="downloadPDF('sysco')">📄 PDF</button>
             </div>
@@ -244,9 +248,9 @@
     </div>
 
     <div id="verdura-wrapper" class="app-section verdura-wrapper">
-        
+        <div class="cloud-status">☁️ Connected to Firebase</div>
         <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Produce item..." onkeyup="filterTable('verdura', this.value)">
-        <div class="timestamp" id="time-verdura">Last updated: Loading...</div>
+        <div class="timestamp" id="time-verdura">Last updated: Loading Cloud Data...</div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="openTab(event, 'verdura', 'Weight_verdura')">Weight & Volume</button>
@@ -284,7 +288,7 @@
                     <input type="checkbox" onchange="toggleHidePrices('verdura')"> Hide Prices
                 </label>
                 <button class="btn-yellow" onclick="resetQuantities('verdura')">🔄 New Week Reset</button>
-                <button class="btn-red" onclick="clearData('verdura')">🗑️ Master Clear</button>
+                <button class="btn-red" onclick="clearData('verdura')">🗑️ Master Clear Cloud</button>
                 <button class="btn-text-msg" onclick="copyForTextMsg('verdura')">💬 Copy for Text</button>
                 <button class="btn-blue" onclick="downloadPDF('verdura')">📄 PDF</button>
             </div>
@@ -312,15 +316,28 @@
     </div>
 
     <script>
+        // --- LEVEL 2: FIREBASE INITIALIZATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
+            authDomain: "los-pericos-46378.firebaseapp.com",
+            databaseURL: "https://los-pericos-46378-default-rtdb.firebaseio.com",
+            projectId: "los-pericos-46378",
+            storageBucket: "los-pericos-46378.firebasestorage.app",
+            messagingSenderId: "463221124647",
+            appId: "1:463221124647:web:5e54ad293b174992096802",
+            measurementId: "G-VWN4W0GVR5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let isAppLoading = true; // Prevents saving back to cloud while building tables
+
         // --- MASTER APP CONTROLS ---
         function switchApp(appTarget) {
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
             document.getElementById('nav-sysco').classList.remove('active-sysco');
             document.getElementById('nav-verdura').classList.remove('active-verdura');
-            
             document.getElementById(appTarget + '-wrapper').classList.add('active-app');
             document.getElementById('nav-' + appTarget).classList.add('active-' + appTarget);
-            
             generateShoppingList(appTarget);
         }
 
@@ -346,7 +363,6 @@
             let wrapper = document.getElementById(appName + '-wrapper');
             wrapper.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
             wrapper.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
-            
             document.getElementById(tabId).classList.add("active");
             evt.currentTarget.classList.add("active");
         }
@@ -400,21 +416,23 @@
                     row.querySelector('.order-qty').value = '';
                     processRowUpdate(row.querySelector('.item-name'), true); 
                 });
-                saveToLocalStorage(appName);
+                saveToDatabase(appName);
                 generateShoppingList(appName);
-                alert("✅ All quantities reset! Ready for the new week.");
+                alert("✅ All quantities reset in the cloud! Ready for the new week.");
             }
         }
 
         function exportBackup() {
-            let data = { sysco: localStorage.getItem('restaurantPriceCalc_Main'), verdura: localStorage.getItem('restaurantPriceCalc_Verdura') };
-            let blob = new Blob([JSON.stringify(data)], {type: "application/json"});
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url; 
-            let dateStr = new Date().toISOString().split('T')[0];
-            a.download = `Pericos_Backup_${dateStr}.json`;
-            a.click();
+            db.ref('/').once('value').then(snapshot => {
+                let data = snapshot.val();
+                let blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = url; 
+                let dateStr = new Date().toISOString().split('T')[0];
+                a.download = `Pericos_Cloud_Backup_${dateStr}.json`;
+                a.click();
+            });
         }
 
         function importBackup(event) {
@@ -424,10 +442,10 @@
             reader.onload = function(e) {
                 try {
                     let d = JSON.parse(e.target.result);
-                    if(d.sysco) localStorage.setItem('restaurantPriceCalc_Main', d.sysco);
-                    if(d.verdura) localStorage.setItem('restaurantPriceCalc_Verdura', d.verdura);
-                    alert('✅ Backup restored successfully! Refreshing app...');
-                    location.reload();
+                    db.ref('/').set(d).then(() => {
+                        alert('✅ Backup restored to the cloud successfully! Refreshing app...');
+                        location.reload();
+                    });
                 } catch(err) { alert('❌ Invalid backup file format.'); }
             };
             reader.readAsText(file);
@@ -529,7 +547,7 @@
             if (direction === 'before') tbody.insertBefore(newRow, currentRow);
             else if (direction === 'after') tbody.insertBefore(newRow, currentRow.nextSibling);
             newRow.querySelector('.item-name').focus();
-            saveToLocalStorage(appName); 
+            if(!isAppLoading) saveToDatabase(appName); 
         }
 
         function processRowUpdate(inputElem, skipSave = false) {
@@ -609,9 +627,9 @@
                 });
             }
 
-            if(!skipSave) {
+            if(!skipSave && !isAppLoading) {
                 generateShoppingList(appName);
-                saveToLocalStorage(appName);
+                saveToDatabase(appName);
             }
         }
 
@@ -622,7 +640,7 @@
             row.querySelectorAll('.best-deal').forEach(c => newTotal += parseFloat(c.querySelector('.split-qty').value) || 0);
             row.querySelector('.order-qty').value = newTotal;
             generateShoppingList(appName);
-            saveToLocalStorage(appName);
+            if(!isAppLoading) saveToDatabase(appName);
         }
 
         function deleteRow(btn) {
@@ -630,7 +648,7 @@
             let appName = row.closest('.app-section').id.split('-')[0];
             row.remove();
             generateShoppingList(appName);
-            saveToLocalStorage(appName);
+            if(!isAppLoading) saveToDatabase(appName);
         }
 
         function generateShoppingList(appName) {
@@ -653,17 +671,11 @@
                         
                         if (aQty > 0) {
                             let lineTotal = unitPrice * aQty;
-                            
-                            if (!listBySupplier[sName]) {
-                                listBySupplier[sName] = [];
-                                totalsBySupplier[sName] = 0;
-                            }
-                            
+                            if (!listBySupplier[sName]) { listBySupplier[sName] = []; totalsBySupplier[sName] = 0; }
                             listBySupplier[sName].push(`
                                 <span><span class="qty-badge" style="color:var(--${appName === 'verdura' ? 'verdura' : 'primary'}-color);">${aQty}</span> ${itemName} ${tieCount > 1 ? `<span class="tie-badge">(Tie Split)</span>` : ''}</span> 
                                 <span class="price-badge">${wc.querySelector('.s-result').innerText} <span style="color:var(--result-text); font-weight:normal;">(Total: $${lineTotal.toFixed(2)})</span></span>
                             `);
-                            
                             totalsBySupplier[sName] += lineTotal;
                             totalItemsInCart++;
                         }
@@ -671,7 +683,6 @@
                 }
             });
 
-            // Update bottom nav dock cart badge dynamically
             document.getElementById('nav-cart-badge').innerText = totalItemsInCart;
 
             const container = document.getElementById('list-content-' + appName);
@@ -686,14 +697,7 @@
                 let html = `<div class="supplier-group"><h4>📦 ${supp}</h4><ul>`;
                 listBySupplier[supp].forEach(itemHtml => { html += `<li>${itemHtml}</li>`; });
                 html += `</ul>`;
-                
-                // Add the Invoice Total Bar
-                html += `<div class="invoice-total">
-                            <span>Est. Invoice:</span>
-                            <span class="invoice-amount">$${totalsBySupplier[supp].toFixed(2)}</span>
-                         </div>`;
-                         
-                html += `</div>`;
+                html += `<div class="invoice-total"><span>Est. Invoice:</span><span class="invoice-amount">$${totalsBySupplier[supp].toFixed(2)}</span></div></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
         }
@@ -723,7 +727,7 @@
 
             const opt = {
                 margin: 0.5,
-                filename: `Los_Pericos_${appName}_Order.pdf`,
+                filename: `Los_Pericos_${appName}_Cloud_Order.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } 
@@ -754,27 +758,31 @@
             });
         }
 
-        function saveToLocalStorage(appName) {
+        // --- LEVEL 2: FIREBASE SAVING ---
+        function saveToDatabase(appName) {
+            if(isAppLoading) return; // Don't save to DB while building tables
+
             let now = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-            localStorage.setItem(`timeTracker_${appName}`, now);
+            db.ref('metadata/' + appName).set(now);
             document.getElementById(`time-${appName}`).innerText = `Last updated: ${now}`;
 
+            let data = {};
             if(appName === 'sysco') {
-                let data = { weight: [], unit: [], mfe: [] };
+                data = { weight: [], unit: [], mfe: [] };
                 extractTableData('weightTable_sysco', data.weight);
                 extractTableData('unitTable_sysco', data.unit);
                 extractTableData('mfeTable_sysco', data.mfe);
-                localStorage.setItem('restaurantPriceCalc_Main', JSON.stringify(data));
             } else if (appName === 'verdura') {
-                let data = { weight: [], unit: [], delComal: [] };
+                data = { weight: [], unit: [], delComal: [] };
                 extractTableData('weightTable_verdura', data.weight);
                 extractTableData('unitTable_verdura', data.unit);
                 extractTableData('delComalTable_verdura', data.delComal);
-                localStorage.setItem('restaurantPriceCalc_Verdura', JSON.stringify(data));
             }
+            db.ref('inventory/' + appName).set(data);
         }
 
         function rebuildTable(tableId, appName, rowDataArray, pLabel, qLabel, s1def, s2def, s3def) {
+            document.querySelector(`#${tableId} tbody`).innerHTML = ''; // Clear table before rebuild
             if(!rowDataArray || rowDataArray.length === 0) { 
                 addRow(tableId, appName, pLabel, qLabel, '', '', 'oz', s1def, s2def, s3def); return; 
             }
@@ -787,74 +795,106 @@
             });
         }
 
-        function loadFromLocalStorage() {
+        function getSyscoDefaults() {
+            const syscoWeightLb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
+            const syscoWeightFlOz = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
+            const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
+            const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
+            return {
+                weight: [...syscoWeightLb.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0], ["Ben E Keith","","","lb",0], ["Gordon","","","lb",0]] })),
+                         ...syscoWeightFlOz.map(item => ({ item: item, qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0], ["Ben E Keith","","","fl oz",0], ["Gordon","","","fl oz",0]] }))],
+                unit: syscoUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0], ["Ben E Keith","","","oz",0], ["Gordon","","","oz",0]] })),
+                mfe: syscoMfe.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0]] }))
+            };
+        }
+
+        function getVerduraDefaults() {
+            const verdWeight = ["HABANERO", "SERRANO", "CHILE DE ARBOL", "BROCCOLI", "ZUCCHINI", "SQUASH", "GUAJILLO", "OREGANO", "PIMIENTA", "AJO MOLIDO", "PAPRIKA"];
+            const verdUnit = ["AJO PELADO", "TOMATE", "AGUACATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "POBLANO PEPPER", "JALAPENO PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "LIMES", "LEMONS", "CELERY", "CEBOLLA", "NARANJA", "RED CABAGE", "HONGOS", "POTATO #2", "PAN X TORTA", "COCA", "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "POT WHITE", "ACEITE", "HUEVOS", "JALAPENEO LATA"];
+            const verdDelComal = ["CHIPS", "VERDE", "ROJA", "BLANCA"];
+            return {
+                weight: verdWeight.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0], ["Cantu","","","lb",0], ["Produce 3","","","lb",0]] })),
+                unit: verdUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0], ["Cantu","","","oz",0], ["Produce 3","","","oz",0]] })),
+                delComal: verdDelComal.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0]] }))
+            };
+        }
+
+        // --- LEVEL 2: FIREBASE LOADING & MIGRATION ---
+        function loadFromDatabase() {
             if (localStorage.getItem('restaurantCalcDarkMode') === 'true') toggleDarkMode();
 
-            let timeSysco = localStorage.getItem('timeTracker_sysco');
-            document.getElementById('time-sysco').innerText = timeSysco ? `Last updated: ${timeSysco}` : 'Last updated: Never';
-            let timeVerdura = localStorage.getItem('timeTracker_verdura');
-            document.getElementById('time-verdura').innerText = timeVerdura ? `Last updated: ${timeVerdura}` : 'Last updated: Never';
+            db.ref('/').once('value').then((snapshot) => {
+                let dbData = snapshot.val();
 
-            // LOAD SYSCO
-            let syscoDataStr = localStorage.getItem('restaurantPriceCalc_Main');
-            if (!syscoDataStr) {
-                const syscoWeightLb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
-                const syscoWeightFlOz = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
-                const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
-                const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
+                // MIGRATION PROTOCOL: If cloud is empty, check old local storage
+                if (!dbData || !dbData.inventory) {
+                    let localSysco = localStorage.getItem('restaurantPriceCalc_Main');
+                    let localVerdura = localStorage.getItem('restaurantPriceCalc_Verdura');
+                    
+                    if (localSysco || localVerdura) {
+                        alert("Migrating your saved prices to the Cloud! Hang tight...");
+                        let payload = { inventory: {}, metadata: {} };
+                        if(localSysco) payload.inventory.sysco = JSON.parse(localSysco);
+                        if(localVerdura) payload.inventory.verdura = JSON.parse(localVerdura);
+                        payload.metadata.sysco = localStorage.getItem('timeTracker_sysco') || "Just Migrated";
+                        payload.metadata.verdura = localStorage.getItem('timeTracker_verdura') || "Just Migrated";
+                        
+                        db.ref('/').set(payload).then(() => {
+                            localStorage.removeItem('restaurantPriceCalc_Main');
+                            localStorage.removeItem('restaurantPriceCalc_Verdura');
+                            location.reload(); // Reload from cloud
+                        });
+                        return; // Stop loading and wait for reload
+                    }
+                }
 
-                syscoDataStr = JSON.stringify({
-                    weight: [
-                        ...syscoWeightLb.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0], ["Ben E Keith","","","lb",0], ["Gordon","","","lb",0]] })),
-                        ...syscoWeightFlOz.map(item => ({ item: item, qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0], ["Ben E Keith","","","fl oz",0], ["Gordon","","","fl oz",0]] }))
-                    ],
-                    unit: syscoUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0], ["Ben E Keith","","","oz",0], ["Gordon","","","oz",0]] })),
-                    mfe: syscoMfe.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0]] }))
-                });
-                localStorage.setItem('restaurantPriceCalc_Main', syscoDataStr);
-            }
-            let syscoData = JSON.parse(syscoDataStr);
-            rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0], ['Ben E Keith','','','lb',0], ['Gordon','','','lb',0]);
-            rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0], ['Ben E Keith','','','oz',0], ['Gordon','','','oz',0]);
-            rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
-            generateShoppingList('sysco');
+                // Normal Cloud Load
+                if (!dbData) dbData = { inventory: {}, metadata: {} };
+                
+                // Process Sysco
+                let syscoData = dbData.inventory ? dbData.inventory.sysco : null;
+                if (!syscoData) {
+                    syscoData = getSyscoDefaults();
+                    db.ref('inventory/sysco').set(syscoData);
+                }
+                rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0], ['Ben E Keith','','','lb',0], ['Gordon','','','lb',0]);
+                rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0], ['Ben E Keith','','','oz',0], ['Gordon','','','oz',0]);
+                rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
+                generateShoppingList('sysco');
 
-            // LOAD VERDURA
-            let verduraDataStr = localStorage.getItem('restaurantPriceCalc_Verdura');
-            if (!verduraDataStr) {
-                const verdWeight = ["HABANERO", "SERRANO", "CHILE DE ARBOL", "BROCCOLI", "ZUCCHINI", "SQUASH", "GUAJILLO", "OREGANO", "PIMIENTA", "AJO MOLIDO", "PAPRIKA"];
-                const verdUnit = ["AJO PELADO", "TOMATE", "AGUACATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "POBLANO PEPPER", "JALAPENO PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "LIMES", "LEMONS", "CELERY", "CEBOLLA", "NARANJA", "RED CABAGE", "HONGOS", "POTATO #2", "PAN X TORTA", "COCA", "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "POT WHITE", "ACEITE", "HUEVOS", "JALAPENEO LATA"];
-                const verdDelComal = ["CHIPS", "VERDE", "ROJA", "BLANCA"];
+                // Process Verdura
+                let verduraData = dbData.inventory ? dbData.inventory.verdura : null;
+                if (!verduraData) {
+                    verduraData = getVerduraDefaults();
+                    db.ref('inventory/verdura').set(verduraData);
+                }
+                rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0], ['Cantu','','','lb',0], ['Produce 3','','','lb',0]);
+                rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0], ['Cantu','','','oz',0], ['Produce 3','','','oz',0]);
+                rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
+                generateShoppingList('verdura');
 
-                verduraDataStr = JSON.stringify({
-                    weight: verdWeight.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0], ["Cantu","","","lb",0], ["Produce 3","","","lb",0]] })),
-                    unit: verdUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0], ["Cantu","","","oz",0], ["Produce 3","","","oz",0]] })),
-                    delComal: verdDelComal.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0]] }))
-                });
-                localStorage.setItem('restaurantPriceCalc_Verdura', verduraDataStr);
-            }
-            let verduraData = JSON.parse(verduraDataStr);
-            rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0], ['Cantu','','','lb',0], ['Produce 3','','','lb',0]);
-            rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0], ['Cantu','','','oz',0], ['Produce 3','','','oz',0]);
-            rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
-            generateShoppingList('verdura');
+                // Load Metadata
+                let meta = dbData.metadata || {};
+                document.getElementById('time-sysco').innerText = meta.sysco ? `Last updated: ${meta.sysco}` : 'Last updated: Never';
+                document.getElementById('time-verdura').innerText = meta.verdura ? `Last updated: ${meta.verdura}` : 'Last updated: Never';
+
+                isAppLoading = false; // Turn saving back on
+
+            }).catch(err => {
+                alert("Failed to connect to the cloud database. Check your internet connection.");
+                console.error(err);
+            });
         }
 
         function clearData(appName) {
-            if(confirm(`⚠️ WARNING: Are you sure you want to completely WIPE all your prices and data? \n\n(Tip: If you just want to clear quantities for the new week, use the Yellow reset button instead).`)) {
-                if(appName === 'sysco') {
-                    localStorage.removeItem('restaurantPriceCalc_Main');
-                    localStorage.removeItem('timeTracker_sysco');
-                }
-                if(appName === 'verdura') {
-                    localStorage.removeItem('restaurantPriceCalc_Verdura');
-                    localStorage.removeItem('timeTracker_verdura');
-                }
+            if(confirm(`⚠️ WARNING: Are you sure you want to completely WIPE the global cloud database? This will reset it for everyone.`)) {
+                db.ref('inventory/' + appName).remove();
+                db.ref('metadata/' + appName).remove();
                 location.reload(); 
             }
         }
 
-        window.onload = loadFromLocalStorage;
+        window.onload = loadFromDatabase;
     </script>
 </body>
 </html>
