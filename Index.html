@@ -51,10 +51,8 @@
             --header-color: #fff;
         }
 
-        /* Added padding at bottom so the dock doesn't cover your list */
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); max-width: 1200px; margin: 20px auto; padding: 20px; padding-bottom: 120px; transition: 0.3s; }
         
-        /* HEADER & UTILITIES */
         .header-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; position: relative; }
         .pericos-branding { display: flex; align-items: center; gap: 15px; }
         .header-logo { height: 80px; border-radius: 50%; border: 2px solid var(--border-color); }
@@ -68,19 +66,16 @@
         .app-section.active-app { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* SEARCH & TIMESTAMP */
         .search-bar { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; background-color: var(--input-bg); color: var(--input-text); box-sizing: border-box; transition: 0.3s; }
         .sysco-wrapper .search-bar:focus { border-color: var(--primary-color); outline: none; }
         .verdura-wrapper .search-bar:focus { border-color: var(--verdura-color); outline: none; }
         .timestamp { font-size: 12px; color: var(--result-text); font-style: italic; margin-bottom: 15px; text-align: right; font-weight: bold; }
 
-        /* TABS & TABLES */
         .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; white-space: nowrap;}
         .tab-btn { background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 16px; font-weight: bold; color: var(--result-text); transition: color 0.2s; }
         .sysco-wrapper .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); margin-bottom: -2px; }
         .verdura-wrapper .tab-btn.active { color: var(--verdura-color); border-bottom: 3px solid var(--verdura-color); margin-bottom: -2px; }
         
-        /* Sticky Header Fix inside Tab Content */
         .tab-content { display: none; max-height: 65vh; overflow-y: auto; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
         .tab-content.active { display: block; }
 
@@ -150,12 +145,10 @@
         .price-badge { font-weight: bold; color: var(--success-color); display: block; margin-top: 2px; }
         .qty-badge { font-weight: bold; margin-right: 5px; }
 
-        /* AUTOMATED INVOICE TOTALS UI */
         .invoice-total { margin-top: 15px; padding-top: 15px; border-top: 2px dashed var(--border-color); font-size: 15px; font-weight: bold; color: var(--text-color); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.02); padding: 12px; border-radius: 6px; }
         body.dark-mode .invoice-total { background: rgba(255,255,255,0.02); }
         .invoice-amount { color: var(--success-color); font-size: 18px; }
 
-        /* BOTTOM NAV DOCK UI */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 10px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 1000; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
         body.dark-mode .bottom-nav { background: rgba(30, 30, 30, 0.85); }
         .nav-btn { flex: 1; border: none; background: transparent; color: var(--result-text); font-size: 12px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; cursor: pointer; transition: 0.2s; border-radius: 12px; position: relative; }
@@ -166,10 +159,6 @@
         .nav-icon { font-size: 24px; transition: transform 0.2s; }
         .nav-btn.active-sysco .nav-icon, .nav-btn.active-verdura .nav-icon { transform: scale(1.15); }
 
-        /* FLOATING CART BUBBLE UI */
-        .floating-cart { position: fixed; bottom: 100px; right: 20px; background: var(--header-color); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 26px; box-shadow: 0 6px 16px rgba(0,0,0,0.25); cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 999; transition: 0.3s; }
-        .floating-cart:active { transform: scale(0.9); }
-        .floating-cart.hidden { transform: scale(0); opacity: 0; pointer-events: none; }
         .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; font-size: 12px; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-color); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
         @media (max-width: 850px) {
@@ -182,7 +171,7 @@
 
         @media print {
             body { background-color: #fff; margin: 0; padding: 0; color: #000; padding-bottom: 0; }
-            .header-container, .bottom-nav, .floating-cart, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp { display: none !important; }
+            .header-container, .bottom-nav, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp { display: none !important; }
             .shopping-list-panel { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
             .supplier-grid { display: block !important; width: 100% !important; }
             .supplier-group { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; background: none; break-inside: avoid; }
@@ -321,12 +310,6 @@
             <span>Produce</span>
         </button>
     </div>
-
-    <button id="floating-cart-btn" class="floating-cart hidden" onclick="scrollToCart()">
-        🛒
-        <div class="cart-badge" id="cart-badge-count">0</div>
-    </button>
-
 
     <script>
         // --- MASTER APP CONTROLS ---
@@ -650,7 +633,6 @@
             saveToLocalStorage(appName);
         }
 
-        // FULFILLMENT OF LIVE CART & AUTOMATED INVOICE TOTALS
         function generateShoppingList(appName) {
             let wrapper = document.getElementById(appName + '-wrapper');
             let allRows = wrapper.querySelectorAll('tbody tr');
@@ -689,16 +671,8 @@
                 }
             });
 
-            // Update both cart notification badges dynamically
+            // Update bottom nav dock cart badge dynamically
             document.getElementById('nav-cart-badge').innerText = totalItemsInCart;
-            let floatingCartBtn = document.getElementById('floating-cart-btn');
-            document.getElementById('cart-badge-count').innerText = totalItemsInCart;
-            
-            if(totalItemsInCart > 0) {
-                floatingCartBtn.classList.remove('hidden');
-            } else {
-                floatingCartBtn.classList.add('hidden');
-            }
 
             const container = document.getElementById('list-content-' + appName);
             container.innerHTML = '';
@@ -713,7 +687,7 @@
                 listBySupplier[supp].forEach(itemHtml => { html += `<li>${itemHtml}</li>`; });
                 html += `</ul>`;
                 
-                // Add the new Automated Invoice Total Bar
+                // Add the Invoice Total Bar
                 html += `<div class="invoice-total">
                             <span>Est. Invoice:</span>
                             <span class="invoice-amount">$${totalsBySupplier[supp].toFixed(2)}</span>
