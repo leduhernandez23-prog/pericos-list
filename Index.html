@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Los Pericos Master App</title>
     
     <link rel="apple-touch-icon" href="image_0.png">
@@ -51,7 +51,8 @@
             --header-color: #fff;
         }
 
-        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); max-width: 1200px; margin: 20px auto; padding: 20px; transition: 0.3s; }
+        /* Added padding at bottom so the dock doesn't cover your list */
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); max-width: 1200px; margin: 20px auto; padding: 20px; padding-bottom: 120px; transition: 0.3s; }
         
         /* HEADER & UTILITIES */
         .header-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; position: relative; }
@@ -62,12 +63,6 @@
         .header-utils { position: absolute; right: 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
         .util-btn { background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
         .util-btn:hover { border-color: var(--primary-color); }
-        
-        /* THE APP SWITCHER */
-        .app-switcher { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-        .app-switcher button { flex: 1; max-width: 350px; padding: 16px; font-size: 18px; font-weight: bold; border-radius: 12px; border: 3px solid var(--border-color); background: var(--container-bg); color: var(--result-text); cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .app-switcher button#btn-sysco.active { border-color: var(--primary-color); background: var(--primary-color); color: white; transform: scale(1.05); }
-        .app-switcher button#btn-verdura.active { border-color: var(--verdura-color); background: var(--verdura-color); color: white; transform: scale(1.05); }
         
         .app-section { display: none; }
         .app-section.active-app { display: block; animation: fadeIn 0.3s; }
@@ -92,7 +87,6 @@
         table { width: 100%; min-width: 950px; border-collapse: separate; border-spacing: 0; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
         
-        /* F5: STICKY MOBILE HEADERS */
         th { background-color: var(--th-bg); font-weight: 600; color: var(--text-color); position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
         th:first-child, td:first-child { width: 20%; border-right: 2px solid var(--border-color); }
@@ -136,7 +130,7 @@
         .btn-green { background-color: var(--success-color); }
         .btn-red { background-color: var(--danger-color); }
         .btn-yellow { background-color: var(--warning-color); color: #000 !important; }
-        .btn-text-msg { background-color: #007aff; } /* iMessage Blue */
+        .btn-text-msg { background-color: #007aff; }
         
         .sysco-wrapper .btn-blue { background-color: var(--primary-color); }
         .verdura-wrapper .btn-blue { background-color: var(--verdura-color); }
@@ -156,23 +150,43 @@
         .price-badge { font-weight: bold; color: var(--success-color); display: block; margin-top: 2px; }
         .qty-badge { font-weight: bold; margin-right: 5px; }
 
+        /* AUTOMATED INVOICE TOTALS UI */
+        .invoice-total { margin-top: 15px; padding-top: 15px; border-top: 2px dashed var(--border-color); font-size: 15px; font-weight: bold; color: var(--text-color); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.02); padding: 12px; border-radius: 6px; }
+        body.dark-mode .invoice-total { background: rgba(255,255,255,0.02); }
+        .invoice-amount { color: var(--success-color); font-size: 18px; }
+
+        /* BOTTOM NAV DOCK UI */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 10px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 1000; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
+        body.dark-mode .bottom-nav { background: rgba(30, 30, 30, 0.85); }
+        .nav-btn { flex: 1; border: none; background: transparent; color: var(--result-text); font-size: 12px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; cursor: pointer; transition: 0.2s; border-radius: 12px; position: relative; }
+        .nav-btn:hover { background: rgba(0,0,0,0.05); }
+        body.dark-mode .nav-btn:hover { background: rgba(255,255,255,0.05); }
+        .nav-btn.active-sysco { color: var(--primary-color); }
+        .nav-btn.active-verdura { color: var(--verdura-color); }
+        .nav-icon { font-size: 24px; transition: transform 0.2s; }
+        .nav-btn.active-sysco .nav-icon, .nav-btn.active-verdura .nav-icon { transform: scale(1.15); }
+
+        /* FLOATING CART BUBBLE UI */
+        .floating-cart { position: fixed; bottom: 100px; right: 20px; background: var(--header-color); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 26px; box-shadow: 0 6px 16px rgba(0,0,0,0.25); cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 999; transition: 0.3s; }
+        .floating-cart:active { transform: scale(0.9); }
+        .floating-cart.hidden { transform: scale(0); opacity: 0; pointer-events: none; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; font-size: 12px; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-color); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
         @media (max-width: 850px) {
             .header-container { flex-direction: column; text-align: center; }
             .header-utils { position: relative; margin-top: 15px; justify-content: center; width: 100%; }
-            .app-switcher { flex-direction: column; }
-            .app-switcher button { max-width: 100%; }
             .action-btns { justify-content: center; width: 100%; }
             .action-btns button { width: 48%; }
             .supplier-group { width: 100% !important; display: block; margin-right: 0; }
         }
 
         @media print {
-            body { background-color: #fff; margin: 0; padding: 0; color: #000; }
-            .header-container, .app-switcher, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp { display: none !important; }
+            body { background-color: #fff; margin: 0; padding: 0; color: #000; padding-bottom: 0; }
+            .header-container, .bottom-nav, .floating-cart, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp { display: none !important; }
             .shopping-list-panel { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
             .supplier-grid { display: block !important; width: 100% !important; }
             .supplier-group { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; background: none; break-inside: avoid; }
-            .supplier-group h4, .supplier-group li { color: #000; border-color: #ddd; }
+            .supplier-group h4, .supplier-group li, .invoice-total { color: #000; border-color: #ddd; }
         }
     </style>
 </head>
@@ -188,11 +202,6 @@
             <label class="util-btn">📂 Restore Data<input type="file" accept=".json" onchange="importBackup(event)" style="display:none"></label>
             <button class="util-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
         </div>
-    </div>
-
-    <div class="app-switcher">
-        <button id="btn-sysco" class="active" onclick="switchApp('sysco')">📦 Main Inventory (Sysco)</button>
-        <button id="btn-verdura" onclick="switchApp('verdura')">🥦 Produce (Verdura)</button>
     </div>
 
     <div id="sysco-wrapper" class="app-section sysco-wrapper active-app">
@@ -240,7 +249,7 @@
                 <button class="btn-text-msg" onclick="copyForTextMsg('sysco')">💬 Copy for Text</button>
                 <button class="btn-blue" onclick="downloadPDF('sysco')">📄 PDF</button>
             </div>
-            <h2>🛒 Sysco Shopping List</h2>
+            <h2>🛒 Sysco Checkout</h2>
             <div id="list-content-sysco" class="supplier-grid"></div>
         </div>
     </div>
@@ -290,22 +299,52 @@
                 <button class="btn-text-msg" onclick="copyForTextMsg('verdura')">💬 Copy for Text</button>
                 <button class="btn-blue" onclick="downloadPDF('verdura')">📄 PDF</button>
             </div>
-            <h2>🛒 Produce Shopping List</h2>
+            <h2>🛒 Produce Checkout</h2>
             <div id="list-content-verdura" class="supplier-grid"></div>
         </div>
     </div>
+
+    <div class="bottom-nav">
+        <button id="nav-sysco" class="nav-btn active-sysco" onclick="switchApp('sysco')">
+            <span class="nav-icon">📦</span>
+            <span>Sysco</span>
+        </button>
+        <button class="nav-btn" onclick="scrollToCart()">
+            <span class="nav-icon" style="position:relative;">
+                🛒
+                <div class="cart-badge" id="nav-cart-badge" style="top:-8px; right:-12px; transform: scale(0.8);">0</div>
+            </span>
+            <span>Checkout</span>
+        </button>
+        <button id="nav-verdura" class="nav-btn" onclick="switchApp('verdura')">
+            <span class="nav-icon">🥦</span>
+            <span>Produce</span>
+        </button>
+    </div>
+
+    <button id="floating-cart-btn" class="floating-cart hidden" onclick="scrollToCart()">
+        🛒
+        <div class="cart-badge" id="cart-badge-count">0</div>
+    </button>
 
 
     <script>
         // --- MASTER APP CONTROLS ---
         function switchApp(appTarget) {
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
-            document.querySelectorAll('.app-switcher button').forEach(el => el.classList.remove('active'));
+            document.getElementById('nav-sysco').classList.remove('active-sysco');
+            document.getElementById('nav-verdura').classList.remove('active-verdura');
             
             document.getElementById(appTarget + '-wrapper').classList.add('active-app');
-            document.getElementById('btn-' + appTarget).classList.add('active');
+            document.getElementById('nav-' + appTarget).classList.add('active-' + appTarget);
             
             generateShoppingList(appTarget);
+        }
+
+        function scrollToCart() {
+            let activeApp = document.querySelector('.active-app').id.split('-')[0];
+            let panel = document.querySelector(`#${activeApp}-wrapper .shopping-list-panel`);
+            panel.scrollIntoView({ behavior: 'smooth' });
         }
 
         function toggleDarkMode() {
@@ -329,7 +368,6 @@
             evt.currentTarget.classList.add("active");
         }
 
-        // F1: QUICK FIND FILTER
         function filterTable(appName, query) {
             let q = query.toLowerCase();
             let rows = document.querySelectorAll(`#${appName}-wrapper tbody tr`);
@@ -339,7 +377,6 @@
             });
         }
 
-        // F2: COPY TEXT FOR MESSAGING
         function copyForTextMsg(appName) {
             let wrapper = document.getElementById(appName + '-wrapper');
             let allRows = wrapper.querySelectorAll('tbody tr');
@@ -361,33 +398,23 @@
                 }
             });
 
-            if(Object.keys(listBySupplier).length === 0) {
-                alert("Your cart is empty! Add quantities before copying.");
-                return;
-            }
-
+            if(Object.keys(listBySupplier).length === 0) { alert("Your cart is empty! Add quantities before copying."); return; }
             let textOutput = `📋 Los Pericos ${appName === 'sysco' ? 'Main' : 'Produce'} Order\n`;
             Object.keys(listBySupplier).forEach(supp => {
                 textOutput += `\n📦 ${supp}:\n`;
-                listBySupplier[supp].forEach(item => {
-                    textOutput += `- ${item}\n`;
-                });
+                listBySupplier[supp].forEach(item => { textOutput += `- ${item}\n`; });
             });
 
             navigator.clipboard.writeText(textOutput).then(() => {
                 alert("✅ List copied to clipboard! You can now paste it into a text message or WhatsApp.");
-            }).catch(err => {
-                alert("Oops, your browser blocked the copy. Please download the PDF instead.");
-            });
+            }).catch(err => { alert("Oops, your browser blocked the copy. Please download the PDF instead."); });
         }
 
-        // F4: NEW WEEK RESET
         function resetQuantities(appName) {
             if(confirm(`Ready for a new week? This will set all ${appName.toUpperCase()} quantities back to 0, but KEEP all your prices.`)) {
                 let rows = document.querySelectorAll(`#${appName}-wrapper tbody tr`);
                 rows.forEach(row => {
                     row.querySelector('.order-qty').value = '';
-                    // Reset math without typing
                     processRowUpdate(row.querySelector('.item-name'), true); 
                 });
                 saveToLocalStorage(appName);
@@ -396,12 +423,8 @@
             }
         }
 
-        // F6: SAFE-BOX BACKUP (EXPORT & IMPORT)
         function exportBackup() {
-            let data = {
-                sysco: localStorage.getItem('restaurantPriceCalc_Main'),
-                verdura: localStorage.getItem('restaurantPriceCalc_Verdura')
-            };
+            let data = { sysco: localStorage.getItem('restaurantPriceCalc_Main'), verdura: localStorage.getItem('restaurantPriceCalc_Verdura') };
             let blob = new Blob([JSON.stringify(data)], {type: "application/json"});
             let url = URL.createObjectURL(blob);
             let a = document.createElement('a');
@@ -422,9 +445,7 @@
                     if(d.verdura) localStorage.setItem('restaurantPriceCalc_Verdura', d.verdura);
                     alert('✅ Backup restored successfully! Refreshing app...');
                     location.reload();
-                } catch(err) { 
-                    alert('❌ Invalid backup file format.'); 
-                }
+                } catch(err) { alert('❌ Invalid backup file format.'); }
             };
             reader.readAsText(file);
         }
@@ -493,7 +514,6 @@
             </td>`;
 
             html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0);
-            
             if (!isSingle) {
                 html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits?'lb':'oz'), hasUnits, s2[4] || 0);
                 html += createSupplierCellHTML(s3[0], s3[1], s3[2], s3[3] || (hasUnits?'lb':'oz'), hasUnits, s3[4] || 0);
@@ -513,22 +533,18 @@
             
             tr.innerHTML = html;
             tbody.appendChild(tr);
-            processRowUpdate(tr.querySelector('.item-name'), true); // Skip auto-save on initial build
+            processRowUpdate(tr.querySelector('.item-name'), true);
         }
 
         function insertRowRelative(btn, direction, appName, s1, s2, s3) {
             let currentRow = btn.closest('tr');
             let table = currentRow.closest('table');
             let tUnit = table.getAttribute('data-has-units') === 'true' ? 'lb' : 'oz';
-            
             addRow(table.id, appName, 'Price $', 'Qty', '', '', tUnit, s1, s2, s3); 
-            
             let tbody = table.querySelector('tbody');
             let newRow = tbody.lastElementChild; 
-            
             if (direction === 'before') tbody.insertBefore(newRow, currentRow);
             else if (direction === 'after') tbody.insertBefore(newRow, currentRow.nextSibling);
-            
             newRow.querySelector('.item-name').focus();
             saveToLocalStorage(appName); 
         }
@@ -634,10 +650,13 @@
             saveToLocalStorage(appName);
         }
 
+        // FULFILLMENT OF LIVE CART & AUTOMATED INVOICE TOTALS
         function generateShoppingList(appName) {
             let wrapper = document.getElementById(appName + '-wrapper');
             let allRows = wrapper.querySelectorAll('tbody tr');
             let listBySupplier = {};
+            let totalsBySupplier = {};
+            let totalItemsInCart = 0;
 
             allRows.forEach(row => {
                 let itemName = row.querySelector('.item-name').value.trim();
@@ -647,30 +666,60 @@
                     let tieCount = winningCells.length;
                     winningCells.forEach(wc => {
                         let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
-                        let lineTotal = ((parseFloat(wc.querySelector('.s-price').value) || 0) * (parseFloat(wc.querySelector('.split-qty').value) || 0)).toFixed(2);
+                        let unitPrice = parseFloat(wc.querySelector('.s-price').value) || 0;
                         let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
+                        
                         if (aQty > 0) {
-                            if (!listBySupplier[sName]) listBySupplier[sName] = [];
+                            let lineTotal = unitPrice * aQty;
+                            
+                            if (!listBySupplier[sName]) {
+                                listBySupplier[sName] = [];
+                                totalsBySupplier[sName] = 0;
+                            }
+                            
                             listBySupplier[sName].push(`
                                 <span><span class="qty-badge" style="color:var(--${appName === 'verdura' ? 'verdura' : 'primary'}-color);">${aQty}</span> ${itemName} ${tieCount > 1 ? `<span class="tie-badge">(Tie Split)</span>` : ''}</span> 
-                                <span class="price-badge">${wc.querySelector('.s-result').innerText} <span style="color:var(--result-text); font-weight:normal;">(Total: $${lineTotal})</span></span>
+                                <span class="price-badge">${wc.querySelector('.s-result').innerText} <span style="color:var(--result-text); font-weight:normal;">(Total: $${lineTotal.toFixed(2)})</span></span>
                             `);
+                            
+                            totalsBySupplier[sName] += lineTotal;
+                            totalItemsInCart++;
                         }
                     });
                 }
             });
 
+            // Update both cart notification badges dynamically
+            document.getElementById('nav-cart-badge').innerText = totalItemsInCart;
+            let floatingCartBtn = document.getElementById('floating-cart-btn');
+            document.getElementById('cart-badge-count').innerText = totalItemsInCart;
+            
+            if(totalItemsInCart > 0) {
+                floatingCartBtn.classList.remove('hidden');
+            } else {
+                floatingCartBtn.classList.add('hidden');
+            }
+
             const container = document.getElementById('list-content-' + appName);
             container.innerHTML = '';
+            
             if(Object.keys(listBySupplier).length === 0) {
-                container.innerHTML = `<p style="color:#999; font-style:italic;">Add quantities above to generate your list.</p>`;
+                container.innerHTML = `<p style="color:#999; font-style:italic; padding:20px; text-align:center;">Your cart is empty. Add quantities above to generate your list.</p>`;
                 return;
             }
 
             Object.keys(listBySupplier).forEach(supp => {
                 let html = `<div class="supplier-group"><h4>📦 ${supp}</h4><ul>`;
                 listBySupplier[supp].forEach(itemHtml => { html += `<li>${itemHtml}</li>`; });
-                html += `</ul></div>`;
+                html += `</ul>`;
+                
+                // Add the new Automated Invoice Total Bar
+                html += `<div class="invoice-total">
+                            <span>Est. Invoice:</span>
+                            <span class="invoice-amount">$${totalsBySupplier[supp].toFixed(2)}</span>
+                         </div>`;
+                         
+                html += `</div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
         }
@@ -684,8 +733,6 @@
             printElement.style.width = "1000px"; 
 
             const headerHtml = document.getElementById('brand-header').outerHTML;
-            
-            // F3: Inject timestamp into PDF
             let timeTracker = document.getElementById('time-' + appName).innerText;
             const listHtml = `<div style="text-align:right; font-size:12px; color:#666; font-style:italic;">${timeTracker}</div>` + document.querySelector(`#${appName}-wrapper .shopping-list-panel`).outerHTML;
             
@@ -695,12 +742,8 @@
                 printElement.querySelector('.shopping-list-panel').classList.add('hide-prices-active');
             }
 
-            // Cleanup buttons from PDF
-            let utils = printElement.querySelector('.header-utils');
-            if(utils) utils.remove();
-            let actionBtns = printElement.querySelector('.action-btns');
-            if(actionBtns) actionBtns.remove();
-
+            let utils = printElement.querySelector('.header-utils'); if(utils) utils.remove();
+            let actionBtns = printElement.querySelector('.action-btns'); if(actionBtns) actionBtns.remove();
             let gridContainer = printElement.querySelector('.supplier-grid');
             if(gridContainer) { gridContainer.style.display = 'flex'; gridContainer.style.flexDirection = 'row'; }
 
@@ -738,7 +781,6 @@
         }
 
         function saveToLocalStorage(appName) {
-            // F3: TIMESTAMP GENERATION
             let now = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
             localStorage.setItem(`timeTracker_${appName}`, now);
             document.getElementById(`time-${appName}`).innerText = `Last updated: ${now}`;
@@ -774,7 +816,6 @@
         function loadFromLocalStorage() {
             if (localStorage.getItem('restaurantCalcDarkMode') === 'true') toggleDarkMode();
 
-            // Load Timestamps
             let timeSysco = localStorage.getItem('timeTracker_sysco');
             document.getElementById('time-sysco').innerText = timeSysco ? `Last updated: ${timeSysco}` : 'Last updated: Never';
             let timeVerdura = localStorage.getItem('timeTracker_verdura');
