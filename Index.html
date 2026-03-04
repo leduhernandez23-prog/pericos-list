@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Los Pericos Master App</title>
     
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <link rel="apple-touch-icon" href="image_0.png">
     <link rel="icon" type="image/png" href="image_0.png">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <style>
@@ -413,7 +419,7 @@
         
         let isAppLoading = true; 
         const mySyncId = Math.random().toString(36).substr(2, 9);
-        let spendChartInstance = null; // Holds the pie chart
+        let spendChartInstance = null; 
 
         function showSyncToast() {
             let toast = document.getElementById("sync-toast");
@@ -509,7 +515,6 @@
         function resetQuantities(appName) {
             if(confirm(`Ready for a new week? \n\nThis will clear all quantities to 0 AND permanently save your final cart total to the Order Ledger! (It will also set current prices as your new Trends baseline).`)) {
                 
-                // 1. Calculate the final cart total to push to the Ledger before wiping
                 let grandTotal = 0;
                 let suppTotals = {};
                 let rows = document.querySelectorAll(`#${appName}-wrapper tbody tr`);
@@ -529,7 +534,6 @@
                     });
                 });
 
-                // 2. Push to Firebase Ledger if they actually ordered something
                 if (grandTotal > 0) {
                     let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
                     db.ref('ledger/' + appName).push({
@@ -539,7 +543,6 @@
                     });
                 }
 
-                // 3. Perform the normal clear and lock baselines
                 rows.forEach(row => {
                     row.querySelector('.order-qty').value = '';
                     row.querySelectorAll('.s-price').forEach(input => {
@@ -907,7 +910,7 @@
             let dataPoints = Object.values(suppTotals);
             
             const ctx = document.getElementById('spendChart').getContext('2d');
-            if (spendChartInstance) spendChartInstance.destroy(); // Clear old chart
+            if (spendChartInstance) spendChartInstance.destroy(); 
             
             if(dataPoints.length > 0) {
                 let isDark = document.body.classList.contains('dark-mode');
@@ -1020,7 +1023,6 @@
             });
         }
 
-        // --- LEVEL 2: FIREBASE SYNC & OFFLINE TRACKING ---
         function saveToDatabase(appName) {
             if(isAppLoading || appName === 'analytics') return; 
 
@@ -1062,7 +1064,7 @@
 
         function getSyscoDefaults() {
             const syscoWeightLb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
-            const syscoWeightFlOz = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
+            const syscoWeightFlOz = ["COCA-COLA", "DIET Coke", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
             const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
             const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
             return {
