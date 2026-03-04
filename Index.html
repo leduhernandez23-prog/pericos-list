@@ -9,7 +9,6 @@
     <link rel="icon" type="image/png" href="image_0.png">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -26,6 +25,7 @@
             --primary-color: #0056b3; 
             --primary-hover: #004494;
             --verdura-color: #008c4a;
+            --trends-color: #e67e22;
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
@@ -47,6 +47,7 @@
             --th-bg: #2a2a2a;
             --primary-color: #4da3ff;
             --verdura-color: #32cd32;
+            --trends-color: #f39c12;
             --best-deal-bg: #173a20;
             --best-deal-text: #81c784;
             --supplier-group-bg: #2c2c2c;
@@ -73,7 +74,6 @@
         .sysco-wrapper .search-bar:focus { border-color: var(--primary-color); outline: none; }
         .verdura-wrapper .search-bar:focus { border-color: var(--verdura-color); outline: none; }
         
-        /* LEVEL 2: OFFLINE STATUS BAR */
         .cloud-status { display: inline-block; padding: 6px 12px; background: #e3f2fd; color: #0d47a1; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; text-align: center; }
         body.dark-mode .cloud-status { background: #0d47a1; color: #e3f2fd; }
         .cloud-status.offline { background: #fff3cd !important; color: #856404 !important; border: 2px solid #ffeeba; }
@@ -134,7 +134,6 @@
         .btn-red { background-color: var(--danger-color); }
         .btn-yellow { background-color: var(--warning-color); color: #000 !important; }
         .btn-text-msg { background-color: #007aff; }
-        
         .sysco-wrapper .btn-blue { background-color: var(--primary-color); }
         .verdura-wrapper .btn-blue { background-color: var(--verdura-color); }
 
@@ -157,6 +156,19 @@
         body.dark-mode .invoice-total { background: rgba(255,255,255,0.02); }
         .invoice-amount { color: var(--success-color); font-size: 18px; }
 
+        /* TRENDS DASHBOARD STYLES */
+        .trends-panel-container { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
+        .trend-box { flex: 1; min-width: 300px; background: var(--container-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .trend-box.up { border-top: 5px solid var(--danger-color); }
+        .trend-box.down { border-top: 5px solid var(--success-color); }
+        .trend-box h3 { margin-top: 0; display: flex; align-items: center; gap: 8px; }
+        .trend-list { list-style: none; padding: 0; margin: 0; }
+        .trend-list li { padding: 12px 0; border-bottom: 1px dashed var(--border-color); font-size: 15px; }
+        .trend-list li:last-child { border-bottom: none; }
+        .trend-diff { font-weight: bold; float: right; }
+        .diff-up { color: var(--danger-color); }
+        .diff-down { color: var(--success-color); }
+
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 10px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 1000; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
         body.dark-mode .bottom-nav { background: rgba(30, 30, 30, 0.85); }
         .nav-btn { flex: 1; border: none; background: transparent; color: var(--result-text); font-size: 12px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; cursor: pointer; transition: 0.2s; border-radius: 12px; position: relative; }
@@ -164,12 +176,12 @@
         body.dark-mode .nav-btn:hover { background: rgba(255,255,255,0.05); }
         .nav-btn.active-sysco { color: var(--primary-color); }
         .nav-btn.active-verdura { color: var(--verdura-color); }
+        .nav-btn.active-trends { color: var(--trends-color); }
         .nav-icon { font-size: 24px; transition: transform 0.2s; }
-        .nav-btn.active-sysco .nav-icon, .nav-btn.active-verdura .nav-icon { transform: scale(1.15); }
+        .nav-btn.active-sysco .nav-icon, .nav-btn.active-verdura .nav-icon, .nav-btn.active-trends .nav-icon { transform: scale(1.15); }
 
         .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; font-size: 12px; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-color); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        /* TOAST NOTIFICATION FOR LIVE SYNC */
         #sync-toast { visibility: hidden; min-width: 250px; background-color: var(--success-color); color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 9999; bottom: 100px; left: 50%; transform: translateX(-50%); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: visibility 0s, opacity 0.5s linear; opacity: 0; }
         #sync-toast.show { visibility: visible; opacity: 1; }
 
@@ -186,7 +198,7 @@
             .header-container, .bottom-nav, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp, .cloud-status, #sync-toast { display: none !important; }
             .shopping-list-panel { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
             .supplier-grid { display: block !important; width: 100% !important; }
-            .supplier-group { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; background: none; break-inside: avoid; }
+            .supplier-group, .trend-box { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; border-top: none !important; background: none; break-inside: avoid; }
             .supplier-group h4, .supplier-group li, .invoice-total { color: #000; border-color: #ddd; }
         }
     </style>
@@ -223,7 +235,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('weightTable_sysco', 'sysco', 'Total $', 'Total oz', '', '', 'lb', ['Sysco','','','lb',0,''], ['Ben E Keith','','','lb',0,''], ['Gordon','','','lb',0,''])">+ Add Item to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('weightTable_sysco', 'sysco', 'Total $', 'Total oz', '', '', 'lb', ['Sysco','','','lb',0,'',''], ['Ben E Keith','','','lb',0,'',''], ['Gordon','','','lb',0,'',''])">+ Add Item to Bottom</button>
         </div>
 
         <div id="Unit_sysco" class="tab-content">
@@ -231,7 +243,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('unitTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['Sysco','','','oz',0,''], ['Ben E Keith','','','oz',0,''], ['Gordon','','','oz',0,''])">+ Add Item to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('unitTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['Sysco','','','oz',0,'',''], ['Ben E Keith','','','oz',0,'',''], ['Gordon','','','oz',0,'',''])">+ Add Item to Bottom</button>
         </div>
 
         <div id="MFE_sysco" class="tab-content">
@@ -239,7 +251,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>MFE Vendor Info</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('mfeTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['MFE','','','oz',0,''])">+ Add Item to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('mfeTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['MFE','','','oz',0,'',''])">+ Add Item to Bottom</button>
         </div>
 
         <div class="shopping-list-panel">
@@ -273,7 +285,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('weightTable_verdura', 'verdura', 'Price $', 'Total oz', '', '', 'lb', ['Mr. Pepper','','','lb',0,''], ['Cantu','','','lb',0,''], ['Produce 3','','','lb',0,''])">+ Add Produce to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('weightTable_verdura', 'verdura', 'Price $', 'Total oz', '', '', 'lb', ['Mr. Pepper','','','lb',0,'',''], ['Cantu','','','lb',0,'',''], ['Produce 3','','','lb',0,'',''])">+ Add Produce to Bottom</button>
         </div>
 
         <div id="Unit_verdura" class="tab-content">
@@ -281,7 +293,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('unitTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Mr. Pepper','','','oz',0,''], ['Cantu','','','oz',0,''], ['Produce 3','','','oz',0,''])">+ Add Produce to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('unitTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Mr. Pepper','','','oz',0,'',''], ['Cantu','','','oz',0,'',''], ['Produce 3','','','oz',0,'',''])">+ Add Produce to Bottom</button>
         </div>
 
         <div id="DelComal_verdura" class="tab-content">
@@ -289,7 +301,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Del Comal Vendor Info</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('delComalTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Del Comal','','','oz',0,''])">+ Add Item to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('delComalTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Del Comal','','','oz',0,'',''])">+ Add Item to Bottom</button>
         </div>
 
         <div class="shopping-list-panel">
@@ -307,10 +319,41 @@
         </div>
     </div>
 
+    <div id="trends-wrapper" class="app-section trends-wrapper">
+        <div style="text-align:center; padding: 20px 0;">
+            <h2 style="margin:0; font-size:28px;">📈 Price Trends</h2>
+            <p style="color:var(--result-text); font-size:14px; margin-top:5px;">Comparing today's prices against your last "New Week Reset"</p>
+        </div>
+
+        <div class="trends-panel-container">
+            <div class="trend-box up">
+                <h3 style="color:var(--danger-color);">🔺 Prices Went Up</h3>
+                <ul id="trends-up-list" class="trend-list"></ul>
+            </div>
+            
+            <div class="trend-box down">
+                <h3 style="color:var(--success-color);">🔻 Prices Went Down</h3>
+                <ul id="trends-down-list" class="trend-list"></ul>
+            </div>
+        </div>
+        
+        <div style="text-align:center; margin-top: 30px;">
+            <button class="btn-blue" onclick="window.print()">🖨️ Print Trends Report</button>
+        </div>
+    </div>
+
     <div class="bottom-nav">
         <button id="nav-sysco" class="nav-btn active-sysco" onclick="switchApp('sysco')">
             <span class="nav-icon">📦</span>
             <span>Sysco</span>
+        </button>
+        <button id="nav-verdura" class="nav-btn" onclick="switchApp('verdura')">
+            <span class="nav-icon">🥦</span>
+            <span>Produce</span>
+        </button>
+        <button id="nav-trends" class="nav-btn" onclick="switchApp('trends')">
+            <span class="nav-icon">📈</span>
+            <span>Trends</span>
         </button>
         <button class="nav-btn" onclick="scrollToCart()">
             <span class="nav-icon" style="position:relative;">
@@ -318,10 +361,6 @@
                 <div class="cart-badge" id="nav-cart-badge" style="top:-8px; right:-12px; transform: scale(0.8);">0</div>
             </span>
             <span>Checkout</span>
-        </button>
-        <button id="nav-verdura" class="nav-btn" onclick="switchApp('verdura')">
-            <span class="nav-icon">🥦</span>
-            <span>Produce</span>
         </button>
     </div>
 
@@ -341,7 +380,7 @@
         const db = firebase.database();
         
         let isAppLoading = true; 
-        const mySyncId = Math.random().toString(36).substr(2, 9); // Creates a unique ID for your phone
+        const mySyncId = Math.random().toString(36).substr(2, 9);
 
         function showSyncToast() {
             let toast = document.getElementById("sync-toast");
@@ -352,15 +391,22 @@
         // --- MASTER APP CONTROLS ---
         function switchApp(appTarget) {
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
-            document.getElementById('nav-sysco').classList.remove('active-sysco');
-            document.getElementById('nav-verdura').classList.remove('active-verdura');
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-sysco', 'active-verdura', 'active-trends'));
+            
             document.getElementById(appTarget + '-wrapper').classList.add('active-app');
-            document.getElementById('nav-' + appTarget).classList.add('active-' + appTarget);
-            generateShoppingList(appTarget);
+            let navBtn = document.getElementById('nav-' + appTarget);
+            if(navBtn) navBtn.classList.add('active-' + appTarget);
+            
+            if (appTarget === 'trends') {
+                generateTrendsReport();
+            } else {
+                generateShoppingList(appTarget);
+            }
         }
 
         function scrollToCart() {
             let activeApp = document.querySelector('.active-app').id.split('-')[0];
+            if (activeApp === 'trends') { switchApp('sysco'); activeApp = 'sysco'; } // Default to Sysco if clicked from Trends
             let panel = document.querySelector(`#${activeApp}-wrapper .shopping-list-panel`);
             panel.scrollIntoView({ behavior: 'smooth' });
         }
@@ -425,16 +471,22 @@
             }).catch(err => { alert("Oops, your browser blocked the copy. Please download the PDF instead."); });
         }
 
+        // NEW WEEK RESET - NOW LOCKS IN THE BASELINE PRICES
         function resetQuantities(appName) {
-            if(confirm(`Ready for a new week? This will set all ${appName.toUpperCase()} quantities back to 0, but KEEP all your prices.`)) {
+            if(confirm(`Ready for a new week? \n\nThis will clear all quantities to 0 AND lock your current prices in as the baseline to track next week's trends!`)) {
                 let rows = document.querySelectorAll(`#${appName}-wrapper tbody tr`);
                 rows.forEach(row => {
                     row.querySelector('.order-qty').value = '';
+                    // Lock the new baseline price
+                    row.querySelectorAll('.s-price').forEach(input => {
+                        let currentVal = parseFloat(input.value) || 0;
+                        if(currentVal > 0) input.setAttribute('data-baseline', currentVal);
+                    });
                     processRowUpdate(row.querySelector('.item-name'), true); 
                 });
                 saveToDatabase(appName);
                 generateShoppingList(appName);
-                alert("✅ All quantities reset in the cloud! Ready for the new week.");
+                alert("✅ Quantities reset & Weekly Baseline locked!");
             }
         }
 
@@ -467,8 +519,8 @@
             reader.readAsText(file);
         }
 
-        // --- ROW LOGIC WITH TREND ARROWS ---
-        function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, trendVal) {
+        // --- ROW LOGIC (Hidden arrows during typing) ---
+        function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, oldTrend, baselineVal) {
             let qtyHtml = '';
             if (hasUnits) {
                 qtyHtml = `
@@ -485,7 +537,8 @@
                 qtyHtml = `<input type="number" class="s-qty" placeholder="Pack Size" value="${qtyVal}" oninput="processRowUpdate(this)">`;
             }
 
-            let trendIcon = trendVal === 'up' ? '🔺' : (trendVal === 'down' ? '🔻' : '');
+            // Fallback: If no baseline exists, use the current price so it doesn't instantly flag as an increase
+            let safeBaseline = baselineVal !== undefined && baselineVal !== "" ? baselineVal : priceVal;
 
             return `
                 <td class="supplier-cell">
@@ -493,8 +546,7 @@
                     <div class="input-group">
                         <div style="position:relative; width:50%; display:flex; align-items:center;">
                             <span style="position:absolute; left:6px; color:var(--result-text); font-size:14px; pointer-events:none;">$</span>
-                            <input type="number" class="s-price" style="padding-left:18px; padding-right:20px; width:100%; margin-bottom:0;" placeholder="Price" value="${priceVal}" data-old-price="${priceVal}" oninput="processRowUpdate(this)">
-                            <span class="trend-indicator" style="position:absolute; right:6px; font-size:12px; pointer-events:none;">${trendIcon}</span>
+                            <input type="number" class="s-price" style="padding-left:18px; width:100%; margin-bottom:0;" placeholder="Price" value="${priceVal}" data-baseline="${safeBaseline}" oninput="processRowUpdate(this)">
                         </div>
                         ${qtyHtml}
                     </div>
@@ -536,15 +588,15 @@
                 ${targetUnitHtml}
             </td>`;
 
-            html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0, s1[5] || '');
+            html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0, s1[5] || '', s1[6]);
             if (!isSingle) {
-                html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits?'lb':'oz'), hasUnits, s2[4] || 0, s2[5] || '');
-                html += createSupplierCellHTML(s3[0], s3[1], s3[2], s3[3] || (hasUnits?'lb':'oz'), hasUnits, s3[4] || 0, s3[5] || '');
+                html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits?'lb':'oz'), hasUnits, s2[4] || 0, s2[5] || '', s2[6]);
+                html += createSupplierCellHTML(s3[0], s3[1], s3[2], s3[3] || (hasUnits?'lb':'oz'), hasUnits, s3[4] || 0, s3[5] || '', s3[6]);
             }
             
-            let s1Fallback = `['${s1[0]}','','','${s1[3]||'lb'}',0,'']`;
-            let s2Fallback = isSingle ? '' : `, ['${s2[0]}','','','${s2[3]||'lb'}',0,'']`;
-            let s3Fallback = isSingle ? '' : `, ['${s3[0]}','','','${s3[3]||'lb'}',0,'']`;
+            let s1Fallback = `['${s1[0]}','','','${s1[3]||'lb'}',0,'','']`;
+            let s2Fallback = isSingle ? '' : `, ['${s2[0]}','','','${s2[3]||'lb'}',0,'','']`;
+            let s3Fallback = isSingle ? '' : `, ['${s3[0]}','','','${s3[3]||'lb'}',0,'','']`;
 
             html += `<td class="action-col">
                 <div style="display:flex; flex-direction:column; align-items:center;">
@@ -591,13 +643,13 @@
             cells.forEach(cell => {
                 let priceInput = cell.querySelector('.s-price');
                 let newPrice = parseFloat(priceInput.value) || 0;
-                let oldPrice = parseFloat(priceInput.getAttribute('data-old-price')) || 0;
-                let trendInd = cell.querySelector('.trend-indicator');
-                
-                // Set trend arrow instantly when user types
-                if (newPrice > oldPrice && oldPrice > 0) trendInd.innerText = '🔺';
-                else if (newPrice < oldPrice && newPrice > 0) trendInd.innerText = '🔻';
-                else if (newPrice === oldPrice && newPrice !== 0) trendInd.innerText = ''; // Cleared if they revert typo
+                let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
+
+                // Auto-set baseline on very first input if it's currently 0 so it doesn't instantly flag as a trend
+                if (baseline === 0 && newPrice > 0) {
+                    priceInput.setAttribute('data-baseline', newPrice);
+                    baseline = newPrice;
+                }
 
                 let qtyInput = cell.querySelector('.s-qty').value;
                 let qty = parseFloat(qtyInput);
@@ -659,7 +711,8 @@
             }
 
             if(!skipSave && !isAppLoading) {
-                generateShoppingList(appName);
+                if(appName === 'trends') { generateTrendsReport(); } 
+                else { generateShoppingList(appName); }
                 saveToDatabase(appName);
             }
         }
@@ -682,7 +735,9 @@
             if(!isAppLoading) saveToDatabase(appName);
         }
 
+        // GENERATE TREND ARROWS IN THE FINAL CHECKOUT LIST
         function generateShoppingList(appName) {
+            if(appName === 'trends') return; // Trends has its own generator
             let wrapper = document.getElementById(appName + '-wrapper');
             let allRows = wrapper.querySelectorAll('tbody tr');
             let listBySupplier = {};
@@ -697,15 +752,25 @@
                     let tieCount = winningCells.length;
                     winningCells.forEach(wc => {
                         let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
-                        let unitPrice = parseFloat(wc.querySelector('.s-price').value) || 0;
+                        let priceInput = wc.querySelector('.s-price');
+                        let unitPrice = parseFloat(priceInput.value) || 0;
+                        let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
                         let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
                         
+                        // Calculate trend arrow only for the final list
+                        let trendBadge = '';
+                        if (unitPrice > baseline && baseline > 0) {
+                            trendBadge = '<span style="font-size:12px; margin-left:4px;" title="Price went up">🔺</span>';
+                        } else if (unitPrice < baseline && unitPrice > 0) {
+                            trendBadge = '<span style="font-size:12px; margin-left:4px;" title="Price went down">🔻</span>';
+                        }
+
                         if (aQty > 0) {
                             let lineTotal = unitPrice * aQty;
                             if (!listBySupplier[sName]) { listBySupplier[sName] = []; totalsBySupplier[sName] = 0; }
                             listBySupplier[sName].push(`
                                 <span><span class="qty-badge" style="color:var(--${appName === 'verdura' ? 'verdura' : 'primary'}-color);">${aQty}</span> ${itemName} ${tieCount > 1 ? `<span class="tie-badge">(Tie Split)</span>` : ''}</span> 
-                                <span class="price-badge">${wc.querySelector('.s-result').innerText} <span style="color:var(--result-text); font-weight:normal;">(Total: $${lineTotal.toFixed(2)})</span></span>
+                                <span class="price-badge">${wc.querySelector('.s-result').innerText} ${trendBadge} <span style="color:var(--result-text); font-weight:normal;">(Total: $${lineTotal.toFixed(2)})</span></span>
                             `);
                             totalsBySupplier[sName] += lineTotal;
                             totalItemsInCart++;
@@ -731,6 +796,49 @@
                 container.insertAdjacentHTML('beforeend', html);
             });
         }
+
+        // GENERATE THE NEW TRENDS DASHBOARD
+        function generateTrendsReport() {
+            let upList = document.getElementById('trends-up-list');
+            let downList = document.getElementById('trends-down-list');
+            upList.innerHTML = ''; downList.innerHTML = '';
+            
+            let upHTML = ''; let downHTML = '';
+            
+            // Scan both Sysco and Verdura tables
+            let allRows = document.querySelectorAll('tbody tr');
+            
+            allRows.forEach(row => {
+                let itemName = row.querySelector('.item-name').value.trim();
+                if(!itemName) return;
+                
+                row.querySelectorAll('.supplier-cell').forEach(cell => {
+                    let sName = cell.querySelector('.s-name').value.trim() || "Unknown";
+                    let priceInput = cell.querySelector('.s-price');
+                    let price = parseFloat(priceInput.value) || 0;
+                    let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
+                    
+                    // Check if price changed since last reset
+                    if(price > 0 && baseline > 0 && price !== baseline) {
+                        let diff = Math.abs(price - baseline).toFixed(2);
+                        let isUp = price > baseline;
+                        
+                        let li = `<li>
+                            <strong>${itemName}</strong> <span style="font-size:12px; color:var(--result-text);">(${sName})</span><br>
+                            <span style="color:var(--result-text);">$${baseline.toFixed(2)} ➔ $${price.toFixed(2)}</span> 
+                            <span class="trend-diff ${isUp ? 'diff-up' : 'diff-down'}">${isUp ? '+' : '-'}$${diff}</span>
+                        </li>`;
+                        
+                        if(isUp) upHTML += li;
+                        else downHTML += li;
+                    }
+                });
+            });
+            
+            upList.innerHTML = upHTML || '<li style="color:#999; font-style:italic; border:none;">No price increases tracked since last reset.</li>';
+            downList.innerHTML = downHTML || '<li style="color:#999; font-style:italic; border:none;">No price decreases tracked since last reset.</li>';
+        }
+
 
         function downloadPDF(appName) {
             const printElement = document.createElement('div');
@@ -759,6 +867,7 @@
             html2pdf().set(opt).from(printElement).save();
         }
 
+        // SAVE BASELINE TO DATABASE
         function extractTableData(tableId, targetArray) {
             document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
                 let rowData = { 
@@ -771,16 +880,7 @@
                     let priceInput = cell.querySelector('.s-price');
                     let sUnit = cell.querySelector('.s-unit');
                     let sSplit = cell.querySelector('.split-qty');
-                    
-                    let newPrice = parseFloat(priceInput.value) || 0;
-                    let oldPrice = parseFloat(priceInput.getAttribute('data-old-price')) || 0;
-                    let trendInd = cell.querySelector('.trend-indicator');
-                    let trend = '';
-                    
-                    if (newPrice > oldPrice && oldPrice > 0) trend = 'up';
-                    else if (newPrice < oldPrice && newPrice > 0) trend = 'down';
-                    else if (trendInd.innerText === '🔺') trend = 'up'; // keep existing trend
-                    else if (trendInd.innerText === '🔻') trend = 'down'; 
+                    let baseline = priceInput.getAttribute('data-baseline') || 0;
 
                     rowData.suppliers.push([
                         cell.querySelector('.s-name').value,
@@ -788,20 +888,20 @@
                         cell.querySelector('.s-qty').value,
                         sUnit ? sUnit.value : 'oz',
                         sSplit ? sSplit.value : 0,
-                        trend
+                        '', // Empty space for old trend logic
+                        baseline // Now storing Baseline in position 6!
                     ]);
                 });
                 targetArray.push(rowData);
             });
         }
 
-        // --- LEVEL 2: FIREBASE SYNC & OFFLINE TRACKING ---
         function saveToDatabase(appName) {
-            if(isAppLoading) return; // Prevents rewriting database while it's still drawing the screen
+            if(isAppLoading || appName === 'trends') return; 
 
             let now = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
             db.ref('metadata/' + appName).set(now);
-            db.ref('metadata/lastEditor').set(mySyncId); // Stamping my unique ID so my phone doesn't refresh on my own typing
+            db.ref('metadata/lastEditor').set(mySyncId);
             document.getElementById(`time-${appName}`).innerText = `Last updated: ${now}`;
 
             let data = {};
@@ -825,10 +925,12 @@
                 addRow(tableId, appName, pLabel, qLabel, '', '', 'oz', s1def, s2def, s3def); return; 
             }
             rowDataArray.forEach(rd => { 
-                let s1 = rd.suppliers[0] || [s1def[0], "", "", "lb", 0, ""];
-                let s2 = rd.suppliers[1] || [s2def[0], "", "", "lb", 0, ""];
-                let s3 = rd.suppliers[2] || [s3def[0], "", "", "lb", 0, ""];
-                if (s1.length < 6) s1.push(""); if (s2.length < 6) s2.push(""); if (s3.length < 6) s3.push("");
+                let s1 = rd.suppliers[0] || [s1def[0], "", "", "lb", 0, "", ""];
+                let s2 = rd.suppliers[1] || [s2def[0], "", "", "lb", 0, "", ""];
+                let s3 = rd.suppliers[2] || [s3def[0], "", "", "lb", 0, "", ""];
+                if (s1.length < 7) s1.push(s1[1] || ""); // Auto-fill old baseline
+                if (s2.length < 7) s2.push(s2[1] || ""); 
+                if (s3.length < 7) s3.push(s3[1] || ""); 
                 addRow(tableId, appName, pLabel, qLabel, rd.item, rd.qty || "", rd.targetUnit || "oz", s1, s2, s3); 
             });
         }
@@ -839,10 +941,10 @@
             const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
             const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
             return {
-                weight: [...syscoWeightLb.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0,""], ["Ben E Keith","","","lb",0,""], ["Gordon","","","lb",0,""]] })),
-                         ...syscoWeightFlOz.map(item => ({ item: item, qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0,""], ["Ben E Keith","","","fl oz",0,""], ["Gordon","","","fl oz",0,""]] }))],
-                unit: syscoUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,""], ["Ben E Keith","","","oz",0,""], ["Gordon","","","oz",0,""]] })),
-                mfe: syscoMfe.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0,""]] }))
+                weight: [...syscoWeightLb.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0,"",""], ["Ben E Keith","","","lb",0,"",""], ["Gordon","","","lb",0,"",""]] })),
+                         ...syscoWeightFlOz.map(item => ({ item: item, qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0,"",""], ["Ben E Keith","","","fl oz",0,"",""], ["Gordon","","","fl oz",0,"",""]] }))],
+                unit: syscoUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,"",""], ["Ben E Keith","","","oz",0,"",""], ["Gordon","","","oz",0,"",""]] })),
+                mfe: syscoMfe.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0,"",""]] }))
             };
         }
 
@@ -851,16 +953,15 @@
             const verdUnit = ["AJO PELADO", "TOMATE", "AGUACATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "POBLANO PEPPER", "JALAPENO PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "LIMES", "LEMONS", "CELERY", "CEBOLLA", "NARANJA", "RED CABAGE", "HONGOS", "POTATO #2", "PAN X TORTA", "COCA", "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "POT WHITE", "ACEITE", "HUEVOS", "JALAPENEO LATA"];
             const verdDelComal = ["CHIPS", "VERDE", "ROJA", "BLANCA"];
             return {
-                weight: verdWeight.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,""], ["Cantu","","","lb",0,""], ["Produce 3","","","lb",0,""]] })),
-                unit: verdUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0,""], ["Cantu","","","oz",0,""], ["Produce 3","","","oz",0,""]] })),
-                delComal: verdDelComal.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0,""]] }))
+                weight: verdWeight.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,"",""], ["Cantu","","","lb",0,"",""], ["Produce 3","","","lb",0,"",""]] })),
+                unit: verdUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0,"",""], ["Cantu","","","oz",0,"",""], ["Produce 3","","","oz",0,"",""]] })),
+                delComal: verdDelComal.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0,"",""]] }))
             };
         }
 
         function loadFromDatabase() {
             if (localStorage.getItem('restaurantCalcDarkMode') === 'true') toggleDarkMode();
 
-            // OFFLINE WALK-IN COOLER DETECTOR
             db.ref('.info/connected').on('value', function(snap) {
                 let sDiv = document.getElementById('conn-sysco');
                 let vDiv = document.getElementById('conn-verdura');
@@ -873,11 +974,9 @@
                 }
             });
 
-            // LIVE GHOST-TYPING LISTENER
             db.ref('/').on('value', (snapshot) => {
                 let dbData = snapshot.val();
 
-                // If cloud is empty, run the automatic local-to-cloud migration
                 if (!dbData || !dbData.inventory) {
                     let localSysco = localStorage.getItem('restaurantPriceCalc_Main');
                     let localVerdura = localStorage.getItem('restaurantPriceCalc_Verdura');
@@ -892,44 +991,43 @@
                             localStorage.removeItem('restaurantPriceCalc_Main');
                             localStorage.removeItem('restaurantPriceCalc_Verdura');
                         });
-                        return; // Wait for cloud to respond with data
+                        return; 
                     }
                 }
 
-                // Normal Cloud Load
                 if (!dbData) dbData = { inventory: {}, metadata: {} };
 
-                // PREVENT FOCUS STEALING: If my phone was the one that just updated the data, ignore the refresh
                 if (dbData.metadata && dbData.metadata.lastEditor === mySyncId && !isAppLoading) {
                     return; 
                 }
 
-                // If someone else updated the list while you were using it, show the toast alert!
                 if (!isAppLoading) showSyncToast();
                 
-                // Process Sysco
                 let syscoData = dbData.inventory ? dbData.inventory.sysco : null;
                 if (!syscoData) { syscoData = getSyscoDefaults(); db.ref('inventory/sysco').set(syscoData); }
-                rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0,''], ['Ben E Keith','','','lb',0,''], ['Gordon','','','lb',0,'']);
-                rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0,''], ['Ben E Keith','','','oz',0,''], ['Gordon','','','oz',0,'']);
-                rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0,''], ['','','','oz',0,''], ['','','','oz',0,'']);
+                rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0,'',''], ['Ben E Keith','','','lb',0,'',''], ['Gordon','','','lb',0,'','']);
+                rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0,'',''], ['Ben E Keith','','','oz',0,'',''], ['Gordon','','','oz',0,'','']);
+                rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0,'',''], ['','','','oz',0,'',''], ['','','','oz',0,'','']);
                 generateShoppingList('sysco');
 
-                // Process Verdura
                 let verduraData = dbData.inventory ? dbData.inventory.verdura : null;
                 if (!verduraData) { verduraData = getVerduraDefaults(); db.ref('inventory/verdura').set(verduraData); }
-                rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0,''], ['Cantu','','','lb',0,''], ['Produce 3','','','lb',0,'']);
-                rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0,''], ['Cantu','','','oz',0,''], ['Produce 3','','','oz',0,'']);
-                rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0,''], ['','','','oz',0,''], ['','','','oz',0,'']);
+                rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0,'',''], ['Cantu','','','lb',0,'',''], ['Produce 3','','','lb',0,'','']);
+                rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0,'',''], ['Cantu','','','oz',0,'',''], ['Produce 3','','','oz',0,'','']);
+                rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0,'',''], ['','','','oz',0,'',''], ['','','','oz',0,'','']);
                 generateShoppingList('verdura');
 
-                // Load Metadata
                 let meta = dbData.metadata || {};
                 document.getElementById('time-sysco').innerText = meta.sysco ? `Last updated: ${meta.sysco}` : 'Last updated: Never';
                 document.getElementById('time-verdura').innerText = meta.verdura ? `Last updated: ${meta.verdura}` : 'Last updated: Never';
 
-                isAppLoading = false; 
+                // Also update the Trends dashboard if we are currently looking at it
+                let activeApp = document.querySelector('.active-app');
+                if(activeApp && activeApp.id === 'trends-wrapper') {
+                    generateTrendsReport();
+                }
 
+                isAppLoading = false; 
             });
         }
 
