@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Los Pericos Master List</title>
+    <title>Los Pericos Master App</title>
     
     <link rel="apple-touch-icon" href="image_0.png">
     <link rel="icon" type="image/png" href="image_0.png">
@@ -25,6 +25,7 @@
             --verdura-color: #008c4a;
             --success-color: #28a745;
             --danger-color: #dc3545;
+            --warning-color: #ffc107;
             --best-deal-bg: #d4edda;
             --best-deal-text: #155724;
             --supplier-group-bg: #f8f9fa;
@@ -50,23 +51,17 @@
             --header-color: #fff;
         }
 
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); max-width: 1200px; margin: 20px auto; padding: 20px; transition: 0.3s; }
         
+        /* HEADER & UTILITIES */
         .header-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; position: relative; }
         .pericos-branding { display: flex; align-items: center; gap: 15px; }
         .header-logo { height: 80px; border-radius: 50%; border: 2px solid var(--border-color); }
         .main-title { margin: 0; color: var(--header-color); font-size: 32px; font-weight: bold; text-transform: uppercase; }
 
-        .dark-mode-btn { position: absolute; right: 0; background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .dark-mode-btn:hover { border-color: var(--primary-color); }
+        .header-utils { position: absolute; right: 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .util-btn { background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+        .util-btn:hover { border-color: var(--primary-color); }
         
         /* THE APP SWITCHER */
         .app-switcher { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
@@ -78,31 +73,38 @@
         .app-section.active-app { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* TABS */
+        /* SEARCH & TIMESTAMP */
+        .search-bar { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; background-color: var(--input-bg); color: var(--input-text); box-sizing: border-box; transition: 0.3s; }
+        .sysco-wrapper .search-bar:focus { border-color: var(--primary-color); outline: none; }
+        .verdura-wrapper .search-bar:focus { border-color: var(--verdura-color); outline: none; }
+        .timestamp { font-size: 12px; color: var(--result-text); font-style: italic; margin-bottom: 15px; text-align: right; font-weight: bold; }
+
+        /* TABS & TABLES */
         .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; white-space: nowrap;}
         .tab-btn { background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 16px; font-weight: bold; color: var(--result-text); transition: color 0.2s; }
         .sysco-wrapper .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); margin-bottom: -2px; }
         .verdura-wrapper .tab-btn.active { color: var(--verdura-color); border-bottom: 3px solid var(--verdura-color); margin-bottom: -2px; }
         
-        .tab-content { display: none; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 15px; }
+        /* Sticky Header Fix inside Tab Content */
+        .tab-content { display: none; max-height: 65vh; overflow-y: auto; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
         .tab-content.active { display: block; }
 
-        table { width: 100%; min-width: 950px; border-collapse: collapse; background: var(--container-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; table-layout: fixed; }
+        table { width: 100%; min-width: 950px; border-collapse: separate; border-spacing: 0; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
-        th { background-color: var(--th-bg); font-weight: 600; color: var(--text-color); }
+        
+        /* F5: STICKY MOBILE HEADERS */
+        th { background-color: var(--th-bg); font-weight: 600; color: var(--text-color); position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
         th:first-child, td:first-child { width: 20%; border-right: 2px solid var(--border-color); }
         .supplier-cell { width: 25%; border-right: 1px solid var(--border-color); transition: background-color 0.3s ease; }
         .supplier-cell:nth-child(4) { border-right: 2px solid var(--border-color); }
-
         .single-vendor-table { min-width: 500px !important; }
         .single-vendor-table .supplier-cell { width: auto; border-right: 2px solid var(--border-color); }
         
         th.action-col, td.action-col { width: 6%; text-align: center; vertical-align: middle; }
         .icon-btn, .delete-btn { background: none; border: none; cursor: pointer; font-size: 16px; opacity: 0.5; padding: 4px; transition: 0.2s; margin: 2px 0; }
-        .icon-btn:hover { opacity: 1; transform: scale(1.2); }
+        .icon-btn:hover, .delete-btn:hover { opacity: 1; transform: scale(1.2); }
         .delete-btn { color: var(--danger-color); }
-        .delete-btn:hover { opacity: 1; transform: scale(1.2); }
 
         input[type="text"], input[type="number"], select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--input-text); border-radius: 4px; font-size: 14px; margin-bottom: 6px; }
         input:focus, select:focus { outline: none; border-color: var(--primary-color); }
@@ -123,45 +125,50 @@
         .tie-split-ui span { font-size: 11px; color: #d35400; font-weight: bold; margin-right: 4px; }
         .tie-split-ui input { width: 50px !important; padding: 2px !important; font-size: 12px !important; margin-bottom: 0 !important; display: inline-block !important; border: 1.5px solid #e67e22 !important; border-radius: 3px !important; text-align: center; }
 
-        .add-row-btn { color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .add-row-btn { color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; margin-top: 15px; width: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .sysco-wrapper .add-row-btn { background-color: var(--primary-color); }
         .verdura-wrapper .add-row-btn { background-color: var(--verdura-color); }
         
-        .action-btns { float: right; display: flex; gap: 15px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
-        .btn-green, .btn-red, .btn-blue { color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .action-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center; margin-bottom: 20px; }
+        .action-btns button { color: white; border: none; padding: 10px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .action-btns button:hover { transform: translateY(-2px); }
+        
         .btn-green { background-color: var(--success-color); }
         .btn-red { background-color: var(--danger-color); }
+        .btn-yellow { background-color: var(--warning-color); color: #000 !important; }
+        .btn-text-msg { background-color: #007aff; } /* iMessage Blue */
+        
         .sysco-wrapper .btn-blue { background-color: var(--primary-color); }
         .verdura-wrapper .btn-blue { background-color: var(--verdura-color); }
 
-        .shopping-list-panel { margin-top: 40px; background: var(--container-bg); padding: 20px; border-radius: 8px; border-top: 4px solid var(--success-color); }
+        .shopping-list-panel { margin-top: 40px; background: var(--container-bg); padding: 20px; border-radius: 8px; border-top: 4px solid var(--success-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .hide-prices-active .price-badge { display: none !important; }
         
         .supplier-grid { display: block; width: 100%; margin-top: 15px; }
-        .supplier-group { display: inline-block; width: 32%; box-sizing: border-box; padding: 15px; background: var(--supplier-group-bg); border-radius: 4px; vertical-align: top; margin-right: 1%; margin-bottom: 15px; }
-        .sysco-wrapper .supplier-group { border-left: 3px solid var(--primary-color); }
-        .verdura-wrapper .supplier-group { border-left: 3px solid var(--verdura-color); }
+        .supplier-group { display: inline-block; width: 32%; box-sizing: border-box; padding: 15px; background: var(--supplier-group-bg); border-radius: 6px; vertical-align: top; margin-right: 1%; margin-bottom: 15px; }
+        .sysco-wrapper .supplier-group { border-left: 4px solid var(--primary-color); }
+        .verdura-wrapper .supplier-group { border-left: 4px solid var(--verdura-color); }
         .supplier-group:last-child { margin-right: 0; }
         .supplier-group h4 { margin: 0 0 10px 0; font-size: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
         .supplier-group ul { margin: 0; padding-left: 20px; }
         .supplier-group li { padding: 6px 0; font-size: 14px; border-bottom: 1px dashed var(--border-color); }
         .supplier-group li:last-child { border-bottom: none; }
         .price-badge { font-weight: bold; color: var(--success-color); display: block; margin-top: 2px; }
-        .qty-badge { color: var(--text-color); font-weight: bold; margin-right: 5px; }
+        .qty-badge { font-weight: bold; margin-right: 5px; }
 
-        @media (max-width: 768px) {
+        @media (max-width: 850px) {
             .header-container { flex-direction: column; text-align: center; }
-            .dark-mode-btn { position: relative; margin-top: 15px; }
+            .header-utils { position: relative; margin-top: 15px; justify-content: center; width: 100%; }
             .app-switcher { flex-direction: column; }
             .app-switcher button { max-width: 100%; }
-            .action-btns { justify-content: center; width: 100%; margin-bottom: 15px; }
-            .action-btns button { width: 100%; margin-bottom: 5px; }
+            .action-btns { justify-content: center; width: 100%; }
+            .action-btns button { width: 48%; }
             .supplier-group { width: 100% !important; display: block; margin-right: 0; }
         }
 
         @media print {
             body { background-color: #fff; margin: 0; padding: 0; color: #000; }
-            .header-container, .app-switcher, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col { display: none !important; }
+            .header-container, .app-switcher, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp { display: none !important; }
             .shopping-list-panel { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
             .supplier-grid { display: block !important; width: 100% !important; }
             .supplier-group { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; background: none; break-inside: avoid; }
@@ -176,7 +183,11 @@
             <img src="image_0.png" alt="Los Pericos Logo" class="header-logo">
             <h1 class="main-title">LOS PERICOS MASTER</h1>
         </div>
-        <button class="dark-mode-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
+        <div class="header-utils">
+            <button class="util-btn" onclick="exportBackup()">💾 Backup Data</button>
+            <label class="util-btn">📂 Restore Data<input type="file" accept=".json" onchange="importBackup(event)" style="display:none"></label>
+            <button class="util-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
+        </div>
     </div>
 
     <div class="app-switcher">
@@ -185,6 +196,10 @@
     </div>
 
     <div id="sysco-wrapper" class="app-section sysco-wrapper active-app">
+        
+        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Sysco item..." onkeyup="filterTable('sysco', this.value)">
+        <div class="timestamp" id="time-sysco">Last updated: Loading...</div>
+
         <div class="tabs">
             <button class="tab-btn active" onclick="openTab(event, 'sysco', 'Weight_sysco')">Weight & Volume</button>
             <button class="tab-btn" onclick="openTab(event, 'sysco', 'Unit_sysco')">Unit Count</button>
@@ -217,12 +232,13 @@
 
         <div class="shopping-list-panel">
             <div class="action-btns">
-                <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px;">
-                    <input type="checkbox" onchange="toggleHidePrices('sysco')"> Hide Prices on Print
+                <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
+                    <input type="checkbox" onchange="toggleHidePrices('sysco')"> Hide Prices
                 </label>
-                <button class="btn-red" onclick="clearData('sysco')">🗑️ Clear Sysco Data</button>
-                <button class="btn-blue" onclick="downloadPDF('sysco')">📄 Download Sysco PDF</button>
-                <button class="btn-green" onclick="window.print()">🖨️ Print</button>
+                <button class="btn-yellow" onclick="resetQuantities('sysco')">🔄 New Week Reset</button>
+                <button class="btn-red" onclick="clearData('sysco')">🗑️ Master Clear</button>
+                <button class="btn-text-msg" onclick="copyForTextMsg('sysco')">💬 Copy for Text</button>
+                <button class="btn-blue" onclick="downloadPDF('sysco')">📄 PDF</button>
             </div>
             <h2>🛒 Sysco Shopping List</h2>
             <div id="list-content-sysco" class="supplier-grid"></div>
@@ -230,6 +246,10 @@
     </div>
 
     <div id="verdura-wrapper" class="app-section verdura-wrapper">
+        
+        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Produce item..." onkeyup="filterTable('verdura', this.value)">
+        <div class="timestamp" id="time-verdura">Last updated: Loading...</div>
+
         <div class="tabs">
             <button class="tab-btn active" onclick="openTab(event, 'verdura', 'Weight_verdura')">Weight & Volume</button>
             <button class="tab-btn" onclick="openTab(event, 'verdura', 'Unit_verdura')">Unit Count</button>
@@ -262,12 +282,13 @@
 
         <div class="shopping-list-panel">
             <div class="action-btns">
-                <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px;">
-                    <input type="checkbox" onchange="toggleHidePrices('verdura')"> Hide Prices on Print
+                <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
+                    <input type="checkbox" onchange="toggleHidePrices('verdura')"> Hide Prices
                 </label>
-                <button class="btn-red" onclick="clearData('verdura')">🗑️ Clear Produce Data</button>
-                <button class="btn-blue" onclick="downloadPDF('verdura')">📄 Download Produce PDF</button>
-                <button class="btn-green" onclick="window.print()">🖨️ Print</button>
+                <button class="btn-yellow" onclick="resetQuantities('verdura')">🔄 New Week Reset</button>
+                <button class="btn-red" onclick="clearData('verdura')">🗑️ Master Clear</button>
+                <button class="btn-text-msg" onclick="copyForTextMsg('verdura')">💬 Copy for Text</button>
+                <button class="btn-blue" onclick="downloadPDF('verdura')">📄 PDF</button>
             </div>
             <h2>🛒 Produce Shopping List</h2>
             <div id="list-content-verdura" class="supplier-grid"></div>
@@ -306,6 +327,106 @@
             
             document.getElementById(tabId).classList.add("active");
             evt.currentTarget.classList.add("active");
+        }
+
+        // F1: QUICK FIND FILTER
+        function filterTable(appName, query) {
+            let q = query.toLowerCase();
+            let rows = document.querySelectorAll(`#${appName}-wrapper tbody tr`);
+            rows.forEach(row => {
+                let name = row.querySelector('.item-name').value.toLowerCase();
+                row.style.display = name.includes(q) ? '' : 'none';
+            });
+        }
+
+        // F2: COPY TEXT FOR MESSAGING
+        function copyForTextMsg(appName) {
+            let wrapper = document.getElementById(appName + '-wrapper');
+            let allRows = wrapper.querySelectorAll('tbody tr');
+            let listBySupplier = {};
+
+            allRows.forEach(row => {
+                let itemName = row.querySelector('.item-name').value.trim();
+                let winningCells = row.querySelectorAll('.best-deal');
+
+                if (itemName && winningCells.length > 0) {
+                    winningCells.forEach(wc => {
+                        let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
+                        let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
+                        if (aQty > 0) {
+                            if (!listBySupplier[sName]) listBySupplier[sName] = [];
+                            listBySupplier[sName].push(`${aQty}x ${itemName}`);
+                        }
+                    });
+                }
+            });
+
+            if(Object.keys(listBySupplier).length === 0) {
+                alert("Your cart is empty! Add quantities before copying.");
+                return;
+            }
+
+            let textOutput = `📋 Los Pericos ${appName === 'sysco' ? 'Main' : 'Produce'} Order\n`;
+            Object.keys(listBySupplier).forEach(supp => {
+                textOutput += `\n📦 ${supp}:\n`;
+                listBySupplier[supp].forEach(item => {
+                    textOutput += `- ${item}\n`;
+                });
+            });
+
+            navigator.clipboard.writeText(textOutput).then(() => {
+                alert("✅ List copied to clipboard! You can now paste it into a text message or WhatsApp.");
+            }).catch(err => {
+                alert("Oops, your browser blocked the copy. Please download the PDF instead.");
+            });
+        }
+
+        // F4: NEW WEEK RESET
+        function resetQuantities(appName) {
+            if(confirm(`Ready for a new week? This will set all ${appName.toUpperCase()} quantities back to 0, but KEEP all your prices.`)) {
+                let rows = document.querySelectorAll(`#${appName}-wrapper tbody tr`);
+                rows.forEach(row => {
+                    row.querySelector('.order-qty').value = '';
+                    // Reset math without typing
+                    processRowUpdate(row.querySelector('.item-name'), true); 
+                });
+                saveToLocalStorage(appName);
+                generateShoppingList(appName);
+                alert("✅ All quantities reset! Ready for the new week.");
+            }
+        }
+
+        // F6: SAFE-BOX BACKUP (EXPORT & IMPORT)
+        function exportBackup() {
+            let data = {
+                sysco: localStorage.getItem('restaurantPriceCalc_Main'),
+                verdura: localStorage.getItem('restaurantPriceCalc_Verdura')
+            };
+            let blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url; 
+            let dateStr = new Date().toISOString().split('T')[0];
+            a.download = `Pericos_Backup_${dateStr}.json`;
+            a.click();
+        }
+
+        function importBackup(event) {
+            let file = event.target.files[0];
+            if(!file) return;
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let d = JSON.parse(e.target.result);
+                    if(d.sysco) localStorage.setItem('restaurantPriceCalc_Main', d.sysco);
+                    if(d.verdura) localStorage.setItem('restaurantPriceCalc_Verdura', d.verdura);
+                    alert('✅ Backup restored successfully! Refreshing app...');
+                    location.reload();
+                } catch(err) { 
+                    alert('❌ Invalid backup file format.'); 
+                }
+            };
+            reader.readAsText(file);
         }
 
         // --- ROW LOGIC ---
@@ -392,7 +513,7 @@
             
             tr.innerHTML = html;
             tbody.appendChild(tr);
-            processRowUpdate(tr.querySelector('.item-name')); 
+            processRowUpdate(tr.querySelector('.item-name'), true); // Skip auto-save on initial build
         }
 
         function insertRowRelative(btn, direction, appName, s1, s2, s3) {
@@ -412,7 +533,7 @@
             saveToLocalStorage(appName); 
         }
 
-        function processRowUpdate(inputElem) {
+        function processRowUpdate(inputElem, skipSave = false) {
             if(!inputElem) return;
             let row = inputElem.closest('tr');
             let table = row.closest('table');
@@ -489,8 +610,10 @@
                 });
             }
 
-            generateShoppingList(appName);
-            saveToLocalStorage(appName);
+            if(!skipSave) {
+                generateShoppingList(appName);
+                saveToLocalStorage(appName);
+            }
         }
 
         function handleManualSplitChange(splitInput) {
@@ -540,7 +663,7 @@
             const container = document.getElementById('list-content-' + appName);
             container.innerHTML = '';
             if(Object.keys(listBySupplier).length === 0) {
-                container.innerHTML = `<p style="color:#999; font-style:italic;">Add prices and order quantities above to generate your list.</p>`;
+                container.innerHTML = `<p style="color:#999; font-style:italic;">Add quantities above to generate your list.</p>`;
                 return;
             }
 
@@ -561,15 +684,22 @@
             printElement.style.width = "1000px"; 
 
             const headerHtml = document.getElementById('brand-header').outerHTML;
-            const listHtml = document.querySelector(`#${appName}-wrapper .shopping-list-panel`).outerHTML;
+            
+            // F3: Inject timestamp into PDF
+            let timeTracker = document.getElementById('time-' + appName).innerText;
+            const listHtml = `<div style="text-align:right; font-size:12px; color:#666; font-style:italic;">${timeTracker}</div>` + document.querySelector(`#${appName}-wrapper .shopping-list-panel`).outerHTML;
+            
             printElement.innerHTML = headerHtml + listHtml;
 
             if(document.querySelector(`#${appName}-wrapper .shopping-list-panel`).classList.contains('hide-prices-active')) {
                 printElement.querySelector('.shopping-list-panel').classList.add('hide-prices-active');
             }
 
-            printElement.querySelector('.dark-mode-btn').remove();
-            printElement.querySelector('.action-btns').remove();
+            // Cleanup buttons from PDF
+            let utils = printElement.querySelector('.header-utils');
+            if(utils) utils.remove();
+            let actionBtns = printElement.querySelector('.action-btns');
+            if(actionBtns) actionBtns.remove();
 
             let gridContainer = printElement.querySelector('.supplier-grid');
             if(gridContainer) { gridContainer.style.display = 'flex'; gridContainer.style.flexDirection = 'row'; }
@@ -608,6 +738,11 @@
         }
 
         function saveToLocalStorage(appName) {
+            // F3: TIMESTAMP GENERATION
+            let now = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+            localStorage.setItem(`timeTracker_${appName}`, now);
+            document.getElementById(`time-${appName}`).innerText = `Last updated: ${now}`;
+
             if(appName === 'sysco') {
                 let data = { weight: [], unit: [], mfe: [] };
                 extractTableData('weightTable_sysco', data.weight);
@@ -639,7 +774,13 @@
         function loadFromLocalStorage() {
             if (localStorage.getItem('restaurantCalcDarkMode') === 'true') toggleDarkMode();
 
-            // ALL OF YOUR ACTUAL SPREADSHEET DATA RE-INJECTED HERE
+            // Load Timestamps
+            let timeSysco = localStorage.getItem('timeTracker_sysco');
+            document.getElementById('time-sysco').innerText = timeSysco ? `Last updated: ${timeSysco}` : 'Last updated: Never';
+            let timeVerdura = localStorage.getItem('timeTracker_verdura');
+            document.getElementById('time-verdura').innerText = timeVerdura ? `Last updated: ${timeVerdura}` : 'Last updated: Never';
+
+            // LOAD SYSCO
             let syscoDataStr = localStorage.getItem('restaurantPriceCalc_Main');
             if (!syscoDataStr) {
                 const syscoWeightLb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
@@ -661,6 +802,7 @@
             rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0], ['Ben E Keith','','','lb',0], ['Gordon','','','lb',0]);
             rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0], ['Ben E Keith','','','oz',0], ['Gordon','','','oz',0]);
             rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
+            generateShoppingList('sysco');
 
             // LOAD VERDURA
             let verduraDataStr = localStorage.getItem('restaurantPriceCalc_Verdura');
@@ -680,12 +822,19 @@
             rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0], ['Cantu','','','lb',0], ['Produce 3','','','lb',0]);
             rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0], ['Cantu','','','oz',0], ['Produce 3','','','oz',0]);
             rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
+            generateShoppingList('verdura');
         }
 
         function clearData(appName) {
-            if(confirm(`Are you sure you want to delete all prices? (This will also reload your default master list!)`)) {
-                if(appName === 'sysco') localStorage.removeItem('restaurantPriceCalc_Main');
-                if(appName === 'verdura') localStorage.removeItem('restaurantPriceCalc_Verdura');
+            if(confirm(`⚠️ WARNING: Are you sure you want to completely WIPE all your prices and data? \n\n(Tip: If you just want to clear quantities for the new week, use the Yellow reset button instead).`)) {
+                if(appName === 'sysco') {
+                    localStorage.removeItem('restaurantPriceCalc_Main');
+                    localStorage.removeItem('timeTracker_sysco');
+                }
+                if(appName === 'verdura') {
+                    localStorage.removeItem('restaurantPriceCalc_Verdura');
+                    localStorage.removeItem('timeTracker_verdura');
+                }
                 location.reload(); 
             }
         }
