@@ -73,8 +73,12 @@
         .sysco-wrapper .search-bar:focus { border-color: var(--primary-color); outline: none; }
         .verdura-wrapper .search-bar:focus { border-color: var(--verdura-color); outline: none; }
         
-        .cloud-status { display: inline-block; padding: 4px 8px; background: #e3f2fd; color: #0d47a1; border-radius: 4px; font-size: 11px; font-weight: bold; margin-bottom: 10px; }
+        /* LEVEL 2: OFFLINE STATUS BAR */
+        .cloud-status { display: inline-block; padding: 6px 12px; background: #e3f2fd; color: #0d47a1; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; text-align: center; }
         body.dark-mode .cloud-status { background: #0d47a1; color: #e3f2fd; }
+        .cloud-status.offline { background: #fff3cd !important; color: #856404 !important; border: 2px solid #ffeeba; }
+        body.dark-mode .cloud-status.offline { background: #856404 !important; color: #fff3cd !important; }
+        
         .timestamp { font-size: 12px; color: var(--result-text); font-style: italic; margin-bottom: 15px; text-align: right; font-weight: bold; }
 
         .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; white-space: nowrap;}
@@ -165,6 +169,10 @@
 
         .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; font-size: 12px; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-color); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
+        /* TOAST NOTIFICATION FOR LIVE SYNC */
+        #sync-toast { visibility: hidden; min-width: 250px; background-color: var(--success-color); color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 9999; bottom: 100px; left: 50%; transform: translateX(-50%); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: visibility 0s, opacity 0.5s linear; opacity: 0; }
+        #sync-toast.show { visibility: visible; opacity: 1; }
+
         @media (max-width: 850px) {
             .header-container { flex-direction: column; text-align: center; }
             .header-utils { position: relative; margin-top: 15px; justify-content: center; width: 100%; }
@@ -175,7 +183,7 @@
 
         @media print {
             body { background-color: #fff; margin: 0; padding: 0; color: #000; padding-bottom: 0; }
-            .header-container, .bottom-nav, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp, .cloud-status { display: none !important; }
+            .header-container, .bottom-nav, .tabs, .tab-content, .action-btns, .add-row-btn, .action-col, .search-bar, .timestamp, .cloud-status, #sync-toast { display: none !important; }
             .shopping-list-panel { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
             .supplier-grid { display: block !important; width: 100% !important; }
             .supplier-group { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; background: none; break-inside: avoid; }
@@ -197,8 +205,10 @@
         </div>
     </div>
 
+    <div id="sync-toast">☁️ List updated by another manager!</div>
+
     <div id="sysco-wrapper" class="app-section sysco-wrapper active-app">
-        <div class="cloud-status">☁️ Connected to Firebase</div>
+        <div class="cloud-status" id="conn-sysco">☁️ Connecting to Server...</div>
         <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Sysco item..." onkeyup="filterTable('sysco', this.value)">
         <div class="timestamp" id="time-sysco">Last updated: Loading Cloud Data...</div>
 
@@ -213,7 +223,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('weightTable_sysco', 'sysco', 'Total $', 'Total oz', '', '', 'lb', ['Sysco','','','lb',0], ['Ben E Keith','','','lb',0], ['Gordon','','','lb',0])">+ Add Item to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('weightTable_sysco', 'sysco', 'Total $', 'Total oz', '', '', 'lb', ['Sysco','','','lb',0,''], ['Ben E Keith','','','lb',0,''], ['Gordon','','','lb',0,''])">+ Add Item to Bottom</button>
         </div>
 
         <div id="Unit_sysco" class="tab-content">
@@ -221,7 +231,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('unitTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['Sysco','','','oz',0], ['Ben E Keith','','','oz',0], ['Gordon','','','oz',0])">+ Add Item to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('unitTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['Sysco','','','oz',0,''], ['Ben E Keith','','','oz',0,''], ['Gordon','','','oz',0,''])">+ Add Item to Bottom</button>
         </div>
 
         <div id="MFE_sysco" class="tab-content">
@@ -229,7 +239,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>MFE Vendor Info</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('mfeTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['MFE','','','oz',0])">+ Add Item to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('mfeTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['MFE','','','oz',0,''])">+ Add Item to Bottom</button>
         </div>
 
         <div class="shopping-list-panel">
@@ -248,7 +258,7 @@
     </div>
 
     <div id="verdura-wrapper" class="app-section verdura-wrapper">
-        <div class="cloud-status">☁️ Connected to Firebase</div>
+        <div class="cloud-status" id="conn-verdura">☁️ Connecting to Server...</div>
         <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Produce item..." onkeyup="filterTable('verdura', this.value)">
         <div class="timestamp" id="time-verdura">Last updated: Loading Cloud Data...</div>
 
@@ -263,7 +273,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('weightTable_verdura', 'verdura', 'Price $', 'Total oz', '', '', 'lb', ['Mr. Pepper','','','lb',0], ['Cantu','','','lb',0], ['Produce 3','','','lb',0])">+ Add Produce to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('weightTable_verdura', 'verdura', 'Price $', 'Total oz', '', '', 'lb', ['Mr. Pepper','','','lb',0,''], ['Cantu','','','lb',0,''], ['Produce 3','','','lb',0,''])">+ Add Produce to Bottom</button>
         </div>
 
         <div id="Unit_verdura" class="tab-content">
@@ -271,7 +281,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Supplier Option 1</th><th>Supplier Option 2</th><th>Supplier Option 3</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('unitTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Mr. Pepper','','','oz',0], ['Cantu','','','oz',0], ['Produce 3','','','oz',0])">+ Add Produce to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('unitTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Mr. Pepper','','','oz',0,''], ['Cantu','','','oz',0,''], ['Produce 3','','','oz',0,''])">+ Add Produce to Bottom</button>
         </div>
 
         <div id="DelComal_verdura" class="tab-content">
@@ -279,7 +289,7 @@
                 <thead><tr><th>Item & Order Qty</th><th>Del Comal Vendor Info</th><th class="action-col"></th></tr></thead>
                 <tbody></tbody>
             </table>
-            <button class="add-row-btn" onclick="addRow('delComalTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Del Comal','','','oz',0])">+ Add Item to Bottom</button>
+            <button class="add-row-btn" onclick="addRow('delComalTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Del Comal','','','oz',0,''])">+ Add Item to Bottom</button>
         </div>
 
         <div class="shopping-list-panel">
@@ -316,7 +326,7 @@
     </div>
 
     <script>
-        // --- LEVEL 2: FIREBASE INITIALIZATION ---
+        // --- LEVEL 2: FIREBASE INITIALIZATION & SYNC IDENTITY ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
             authDomain: "los-pericos-46378.firebaseapp.com",
@@ -329,7 +339,15 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let isAppLoading = true; // Prevents saving back to cloud while building tables
+        
+        let isAppLoading = true; 
+        const mySyncId = Math.random().toString(36).substr(2, 9); // Creates a unique ID for your phone
+
+        function showSyncToast() {
+            let toast = document.getElementById("sync-toast");
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
 
         // --- MASTER APP CONTROLS ---
         function switchApp(appTarget) {
@@ -384,7 +402,6 @@
             allRows.forEach(row => {
                 let itemName = row.querySelector('.item-name').value.trim();
                 let winningCells = row.querySelectorAll('.best-deal');
-
                 if (itemName && winningCells.length > 0) {
                     winningCells.forEach(wc => {
                         let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
@@ -403,7 +420,6 @@
                 textOutput += `\n📦 ${supp}:\n`;
                 listBySupplier[supp].forEach(item => { textOutput += `- ${item}\n`; });
             });
-
             navigator.clipboard.writeText(textOutput).then(() => {
                 alert("✅ List copied to clipboard! You can now paste it into a text message or WhatsApp.");
             }).catch(err => { alert("Oops, your browser blocked the copy. Please download the PDF instead."); });
@@ -451,8 +467,8 @@
             reader.readAsText(file);
         }
 
-        // --- ROW LOGIC ---
-        function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal) {
+        // --- ROW LOGIC WITH TREND ARROWS ---
+        function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, trendVal) {
             let qtyHtml = '';
             if (hasUnits) {
                 qtyHtml = `
@@ -469,11 +485,17 @@
                 qtyHtml = `<input type="number" class="s-qty" placeholder="Pack Size" value="${qtyVal}" oninput="processRowUpdate(this)">`;
             }
 
+            let trendIcon = trendVal === 'up' ? '🔺' : (trendVal === 'down' ? '🔻' : '');
+
             return `
                 <td class="supplier-cell">
                     <input type="text" class="s-name" placeholder="Supplier Name" value="${supplierName}" oninput="processRowUpdate(this)">
                     <div class="input-group">
-                        <input type="number" class="s-price" placeholder="Price $" value="${priceVal}" oninput="processRowUpdate(this)">
+                        <div style="position:relative; width:50%; display:flex; align-items:center;">
+                            <span style="position:absolute; left:6px; color:var(--result-text); font-size:14px; pointer-events:none;">$</span>
+                            <input type="number" class="s-price" style="padding-left:18px; padding-right:20px; width:100%; margin-bottom:0;" placeholder="Price" value="${priceVal}" data-old-price="${priceVal}" oninput="processRowUpdate(this)">
+                            <span class="trend-indicator" style="position:absolute; right:6px; font-size:12px; pointer-events:none;">${trendIcon}</span>
+                        </div>
                         ${qtyHtml}
                     </div>
                     <div class="s-result" data-value="0">$0.00</div>
@@ -514,15 +536,15 @@
                 ${targetUnitHtml}
             </td>`;
 
-            html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0);
+            html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0, s1[5] || '');
             if (!isSingle) {
-                html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits?'lb':'oz'), hasUnits, s2[4] || 0);
-                html += createSupplierCellHTML(s3[0], s3[1], s3[2], s3[3] || (hasUnits?'lb':'oz'), hasUnits, s3[4] || 0);
+                html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits?'lb':'oz'), hasUnits, s2[4] || 0, s2[5] || '');
+                html += createSupplierCellHTML(s3[0], s3[1], s3[2], s3[3] || (hasUnits?'lb':'oz'), hasUnits, s3[4] || 0, s3[5] || '');
             }
             
-            let s1Fallback = `['${s1[0]}','','','${s1[3]||'lb'}',0]`;
-            let s2Fallback = isSingle ? '' : `, ['${s2[0]}','','','${s2[3]||'lb'}',0]`;
-            let s3Fallback = isSingle ? '' : `, ['${s3[0]}','','','${s3[3]||'lb'}',0]`;
+            let s1Fallback = `['${s1[0]}','','','${s1[3]||'lb'}',0,'']`;
+            let s2Fallback = isSingle ? '' : `, ['${s2[0]}','','','${s2[3]||'lb'}',0,'']`;
+            let s3Fallback = isSingle ? '' : `, ['${s3[0]}','','','${s3[3]||'lb'}',0,'']`;
 
             html += `<td class="action-col">
                 <div style="display:flex; flex-direction:column; align-items:center;">
@@ -567,22 +589,31 @@
             let displayUnitLabel = targetUnit ? `/ ${targetUnit}` : baseUnitLabel;
 
             cells.forEach(cell => {
-                let price = parseFloat(cell.querySelector('.s-price').value) || 0;
+                let priceInput = cell.querySelector('.s-price');
+                let newPrice = parseFloat(priceInput.value) || 0;
+                let oldPrice = parseFloat(priceInput.getAttribute('data-old-price')) || 0;
+                let trendInd = cell.querySelector('.trend-indicator');
+                
+                // Set trend arrow instantly when user types
+                if (newPrice > oldPrice && oldPrice > 0) trendInd.innerText = '🔺';
+                else if (newPrice < oldPrice && newPrice > 0) trendInd.innerText = '🔻';
+                else if (newPrice === oldPrice && newPrice !== 0) trendInd.innerText = ''; // Cleared if they revert typo
+
                 let qtyInput = cell.querySelector('.s-qty').value;
                 let qty = parseFloat(qtyInput);
                 if (isNaN(qty)) qty = 1; 
 
                 let finalPrice = 0;
-                if (price > 0) {
+                if (newPrice > 0) {
                     if (hasUnits && targetUnit) {
                         if (qty === 0) qty = 1;
                         let sUnit = cell.querySelector('.s-unit') ? cell.querySelector('.s-unit').value : targetUnit;
                         let qtyInBase = qty * conversionFactors[sUnit];
                         let finalQtyInTargetUnit = qtyInBase / conversionFactors[targetUnit];
-                        finalPrice = price / finalQtyInTargetUnit;
+                        finalPrice = newPrice / finalQtyInTargetUnit;
                     } else {
                         if (qty === 0) qty = 1;
-                        finalPrice = price / qty;
+                        finalPrice = newPrice / qty;
                     }
                 }
 
@@ -696,8 +727,7 @@
             Object.keys(listBySupplier).forEach(supp => {
                 let html = `<div class="supplier-group"><h4>📦 ${supp}</h4><ul>`;
                 listBySupplier[supp].forEach(itemHtml => { html += `<li>${itemHtml}</li>`; });
-                html += `</ul>`;
-                html += `<div class="invoice-total"><span>Est. Invoice:</span><span class="invoice-amount">$${totalsBySupplier[supp].toFixed(2)}</span></div></div>`;
+                html += `</ul><div class="invoice-total"><span>Est. Invoice:</span><span class="invoice-amount">$${totalsBySupplier[supp].toFixed(2)}</span></div></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
         }
@@ -725,13 +755,7 @@
             let gridContainer = printElement.querySelector('.supplier-grid');
             if(gridContainer) { gridContainer.style.display = 'flex'; gridContainer.style.flexDirection = 'row'; }
 
-            const opt = {
-                margin: 0.5,
-                filename: `Los_Pericos_${appName}_Cloud_Order.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } 
-            };
+            const opt = { margin: 0.5, filename: `Los_Pericos_${appName}_Cloud_Order.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } };
             html2pdf().set(opt).from(printElement).save();
         }
 
@@ -744,26 +768,40 @@
                     suppliers: [] 
                 };
                 row.querySelectorAll('.supplier-cell').forEach(cell => {
+                    let priceInput = cell.querySelector('.s-price');
                     let sUnit = cell.querySelector('.s-unit');
                     let sSplit = cell.querySelector('.split-qty');
+                    
+                    let newPrice = parseFloat(priceInput.value) || 0;
+                    let oldPrice = parseFloat(priceInput.getAttribute('data-old-price')) || 0;
+                    let trendInd = cell.querySelector('.trend-indicator');
+                    let trend = '';
+                    
+                    if (newPrice > oldPrice && oldPrice > 0) trend = 'up';
+                    else if (newPrice < oldPrice && newPrice > 0) trend = 'down';
+                    else if (trendInd.innerText === '🔺') trend = 'up'; // keep existing trend
+                    else if (trendInd.innerText === '🔻') trend = 'down'; 
+
                     rowData.suppliers.push([
                         cell.querySelector('.s-name').value,
-                        cell.querySelector('.s-price').value,
+                        priceInput.value,
                         cell.querySelector('.s-qty').value,
                         sUnit ? sUnit.value : 'oz',
-                        sSplit ? sSplit.value : 0
+                        sSplit ? sSplit.value : 0,
+                        trend
                     ]);
                 });
                 targetArray.push(rowData);
             });
         }
 
-        // --- LEVEL 2: FIREBASE SAVING ---
+        // --- LEVEL 2: FIREBASE SYNC & OFFLINE TRACKING ---
         function saveToDatabase(appName) {
-            if(isAppLoading) return; // Don't save to DB while building tables
+            if(isAppLoading) return; // Prevents rewriting database while it's still drawing the screen
 
             let now = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
             db.ref('metadata/' + appName).set(now);
+            db.ref('metadata/lastEditor').set(mySyncId); // Stamping my unique ID so my phone doesn't refresh on my own typing
             document.getElementById(`time-${appName}`).innerText = `Last updated: ${now}`;
 
             let data = {};
@@ -782,15 +820,15 @@
         }
 
         function rebuildTable(tableId, appName, rowDataArray, pLabel, qLabel, s1def, s2def, s3def) {
-            document.querySelector(`#${tableId} tbody`).innerHTML = ''; // Clear table before rebuild
+            document.querySelector(`#${tableId} tbody`).innerHTML = '';
             if(!rowDataArray || rowDataArray.length === 0) { 
                 addRow(tableId, appName, pLabel, qLabel, '', '', 'oz', s1def, s2def, s3def); return; 
             }
             rowDataArray.forEach(rd => { 
-                let s1 = rd.suppliers[0] || [s1def[0], "", "", "lb", 0];
-                let s2 = rd.suppliers[1] || [s2def[0], "", "", "lb", 0];
-                let s3 = rd.suppliers[2] || [s3def[0], "", "", "lb", 0];
-                if (s1.length < 5) s1.push(0); if (s2.length < 5) s2.push(0); if (s3.length < 5) s3.push(0);
+                let s1 = rd.suppliers[0] || [s1def[0], "", "", "lb", 0, ""];
+                let s2 = rd.suppliers[1] || [s2def[0], "", "", "lb", 0, ""];
+                let s3 = rd.suppliers[2] || [s3def[0], "", "", "lb", 0, ""];
+                if (s1.length < 6) s1.push(""); if (s2.length < 6) s2.push(""); if (s3.length < 6) s3.push("");
                 addRow(tableId, appName, pLabel, qLabel, rd.item, rd.qty || "", rd.targetUnit || "oz", s1, s2, s3); 
             });
         }
@@ -801,10 +839,10 @@
             const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
             const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
             return {
-                weight: [...syscoWeightLb.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0], ["Ben E Keith","","","lb",0], ["Gordon","","","lb",0]] })),
-                         ...syscoWeightFlOz.map(item => ({ item: item, qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0], ["Ben E Keith","","","fl oz",0], ["Gordon","","","fl oz",0]] }))],
-                unit: syscoUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0], ["Ben E Keith","","","oz",0], ["Gordon","","","oz",0]] })),
-                mfe: syscoMfe.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0]] }))
+                weight: [...syscoWeightLb.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0,""], ["Ben E Keith","","","lb",0,""], ["Gordon","","","lb",0,""]] })),
+                         ...syscoWeightFlOz.map(item => ({ item: item, qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0,""], ["Ben E Keith","","","fl oz",0,""], ["Gordon","","","fl oz",0,""]] }))],
+                unit: syscoUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,""], ["Ben E Keith","","","oz",0,""], ["Gordon","","","oz",0,""]] })),
+                mfe: syscoMfe.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0,""]] }))
             };
         }
 
@@ -813,26 +851,37 @@
             const verdUnit = ["AJO PELADO", "TOMATE", "AGUACATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "POBLANO PEPPER", "JALAPENO PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "LIMES", "LEMONS", "CELERY", "CEBOLLA", "NARANJA", "RED CABAGE", "HONGOS", "POTATO #2", "PAN X TORTA", "COCA", "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "POT WHITE", "ACEITE", "HUEVOS", "JALAPENEO LATA"];
             const verdDelComal = ["CHIPS", "VERDE", "ROJA", "BLANCA"];
             return {
-                weight: verdWeight.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0], ["Cantu","","","lb",0], ["Produce 3","","","lb",0]] })),
-                unit: verdUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0], ["Cantu","","","oz",0], ["Produce 3","","","oz",0]] })),
-                delComal: verdDelComal.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0]] }))
+                weight: verdWeight.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,""], ["Cantu","","","lb",0,""], ["Produce 3","","","lb",0,""]] })),
+                unit: verdUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0,""], ["Cantu","","","oz",0,""], ["Produce 3","","","oz",0,""]] })),
+                delComal: verdDelComal.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0,""]] }))
             };
         }
 
-        // --- LEVEL 2: FIREBASE LOADING & MIGRATION ---
         function loadFromDatabase() {
             if (localStorage.getItem('restaurantCalcDarkMode') === 'true') toggleDarkMode();
 
-            db.ref('/').once('value').then((snapshot) => {
+            // OFFLINE WALK-IN COOLER DETECTOR
+            db.ref('.info/connected').on('value', function(snap) {
+                let sDiv = document.getElementById('conn-sysco');
+                let vDiv = document.getElementById('conn-verdura');
+                if (snap.val() === true) {
+                    sDiv.innerText = '☁️ Live Cloud Sync Active'; sDiv.classList.remove('offline');
+                    vDiv.innerText = '☁️ Live Cloud Sync Active'; vDiv.classList.remove('offline');
+                } else {
+                    sDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; sDiv.classList.add('offline');
+                    vDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; vDiv.classList.add('offline');
+                }
+            });
+
+            // LIVE GHOST-TYPING LISTENER
+            db.ref('/').on('value', (snapshot) => {
                 let dbData = snapshot.val();
 
-                // MIGRATION PROTOCOL: If cloud is empty, check old local storage
+                // If cloud is empty, run the automatic local-to-cloud migration
                 if (!dbData || !dbData.inventory) {
                     let localSysco = localStorage.getItem('restaurantPriceCalc_Main');
                     let localVerdura = localStorage.getItem('restaurantPriceCalc_Verdura');
-                    
                     if (localSysco || localVerdura) {
-                        alert("Migrating your saved prices to the Cloud! Hang tight...");
                         let payload = { inventory: {}, metadata: {} };
                         if(localSysco) payload.inventory.sysco = JSON.parse(localSysco);
                         if(localVerdura) payload.inventory.verdura = JSON.parse(localVerdura);
@@ -842,35 +891,36 @@
                         db.ref('/').set(payload).then(() => {
                             localStorage.removeItem('restaurantPriceCalc_Main');
                             localStorage.removeItem('restaurantPriceCalc_Verdura');
-                            location.reload(); // Reload from cloud
                         });
-                        return; // Stop loading and wait for reload
+                        return; // Wait for cloud to respond with data
                     }
                 }
 
                 // Normal Cloud Load
                 if (!dbData) dbData = { inventory: {}, metadata: {} };
+
+                // PREVENT FOCUS STEALING: If my phone was the one that just updated the data, ignore the refresh
+                if (dbData.metadata && dbData.metadata.lastEditor === mySyncId && !isAppLoading) {
+                    return; 
+                }
+
+                // If someone else updated the list while you were using it, show the toast alert!
+                if (!isAppLoading) showSyncToast();
                 
                 // Process Sysco
                 let syscoData = dbData.inventory ? dbData.inventory.sysco : null;
-                if (!syscoData) {
-                    syscoData = getSyscoDefaults();
-                    db.ref('inventory/sysco').set(syscoData);
-                }
-                rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0], ['Ben E Keith','','','lb',0], ['Gordon','','','lb',0]);
-                rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0], ['Ben E Keith','','','oz',0], ['Gordon','','','oz',0]);
-                rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
+                if (!syscoData) { syscoData = getSyscoDefaults(); db.ref('inventory/sysco').set(syscoData); }
+                rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0,''], ['Ben E Keith','','','lb',0,''], ['Gordon','','','lb',0,'']);
+                rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0,''], ['Ben E Keith','','','oz',0,''], ['Gordon','','','oz',0,'']);
+                rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0,''], ['','','','oz',0,''], ['','','','oz',0,'']);
                 generateShoppingList('sysco');
 
                 // Process Verdura
                 let verduraData = dbData.inventory ? dbData.inventory.verdura : null;
-                if (!verduraData) {
-                    verduraData = getVerduraDefaults();
-                    db.ref('inventory/verdura').set(verduraData);
-                }
-                rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0], ['Cantu','','','lb',0], ['Produce 3','','','lb',0]);
-                rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0], ['Cantu','','','oz',0], ['Produce 3','','','oz',0]);
-                rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
+                if (!verduraData) { verduraData = getVerduraDefaults(); db.ref('inventory/verdura').set(verduraData); }
+                rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0,''], ['Cantu','','','lb',0,''], ['Produce 3','','','lb',0,'']);
+                rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0,''], ['Cantu','','','oz',0,''], ['Produce 3','','','oz',0,'']);
+                rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0,''], ['','','','oz',0,''], ['','','','oz',0,'']);
                 generateShoppingList('verdura');
 
                 // Load Metadata
@@ -878,19 +928,15 @@
                 document.getElementById('time-sysco').innerText = meta.sysco ? `Last updated: ${meta.sysco}` : 'Last updated: Never';
                 document.getElementById('time-verdura').innerText = meta.verdura ? `Last updated: ${meta.verdura}` : 'Last updated: Never';
 
-                isAppLoading = false; // Turn saving back on
+                isAppLoading = false; 
 
-            }).catch(err => {
-                alert("Failed to connect to the cloud database. Check your internet connection.");
-                console.error(err);
             });
         }
 
         function clearData(appName) {
-            if(confirm(`⚠️ WARNING: Are you sure you want to completely WIPE the global cloud database? This will reset it for everyone.`)) {
+            if(confirm(`⚠️ WARNING: Are you sure you want to completely WIPE the global cloud database? This will reset it for all managers.`)) {
                 db.ref('inventory/' + appName).remove();
                 db.ref('metadata/' + appName).remove();
-                location.reload(); 
             }
         }
 
