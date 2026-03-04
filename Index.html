@@ -639,14 +639,21 @@
         function loadFromLocalStorage() {
             if (localStorage.getItem('restaurantCalcDarkMode') === 'true') toggleDarkMode();
 
-            // Load Sysco
+            // ALL OF YOUR ACTUAL SPREADSHEET DATA RE-INJECTED HERE
             let syscoDataStr = localStorage.getItem('restaurantPriceCalc_Main');
             if (!syscoDataStr) {
-                // If totally empty, pre-load just a few defaults so it doesn't break
+                const syscoWeightLb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
+                const syscoWeightFlOz = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
+                const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
+                const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
+
                 syscoDataStr = JSON.stringify({
-                    weight: [{item: "CHICKEN BREAST", qty:"", targetUnit:"lb", suppliers:[["Sysco","","","lb",0],["Ben E Keith","","","lb",0],["Gordon","","","lb",0]]}],
-                    unit: [{item: "FRENCH FRIES", qty:"", targetUnit:"oz", suppliers:[["Sysco","","","oz",0],["Ben E Keith","","","oz",0],["Gordon","","","oz",0]]}],
-                    mfe: [{item: "BASSA FISH", qty:"", targetUnit:"oz", suppliers:[["MFE","","","oz",0]]}]
+                    weight: [
+                        ...syscoWeightLb.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0], ["Ben E Keith","","","lb",0], ["Gordon","","","lb",0]] })),
+                        ...syscoWeightFlOz.map(item => ({ item: item, qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0], ["Ben E Keith","","","fl oz",0], ["Gordon","","","fl oz",0]] }))
+                    ],
+                    unit: syscoUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0], ["Ben E Keith","","","oz",0], ["Gordon","","","oz",0]] })),
+                    mfe: syscoMfe.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0]] }))
                 });
                 localStorage.setItem('restaurantPriceCalc_Main', syscoDataStr);
             }
@@ -655,13 +662,17 @@
             rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0], ['Ben E Keith','','','oz',0], ['Gordon','','','oz',0]);
             rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0], ['','','','oz',0], ['','','','oz',0]);
 
-            // Load Verdura
+            // LOAD VERDURA
             let verduraDataStr = localStorage.getItem('restaurantPriceCalc_Verdura');
             if (!verduraDataStr) {
+                const verdWeight = ["HABANERO", "SERRANO", "CHILE DE ARBOL", "BROCCOLI", "ZUCCHINI", "SQUASH", "GUAJILLO", "OREGANO", "PIMIENTA", "AJO MOLIDO", "PAPRIKA"];
+                const verdUnit = ["AJO PELADO", "TOMATE", "AGUACATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "POBLANO PEPPER", "JALAPENO PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "LIMES", "LEMONS", "CELERY", "CEBOLLA", "NARANJA", "RED CABAGE", "HONGOS", "POTATO #2", "PAN X TORTA", "COCA", "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "POT WHITE", "ACEITE", "HUEVOS", "JALAPENEO LATA"];
+                const verdDelComal = ["CHIPS", "VERDE", "ROJA", "BLANCA"];
+
                 verduraDataStr = JSON.stringify({
-                    weight: [{item: "JALAPENO", qty:"", targetUnit:"lb", suppliers:[["Mr. Pepper","","","lb",0],["Cantu","","","lb",0],["Produce 3","","","lb",0]]}],
-                    unit: [{item: "AVOCADO", qty:"", targetUnit:"oz", suppliers:[["Mr. Pepper","","","oz",0],["Cantu","","","oz",0],["Produce 3","","","oz",0]]}],
-                    delComal: [{item: "CHIPS", qty:"", targetUnit:"oz", suppliers:[["Del Comal","","","oz",0]]}]
+                    weight: verdWeight.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0], ["Cantu","","","lb",0], ["Produce 3","","","lb",0]] })),
+                    unit: verdUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0], ["Cantu","","","oz",0], ["Produce 3","","","oz",0]] })),
+                    delComal: verdDelComal.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0]] }))
                 });
                 localStorage.setItem('restaurantPriceCalc_Verdura', verduraDataStr);
             }
@@ -672,7 +683,7 @@
         }
 
         function clearData(appName) {
-            if(confirm(`Are you sure you want to delete all items in the ${appName.toUpperCase()} app?`)) {
+            if(confirm(`Are you sure you want to delete all prices? (This will also reload your default master list!)`)) {
                 if(appName === 'sysco') localStorage.removeItem('restaurantPriceCalc_Main');
                 if(appName === 'verdura') localStorage.removeItem('restaurantPriceCalc_Verdura');
                 location.reload(); 
