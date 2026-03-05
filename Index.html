@@ -78,7 +78,7 @@
         @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(0, 86, 179, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0); } }
         @keyframes fade-pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* FIXED: HEADER LAYOUT TO PREVENT OVERLAP */
+        /* HEADER LAYOUT */
         .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 10px; flex-wrap: wrap; gap: 15px; }
         .pericos-branding { display: flex; align-items: center; gap: 15px; }
         .header-logo { height: 80px; border-radius: 50%; border: 2px solid var(--border-color); }
@@ -88,8 +88,9 @@
         .util-btn { background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
         .util-btn:hover { border-color: var(--primary-color); }
         
-        /* NEW USER BADGE */
+        /* USER BADGE & LOCATION SWITCHER */
         .user-badge { background: var(--best-deal-bg); color: var(--best-deal-text); padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; display: none; align-items: center; border: 2px solid var(--success-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        #location-switcher { background: var(--primary-color); color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; display: none; outline: none; }
 
         .app-section { display: none; }
         .app-section.active-app { display: block; animation: fadeIn 0.3s; }
@@ -175,8 +176,8 @@
         .action-btns button:hover { transform: translateY(-2px); }
         
         .btn-green { background-color: var(--success-color); }
-        .btn-red { background-color: var(--danger-color); }
-        .btn-yellow { background-color: var(--warning-color); color: #000 !important; }
+        .btn-red { background-color: var(--danger-color); display: none; } /* HIDDEN BY DEFAULT FOR MANAGERS */
+        .btn-yellow { background-color: var(--warning-color); color: #000 !important; display: none; } /* HIDDEN BY DEFAULT FOR MANAGERS */
         .btn-text-msg { background-color: #007aff; }
         .sysco-wrapper .btn-blue { background-color: var(--primary-color); }
         .verdura-wrapper .btn-blue { background-color: var(--verdura-color); }
@@ -289,9 +290,11 @@
             <h1 class="main-title">LOS PERICOS MASTER</h1>
         </div>
         <div class="header-utils">
+            <select id="location-switcher" onchange="switchLocation(this.value)">
+                <option value="LP_Willis">📍 LP Willis</option>
+                <option value="LP_Huntsville">📍 LP Huntsville</option>
+            </select>
             <div id="user-badge" class="user-badge">👤 Unknown</div>
-            <button class="util-btn" onclick="exportBackup()">💾 Cloud Backup</button>
-            <label class="util-btn">📂 Restore Cloud<input type="file" accept=".json" onchange="importBackup(event)" style="display:none"></label>
             <button class="util-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
             <button class="util-btn" style="color:var(--danger-color); border-color:var(--danger-color);" onclick="logoutUser()">🚪 Log Out</button>
         </div>
@@ -330,8 +333,9 @@
                 <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
                     <input type="checkbox" onchange="toggleHidePrices('sysco')"> Hide Prices
                 </label>
-                <button class="btn-yellow" onclick="resetQuantities('sysco')">🔄 New Week Reset</button>
-                <button class="btn-red" onclick="clearData('sysco')">🗑️ Master Clear</button>
+                <button class="btn-yellow admin-only" onclick="resetQuantities('sysco')">🔄 New Week Reset</button>
+                <button class="btn-red admin-only" onclick="clearData('sysco')">🗑️ Master Clear</button>
+                
                 <button class="btn-text-msg" onclick="copyForTextMsg('sysco')">💬 Copy for Text</button>
                 <button class="btn-blue" onclick="downloadPDF('sysco')">📄 PDF</button>
             </div>
@@ -371,8 +375,9 @@
                 <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
                     <input type="checkbox" onchange="toggleHidePrices('verdura')"> Hide Prices
                 </label>
-                <button class="btn-yellow" onclick="resetQuantities('verdura')">🔄 New Week Reset</button>
-                <button class="btn-red" onclick="clearData('verdura')">🗑️ Master Clear</button>
+                <button class="btn-yellow admin-only" onclick="resetQuantities('verdura')">🔄 New Week Reset</button>
+                <button class="btn-red admin-only" onclick="clearData('verdura')">🗑️ Master Clear</button>
+                
                 <button class="btn-text-msg" onclick="copyForTextMsg('verdura')">💬 Copy for Text</button>
                 <button class="btn-blue" onclick="downloadPDF('verdura')">📄 PDF</button>
             </div>
@@ -480,32 +485,67 @@
         let spendChartInstance = null; 
 
         // ==========================================
-        // LEVEL 4: USER AUTHENTICATION & LOGGING
+        // LEVEL 4: THE MULTI-LOCATION AUTO-ROUTER
         // ==========================================
         
-        // 👉 EDIT YOUR TEAM PINS HERE:
+        // 👉 EDIT YOUR TEAM PINS AND LOCATIONS HERE:
+        // (You can change Jorge, Luis H, and Stephanie's PINs safely)
         const TEAM_PINS = {
-            "1234": "Sarah",
-            "9876": "John",
-            "0000": "Owner"
+            "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
+            "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
+            "6660": { name: "Elias", role: "Manager", location: "LP_Huntsville" },
+            "1116": { name: "Stephanie", role: "Owner", location: "All" },
+            "0523": { name: "Luis M", role: "Owner", location: "All" }
         };
 
         let activeUser = localStorage.getItem('pericos_active_user');
+        let activeRole = localStorage.getItem('pericos_active_role');
+        let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis'; // Default
 
-        function updateLoginBadge() {
+        function updateLoginUI() {
             let badge = document.getElementById('user-badge');
+            let locSwitcher = document.getElementById('location-switcher');
+            let adminButtons = document.querySelectorAll('.admin-only');
+
             if (activeUser) {
                 badge.innerText = `👤 ${activeUser}`;
                 badge.style.display = 'flex';
+                
+                // IF OWNER: Show switcher and danger buttons
+                if (activeRole === 'Owner') {
+                    locSwitcher.style.display = 'inline-block';
+                    locSwitcher.value = currentLocation;
+                    adminButtons.forEach(btn => btn.style.display = 'inline-block');
+                } 
+                // IF MANAGER: Hide switcher and danger buttons
+                else {
+                    locSwitcher.style.display = 'none';
+                    adminButtons.forEach(btn => btn.style.display = 'none');
+                }
             } else {
                 badge.style.display = 'none';
+                locSwitcher.style.display = 'none';
             }
+        }
+
+        // The Master Location Switch
+        function switchLocation(newLocation) {
+            db.ref(currentLocation).off(); // Unplug from the old restaurant
+            currentLocation = newLocation;
+            localStorage.setItem('pericos_location', currentLocation);
+            
+            isAppLoading = true;
+            let splash = document.getElementById('splash-screen');
+            splash.style.display = 'flex';
+            splash.style.opacity = '1';
+            
+            loadFromDatabase(); // Plug into the new restaurant
         }
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user && activeUser) {
                 document.getElementById('login-screen').style.display = 'none';
-                updateLoginBadge();
+                updateLoginUI();
                 
                 let splash = document.getElementById('splash-screen');
                 splash.style.display = 'flex';
@@ -521,22 +561,36 @@
 
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
-            if (TEAM_PINS[pin]) {
+            let userData = TEAM_PINS[pin];
+            
+            if (userData) {
                 firebase.auth().signInAnonymously().then(() => {
-                    activeUser = TEAM_PINS[pin];
+                    activeUser = userData.name;
+                    activeRole = userData.role;
+                    
+                    // Set their routing folder
+                    if (activeRole === 'Owner') {
+                        currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
+                    } else {
+                        currentLocation = userData.location;
+                    }
+
                     localStorage.setItem('pericos_active_user', activeUser);
+                    localStorage.setItem('pericos_active_role', activeRole);
+                    localStorage.setItem('pericos_location', currentLocation);
+                    
                     document.getElementById('pin-error').style.display = 'none';
-                    updateLoginBadge();
+                    updateLoginUI();
                     
                     document.getElementById('login-screen').style.display = 'none';
                     let splash = document.getElementById('splash-screen');
                     splash.style.display = 'flex';
                     splash.style.opacity = '1';
 
-                    logAction(`🟢 Logged into the app`);
+                    logAction(`🟢 Logged into ${currentLocation.replace('_', ' ')}`);
                     loadFromDatabase();
                 }).catch((error) => {
-                    alert("⚠️ Cannot connect to Firebase Security. Check your internet connection or verify Anonymous Auth is enabled in your Firebase Console.");
+                    alert("⚠️ Cannot connect to Firebase Security. Check your internet connection.");
                     console.error(error);
                 });
                 
@@ -551,16 +605,19 @@
                 logAction(`🚪 Logged out`);
                 firebase.auth().signOut().then(() => {
                     localStorage.removeItem('pericos_active_user');
+                    localStorage.removeItem('pericos_active_role');
                     activeUser = null;
+                    activeRole = null;
                     location.reload(); 
                 });
             }
         }
 
+        // Notice how EVERYTHING now points to `currentLocation` before saving
         function logAction(actionText) {
             if(!activeUser || isAppLoading) return;
             let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-            db.ref('logs').push({
+            db.ref(currentLocation + '/logs').push({
                 user: activeUser,
                 action: actionText,
                 time: now,
@@ -580,8 +637,6 @@
                 logAction(`📝 Changed price of ${itemName} (${sName}) to $${newVal.toFixed(2)}`);
             }
         }
-
-        // ==========================================
 
         function showSyncToast() {
             let toast = document.getElementById("sync-toast");
@@ -670,7 +725,7 @@
             });
 
             if(Object.keys(listBySupplier).length === 0) { alert("Your cart is empty! Add quantities before copying."); return; }
-            let textOutput = `📋 Los Pericos ${appName === 'sysco' ? 'Main' : 'Produce'} Order\n`;
+            let textOutput = `📋 ${currentLocation.replace('_', ' ')} ${appName === 'sysco' ? 'Main' : 'Produce'} Order\n`;
             Object.keys(listBySupplier).forEach(supp => {
                 textOutput += `\n📦 ${supp}:\n`;
                 listBySupplier[supp].forEach(item => { textOutput += `- ${item}\n`; });
@@ -701,7 +756,7 @@
 
                 if (grandTotal > 0) {
                     let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
-                    db.ref('ledger/' + appName).push({ date: now, total: grandTotal, breakdown: suppTotals });
+                    db.ref(currentLocation + '/ledger/' + appName).push({ date: now, total: grandTotal, breakdown: suppTotals });
                 }
 
                 rows.forEach(row => {
@@ -1091,7 +1146,7 @@
                 });
             }
 
-            db.ref('ledger').once('value').then(snapshot => {
+            db.ref(currentLocation + '/ledger').once('value').then(snapshot => {
                 let ledgerData = snapshot.val();
                 let syscoHtml = '<h3 style="margin-top:0;">📦 Sysco App History</h3>';
                 let verduraHtml = '<h3>🥦 Produce App History</h3>';
@@ -1120,7 +1175,7 @@
                 document.getElementById('ledger-verdura-list').innerHTML = verduraHtml;
             });
 
-            db.ref('logs').limitToLast(50).once('value').then(snapshot => {
+            db.ref(currentLocation + '/logs').limitToLast(50).once('value').then(snapshot => {
                 let logs = snapshot.val();
                 let feedHtml = '';
                 if(logs) {
@@ -1150,7 +1205,12 @@
             printElement.style.fontFamily = "system-ui, -apple-system, sans-serif";
             printElement.style.width = "1000px"; 
 
-            const headerHtml = document.getElementById('brand-header').outerHTML;
+            // Include current location in PDF title
+            const headerHtml = `<div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                <img src="image_0.png" style="height:80px; border-radius:50%;">
+                <h1 style="margin:0; font-size:32px; text-transform:uppercase;">${currentLocation.replace('_', ' ')} MASTER</h1>
+            </div>`;
+            
             let timeTracker = document.getElementById('time-' + appName).innerText;
             const listHtml = `<div style="text-align:right; font-size:12px; color:#666; font-style:italic;">${timeTracker}</div>` + document.querySelector(`#${appName}-wrapper .shopping-list-panel`).outerHTML;
             
@@ -1160,12 +1220,11 @@
                 printElement.querySelector('.shopping-list-panel').classList.add('hide-prices-active');
             }
 
-            let utils = printElement.querySelector('.header-utils'); if(utils) utils.remove();
             let actionBtns = printElement.querySelector('.action-btns'); if(actionBtns) actionBtns.remove();
             let gridContainer = printElement.querySelector('.supplier-grid');
             if(gridContainer) { gridContainer.style.display = 'flex'; gridContainer.style.flexDirection = 'row'; }
 
-            const opt = { margin: 0.5, filename: `Los_Pericos_${appName}_Cloud_Order.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } };
+            const opt = { margin: 0.5, filename: `${currentLocation}_${appName}_Order.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } };
             html2pdf().set(opt).from(printElement).save();
         }
 
@@ -1201,8 +1260,8 @@
             if(isAppLoading || appName === 'analytics') return; 
 
             let now = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-            db.ref('metadata/' + appName).set(now);
-            db.ref('metadata/lastEditor').set(mySyncId);
+            db.ref(currentLocation + '/metadata/' + appName).set(now);
+            db.ref(currentLocation + '/metadata/lastEditor').set(mySyncId);
             document.getElementById(`time-${appName}`).innerText = `Last updated: ${now}`;
 
             let data = {};
@@ -1217,7 +1276,7 @@
                 extractTableData('unitTable_verdura', data.unit);
                 extractTableData('delComalTable_verdura', data.delComal);
             }
-            db.ref('inventory/' + appName).set(data);
+            db.ref(currentLocation + '/inventory/' + appName).set(data);
         }
 
         function rebuildTable(tableId, appName, rowDataArray, pLabel, qLabel, s1def, s2def, s3def) {
@@ -1273,41 +1332,28 @@
                 }
             });
 
-            db.ref('/').on('value', (snapshot) => {
+            // NOW LISTENING TO THE SPECIFIC RESTAURANT LOCATION ONLY
+            db.ref(currentLocation).on('value', (snapshot) => {
                 let dbData = snapshot.val();
 
                 if (!dbData || !dbData.inventory) {
-                    let localSysco = localStorage.getItem('restaurantPriceCalc_Main');
-                    let localVerdura = localStorage.getItem('restaurantPriceCalc_Verdura');
-                    if (localSysco || localVerdura) {
-                        let payload = { inventory: {}, metadata: {} };
-                        if(localSysco) payload.inventory.sysco = JSON.parse(localSysco);
-                        if(localVerdura) payload.inventory.verdura = JSON.parse(localVerdura);
-                        payload.metadata.sysco = localStorage.getItem('timeTracker_sysco') || "Just Migrated";
-                        payload.metadata.verdura = localStorage.getItem('timeTracker_verdura') || "Just Migrated";
-                        
-                        db.ref('/').set(payload).then(() => {
-                            localStorage.removeItem('restaurantPriceCalc_Main');
-                            localStorage.removeItem('restaurantPriceCalc_Verdura');
-                        });
-                        return; 
-                    }
+                    let payload = { inventory: { sysco: getSyscoDefaults(), verdura: getVerduraDefaults() }, metadata: { sysco: "New Store", verdura: "New Store" } };
+                    db.ref(currentLocation).set(payload);
+                    return; 
                 }
-
-                if (!dbData) dbData = { inventory: {}, metadata: {} };
 
                 if (dbData.metadata && dbData.metadata.lastEditor === mySyncId && !isAppLoading) { return; }
                 if (!isAppLoading) showSyncToast();
                 
                 let syscoData = dbData.inventory ? dbData.inventory.sysco : null;
-                if (!syscoData) { syscoData = getSyscoDefaults(); db.ref('inventory/sysco').set(syscoData); }
+                if (!syscoData) { syscoData = getSyscoDefaults(); db.ref(currentLocation + '/inventory/sysco').set(syscoData); }
                 rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0,'',''], ['Ben E Keith','','','lb',0,'',''], ['Gordon','','','lb',0,'','']);
                 rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0,'',''], ['Ben E Keith','','','oz',0,'',''], ['Gordon','','','oz',0,'','']);
                 rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0,'',''], ['','','','oz',0,'',''], ['','','','oz',0,'','']);
                 generateShoppingList('sysco');
 
                 let verduraData = dbData.inventory ? dbData.inventory.verdura : null;
-                if (!verduraData) { verduraData = getVerduraDefaults(); db.ref('inventory/verdura').set(verduraData); }
+                if (!verduraData) { verduraData = getVerduraDefaults(); db.ref(currentLocation + '/inventory/verdura').set(verduraData); }
                 rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0,'',''], ['Cantu','','','lb',0,'',''], ['Produce 3','','','lb',0,'','']);
                 rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0,'',''], ['Cantu','','','oz',0,'',''], ['Produce 3','','','oz',0,'','']);
                 rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0,'',''], ['','','','oz',0,'',''], ['','','','oz',0,'','']);
@@ -1337,16 +1383,17 @@
                 alert("🔒 Vault Locked: Your security session expired or was denied by Google. Please log in again to get a fresh key.");
                 firebase.auth().signOut().then(() => {
                     localStorage.removeItem('pericos_active_user');
+                    localStorage.removeItem('pericos_active_role');
                     location.reload(); 
                 });
             });
         }
 
         function clearData(appName) {
-            if(confirm(`⚠️ WARNING: Are you sure you want to completely WIPE the global cloud database?`)) {
-                logAction(`🗑️ Wiped the entire ${appName.toUpperCase()} database`);
-                db.ref('inventory/' + appName).remove();
-                db.ref('metadata/' + appName).remove();
+            if(confirm(`⚠️ WARNING: Are you sure you want to completely WIPE the ${currentLocation.replace('_', ' ')} cloud database?`)) {
+                logAction(`🗑️ Wiped the entire ${appName.toUpperCase()} database for ${currentLocation}`);
+                db.ref(currentLocation + '/inventory/' + appName).remove();
+                db.ref(currentLocation + '/metadata/' + appName).remove();
             }
         }
     </script>
