@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <title>Los Pericos Master App</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <link rel="apple-touch-icon" href="image_0.png">
@@ -487,19 +487,14 @@
 
         let activeUser = localStorage.getItem('pericos_active_user');
 
-        // Check if user is already logged into Firebase
         firebase.auth().onAuthStateChanged((user) => {
             if (user && activeUser) {
-                // They have the Firebase Key AND the Local PIN name! Let them in.
                 document.getElementById('login-screen').style.display = 'none';
-                
                 let splash = document.getElementById('splash-screen');
                 splash.style.display = 'flex';
                 splash.style.opacity = '1';
-                
                 loadFromDatabase(); 
             } else {
-                // Locked out. Show PIN screen.
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('login-screen').style.opacity = '1';
@@ -510,7 +505,6 @@
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
             if (TEAM_PINS[pin]) {
-                // Pin is correct! Ask Firebase for the master key.
                 firebase.auth().signInAnonymously().then(() => {
                     activeUser = TEAM_PINS[pin];
                     localStorage.setItem('pericos_active_user', activeUser);
@@ -577,7 +571,6 @@
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
 
-        // --- MASTER APP CONTROLS ---
         function switchApp(appTarget) {
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-sysco', 'active-verdura', 'active-analytics'));
@@ -709,7 +702,6 @@
             }
         }
 
-        // --- NEW STEPPER LOGIC ---
         function stepQty(btn, amount) {
             let input = btn.parentElement.querySelector('.order-qty');
             let currentVal = parseFloat(input.value) || 0;
@@ -719,7 +711,6 @@
             processRowUpdate(input);
         }
 
-        // --- CARD UI ROW LOGIC ---
         function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, oldTrend, baselineVal) {
             let qtyHtml = '';
             if (hasUnits) {
@@ -1010,9 +1001,7 @@
             });
         }
 
-        // --- ANALYTICS DASHBOARD ---
         function generateAnalyticsDashboard() {
-            // Tab 1: Trends
             let upList = document.getElementById('trends-up-list');
             let downList = document.getElementById('trends-down-list');
             let upHTML = ''; let downHTML = '';
@@ -1042,7 +1031,6 @@
             upList.innerHTML = upHTML || '<li style="color:#999; font-style:italic; border:none;">No price increases tracked since last reset.</li>';
             downList.innerHTML = downHTML || '<li style="color:#999; font-style:italic; border:none;">No price decreases tracked since last reset.</li>';
 
-            // Tab 2: Spend
             let suppTotals = {};
             document.querySelectorAll('.item-card').forEach(card => {
                 card.querySelectorAll('.best-deal').forEach(wc => {
@@ -1085,7 +1073,6 @@
                 });
             }
 
-            // Tab 3: Ledger
             db.ref('ledger').once('value').then(snapshot => {
                 let ledgerData = snapshot.val();
                 let syscoHtml = '<h3 style="margin-top:0;">📦 Sysco App History</h3>';
@@ -1115,7 +1102,6 @@
                 document.getElementById('ledger-verdura-list').innerHTML = verduraHtml;
             });
 
-            // Tab 4: LIVE ACTIVITY FEED
             db.ref('logs').limitToLast(50).once('value').then(snapshot => {
                 let logs = snapshot.val();
                 let feedHtml = '';
@@ -1269,6 +1255,7 @@
                 }
             });
 
+            // THIS IS THE NEW BOUNCER: If Firebase blocks the read, it fires the error function at the bottom.
             db.ref('/').on('value', (snapshot) => {
                 let dbData = snapshot.val();
 
@@ -1327,6 +1314,17 @@
                 }
 
                 isAppLoading = false; 
+                
+            }, (error) => {
+                // THE NEW SECURITY BOUNCER
+                console.error("Database access denied:", error);
+                alert("🔒 Vault Locked: Your security session expired or was denied by Google. Please log in again to get a fresh key.");
+                
+                // Force a clean logout so they aren't stuck on the splash screen
+                firebase.auth().signOut().then(() => {
+                    localStorage.removeItem('pericos_active_user');
+                    location.reload(); 
+                });
             });
         }
 
@@ -1339,4 +1337,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
