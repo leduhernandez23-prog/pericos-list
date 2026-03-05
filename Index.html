@@ -115,7 +115,7 @@
         .tab-content { display: none; padding-bottom: 15px; }
         .tab-content.active { display: block; }
 
-        /* CARD UI SYSTEM */
+        /* CARD UI SYSTEM - UPGRADED TO PHASE 1 ENGINE */
         .table-container { display: flex; flex-direction: column; gap: 15px; }
         .item-card { background: var(--container-bg); border-radius: 16px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 2px solid transparent; transition: border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; }
         .item-card.has-order { border-color: var(--success-color); box-shadow: 0 6px 15px rgba(40, 167, 69, 0.15); }
@@ -124,14 +124,16 @@
         .item-name { font-size: 18px !important; font-weight: bold; flex: 1; min-width: 150px; border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; padding: 8px !important; color: var(--text-color) !important; }
         .item-name:focus { border-color: var(--primary-color) !important; background: var(--input-bg) !important; }
         
-        .stepper-wrapper { display: flex; align-items: center; background: var(--supplier-group-bg); border: 2px solid var(--border-color); border-radius: 12px; overflow: hidden; transition: 0.3s; }
-        .stepper-wrapper.active { border-color: var(--success-color); background: var(--best-deal-bg); }
-        .stepper-btn { background: transparent; border: none; color: var(--text-color); font-size: 22px; font-weight: bold; width: 45px; height: 45px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; }
-        .stepper-btn:hover { background: rgba(0,0,0,0.05); }
-        body.dark-mode .stepper-btn:hover { background: rgba(255,255,255,0.05); }
-        .order-qty { width: 55px !important; text-align: center; border: none !important; border-left: 2px solid var(--border-color) !important; border-right: 2px solid var(--border-color) !important; font-size: 18px !important; font-weight: bold; padding: 0 !important; height: 45px; background: transparent !important; margin: 0 !important; border-radius: 0 !important; color: var(--text-color) !important;}
-        .order-qty:focus { outline: none; }
-        
+        /* NEW PAR AND SHELF ENGINE CSS */
+        .inventory-controls { display: flex; gap: 5px; background: var(--supplier-group-bg); padding: 6px 10px; border-radius: 12px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; }
+        .inventory-controls.active { border-color: var(--success-color); background: var(--best-deal-bg); }
+        .inv-group { display: flex; flex-direction: column; align-items: center; }
+        .inv-group label { font-size: 11px; color: var(--result-text); font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
+        .inv-input { width: 55px !important; text-align: center; border: 1px solid var(--border-color) !important; font-size: 18px !important; font-weight: bold; padding: 4px 0 !important; border-radius: 6px !important; background: var(--input-bg); color: var(--text-color); margin:0 !important; }
+        .inv-input:focus { border-color: var(--primary-color) !important; outline:none; }
+        .order-group { border-left: 2px dashed var(--border-color); padding-left: 8px; margin-left: 3px; }
+        .order-qty { background: var(--best-deal-bg) !important; color: var(--best-deal-text) !important; border-color: var(--success-color) !important; }
+
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
@@ -315,17 +317,17 @@
 
         <div id="Weight_sysco" class="tab-content active">
             <div id="weightTable_sysco" class="table-container" data-has-units="true"></div>
-            <button class="add-row-btn" onclick="addRow('weightTable_sysco', 'sysco', 'Total $', 'Total oz', '', '', 'lb', ['Sysco','','','lb',0,'',''], ['Ben E Keith','','','lb',0,'',''], ['Gordon','','','lb',0,'',''])">+ Add</button>
+            <button class="add-row-btn" onclick="addRow('weightTable_sysco', 'sysco', 'Total $', 'Total oz', '', '', '', '', 'lb', ['Sysco','','','lb',0,'',''], ['Ben E Keith','','','lb',0,'',''], ['Gordon','','','lb',0,'',''])">+ Add</button>
         </div>
 
         <div id="Unit_sysco" class="tab-content">
             <div id="unitTable_sysco" class="table-container" data-has-units="false" data-unit-label="/ item"></div>
-            <button class="add-row-btn" onclick="addRow('unitTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['Sysco','','','oz',0,'',''], ['Ben E Keith','','','oz',0,'',''], ['Gordon','','','oz',0,'',''])">+ Add</button>
+            <button class="add-row-btn" onclick="addRow('unitTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', '', '', 'oz', ['Sysco','','','oz',0,'',''], ['Ben E Keith','','','oz',0,'',''], ['Gordon','','','oz',0,'',''])">+ Add</button>
         </div>
 
         <div id="MFE_sysco" class="tab-content">
             <div id="mfeTable_sysco" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ item"></div>
-            <button class="add-row-btn" onclick="addRow('mfeTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', 'oz', ['MFE','','','oz',0,'',''])">+ Add</button>
+            <button class="add-row-btn" onclick="addRow('mfeTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', '', '', 'oz', ['MFE','','','oz',0,'',''])">+ Add</button>
         </div>
 
         <div class="shopping-list-panel">
@@ -357,17 +359,17 @@
 
         <div id="Weight_verdura" class="tab-content active">
             <div id="weightTable_verdura" class="table-container" data-has-units="true"></div>
-            <button class="add-row-btn" onclick="addRow('weightTable_verdura', 'verdura', 'Price $', 'Total oz', '', '', 'lb', ['Mr. Pepper','','','lb',0,'',''], ['Cantu','','','lb',0,'',''], ['Produce 3','','','lb',0,'',''])">+ Add</button>
+            <button class="add-row-btn" onclick="addRow('weightTable_verdura', 'verdura', 'Price $', 'Total oz', '', '', '', '', 'lb', ['Mr. Pepper','','','lb',0,'',''], ['Cantu','','','lb',0,'',''], ['Produce 3','','','lb',0,'',''])">+ Add</button>
         </div>
 
         <div id="Unit_verdura" class="tab-content">
             <div id="unitTable_verdura" class="table-container" data-has-units="false" data-unit-label="/ item"></div>
-            <button class="add-row-btn" onclick="addRow('unitTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Mr. Pepper','','','oz',0,'',''], ['Cantu','','','oz',0,'',''], ['Produce 3','','','oz',0,'',''])">+ Add</button>
+            <button class="add-row-btn" onclick="addRow('unitTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', '', '', 'oz', ['Mr. Pepper','','','oz',0,'',''], ['Cantu','','','oz',0,'',''], ['Produce 3','','','oz',0,'',''])">+ Add</button>
         </div>
 
         <div id="DelComal_verdura" class="tab-content">
             <div id="delComalTable_verdura" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ item"></div>
-            <button class="add-row-btn" onclick="addRow('delComalTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', 'oz', ['Del Comal','','','oz',0,'',''])">+ Add</button>
+            <button class="add-row-btn" onclick="addRow('delComalTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', '', '', 'oz', ['Del Comal','','','oz',0,'',''])">+ Add</button>
         </div>
 
         <div class="shopping-list-panel">
@@ -389,6 +391,12 @@
     <div id="analytics-wrapper" class="app-section analytics-wrapper">
         <div style="text-align:center; padding: 10px 0;">
             <h2 style="margin:0; font-size:28px;">📊 Restaurant Analytics</h2>
+        </div>
+
+        <div class="analytics-box" style="background: linear-gradient(135deg, var(--success-color), #155724); color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(40,167,69,0.3); border:none;">
+            <h3 style="margin:0; color: rgba(255,255,255,0.9); font-size:14px; text-transform:uppercase; letter-spacing:1px;">Walk-In Net Worth</h3>
+            <div style="font-size: 42px; font-weight: bold; margin-top: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);" id="net-worth-display">$0.00</div>
+            <p style="margin: 5px 0 0 0; font-size: 13px; color: rgba(255,255,255,0.9);">Total cash value of current on-shelf inventory</p>
         </div>
 
         <div class="tabs" style="justify-content: center;">
@@ -485,10 +493,8 @@
         let spendChartInstance = null; 
 
         // ==========================================
-        // LEVEL 4: THE MULTI-LOCATION AUTO-ROUTER
+        // LEVEL 4: FINAL TEAM PINS
         // ==========================================
-        
-        // 👉 EDIT YOUR TEAM PINS AND LOCATIONS HERE:
         const TEAM_PINS = {
             "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
             "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
@@ -499,7 +505,7 @@
 
         let activeUser = localStorage.getItem('pericos_active_user');
         let activeRole = localStorage.getItem('pericos_active_role');
-        let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis'; // Default
+        let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis'; 
 
         function updateLoginUI() {
             let badge = document.getElementById('user-badge');
@@ -507,19 +513,15 @@
             let adminButtons = document.querySelectorAll('.admin-only');
 
             if (activeUser) {
-                // FORMAT THE LOCATION FOR THE BADGE (Removes the underscore)
                 let displayLocation = currentLocation.replace('_', ' ');
                 badge.innerText = `👤 ${activeUser} | ${displayLocation}`;
                 badge.style.display = 'flex';
                 
-                // IF OWNER: Show switcher and danger buttons
                 if (activeRole === 'Owner') {
                     locSwitcher.style.display = 'inline-block';
                     locSwitcher.value = currentLocation;
                     adminButtons.forEach(btn => btn.style.display = 'inline-block');
-                } 
-                // IF MANAGER: Hide switcher and danger buttons
-                else {
+                } else {
                     locSwitcher.style.display = 'none';
                     adminButtons.forEach(btn => btn.style.display = 'none');
                 }
@@ -529,20 +531,19 @@
             }
         }
 
-        // The Master Location Switch
         function switchLocation(newLocation) {
-            db.ref(currentLocation).off(); // Unplug from the old restaurant
+            db.ref(currentLocation).off(); 
             currentLocation = newLocation;
             localStorage.setItem('pericos_location', currentLocation);
             
-            updateLoginUI(); // INSTANTLY UPDATE THE BADGE TEXT
+            updateLoginUI(); 
             
             isAppLoading = true;
             let splash = document.getElementById('splash-screen');
             splash.style.display = 'flex';
             splash.style.opacity = '1';
             
-            loadFromDatabase(); // Plug into the new restaurant
+            loadFromDatabase(); 
         }
 
         firebase.auth().onAuthStateChanged((user) => {
@@ -571,7 +572,6 @@
                     activeUser = userData.name;
                     activeRole = userData.role;
                     
-                    // Set their routing folder
                     if (activeRole === 'Owner') {
                         currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
                     } else {
@@ -616,7 +616,6 @@
             }
         }
 
-        // Notice how EVERYTHING now points to `currentLocation` before saving
         function logAction(actionText) {
             if(!activeUser || isAppLoading) return;
             let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
@@ -739,7 +738,7 @@
         }
 
         function resetQuantities(appName) {
-            if(confirm(`Ready for a new week? \n\nThis will clear all quantities to 0 AND permanently save your final cart total to the Order Ledger!`)) {
+            if(confirm(`Ready for a new week? \n\nThis will clear all Order and Shelf counts to 0 AND permanently save your final cart total to the Ledger!\n(Your Par levels will NOT be deleted).`)) {
                 let grandTotal = 0; let suppTotals = {};
                 let rows = document.querySelectorAll(`#${appName}-wrapper .item-card`);
                 
@@ -764,6 +763,7 @@
 
                 rows.forEach(row => {
                     row.querySelector('.order-qty').value = '';
+                    row.querySelector('.shelf-qty').value = '';
                     row.querySelectorAll('.s-price').forEach(input => {
                         let currentVal = parseFloat(input.value) || 0;
                         if(currentVal > 0) input.setAttribute('data-baseline', currentVal);
@@ -778,13 +778,22 @@
             }
         }
 
-        function stepQty(btn, amount) {
-            let input = btn.parentElement.querySelector('.order-qty');
-            let currentVal = parseFloat(input.value) || 0;
-            let newVal = currentVal + amount;
-            if(newVal < 0) newVal = 0;
-            input.value = newVal;
-            processRowUpdate(input);
+        // PHASE 1: THE INVENTORY ENGINE
+        function calcOrder(elem) {
+            let card = elem.closest('.item-card');
+            let parInput = card.querySelector('.par-qty');
+            let shelfInput = card.querySelector('.shelf-qty');
+            let orderInput = card.querySelector('.order-qty');
+            
+            let par = parseFloat(parInput.value);
+            let shelf = parseFloat(shelfInput.value) || 0;
+
+            // Only auto-calc if they actually have a Par set
+            if (!isNaN(par)) {
+                let order = Math.max(0, par - shelf);
+                orderInput.value = order;
+            }
+            processRowUpdate(elem);
         }
 
         function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, oldTrend, baselineVal) {
@@ -823,7 +832,8 @@
             `;
         }
 
-        function addRow(tableId, appName, pLabel, qLabel, itemName = "", orderQty = "", targetUnit = "oz", s1, s2, s3) {
+        // NEW ADD ROW (Includes Par and Shelf parameters)
+        function addRow(tableId, appName, pLabel, qLabel, itemName = "", parQty = "", shelfQty = "", orderQty = "", targetUnit = "oz", s1, s2, s3) {
             let container = document.getElementById(tableId);
             let hasUnits = container.getAttribute('data-has-units') === 'true';
             let isSingle = container.classList.contains('single-vendor-table');
@@ -848,10 +858,10 @@
             let html = `
                 <div class="card-header">
                     <input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)">
-                    <div class="stepper-wrapper">
-                        <button class="stepper-btn" onclick="stepQty(this, -1)">-</button>
-                        <input type="number" class="order-qty" value="${orderQty}" min="0" oninput="processRowUpdate(this)">
-                        <button class="stepper-btn" onclick="stepQty(this, 1)">+</button>
+                    <div class="inventory-controls">
+                        <div class="inv-group"><label>Par</label><input type="number" class="inv-input par-qty" value="${parQty}" min="0" oninput="calcOrder(this)"></div>
+                        <div class="inv-group"><label>Shelf</label><input type="number" class="inv-input shelf-qty" value="${shelfQty}" min="0" oninput="calcOrder(this)"></div>
+                        <div class="inv-group order-group"><label>Order</label><input type="number" class="inv-input order-qty" value="${orderQty}" min="0" oninput="processRowUpdate(this)"></div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -888,7 +898,7 @@
             let currentCard = btn.closest('.item-card');
             let container = currentCard.closest('.table-container');
             let tUnit = container.getAttribute('data-has-units') === 'true' ? 'lb' : 'oz';
-            addRow(container.id, appName, 'Price $', 'Qty', '', '', tUnit, s1, s2, s3); 
+            addRow(container.id, appName, 'Price $', 'Qty', '', '', '', '', tUnit, s1, s2, s3); 
             let newCard = container.lastElementChild; 
             if (direction === 'before') container.insertBefore(newCard, currentCard);
             else if (direction === 'after') container.insertBefore(newCard, currentCard.nextSibling);
@@ -961,14 +971,15 @@
 
             let winningCells = card.querySelectorAll('.best-deal');
             let orderQty = parseFloat(card.querySelector('.order-qty').value) || 0;
+            let shelfQty = parseFloat(card.querySelector('.shelf-qty').value) || 0;
 
-            let stepperWrap = card.querySelector('.stepper-wrapper');
-            if (orderQty > 0) {
+            let invWrapper = card.querySelector('.inventory-controls');
+            if (orderQty > 0 || shelfQty > 0) {
                 card.classList.add('has-order');
-                if(stepperWrap) stepperWrap.classList.add('active');
+                if(invWrapper) invWrapper.classList.add('active');
             } else {
                 card.classList.remove('has-order');
-                if(stepperWrap) stepperWrap.classList.remove('active');
+                if(invWrapper) invWrapper.classList.remove('active');
             }
 
             if (winningCells.length > 1) {
@@ -1082,10 +1093,30 @@
             let downList = document.getElementById('trends-down-list');
             let upHTML = ''; let downHTML = '';
             
+            let totalNetWorth = 0; // NET WORTH ENGINE
+
             document.querySelectorAll('.item-card').forEach(card => {
                 let itemName = card.querySelector('.item-name').value.trim();
-                if(!itemName) return;
                 
+                // NET WORTH CALCULATION
+                let shelfQty = parseFloat(card.querySelector('.shelf-qty').value) || 0;
+                if(shelfQty > 0) {
+                    let bestDealCell = card.querySelector('.best-deal');
+                    if(bestDealCell) {
+                        let unitPrice = parseFloat(bestDealCell.querySelector('.s-result').getAttribute('data-value')) || 0;
+                        totalNetWorth += (shelfQty * unitPrice);
+                    } else {
+                        // Fallback if no best deal is selected
+                        let firstPrice = 0;
+                        card.querySelectorAll('.supplier-cell').forEach(cell => {
+                            let p = parseFloat(cell.querySelector('.s-result').getAttribute('data-value')) || 0;
+                            if(p > 0 && firstPrice === 0) firstPrice = p;
+                        });
+                        totalNetWorth += (shelfQty * firstPrice);
+                    }
+                }
+
+                if(!itemName) return;
                 card.querySelectorAll('.supplier-cell').forEach(cell => {
                     let sName = cell.querySelector('.s-name').value.trim() || "Unknown";
                     let priceInput = cell.querySelector('.s-price');
@@ -1104,6 +1135,10 @@
                     }
                 });
             });
+            
+            // UPDATE NET WORTH WIDGET
+            document.getElementById('net-worth-display').innerText = '$' + totalNetWorth.toFixed(2);
+
             upList.innerHTML = upHTML || '<li style="color:#999; font-style:italic; border:none;">No price increases tracked since last reset.</li>';
             downList.innerHTML = downHTML || '<li style="color:#999; font-style:italic; border:none;">No price decreases tracked since last reset.</li>';
 
@@ -1208,7 +1243,6 @@
             printElement.style.fontFamily = "system-ui, -apple-system, sans-serif";
             printElement.style.width = "1000px"; 
 
-            // Include current location in PDF title
             const headerHtml = `<div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
                 <img src="image_0.png" style="height:80px; border-radius:50%;">
                 <h1 style="margin:0; font-size:32px; text-transform:uppercase;">${currentLocation.replace('_', ' ')} MASTER</h1>
@@ -1235,6 +1269,8 @@
             document.querySelectorAll(`#${tableId} .item-card`).forEach(card => {
                 let rowData = { 
                     item: card.querySelector('.item-name').value, 
+                    par: card.querySelector('.par-qty').value, 
+                    shelf: card.querySelector('.shelf-qty').value, 
                     qty: card.querySelector('.order-qty').value, 
                     targetUnit: card.querySelector('.target-unit') ? card.querySelector('.target-unit').value : null, 
                     suppliers: [] 
@@ -1285,7 +1321,7 @@
         function rebuildTable(tableId, appName, rowDataArray, pLabel, qLabel, s1def, s2def, s3def) {
             document.getElementById(tableId).innerHTML = '';
             if(!rowDataArray || rowDataArray.length === 0) { 
-                addRow(tableId, appName, pLabel, qLabel, '', '', 'oz', s1def, s2def, s3def); return; 
+                addRow(tableId, appName, pLabel, qLabel, '', '', '', '', 'oz', s1def, s2def, s3def); return; 
             }
             rowDataArray.forEach(rd => { 
                 let s1 = rd.suppliers[0] || [s1def[0], "", "", "lb", 0, "", ""];
@@ -1294,7 +1330,7 @@
                 if (s1.length < 7) s1.push(s1[1] || ""); 
                 if (s2.length < 7) s2.push(s2[1] || ""); 
                 if (s3.length < 7) s3.push(s3[1] || ""); 
-                addRow(tableId, appName, pLabel, qLabel, rd.item, rd.qty || "", rd.targetUnit || "oz", s1, s2, s3); 
+                addRow(tableId, appName, pLabel, qLabel, rd.item, rd.par || "", rd.shelf || "", rd.qty || "", rd.targetUnit || "oz", s1, s2, s3); 
             });
         }
 
@@ -1304,10 +1340,10 @@
             const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
             const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
             return {
-                weight: [...syscoWeightLb.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0,"",""], ["Ben E Keith","","","lb",0,"",""], ["Gordon","","","lb",0,"",""]] })),
-                         ...syscoWeightFlOz.map(item => ({ item: item, qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0,"",""], ["Ben E Keith","","","fl oz",0,"",""], ["Gordon","","","fl oz",0,"",""]] }))],
-                unit: syscoUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,"",""], ["Ben E Keith","","","oz",0,"",""], ["Gordon","","","oz",0,"",""]] })),
-                mfe: syscoMfe.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0,"",""]] }))
+                weight: [...syscoWeightLb.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0,"",""], ["Ben E Keith","","","lb",0,"",""], ["Gordon","","","lb",0,"",""]] })),
+                         ...syscoWeightFlOz.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0,"",""], ["Ben E Keith","","","fl oz",0,"",""], ["Gordon","","","fl oz",0,"",""]] }))],
+                unit: syscoUnit.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,"",""], ["Ben E Keith","","","oz",0,"",""], ["Gordon","","","oz",0,"",""]] })),
+                mfe: syscoMfe.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0,"",""]] }))
             };
         }
 
@@ -1316,9 +1352,9 @@
             const verdUnit = ["AJO PELADO", "TOMATE", "AGUACATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "POBLANO PEPPER", "JALAPENO PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "LIMES", "LEMONS", "CELERY", "CEBOLLA", "NARANJA", "RED CABAGE", "HONGOS", "POTATO #2", "PAN X TORTA", "COCA", "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "POT WHITE", "ACEITE", "HUEVOS", "JALAPENEO LATA"];
             const verdDelComal = ["CHIPS", "VERDE", "ROJA", "BLANCA"];
             return {
-                weight: verdWeight.map(item => ({ item: item, qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,"",""], ["Cantu","","","lb",0,"",""], ["Produce 3","","","lb",0,"",""]] })),
-                unit: verdUnit.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0,"",""], ["Cantu","","","oz",0,"",""], ["Produce 3","","","oz",0,"",""]] })),
-                delComal: verdDelComal.map(item => ({ item: item, qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0,"",""]] }))
+                weight: verdWeight.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,"",""], ["Cantu","","","lb",0,"",""], ["Produce 3","","","lb",0,"",""]] })),
+                unit: verdUnit.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0,"",""], ["Cantu","","","oz",0,"",""], ["Produce 3","","","oz",0,"",""]] })),
+                delComal: verdDelComal.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0,"",""]] }))
             };
         }
 
@@ -1335,7 +1371,6 @@
                 }
             });
 
-            // NOW LISTENING TO THE SPECIFIC RESTAURANT LOCATION ONLY
             db.ref(currentLocation).on('value', (snapshot) => {
                 let dbData = snapshot.val();
 
