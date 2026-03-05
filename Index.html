@@ -78,10 +78,9 @@
         @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(0, 86, 179, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0); } }
         @keyframes fade-pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        .header-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; position: relative; margin-top: 10px; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 10px; flex-wrap: wrap; gap: 15px; }
         .pericos-branding { display: flex; align-items: center; gap: 15px; }
-        .header-logo { height: 80px; border-radius: 50%; border: 2px solid var(--border-color); }
-        .main-title { margin: 0; color: var(--header-color); font-size: 32px; font-weight: bold; text-transform: uppercase; }
+        .header-utils { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
 
         .header-utils { position: absolute; right: 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
         .util-btn { background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
