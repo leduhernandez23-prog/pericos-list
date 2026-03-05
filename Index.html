@@ -83,10 +83,13 @@
         .header-logo { height: 80px; border-radius: 50%; border: 2px solid var(--border-color); }
         .main-title { margin: 0; color: var(--header-color); font-size: 32px; font-weight: bold; text-transform: uppercase; }
 
-        .header-utils { position: absolute; right: 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .header-utils { position: absolute; right: 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
         .util-btn { background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
         .util-btn:hover { border-color: var(--primary-color); }
         
+        /* NEW USER BADGE */
+        .user-badge { background: var(--best-deal-bg); color: var(--best-deal-text); padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; display: none; align-items: center; border: 2px solid var(--success-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
         .app-section { display: none; }
         .app-section.active-app { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -285,6 +288,7 @@
             <h1 class="main-title">LOS PERICOS MASTER</h1>
         </div>
         <div class="header-utils">
+            <div id="user-badge" class="user-badge">👤 Unknown</div>
             <button class="util-btn" onclick="exportBackup()">💾 Cloud Backup</button>
             <label class="util-btn">📂 Restore Cloud<input type="file" accept=".json" onchange="importBackup(event)" style="display:none"></label>
             <button class="util-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
@@ -480,16 +484,29 @@
         
         // 👉 EDIT YOUR TEAM PINS HERE:
         const TEAM_PINS = {
-            "1234": "Sarah",
-            "9876": "John",
-            "0000": "Owner"
+            "0623": "LUIS H",
+            "1116": "STEPHANIE M",
+            "0523": "LUIS M",
+            "8096": "JAVIER A"
         };
 
         let activeUser = localStorage.getItem('pericos_active_user');
 
+        function updateLoginBadge() {
+            let badge = document.getElementById('user-badge');
+            if (activeUser) {
+                badge.innerText = `👤 ${activeUser}`;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
         firebase.auth().onAuthStateChanged((user) => {
             if (user && activeUser) {
                 document.getElementById('login-screen').style.display = 'none';
+                updateLoginBadge();
+                
                 let splash = document.getElementById('splash-screen');
                 splash.style.display = 'flex';
                 splash.style.opacity = '1';
@@ -509,6 +526,7 @@
                     activeUser = TEAM_PINS[pin];
                     localStorage.setItem('pericos_active_user', activeUser);
                     document.getElementById('pin-error').style.display = 'none';
+                    updateLoginBadge();
                     
                     document.getElementById('login-screen').style.display = 'none';
                     let splash = document.getElementById('splash-screen');
@@ -1255,7 +1273,6 @@
                 }
             });
 
-            // THIS IS THE NEW BOUNCER: If Firebase blocks the read, it fires the error function at the bottom.
             db.ref('/').on('value', (snapshot) => {
                 let dbData = snapshot.val();
 
@@ -1316,11 +1333,8 @@
                 isAppLoading = false; 
                 
             }, (error) => {
-                // THE NEW SECURITY BOUNCER
                 console.error("Database access denied:", error);
                 alert("🔒 Vault Locked: Your security session expired or was denied by Google. Please log in again to get a fresh key.");
-                
-                // Force a clean logout so they aren't stuck on the splash screen
                 firebase.auth().signOut().then(() => {
                     localStorage.removeItem('pericos_active_user');
                     location.reload(); 
