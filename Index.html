@@ -33,6 +33,7 @@
             --primary-hover: #004494;
             --verdura-color: #008c4a;
             --analytics-color: #8e44ad;
+            --receiving-color: #e67e22;
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
@@ -55,6 +56,7 @@
             --primary-color: #4da3ff;
             --verdura-color: #32cd32;
             --analytics-color: #b19cd9;
+            --receiving-color: #f39c12;
             --best-deal-bg: #173a20;
             --best-deal-text: #81c784;
             --supplier-group-bg: #252525;
@@ -88,7 +90,6 @@
         .util-btn { background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
         .util-btn:hover { border-color: var(--primary-color); }
         
-        /* USER BADGE & LOCATION SWITCHER */
         .user-badge { background: var(--best-deal-bg); color: var(--best-deal-text); padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; display: none; align-items: center; border: 2px solid var(--success-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         #location-switcher { background: var(--primary-color); color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; display: none; outline: none; }
 
@@ -111,11 +112,12 @@
         .sysco-wrapper .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); margin-bottom: -2px; }
         .verdura-wrapper .tab-btn.active { color: var(--verdura-color); border-bottom: 3px solid var(--verdura-color); margin-bottom: -2px; }
         .analytics-wrapper .tab-btn.active { color: var(--analytics-color); border-bottom: 3px solid var(--analytics-color); margin-bottom: -2px; }
+        .receiving-wrapper .tab-btn.active { color: var(--receiving-color); border-bottom: 3px solid var(--receiving-color); margin-bottom: -2px; }
         
         .tab-content { display: none; padding-bottom: 15px; }
         .tab-content.active { display: block; }
 
-        /* CARD UI SYSTEM - UPGRADED TO PHASE 1 ENGINE */
+        /* CARD UI SYSTEM */
         .table-container { display: flex; flex-direction: column; gap: 15px; }
         .item-card { background: var(--container-bg); border-radius: 16px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 2px solid transparent; transition: border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; }
         .item-card.has-order { border-color: var(--success-color); box-shadow: 0 6px 15px rgba(40, 167, 69, 0.15); }
@@ -124,7 +126,6 @@
         .item-name { font-size: 18px !important; font-weight: bold; flex: 1; min-width: 150px; border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; padding: 8px !important; color: var(--text-color) !important; }
         .item-name:focus { border-color: var(--primary-color) !important; background: var(--input-bg) !important; }
         
-        /* NEW PAR AND SHELF ENGINE CSS */
         .inventory-controls { display: flex; gap: 5px; background: var(--supplier-group-bg); padding: 6px 10px; border-radius: 12px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; }
         .inventory-controls.active { border-color: var(--success-color); background: var(--best-deal-bg); }
         .inv-group { display: flex; flex-direction: column; align-items: center; }
@@ -171,7 +172,7 @@
         .fab-btn { position: fixed; bottom: 95px; right: 20px; width: 65px; height: 65px; border-radius: 50%; background: var(--primary-color); color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 32px; font-weight: 300; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 999; transition: transform 0.2s, background 0.3s; }
         .fab-btn:active { transform: scale(0.9); }
         .verdura-wrapper.active-app ~ .fab-btn { background: var(--verdura-color); }
-        .analytics-wrapper.active-app ~ .fab-btn { display: none; }
+        .analytics-wrapper.active-app ~ .fab-btn, .receiving-wrapper.active-app ~ .fab-btn { display: none; }
 
         .action-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center; margin-bottom: 20px; }
         .action-btns button { color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -179,7 +180,7 @@
         
         .btn-green { background-color: var(--success-color); }
         .btn-red { background-color: var(--danger-color); display: none; } /* HIDDEN BY DEFAULT FOR MANAGERS */
-        .btn-yellow { background-color: var(--warning-color); color: #000 !important; display: none; } /* HIDDEN BY DEFAULT FOR MANAGERS */
+        .btn-yellow { background-color: var(--warning-color); color: #000 !important; } /* UNLOCKED FOR MANAGERS */
         .btn-text-msg { background-color: #007aff; }
         .sysco-wrapper .btn-blue { background-color: var(--primary-color); }
         .verdura-wrapper .btn-blue { background-color: var(--verdura-color); }
@@ -203,7 +204,12 @@
         body.dark-mode .invoice-total { background: rgba(255,255,255,0.02); }
         .invoice-amount { color: var(--success-color); font-size: 18px; }
 
-        /* ANALYTICS DASHBOARD STYLES */
+        /* RECEIVING MODE SPECIFIC STYLES */
+        .receiving-card { border: 2px solid var(--border-color); transition: 0.3s; }
+        .receiving-card.status-ok { border-color: var(--success-color); }
+        .receiving-card.status-warn { border-color: var(--warning-color); background: rgba(255, 193, 7, 0.05); }
+        .receiving-card.status-danger { border-color: var(--danger-color); background: rgba(220, 53, 69, 0.05); }
+
         .analytics-box { background: var(--container-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .trends-panel-container { display: flex; gap: 20px; flex-wrap: wrap; }
         .trend-box { flex: 1; min-width: 300px; }
@@ -223,7 +229,6 @@
         .ledger-item .l-total { font-size: 20px; font-weight: bold; color: var(--success-color); }
         .ledger-item .l-breakdown { font-size: 12px; color: var(--result-text); margin-top: 5px; }
 
-        /* ACTIVITY FEED STYLES */
         .feed-item { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         .feed-item:last-child { border-bottom: none; }
         .feed-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--result-text); margin-bottom: 4px; }
@@ -238,8 +243,9 @@
         .nav-btn.active-sysco { color: var(--primary-color); }
         .nav-btn.active-verdura { color: var(--verdura-color); }
         .nav-btn.active-analytics { color: var(--analytics-color); }
+        .nav-btn.active-receiving { color: var(--receiving-color); }
         .nav-icon { font-size: 24px; transition: transform 0.2s; }
-        .nav-btn.active-sysco .nav-icon, .nav-btn.active-verdura .nav-icon, .nav-btn.active-analytics .nav-icon { transform: scale(1.15); }
+        .nav-btn.active-sysco .nav-icon, .nav-btn.active-verdura .nav-icon, .nav-btn.active-analytics .nav-icon, .nav-btn.active-receiving .nav-icon { transform: scale(1.15); }
 
         .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; font-size: 12px; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-color); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
@@ -335,7 +341,9 @@
                 <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
                     <input type="checkbox" onchange="toggleHidePrices('sysco')"> Hide Prices
                 </label>
-                <button class="btn-yellow admin-only" onclick="resetQuantities('sysco')">🔄 New Week Reset</button>
+                
+                <button class="btn-yellow" onclick="resetQuantities('sysco')">🔄 Send to Receiving & Reset</button>
+                
                 <button class="btn-red admin-only" onclick="clearData('sysco')">🗑️ Master Clear</button>
                 
                 <button class="btn-text-msg" onclick="copyForTextMsg('sysco')">💬 Copy for Text</button>
@@ -377,7 +385,9 @@
                 <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
                     <input type="checkbox" onchange="toggleHidePrices('verdura')"> Hide Prices
                 </label>
-                <button class="btn-yellow admin-only" onclick="resetQuantities('verdura')">🔄 New Week Reset</button>
+                
+                <button class="btn-yellow" onclick="resetQuantities('verdura')">🔄 Send to Receiving & Reset</button>
+                
                 <button class="btn-red admin-only" onclick="clearData('verdura')">🗑️ Master Clear</button>
                 
                 <button class="btn-text-msg" onclick="copyForTextMsg('verdura')">💬 Copy for Text</button>
@@ -385,6 +395,26 @@
             </div>
             <h2>🛒 Produce Checkout</h2>
             <div id="list-content-verdura" class="supplier-grid"></div>
+        </div>
+    </div>
+
+    <div id="receiving-wrapper" class="app-section receiving-wrapper">
+        <div style="text-align:center; padding: 10px 0;">
+            <h2 style="margin:0; font-size:28px;">🚚 Delivery Day</h2>
+            <p style="color:var(--result-text); font-size:14px; margin-top:5px;">Verify quantities and invoice prices as the truck is unloaded</p>
+        </div>
+
+        <div class="tabs" style="justify-content: center;">
+            <button class="tab-btn active" onclick="openTab(event, 'receiving', 'Rec_Sysco')">📦 Main Delivery</button>
+            <button class="tab-btn" onclick="openTab(event, 'receiving', 'Rec_Verdura')">🥦 Produce Delivery</button>
+        </div>
+
+        <div id="Rec_Sysco" class="tab-content active">
+            <div id="receiving-list-sysco" class="table-container"></div>
+        </div>
+
+        <div id="Rec_Verdura" class="tab-content">
+            <div id="receiving-list-verdura" class="table-container"></div>
         </div>
     </div>
 
@@ -455,6 +485,10 @@
         <button id="nav-verdura" class="nav-btn" onclick="switchApp('verdura')">
             <span class="nav-icon">🥦</span>
             <span>Produce</span>
+        </button>
+        <button id="nav-receiving" class="nav-btn" onclick="switchApp('receiving')">
+            <span class="nav-icon">🚚</span>
+            <span>Truck</span>
         </button>
         <button id="nav-analytics" class="nav-btn" onclick="switchApp('analytics')">
             <span class="nav-icon">📊</span>
@@ -648,19 +682,19 @@
 
         function switchApp(appTarget) {
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-sysco', 'active-verdura', 'active-analytics'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-sysco', 'active-verdura', 'active-analytics', 'active-receiving'));
             
             document.getElementById(appTarget + '-wrapper').classList.add('active-app');
             let navBtn = document.getElementById('nav-' + appTarget);
             if(navBtn) navBtn.classList.add('active-' + appTarget);
             
             if (appTarget === 'analytics') { generateAnalyticsDashboard(); } 
-            else { generateShoppingList(appTarget); }
+            else if (appTarget !== 'receiving') { generateShoppingList(appTarget); }
         }
 
         function scrollToCart() {
             let activeApp = document.querySelector('.active-app').id.split('-')[0];
-            if (activeApp === 'analytics') { switchApp('sysco'); activeApp = 'sysco'; }
+            if (activeApp === 'analytics' || activeApp === 'receiving') { switchApp('sysco'); activeApp = 'sysco'; }
             let panel = document.querySelector(`#${activeApp}-wrapper .shopping-list-panel`);
             panel.scrollIntoView({ behavior: 'smooth' });
         }
@@ -738,11 +772,13 @@
         }
 
         function resetQuantities(appName) {
-            if(confirm(`Ready for a new week? \n\nThis will clear all Order and Shelf counts to 0 AND permanently save your final cart total to the Ledger!\n(Your Par levels will NOT be deleted).`)) {
+            if(confirm(`Ready to dispatch? \n\nThis will save the order to your Ledger, send it to the 🚚 RECEIVING checklist, and clear the active board for a new week.`)) {
                 let grandTotal = 0; let suppTotals = {};
                 let rows = document.querySelectorAll(`#${appName}-wrapper .item-card`);
-                
+                let pendingItems = []; 
+
                 rows.forEach(row => {
+                    let itemName = row.querySelector('.item-name').value.trim();
                     row.querySelectorAll('.best-deal').forEach(wc => {
                         let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
                         let price = parseFloat(wc.querySelector('.s-price').value) || 0;
@@ -752,6 +788,13 @@
                             grandTotal += lineTotal;
                             if (!suppTotals[sName]) suppTotals[sName] = 0;
                             suppTotals[sName] += lineTotal;
+                            
+                            pendingItems.push({
+                                item: itemName,
+                                supplier: sName,
+                                qty: aQty,
+                                expectedPrice: price
+                            });
                         }
                     });
                 });
@@ -759,6 +802,8 @@
                 if (grandTotal > 0) {
                     let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
                     db.ref(currentLocation + '/ledger/' + appName).push({ date: now, total: grandTotal, breakdown: suppTotals });
+                    
+                    db.ref(currentLocation + '/pending_delivery/' + appName).set(pendingItems);
                 }
 
                 rows.forEach(row => {
@@ -771,14 +816,13 @@
                     processRowUpdate(row.querySelector('.item-name'), true); 
                 });
                 
-                logAction(`🔄 Reset the ${appName.toUpperCase()} list for the new week`);
+                logAction(`🔄 Dispatched ${appName.toUpperCase()} order and reset the board`);
                 saveToDatabase(appName);
                 generateShoppingList(appName);
-                alert("✅ Quantities reset & Order saved to Ledger!");
+                alert("✅ Order dispatched to Receiving and saved to Ledger!");
             }
         }
 
-        // PHASE 1: THE INVENTORY ENGINE
         function calcOrder(elem) {
             let card = elem.closest('.item-card');
             let parInput = card.querySelector('.par-qty');
@@ -788,7 +832,6 @@
             let par = parseFloat(parInput.value);
             let shelf = parseFloat(shelfInput.value) || 0;
 
-            // Only auto-calc if they actually have a Par set
             if (!isNaN(par)) {
                 let order = Math.max(0, par - shelf);
                 orderInput.value = order;
@@ -832,7 +875,6 @@
             `;
         }
 
-        // NEW ADD ROW (Includes Par and Shelf parameters)
         function addRow(tableId, appName, pLabel, qLabel, itemName = "", parQty = "", shelfQty = "", orderQty = "", targetUnit = "oz", s1, s2, s3) {
             let container = document.getElementById(tableId);
             let hasUnits = container.getAttribute('data-has-units') === 'true';
@@ -1088,17 +1130,115 @@
             });
         }
 
+        // ==========================================
+        // RECEIVING LOGIC (PHASE 2)
+        // ==========================================
+        function renderReceivingList(appName, data) {
+            let container = document.getElementById(`receiving-list-${appName}`);
+            if (!data || data.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:#999; font-style:italic; padding:40px;">No pending deliveries.<br><br>Generate an order and click "Send to Receiving" to send your checklist here.</p>`;
+                return;
+            }
+            let html = '';
+            data.forEach((item, index) => {
+                html += `
+                <div class="item-card receiving-card status-ok" id="rec-${appName}-${index}" data-expected-qty="${item.qty}" data-expected-price="${item.expectedPrice}">
+                    <div class="card-header" style="border-bottom:none; margin-bottom:0; padding-bottom:5px;">
+                        <div style="font-size:18px; font-weight:bold;" class="rec-item-name">${item.item}</div>
+                        <div style="color:var(--primary-color); font-weight:bold;" class="rec-supp-name">📦 ${item.supplier}</div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; gap:10px; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;">
+                        <div style="flex:1; text-align:center;">
+                            <label style="font-size:11px; color:var(--result-text); font-weight:bold;">RECEIVED QTY (Order: ${item.qty})</label>
+                            <input type="number" class="rec-qty" value="${item.qty}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; margin-top:5px; background:var(--input-bg); color:var(--text-color);">
+                        </div>
+                        <div style="flex:1; text-align:center;">
+                            <label style="font-size:11px; color:var(--result-text); font-weight:bold;">INVOICE PRICE (Quote: $${item.expectedPrice.toFixed(2)})</label>
+                            <div style="position:relative; margin-top:5px;">
+                                <span style="position:absolute; left:10px; top:8px; color:var(--result-text); font-weight:bold; font-size:18px;">$</span>
+                                <input type="number" class="rec-price" value="${item.expectedPrice.toFixed(2)}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; background:var(--input-bg); color:var(--text-color);">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rec-status-msg" style="font-size:14px; font-weight:bold; margin-top:15px; text-align:center; color:var(--success-color);">✅ Perfect Match</div>
+                </div>`;
+            });
+            container.innerHTML = html + `<button class="btn-green" style="width:100%; padding:15px; margin-top:20px; font-size:18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);" onclick="completeDelivery('${appName}')">✅ Mark Delivery Complete</button>`;
+        }
+
+        function checkReceivingMatch(inputElem) {
+            let card = inputElem.closest('.receiving-card');
+            let expQty = parseFloat(card.getAttribute('data-expected-qty'));
+            let expPrice = parseFloat(card.getAttribute('data-expected-price'));
+            
+            let actQty = parseFloat(card.querySelector('.rec-qty').value) || 0;
+            let actPrice = parseFloat(card.querySelector('.rec-price').value) || 0;
+            
+            let statusMsg = card.querySelector('.rec-status-msg');
+            
+            card.classList.remove('status-ok', 'status-warn', 'status-danger');
+            
+            if (actPrice > expPrice) {
+                card.classList.add('status-danger');
+                statusMsg.innerHTML = "🚨 PRICE INCREASE DETECTED";
+                statusMsg.style.color = "var(--danger-color)";
+            } else if (actQty < expQty) {
+                card.classList.add('status-warn');
+                statusMsg.innerHTML = "⚠️ SHORTED DELIVERY";
+                statusMsg.style.color = "var(--warning-color)";
+            } else {
+                card.classList.add('status-ok');
+                statusMsg.innerHTML = "✅ Perfect Match";
+                statusMsg.style.color = "var(--success-color)";
+            }
+        }
+
+        function completeDelivery(appName) {
+            if(confirm("Are you sure you want to complete this delivery?\n\nIf you changed any prices on this checklist, the Master Inventory will be automatically updated!")) {
+                let hasUpdates = false;
+
+                document.querySelectorAll(`#receiving-list-${appName} .receiving-card`).forEach(card => {
+                    let itemName = card.querySelector('.rec-item-name').innerText;
+                    let suppName = card.querySelector('.rec-supp-name').innerText.replace('📦 ', '');
+                    let newPrice = parseFloat(card.querySelector('.rec-price').value);
+                    let expPrice = parseFloat(card.getAttribute('data-expected-price'));
+
+                    if (newPrice !== expPrice) {
+                        let mainCards = document.querySelectorAll(`#${appName}-wrapper .item-card`);
+                        mainCards.forEach(mainCard => {
+                            if (mainCard.querySelector('.item-name').value === itemName) {
+                                mainCard.querySelectorAll('.supplier-cell').forEach(cell => {
+                                    if (cell.querySelector('.s-name').value === suppName) {
+                                        let pInput = cell.querySelector('.s-price');
+                                        pInput.value = newPrice;
+                                        logAction(`🚚 Auto-Updated ${itemName} (${suppName}) from Delivery Invoice to $${newPrice.toFixed(2)}`);
+                                        processRowUpdate(pInput, true); 
+                                        hasUpdates = true;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                if(hasUpdates) { saveToDatabase(appName); }
+                
+                db.ref(currentLocation + '/pending_delivery/' + appName).remove();
+                logAction(`✅ Checked in the ${appName.toUpperCase()} Delivery Truck`);
+                alert("Delivery complete! Inventory and Prices have been updated.");
+            }
+        }
+
         function generateAnalyticsDashboard() {
             let upList = document.getElementById('trends-up-list');
             let downList = document.getElementById('trends-down-list');
             let upHTML = ''; let downHTML = '';
             
-            let totalNetWorth = 0; // NET WORTH ENGINE
+            let totalNetWorth = 0; 
 
             document.querySelectorAll('.item-card').forEach(card => {
                 let itemName = card.querySelector('.item-name').value.trim();
                 
-                // NET WORTH CALCULATION
                 let shelfQty = parseFloat(card.querySelector('.shelf-qty').value) || 0;
                 if(shelfQty > 0) {
                     let bestDealCell = card.querySelector('.best-deal');
@@ -1106,7 +1246,6 @@
                         let unitPrice = parseFloat(bestDealCell.querySelector('.s-result').getAttribute('data-value')) || 0;
                         totalNetWorth += (shelfQty * unitPrice);
                     } else {
-                        // Fallback if no best deal is selected
                         let firstPrice = 0;
                         card.querySelectorAll('.supplier-cell').forEach(cell => {
                             let p = parseFloat(cell.querySelector('.s-result').getAttribute('data-value')) || 0;
@@ -1136,7 +1275,6 @@
                 });
             });
             
-            // UPDATE NET WORTH WIDGET
             document.getElementById('net-worth-display').innerText = '$' + totalNetWorth.toFixed(2);
 
             upList.innerHTML = upHTML || '<li style="color:#999; font-style:italic; border:none;">No price increases tracked since last reset.</li>';
@@ -1396,6 +1534,12 @@
                 rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0,'',''], ['Cantu','','','oz',0,'',''], ['Produce 3','','','oz',0,'','']);
                 rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0,'',''], ['','','','oz',0,'',''], ['','','','oz',0,'','']);
                 generateShoppingList('verdura');
+
+                // LOAD PENDING DELIVERIES INTO RECEIVING TAB
+                let pendingSysco = dbData.pending_delivery ? dbData.pending_delivery.sysco : null;
+                let pendingVerdura = dbData.pending_delivery ? dbData.pending_delivery.verdura : null;
+                renderReceivingList('sysco', pendingSysco);
+                renderReceivingList('verdura', pendingVerdura);
 
                 let meta = dbData.metadata || {};
                 document.getElementById('time-sysco').innerText = meta.sysco ? `Last updated: ${meta.sysco}` : 'Last updated: Never';
