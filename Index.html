@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -78,11 +78,13 @@
         @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(0, 86, 179, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0); } }
         @keyframes fade-pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
+        /* FIXED: HEADER LAYOUT TO PREVENT OVERLAP */
         .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 10px; flex-wrap: wrap; gap: 15px; }
         .pericos-branding { display: flex; align-items: center; gap: 15px; }
-        .header-utils { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+        .header-logo { height: 80px; border-radius: 50%; border: 2px solid var(--border-color); }
+        .main-title { margin: 0; color: var(--header-color); font-size: 32px; font-weight: bold; text-transform: uppercase; }
 
-        .header-utils { position: absolute; right: 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+        .header-utils { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
         .util-btn { background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
         .util-btn:hover { border-color: var(--primary-color); }
         
@@ -243,7 +245,7 @@
 
         @media (max-width: 850px) {
             .header-container { flex-direction: column; text-align: center; }
-            .header-utils { position: relative; margin-top: 15px; justify-content: center; width: 100%; }
+            .header-utils { justify-content: center; width: 100%; }
             .action-btns { justify-content: center; width: 100%; }
             .action-btns button { width: 48%; }
             .supplier-group { width: 100% !important; display: block; margin-right: 0; }
@@ -483,10 +485,9 @@
         
         // 👉 EDIT YOUR TEAM PINS HERE:
         const TEAM_PINS = {
-            "0623": "LUIS H",
-            "1116": "STEPHANIE M",
-            "0523": "LUIS M",
-            "8096": "JAVIER A"
+            "1234": "Sarah",
+            "9876": "John",
+            "0000": "Owner"
         };
 
         let activeUser = localStorage.getItem('pericos_active_user');
