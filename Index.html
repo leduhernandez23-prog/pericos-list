@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -489,13 +489,12 @@
         // ==========================================
         
         // 👉 EDIT YOUR TEAM PINS AND LOCATIONS HERE:
-        // (You can change Jorge, Luis H, and Stephanie's PINs safely)
         const TEAM_PINS = {
-            "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
-            "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
+            "1111": { name: "Jorge", role: "Manager", location: "LP_Willis" },
+            "2222": { name: "Luis H", role: "Manager", location: "LP_Willis" },
             "6660": { name: "Elias", role: "Manager", location: "LP_Huntsville" },
-            "1116": { name: "Stephanie", role: "Owner", location: "All" },
-            "0523": { name: "Luis M", role: "Owner", location: "All" }
+            "8888": { name: "Stephanie", role: "Owner", location: "All" },
+            "9999": { name: "Luis M", role: "Owner", location: "All" }
         };
 
         let activeUser = localStorage.getItem('pericos_active_user');
@@ -508,7 +507,9 @@
             let adminButtons = document.querySelectorAll('.admin-only');
 
             if (activeUser) {
-                badge.innerText = `👤 ${activeUser}`;
+                // FORMAT THE LOCATION FOR THE BADGE (Removes the underscore)
+                let displayLocation = currentLocation.replace('_', ' ');
+                badge.innerText = `👤 ${activeUser} | ${displayLocation}`;
                 badge.style.display = 'flex';
                 
                 // IF OWNER: Show switcher and danger buttons
@@ -533,6 +534,8 @@
             db.ref(currentLocation).off(); // Unplug from the old restaurant
             currentLocation = newLocation;
             localStorage.setItem('pericos_location', currentLocation);
+            
+            updateLoginUI(); // INSTANTLY UPDATE THE BADGE TEXT
             
             isAppLoading = true;
             let splash = document.getElementById('splash-screen');
