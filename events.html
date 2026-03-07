@@ -13,98 +13,60 @@
 
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
+            --primary: #0056b3;
+            --bg: #f4f4f9;
             --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --input-bg: #fcfcfc;
-            --danger: #ef4444;
-            --success: #10b981;
+            --text-main: #333;
+            --text-muted: #666;
+            --border: #e0e0e0;
+            --input-bg: #fff;
+            --danger: #dc3545;
+            --success: #28a745;
         }
 
         body.dark-mode {
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: #334155;
-            --input-bg: #0f172a;
+            --bg: #121212;
+            --surface: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #aaa;
+            --border: #333;
+            --input-bg: #2c2c2c;
+            --primary: #4da3ff;
         }
 
-        /* =========================================
-           SPLASH SCREEN STYLES
-           ========================================= */
-        #splash-screen { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100vw; 
-            height: 100vh; 
-            background-color: var(--bg); 
-            z-index: 999999; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            transition: opacity 0.6s ease-out; 
-        }
-
-        .splash-logo { 
-            width: 160px; 
-            height: 160px; 
-            border-radius: 50%; 
-            border: 4px solid var(--primary); 
-            animation: pulse-ring 2s infinite; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-
-        .splash-text { 
-            margin-top: 30px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            color: var(--text-main); 
-            letter-spacing: 3px; 
-            text-transform: uppercase; 
-            animation: fade-pulse 2s infinite; 
-        }
-
-        @keyframes pulse-ring { 
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); } 
-            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(37, 99, 235, 0); } 
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } 
-        }
-
-        @keyframes fade-pulse { 
-            0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } 
-        }
-
-        /* =========================================
-           CORE UI STYLES
-           ========================================= */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
+
+        /* SPLASH SCREEN */
+        #splash-screen { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background-color: var(--bg); z-index: 999999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            transition: opacity 0.6s ease-out; 
+        }
+        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 2s infinite; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .splash-text { margin-top: 30px; font-size: 18px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; }
+        @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(0, 86, 179, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0); } }
 
         .card {
             background-color: var(--surface);
             width: 100%;
             max-width: 550px;
-            padding: 35px;
+            padding: 30px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border);
             margin-bottom: 20px;
+            box-sizing: border-box;
         }
 
         .tab-nav {
@@ -117,78 +79,82 @@
             max-width: 550px;
         }
         .tab-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: none;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            color: var(--text-muted);
+            flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: var(--text-muted);
         }
         .tab-btn.active {
-            background: var(--surface);
-            color: var(--primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            background: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .back-link { text-decoration: none; color: var(--text-muted); font-size: 14px; font-weight: 600; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; }
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: 1px solid var(--border); 
+            border-radius: 10px; background-color: var(--input-bg); 
+            color: var(--text-main); font-family: inherit; box-sizing: border-box;
+        }
 
-        .form-group { margin-bottom: 20px; }
-        .row { display: flex; gap: 20px; }
-        .row > div { flex: 1; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
-        input, select, textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 10px; background-color: var(--input-bg); color: var(--text-main); font-family: inherit; box-sizing: border-box; }
+        .submit-btn {
+            width: 100%; background-color: var(--primary); color: white; padding: 16px;
+            font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer;
+        }
 
-        .file-upload-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: var(--input-bg); color: var(--primary); padding: 15px; border-radius: 10px; border: 2px dashed var(--border); cursor: pointer; font-weight: 700; }
-        .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; }
-
-        .event-card { border-bottom: 1px solid var(--border); padding: 20px 0; position: relative; }
-        .delete-btn { position: absolute; top: 20px; right: 0; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 18px; }
-        .view-btn { display: inline-block; padding: 8px 16px; background: var(--bg); color: var(--text-main); text-decoration: none; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid var(--border); margin-top: 10px; }
+        .event-item { border-bottom: 1px solid var(--border); padding: 15px 0; position: relative; }
+        .event-item:last-child { border: none; }
+        .del-btn { position: absolute; right: 0; top: 15px; color: var(--danger); background: none; border: none; cursor: pointer; font-size: 18px; }
+        
+        .user-badge { font-size: 12px; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
         <img src="image_0.png" alt="Logo" class="splash-logo">
-        <div class="splash-text">Unlocking Events...</div>
+        <div class="splash-text">Opening Events...</div>
     </div>
 
-    <a href="index.html" class="back-link">⬅ Back to Inventory</a>
+    <div style="margin-bottom: 20px;">
+        <a href="index.html" style="text-decoration:none; font-weight:bold; color:var(--text-muted);">⬅ BACK TO INVENTORY</a>
+    </div>
+
+    <div id="user-display" class="user-badge">👤 Checking User...</div>
 
     <div class="tab-nav">
-        <button class="tab-btn active" id="add-btn" onclick="switchView('add')">➕ Add Event</button>
-        <button class="tab-btn" id="board-btn" onclick="switchView('board')">📋 View Board</button>
+        <button class="tab-btn active" id="btn-add" onclick="switchTab('add')">➕ ADD EVENT</button>
+        <button class="tab-btn" id="btn-board" onclick="switchTab('board')">📋 VIEW BOARD</button>
     </div>
 
     <div id="view-add" class="card">
         <h2 style="margin-top:0;">New Booking</h2>
         <form id="eventForm">
             <div class="form-group"><label>Customer Name</label><input type="text" id="cName" required></div>
-            <div class="row">
-                <div class="form-group"><label>Phone</label><input type="tel" id="cPhone" required></div>
-                <div class="form-group"><label>Guests</label><input type="number" id="cGuests" required></div>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1;"><label>Phone</label><input type="tel" id="cPhone" required></div>
+                <div style="flex:1;"><label>Guests</label><input type="number" id="cGuests" required></div>
             </div>
-            <div class="form-group"><label>Date</label><input type="date" id="eDate" required></div>
+            <div class="form-group"><label>Event Date</label><input type="date" id="eDate" required></div>
             <div class="form-group">
-                <label class="file-upload-btn" for="fileInput">📷 Tap to Upload Ticket</label>
-                <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none;">
-                <div id="preview-box" style="display:none; text-align:center; margin-top:10px;">
-                    <img id="img-preview" style="max-width:100%; border-radius:10px; max-height:200px;">
-                </div>
+                <label style="display:block; text-align:center; padding:15px; border:2px dashed var(--border); border-radius:10px; cursor:pointer; color:var(--primary); font-weight:bold;">
+                    📷 UPLOAD TICKET PHOTO
+                    <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none;">
+                </label>
             </div>
-            <button type="submit" class="submit-btn" id="saveBtn">Save to Database</button>
+            <div class="form-group">
+                <label>Payment</label>
+                <select id="isPaid">
+                    <option value="false">❌ Unpaid</option>
+                    <option value="true">✅ Paid</option>
+                </select>
+            </div>
+            <button type="submit" class="submit-btn" id="saveBtn">Save to Cloud</button>
         </form>
     </div>
 
     <div id="view-board" class="card" style="display:none;">
-        <h2 style="margin-top:0;">Live Event Board</h2>
+        <h2 style="margin-top:0;">Booking Board</h2>
         <div id="event-list">Loading...</div>
     </div>
 
     <script>
-        // --- FIREBASE CONFIG ---
         const config = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
             authDomain: "los-pericos-46378.firebaseapp.com",
@@ -200,84 +166,72 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        const activeUser = localStorage.getItem('pericos_active_user') || 'Manager';
+        // SHARED KEYS FROM YOUR NEW INDEX.HTML
+        const activeUser = localStorage.getItem('pericos_active_user');
         const currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
 
-        // --- HIDE SPLASH LOGIC ---
-        function hideSplash() {
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                if (splash) {
-                    splash.style.opacity = '0';
-                    setTimeout(() => splash.style.display = 'none', 600);
-                }
-            }, 800);
+        // SECURITY REDIRECT (If not logged in, go back to login on index)
+        if(!activeUser) { window.location.href = "index.html"; }
+        document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_', ' ')}`;
+
+        function switchTab(tab) {
+            document.getElementById('view-add').style.display = tab === 'add' ? 'block' : 'none';
+            document.getElementById('view-board').style.display = tab === 'board' ? 'block' : 'none';
+            document.getElementById('btn-add').classList.toggle('active', tab === 'add');
+            document.getElementById('btn-board').classList.toggle('active', tab === 'board');
+            if(tab === 'board') loadBoard();
         }
 
-        // --- NAVIGATION ---
-        function switchView(view) {
-            document.getElementById('view-add').style.display = view === 'add' ? 'block' : 'none';
-            document.getElementById('view-board').style.display = view === 'board' ? 'block' : 'none';
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            if(view === 'add') document.getElementById('add-btn').classList.add('active');
-            else document.getElementById('board-btn').classList.add('active');
-            if(view === 'board') loadBoard();
-        }
-
-        // --- DATA LOGIC ---
         document.getElementById('eventForm').onsubmit = async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('saveBtn');
-            btn.disabled = true; btn.innerText = "☁️ Uploading...";
+            const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "Saving...";
             let url = ""; 
             const file = document.getElementById('fileInput').files[0];
             try {
                 if (file) {
                     const ref = storage.ref().child(`tickets/${currentLocation}/${Date.now()}`);
-                    await ref.put(file);
-                    url = await ref.getDownloadURL();
+                    await ref.put(file); url = await ref.getDownloadURL();
                 }
                 await db.ref(currentLocation + '/events').push({
                     customer: document.getElementById('cName').value,
                     phone: document.getElementById('cPhone').value,
                     guests: document.getElementById('cGuests').value,
                     date: document.getElementById('eDate').value,
+                    isPaid: document.getElementById('isPaid').value === 'true',
                     photo: url, createdBy: activeUser, timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
-                alert("✅ Saved!"); location.reload();
-            } catch (err) { alert("Error"); btn.disabled = false; }
+                alert("✅ Event Saved!"); location.reload();
+            } catch (err) { alert("Error saving."); btn.disabled = false; }
         };
 
         function loadBoard() {
-            const container = document.getElementById('event-list');
+            const list = document.getElementById('event-list');
             db.ref(currentLocation + '/events').on('value', snap => {
                 let html = '';
-                if(!snap.exists()) { container.innerHTML = '<p>No bookings found.</p>'; }
-                else {
-                    snap.forEach(child => {
-                        const ev = child.val();
-                        html += `
-                        <div class="event-card">
-                            <button onclick="deleteEvent('${child.key}')" class="delete-btn">🗑️</button>
-                            <b>${ev.customer}</b><br>
-                            <div style="font-size:14px; color:var(--text-muted); margin-top:5px;">
-                                📅 ${ev.date} | 👥 ${ev.guests} Guests
-                            </div>
-                            ${ev.photo ? `<a href="${ev.photo}" target="_blank" class="view-btn">📄 View Ticket</a>` : ''}
+                if(!snap.exists()) { list.innerHTML = 'No bookings.'; return; }
+                snap.forEach(child => {
+                    const ev = child.val();
+                    html += `
+                        <div class="event-item">
+                            <button onclick="deleteEvent('${child.key}')" class="del-btn">🗑️</button>
+                            <b style="font-size:18px;">${ev.customer}</b><br>
+                            <span style="font-size:13px; color:var(--text-muted);">📅 ${ev.date} | 👤 ${ev.createdBy}</span><br>
+                            ${ev.photo ? `<a href="${ev.photo}" target="_blank" style="color:var(--primary); font-size:12px; font-weight:bold; text-decoration:none; display:inline-block; margin-top:5px;">📄 VIEW TICKET</a>` : ''}
                         </div>`;
-                    });
-                    container.innerHTML = html;
-                }
-                hideSplash(); // Screen hides once database returns first result
+                });
+                list.innerHTML = html;
             });
         }
 
-        window.deleteEvent = (id) => { if(confirm("Delete?")) db.ref(currentLocation+'/events/'+id).remove(); };
+        window.deleteEvent = (id) => { if(confirm("Delete this event?")) db.ref(currentLocation+'/events/'+id).remove(); };
 
-        // INITIAL BOOT
+        // SYNC DARK MODE & HIDE SPLASH
         if(localStorage.getItem('restaurantCalcDarkMode') === 'true') document.body.classList.add('dark-mode');
-        // We call loadBoard on boot just to trigger the splash screen hide logic
-        loadBoard();
+        window.onload = () => { setTimeout(() => { 
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => splash.style.display = 'none', 600);
+        }, 800); };
     </script>
 </body>
 </html>
