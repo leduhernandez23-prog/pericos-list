@@ -37,6 +37,54 @@
         }
 
         /* =========================================
+           LOADING SCREEN (SPLASH SCREEN)
+           ========================================= */
+        #loader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .loader-text {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* Hide content until loaded */
+        #main-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        #main-content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* =========================================
            CORE LAYOUT & TYPOGRAPHY
            ========================================= */
         body {
@@ -61,254 +109,157 @@
             transition: var(--theme-transition);
         }
 
-        body.dark-mode .card { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); }
+        .app-nav { text-align: center; margin-bottom: 25px; }
+        .app-nav a { display: inline-block; background-color: var(--text-muted); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 13px; }
 
-        /* =========================================
-           APP SWITCHER NAVIGATION
-           ========================================= */
-        .app-nav {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .app-nav a {
-            display: inline-block;
-            background-color: var(--text-muted);
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        .app-nav a:hover {
-            opacity: 0.9;
-        }
-
-        /* =========================================
-           HEADER & LOGO AREA (FIXED SIZES)
-           ========================================= */
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
         .logo-group { display: flex; align-items: center; gap: 15px; }
-        
-        .logo { 
-            width: 48px; 
-            height: 48px; 
-            min-width: 48px; 
-            border-radius: 12px; 
-            background-color: var(--primary); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden; 
-        }
-        
+        .logo { width: 48px; height: 48px; min-width: 48px; border-radius: 12px; background-color: var(--primary); overflow: hidden; }
         .logo img { width: 100%; height: 100%; object-fit: cover; }
-
-        .header-text h2 { margin: 0; font-size: 20px; font-weight: 700; color: var(--text-main); transition: var(--theme-transition); }
-        .header-text p { margin: 2px 0 0 0; color: var(--text-muted); font-size: 14px; transition: var(--theme-transition); }
+        .header-text h2 { margin: 0; font-size: 20px; font-weight: 700; }
+        .header-text p { margin: 2px 0 0 0; color: var(--text-muted); font-size: 14px; }
         
-        .theme-toggle { 
-            background: none; border: 1px solid var(--border); color: var(--text-muted); 
-            width: 42px; height: 42px; min-width: 42px; flex-shrink: 0; border-radius: 10px; 
-            cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; 
-        }
-        .theme-toggle:hover { border-color: var(--primary); color: var(--primary); background-color: rgba(37, 99, 235, 0.05); }
-        body.dark-mode .theme-toggle:hover { background-color: rgba(37, 99, 235, 0.1); }
+        .theme-toggle { background: none; border: 1px solid var(--border); color: var(--text-muted); width: 42px; height: 42px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         /* =========================================
-           FORM ELEMENTS
+           FORM ELEMENTS & BUTTONS
            ========================================= */
-        .type-toggle { display: flex; background-color: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; transition: var(--theme-transition); }
+        .type-toggle { display: flex; background-color: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; }
         .type-toggle input[type="radio"] { display: none; }
-        .type-label { flex: 1; text-align: center; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); transition: all 0.3s ease; font-size: 15px; }
+        .type-label { flex: 1; text-align: center; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 15px; }
         .type-toggle input[type="radio"]:checked + .type-label { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
-        body.dark-mode .type-toggle input[type="radio"]:checked + .type-label { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
 
         .form-group { margin-bottom: 20px; }
         .row { display: flex; gap: 20px; }
         .row > div { flex: 1; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 15px; color: var(--text-main); background-color: var(--input-bg); }
 
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-main); font-size: 14px; transition: var(--theme-transition); }
-        input, select, textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 15px; color: var(--text-main); background-color: var(--input-bg); transition: var(--theme-transition), box-shadow 0.2s; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
-
-        /* =========================================
-           IMAGE UPLOAD & PREVIEW STYLES
-           ========================================= */
-        .file-upload-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: var(--input-bg); color: var(--primary); padding: 15px; border-radius: 8px; border: 2px dashed var(--border); cursor: pointer; font-weight: 600; transition: all 0.3s; }
-        .file-upload-btn:hover { background-color: var(--toggle-bg); border-color: var(--primary); }
+        .file-upload-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: var(--input-bg); color: var(--primary); padding: 15px; border-radius: 8px; border: 2px dashed var(--border); cursor: pointer; font-weight: 600; }
         input[type="file"] { display: none; }
-
         #imagePreviewContainer { display: none; margin-top: 15px; text-align: center; background-color: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
-        #imagePreview { max-width: 100%; max-height: 250px; border-radius: 6px; object-fit: contain; display: block; margin: 0 auto; }
-        .remove-img-btn { background: none; border: none; color: var(--danger); cursor: pointer; margin-top: 10px; font-weight: 600; font-size: 14px; padding: 8px 16px; border-radius: 6px; transition: background-color 0.2s; }
-        .remove-img-btn:hover { background-color: rgba(239, 68, 68, 0.1); }
+        #imagePreview { max-width: 100%; max-height: 200px; border-radius: 6px; }
 
-        /* Payment & Submit Buttons */
-        .payment-toggle { width: 100%; padding: 15px; font-size: 16px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; color: white; text-transform: uppercase; letter-spacing: 1px; }
-        .unpaid { background-color: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
-        .paid { background-color: var(--success); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .payment-toggle { width: 100%; padding: 15px; font-size: 16px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; color: white; text-transform: uppercase; }
+        .unpaid { background-color: var(--danger); }
+        .paid { background-color: var(--success); }
 
-        .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; transition: background-color 0.3s, transform 0.1s; }
-        .submit-btn:hover { background-color: var(--primary-hover); }
-        .submit-btn:active { transform: scale(0.98); }
+        .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    
-    <div class="app-nav">
-        <a href="index.html">⬅ Back to Inventory</a>
+<div id="loader">
+    <img src="logo.png" alt="LP Logo" class="loader-logo">
+    <div class="loader-text">LOADING DATABASE...</div>
+</div>
+
+<div id="main-content">
+    <div class="card">
+        <div class="app-nav"><a href="index.html">⬅ Back to Inventory</a></div>
+        <div class="header">
+            <div class="logo-group">
+                <div class="logo"><img src="logo.png" alt="Los Pericos Logo"></div>
+                <div class="header-text">
+                    <h2>Los Pericos Events</h2>
+                    <p>Manage caterings & reservations</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg id="sunIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line></svg>
+            </button>
+        </div>
+
+        <form id="eventForm">
+            <div class="type-toggle">
+                <input type="radio" id="catering" name="eventType" value="Catering" checked>
+                <label for="catering" class="type-label">Catering</label>
+                <input type="radio" id="reservation" name="eventType" value="Reservation">
+                <label for="reservation" class="type-label">Reservation</label>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location</label>
+                <select id="location"><option value="LP Willis">LP Willis</option><option value="LP Huntsville">LP Huntsville</option></select>
+            </div>
+
+            <div class="form-group"><label for="customerName">Customer Name</label><input type="text" id="customerName" required></div>
+            <div class="row">
+                <div class="form-group"><label for="customerPhone">Phone</label><input type="tel" id="customerPhone" required></div>
+                <div class="form-group"><label for="headcount">Headcount</label><input type="number" id="headcount" required></div>
+            </div>
+
+            <div class="form-group"><label for="eventDate">Date</label><input type="date" id="eventDate" required></div>
+            <div class="row">
+                <div class="form-group"><label for="startTime">Start</label><input type="time" id="startTime" required></div>
+                <div class="form-group"><label for="endTime">End</label><input type="time" id="endTime"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Ticket Photo</label>
+                <label class="file-upload-btn" for="ticketImage">📷 Tap to Upload Ticket</label>
+                <input type="file" id="ticketImage" accept="image/*" capture="environment">
+                <div id="imagePreviewContainer"><img id="imagePreview"><button type="button" class="remove-img-btn" id="removeImageBtn">✖ Remove</button></div>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Status</label>
+                <input type="hidden" id="isPaid" value="false">
+                <button type="button" id="paymentBtn" class="payment-toggle unpaid">Unpaid</button>
+            </div>
+
+            <div class="form-group"><label for="notes">Notes</label><textarea id="notes" rows="3"></textarea></div>
+            <button type="submit" class="submit-btn">Save Event</button>
+        </form>
     </div>
-
-    <div class="header">
-        <div class="logo-group">
-            <div class="logo">
-                <img src="image_0.png" alt="Los Pericos Logo">
-            </div>
-            <div class="header-text">
-                <h2>Los Pericos Events</h2>
-                <p>Manage caterings & reservations</p>
-            </div>
-        </div>
-        
-        <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
-            <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            <svg id="sunIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="18.36" x2="5.64" y2="19.78"></line><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"></line></svg>
-        </button>
-    </div>
-
-    <form id="eventForm">
-        <div class="type-toggle">
-            <input type="radio" id="catering" name="eventType" value="Catering" checked>
-            <label for="catering" class="type-label">Catering</label>
-            <input type="radio" id="reservation" name="eventType" value="Reservation">
-            <label for="reservation" class="type-label">Reservation</label>
-        </div>
-
-        <div class="form-group">
-            <label for="location">Location</label>
-            <select id="location" name="location">
-                <option value="LP Willis">LP Willis</option>
-                <option value="LP Huntsville">LP Huntsville</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="customerName">Customer Name</label>
-            <input type="text" id="customerName" placeholder="e.g. Maria Garcia" required>
-        </div>
-
-        <div class="row">
-            <div class="form-group">
-                <label for="customerPhone">Phone Number</label>
-                <input type="tel" id="customerPhone" placeholder="555-0198" required>
-            </div>
-            <div class="form-group">
-                <label for="headcount">Headcount</label>
-                <input type="number" id="headcount" min="1" placeholder="50" required>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="eventDate">Date</label>
-            <input type="date" id="eventDate" required>
-        </div>
-
-        <div class="row">
-            <div class="form-group">
-                <label for="startTime">Start Time</label>
-                <input type="time" id="startTime" required>
-            </div>
-            <div class="form-group">
-                <label for="endTime">End Time</label>
-                <input type="time" id="endTime">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Ticket Photo</label>
-            <label class="file-upload-btn" for="ticketImage">
-                📷 Tap to Upload Ticket
-            </label>
-            <input type="file" id="ticketImage" accept="image/*" capture="environment">
-            
-            <div id="imagePreviewContainer">
-                <img id="imagePreview" alt="Ticket Preview">
-                <button type="button" class="remove-img-btn" id="removeImageBtn">✖ Remove Photo</button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Payment Status</label>
-            <input type="hidden" id="isPaid" value="false">
-            <button type="button" id="paymentBtn" class="payment-toggle unpaid">Unpaid</button>
-        </div>
-
-        <div class="form-group">
-            <label for="notes">Special Notes</label>
-            <textarea id="notes" rows="3" placeholder="Needs chafing dishes, allergies, etc."></textarea>
-        </div>
-
-        <button type="submit" class="submit-btn">Save Event</button>
-    </form>
 </div>
 
 <script type="module">
-    // --- Dark Mode Logic ---
+    // --- Transition & Loader Logic ---
+    window.addEventListener('load', () => {
+        const loader = document.getElementById('loader');
+        const content = document.getElementById('main-content');
+        
+        // Let the "Loading Database" message show for 1.2 seconds for effect
+        setTimeout(() => {
+            loader.style.opacity = '0';
+            loader.style.visibility = 'hidden';
+            content.classList.add('visible');
+        }, 1200);
+    });
+
+    // --- Dark Mode ---
     const themeToggle = document.getElementById('themeToggle');
     const body = document.body;
-    const moonIcon = document.getElementById('moonIcon');
-    const sunIcon = document.getElementById('sunIcon');
-
-    if (localStorage.getItem('theme') === 'dark') enableDarkMode();
-
+    if (localStorage.getItem('theme') === 'dark') { body.classList.add('dark-mode'); document.getElementById('sunIcon').style.display='block'; document.getElementById('moonIcon').style.display='none'; }
     themeToggle.addEventListener('click', () => {
-        body.classList.contains('dark-mode') ? disableDarkMode() : enableDarkMode();
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        document.getElementById('sunIcon').style.display = isDark ? 'block' : 'none';
+        document.getElementById('moonIcon').style.display = isDark ? 'none' : 'block';
     });
 
-    function enableDarkMode() {
-        body.classList.add('dark-mode'); localStorage.setItem('theme', 'dark');
-        moonIcon.style.display = 'none'; sunIcon.style.display = 'block';
-    }
-    function disableDarkMode() {
-        body.classList.remove('dark-mode'); localStorage.setItem('theme', 'light');
-        moonIcon.style.display = 'block'; sunIcon.style.display = 'none';
-    }
-
-    // --- Live Image Preview Logic ---
+    // --- Image Preview ---
     const ticketInput = document.getElementById('ticketImage');
-    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-    const imagePreview = document.getElementById('imagePreview');
-    const removeImageBtn = document.getElementById('removeImageBtn');
-
-    ticketInput.addEventListener('change', function(event) {
-        const file = event.target.files[0];
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    const previewImg = document.getElementById('imagePreview');
+    ticketInput.addEventListener('change', e => {
+        const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                imagePreviewContainer.style.display = 'block'; 
-            }
-            reader.readAsDataURL(file); 
+            reader.onload = e => { previewImg.src = e.target.result; previewContainer.style.display = 'block'; };
+            reader.readAsDataURL(file);
         }
     });
+    document.getElementById('removeImageBtn').addEventListener('click', () => { ticketInput.value=''; previewContainer.style.display='none'; });
 
-    removeImageBtn.addEventListener('click', function() {
-        ticketInput.value = ''; 
-        imagePreview.src = '';
-        imagePreviewContainer.style.display = 'none'; 
-    });
-
-    // --- Firebase Logic (Firestore + Storage) ---
+    // --- Firebase (Firestore + Storage) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
-    // IMPORTANT: Paste your config here again!
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY_HERE", 
         authDomain: "los-pericos-46378.firebaseapp.com",
@@ -320,42 +271,32 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const storage = getStorage(app); 
+    const storage = getStorage(app);
 
     const paymentBtn = document.getElementById('paymentBtn');
     const isPaidInput = document.getElementById('isPaid');
-
-    paymentBtn.addEventListener('click', function() {
-        if (isPaidInput.value === 'false') {
-            isPaidInput.value = 'true';
-            paymentBtn.textContent = 'Paid';
-            paymentBtn.className = 'payment-toggle paid';
-        } else {
-            isPaidInput.value = 'false';
-            paymentBtn.textContent = 'Unpaid';
-            paymentBtn.className = 'payment-toggle unpaid';
-        }
+    paymentBtn.addEventListener('click', () => {
+        const isPaid = isPaidInput.value === 'true';
+        isPaidInput.value = isPaid ? 'false' : 'true';
+        paymentBtn.textContent = isPaid ? 'Unpaid' : 'Paid';
+        paymentBtn.className = `payment-toggle ${isPaid ? 'unpaid' : 'paid'}`;
     });
 
-    document.getElementById('eventForm').addEventListener('submit', async function(e) {
-        e.preventDefault(); 
-        const submitBtn = document.querySelector('.submit-btn');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
+    document.getElementById('eventForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.querySelector('.submit-btn');
+        btn.disabled = true;
+        btn.textContent = "Saving...";
 
         try {
-            let finalImageUrl = "";
+            let url = "";
             const file = ticketInput.files[0];
-
             if (file) {
-                submitBtn.textContent = "Uploading Photo...";
-                const uniqueFileName = `ticket_images/${Date.now()}_${file.name}`;
-                const storageRef = ref(storage, uniqueFileName);
-                await uploadBytes(storageRef, file);
-                finalImageUrl = await getDownloadURL(storageRef);
+                const sRef = ref(storage, `ticket_images/${Date.now()}_${file.name}`);
+                await uploadBytes(sRef, file);
+                url = await getDownloadURL(sRef);
             }
 
-            submitBtn.textContent = "Saving to Database...";
             await addDoc(collection(db, "caterings_and_reservations"), {
                 type: document.querySelector('input[name="eventType"]:checked').value,
                 location: document.getElementById('location').value,
@@ -367,28 +308,13 @@
                 endTime: document.getElementById('endTime').value,
                 isPaid: isPaidInput.value === 'true',
                 notes: document.getElementById('notes').value,
-                ticketImageUrl: finalImageUrl, 
-                createdAt: serverTimestamp() 
+                ticketImageUrl: url,
+                createdAt: serverTimestamp()
             });
 
-            alert("Success! Event and photo saved.");
-            
-            document.getElementById('eventForm').reset();
-            paymentBtn.className = 'payment-toggle unpaid';
-            paymentBtn.textContent = 'Unpaid';
-            isPaidInput.value = 'false';
-            
-            ticketInput.value = '';
-            imagePreview.src = '';
-            imagePreviewContainer.style.display = 'none';
-
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Error saving event. Check your Firebase config.");
-        } finally {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        }
+            alert("Success!");
+            location.reload(); 
+        } catch (err) { console.error(err); alert("Error saving."); btn.disabled = false; btn.textContent = "Save Event"; }
     });
 </script>
 
