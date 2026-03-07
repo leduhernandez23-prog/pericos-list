@@ -179,8 +179,8 @@
         .action-btns button:hover { transform: translateY(-2px); }
         
         .btn-green { background-color: var(--success-color); }
-        .btn-red { background-color: var(--danger-color); display: none; } /* HIDDEN BY DEFAULT FOR MANAGERS */
-        .btn-yellow { background-color: var(--warning-color); color: #000 !important; } /* UNLOCKED FOR MANAGERS */
+        .btn-red { background-color: var(--danger-color); display: none; } 
+        .btn-yellow { background-color: var(--warning-color); color: #000 !important; } 
         .btn-text-msg { background-color: #007aff; }
         .sysco-wrapper .btn-blue { background-color: var(--primary-color); }
         .verdura-wrapper .btn-blue { background-color: var(--verdura-color); }
@@ -309,6 +309,12 @@
     </div>
 
     <div id="sync-toast">☁️ List updated by another manager!</div>
+
+    <div style="text-align: center; margin-bottom: 25px; padding-top: 20px;">
+        <a href="events.html" style="display: inline-block; background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: background-color 0.3s;">
+            🔄 Go to Caterings & Reservations
+        </a>
+    </div>
 
     <div id="sysco-wrapper" class="app-section sysco-wrapper active-app">
         <div class="cloud-status" id="conn-sysco">☁️ Connecting to Server...</div>
@@ -1474,7 +1480,7 @@
 
         function getSyscoDefaults() {
             const syscoWeightLb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
-            const syscoWeightFlOz = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
+            const syscoWeightFlOz = ["COCA-COLA", "DIET Coke", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
             const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
             const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
             return {
