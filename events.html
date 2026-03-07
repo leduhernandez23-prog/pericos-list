@@ -52,7 +52,7 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             transition: opacity 0.6s ease-out; 
         }
-        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 2s infinite; }
+        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 2s infinite; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         .splash-text { margin-top: 30px; font-size: 18px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; }
         @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(0, 86, 179, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0); } }
 
@@ -63,17 +63,20 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         #location-switcher {
             padding: 8px 12px;
             border-radius: 8px;
-            border: 1px solid var(--border);
+            border: 2px solid var(--border);
             background: var(--surface);
             color: var(--text-main);
             font-weight: bold;
             font-size: 14px;
             outline: none;
+            cursor: pointer;
         }
 
         .card {
@@ -117,29 +120,42 @@
             font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer;
         }
 
-        .event-item { border-bottom: 1px solid var(--border); padding: 15px 0; position: relative; }
+        /* BOARD STYLES */
+        .event-item { border-bottom: 1px solid var(--border); padding: 20px 0; position: relative; }
         .event-item:last-child { border: none; }
-        .del-btn { position: absolute; right: 0; top: 15px; color: var(--danger); background: none; border: none; cursor: pointer; font-size: 18px; }
+        .del-btn { position: absolute; right: 0; top: 20px; color: var(--danger); background: none; border: none; cursor: pointer; font-size: 18px; }
         
-        .user-badge { font-size: 12px; font-weight: bold; color: var(--primary); }
+        .status-toggle {
+            display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; text-transform: uppercase;
+        }
+        .status-paid { background: #dcfce7; color: #166534; }
+        .status-unpaid { background: #fee2e2; color: #991b1b; }
+
+        .action-link { 
+            display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
+            font-size: 12px; font-weight: bold; text-decoration: none; color: var(--primary);
+            padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg);
+        }
+
+        .user-badge { font-size: 13px; font-weight: bold; padding: 6px 12px; border-radius: 20px; background: rgba(0, 86, 179, 0.1); color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
         <img src="image_0.png" alt="Logo" class="splash-logo">
-        <div class="splash-text">Opening Events...</div>
+        <div class="splash-text">Syncing Events...</div>
     </div>
 
     <div class="header-controls">
-        <a href="index.html" style="text-decoration:none; font-weight:bold; color:var(--text-muted); font-size: 13px;">⬅ BACK</a>
+        <a href="index.html" style="text-decoration:none; font-weight:bold; color:var(--primary); font-size: 14px;">⬅ Back to Inventory</a>
         
         <select id="location-switcher" onchange="switchLocation(this.value)">
             <option value="LP_Willis">📍 LP Willis</option>
             <option value="LP_Huntsville">📍 LP Huntsville</option>
         </select>
 
-        <div id="user-display" class="user-badge">👤 Loading...</div>
+        <div id="user-display" class="user-badge">👤 User</div>
     </div>
 
     <div class="tab-nav">
@@ -155,7 +171,10 @@
                 <div style="flex:1;"><label>Phone</label><input type="tel" id="cPhone" required></div>
                 <div style="flex:1;"><label>Guests</label><input type="number" id="cGuests" required></div>
             </div>
-            <div class="form-group"><label>Event Date</label><input type="date" id="eDate" required></div>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1;"><label>Event Date</label><input type="date" id="eDate" required></div>
+                <div style="flex:1;"><label>Start Time</label><input type="time" id="eStart" required></div>
+            </div>
             <div class="form-group">
                 <label style="display:block; text-align:center; padding:15px; border:2px dashed var(--border); border-radius:10px; cursor:pointer; color:var(--primary); font-weight:bold;">
                     📷 UPLOAD TICKET PHOTO
@@ -163,7 +182,7 @@
                 </label>
             </div>
             <div class="form-group">
-                <label>Payment</label>
+                <label>Initial Payment Status</label>
                 <select id="isPaid">
                     <option value="false">❌ Unpaid</option>
                     <option value="true">✅ Paid</option>
@@ -174,7 +193,7 @@
     </div>
 
     <div id="view-board" class="card" style="display:none;">
-        <h2 style="margin-top:0;">Booking Board</h2>
+        <h2 style="margin-top:0;">Live Board</h2>
         <div id="event-list">Loading...</div>
     </div>
 
@@ -190,28 +209,22 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        let activeUser = localStorage.getItem('pericos_active_user');
-        let activeRole = localStorage.getItem('pericos_active_role');
-        let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
+        const activeUser = localStorage.getItem('pericos_active_user');
+        const activeRole = localStorage.getItem('pericos_active_role');
+        const currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
 
         if(!activeUser) { window.location.href = "index.html"; }
 
-        // Setup UI for Owners vs Managers
         const locSwitcher = document.getElementById('location-switcher');
         locSwitcher.value = currentLocation;
-        if(activeRole !== 'Owner') {
-            locSwitcher.disabled = true;
-            locSwitcher.style.opacity = '0.7';
-        }
+        if(activeRole !== 'Owner') { locSwitcher.disabled = true; locSwitcher.style.opacity = '0.7'; }
         document.getElementById('user-display').innerText = `👤 ${activeUser}`;
 
         function switchLocation(loc) {
-            currentLocation = loc;
+            const splash = document.getElementById('splash-screen');
+            splash.style.display = 'flex'; splash.style.opacity = '1';
             localStorage.setItem('pericos_location', loc);
-            // Refresh to sync data with the new location
-            document.getElementById('splash-screen').style.display = 'flex';
-            document.getElementById('splash-screen').style.opacity = '1';
-            location.reload();
+            setTimeout(() => { location.reload(); }, 300);
         }
 
         function switchTab(tab) {
@@ -237,10 +250,11 @@
                     phone: document.getElementById('cPhone').value,
                     guests: document.getElementById('cGuests').value,
                     date: document.getElementById('eDate').value,
+                    start: document.getElementById('eStart').value,
                     isPaid: document.getElementById('isPaid').value === 'true',
                     photo: url, createdBy: activeUser, timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
-                alert("✅ Event Saved!"); location.reload();
+                alert("✅ Saved!"); location.reload();
             } catch (err) { alert("Error saving."); btn.disabled = false; }
         };
 
@@ -248,20 +262,32 @@
             const list = document.getElementById('event-list');
             db.ref(currentLocation + '/events').on('value', snap => {
                 let html = '';
-                if(!snap.exists()) { list.innerHTML = 'No bookings found for ' + currentLocation.replace('_',' ') + '.'; return; }
+                if(!snap.exists()) { list.innerHTML = 'No bookings found.'; return; }
                 snap.forEach(child => {
                     const ev = child.val();
+                    const id = child.key;
+                    const paidClass = ev.isPaid ? 'status-paid' : 'status-unpaid';
+                    const paidText = ev.isPaid ? '✅ PAID' : '❌ UNPAID';
+                    
                     html += `
                         <div class="event-item">
-                            <button onclick="deleteEvent('${child.key}')" class="del-btn">🗑️</button>
-                            <b style="font-size:18px;">${ev.customer}</b><br>
-                            <span style="font-size:13px; color:var(--text-muted);">📅 ${ev.date} | 👤 ${ev.createdBy}</span><br>
-                            ${ev.photo ? `<a href="${ev.photo}" target="_blank" style="color:var(--primary); font-size:12px; font-weight:bold; text-decoration:none; display:inline-block; margin-top:5px;">📄 VIEW TICKET</a>` : ''}
+                            <button onclick="deleteEvent('${id}')" class="del-btn">🗑️</button>
+                            <button onclick="togglePaid('${id}', ${ev.isPaid})" class="status-toggle ${paidClass}">${paidText}</button>
+                            <div style="margin-top:10px;"><b style="font-size:18px;">${ev.customer}</b></div>
+                            <span style="font-size:13px; color:var(--text-muted);">📅 ${ev.date} | ⏰ ${ev.start} | 👥 ${ev.guests} Guests</span><br>
+                            <div style="display:flex; gap:10px;">
+                                <a href="tel:${ev.phone}" class="action-link">📞 CALL</a>
+                                ${ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 TICKET</a>` : ''}
+                            </div>
                         </div>`;
                 });
                 list.innerHTML = html;
             });
         }
+
+        window.togglePaid = (id, currentStatus) => {
+            db.ref(currentLocation + '/events/' + id).update({ isPaid: !currentStatus });
+        };
 
         window.deleteEvent = (id) => { if(confirm("Delete this event?")) db.ref(currentLocation+'/events/'+id).remove(); };
 
