@@ -74,7 +74,7 @@
         #pin-error { color: var(--danger-color); font-weight: bold; margin-top: 15px; display: none; }
 
         /* SPLASH SCREEN */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg-color); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.6s ease-out; }
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg-color); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.4s ease-out; }
         .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary-color); animation: pulse-ring 2s infinite; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         .splash-text { margin-top: 30px; font-size: 18px; font-weight: bold; color: var(--text-color); letter-spacing: 3px; text-transform: uppercase; animation: fade-pulse 2s infinite; }
         @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(0, 86, 179, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 86, 179, 0); } }
@@ -88,7 +88,6 @@
 
         .header-utils { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
         .util-btn { background-color: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
-        .util-btn:hover { border-color: var(--primary-color); }
         
         .user-badge { background: var(--best-deal-bg); color: var(--best-deal-text); padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; display: none; align-items: center; border: 2px solid var(--success-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         #location-switcher { background: var(--primary-color); color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; display: none; outline: none; }
@@ -100,8 +99,6 @@
         .search-bar { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; background-color: var(--input-bg); color: var(--input-text); box-sizing: border-box; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         
         .cloud-status { display: inline-block; padding: 6px 12px; background: #e3f2fd; color: #0d47a1; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; text-align: center; }
-        body.dark-mode .cloud-status { background: #0d47a1; color: #e3f2fd; }
-        .cloud-status.offline { background: #fff3cd !important; color: #856404 !important; border: 2px solid #ffeeba; }
         .timestamp { font-size: 12px; color: var(--result-text); font-style: italic; margin-bottom: 15px; text-align: right; font-weight: bold; padding: 0 20px; }
 
         .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;}
@@ -114,53 +111,29 @@
         .tab-content { display: none; padding-bottom: 15px; }
         .tab-content.active { display: block; }
 
-        /* CARD UI SYSTEM */
+        /* CARDS */
         .table-container { display: flex; flex-direction: column; gap: 15px; }
-        .item-card { background: var(--container-bg); border-radius: 16px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 2px solid transparent; transition: border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; }
+        .item-card { background: var(--container-bg); border-radius: 16px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 2px solid transparent; transition: 0.3s; position: relative; overflow: hidden; }
         .item-card.has-order { border-color: var(--success-color); box-shadow: 0 6px 15px rgba(40, 167, 69, 0.15); }
         
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
         .item-name { font-size: 18px !important; font-weight: bold; flex: 1; min-width: 150px; border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; padding: 8px !important; color: var(--text-color) !important; }
         
         .inventory-controls { display: flex; gap: 5px; background: var(--supplier-group-bg); padding: 6px 10px; border-radius: 12px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; }
-        .inventory-controls.active { border-color: var(--success-color); background: var(--best-deal-bg); }
         .inv-group { display: flex; flex-direction: column; align-items: center; }
         .inv-group label { font-size: 11px; color: var(--result-text); font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
         .inv-input { width: 55px !important; text-align: center; border: 1px solid var(--border-color) !important; font-size: 18px !important; font-weight: bold; padding: 4px 0 !important; border-radius: 6px !important; background: var(--input-bg); color: var(--text-color); margin:0 !important; }
-        .inv-input:focus { border-color: var(--primary-color) !important; outline:none; }
-        .order-group { border-left: 2px dashed var(--border-color); padding-left: 8px; margin-left: 3px; }
         .order-qty-input { background: var(--best-deal-bg) !important; color: var(--best-deal-text) !important; border-color: var(--success-color) !important; }
-
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
 
         .card-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
         .supplier-cell { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; background: var(--supplier-group-bg); position: relative; transition: 0.3s; }
         .supplier-cell.best-deal { border-color: var(--success-color); background: var(--best-deal-bg); }
         
-        input.s-name { font-weight: bold; color: var(--text-color); background: transparent; border: none; padding: 0; margin-bottom: 8px; font-size: 15px; width: 100%; }
-        input.s-name:focus { background: var(--input-bg); border: 1px solid var(--primary-color); padding: 4px; }
-        
-        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-color); flex-wrap: wrap; gap: 10px; }
-        .card-actions { display: flex; gap: 5px; }
-        .icon-btn, .delete-btn { background: var(--supplier-group-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; transition: 0.2s; color: var(--text-color); font-weight: bold;}
-        .delete-btn { color: var(--danger-color); }
-
-        input[type="text"], input[type="number"], select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--input-text); border-radius: 8px; font-size: 14px; margin-bottom: 6px; }
-        input.s-price, input.s-qty { padding: 10px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); margin-bottom: 0;}
-        input:focus, select:focus { outline: none; border-color: var(--primary-color); }
-        
         .s-result { font-weight: bold; font-size: 15px; text-align: right; color: var(--result-text); margin-top: 6px; }
         .best-deal .s-result { color: var(--best-deal-text); font-size: 16px; }
 
-        .fab-btn { position: fixed; bottom: 95px; right: 20px; width: 65px; height: 65px; border-radius: 50%; background: var(--primary-color); color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 32px; z-index: 999; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-
-        .action-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center; margin-bottom: 20px; }
-        .action-btns button { color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        
         .btn-yellow { background-color: var(--warning-color); color: #000 !important; font-weight:bold; border:none; padding:15px; border-radius:8px; width:100%; cursor:pointer; }
         .btn-red { background-color: var(--danger-color); color: white; font-weight:bold; border:none; padding:15px; border-radius:8px; width:100%; cursor:pointer; margin-top:10px;}
-        .btn-green { background-color: var(--success-color); }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 10px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 1000; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); }
         body.dark-mode .bottom-nav { background: rgba(30, 30, 30, 0.9); }
@@ -173,9 +146,9 @@
         #sync-toast { visibility: hidden; min-width: 250px; background-color: var(--success-color); color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 9999; bottom: 100px; left: 50%; transform: translateX(-50%); font-weight: bold; opacity: 0; transition: 0.5s; }
         #sync-toast.show { visibility: visible; opacity: 1; }
 
-        .receiving-card { border: 2px solid var(--border-color); transition: 0.3s; }
-        .receiving-card.status-ok { border-color: var(--success-color); }
-        .receiving-card.status-danger { border-color: var(--danger-color); background: rgba(220, 53, 69, 0.05); }
+        .fab-btn { position: fixed; bottom: 95px; right: 20px; width: 65px; height: 65px; border-radius: 50%; background: var(--primary-color); color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 32px; z-index: 999; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body>
@@ -268,7 +241,7 @@
         <h2 style="text-align:center;">📊 Analytics</h2>
         <div class="analytics-box" style="background: linear-gradient(135deg, var(--success-color), #155724); color: white; padding:25px; border-radius:16px; text-align:center; margin-bottom:20px;">
             <div style="font-size:14px; opacity:0.9;">Walk-In Net Worth</div>
-            <div id="net-worth-display" style="font-size:42px; font-weight:bold;">$0.00</div>
+            <div id="net-worth-display" style="font-size:36px; font-weight:bold;">$0.00</div>
         </div>
         <div id="activity-feed-list" style="background:var(--container-bg); padding:15px; border-radius:12px; border:1px solid var(--border-color);"></div>
     </div>
@@ -298,9 +271,9 @@
         let isAppLoading = true;
         const mySyncId = Math.random().toString(36).substr(2, 9);
         const TEAM_PINS = { 
-            "8096": { name: "Jorge", role: "Manager" }, 
-            "0623": { name: "Luis H", role: "Manager" }, 
-            "6660": { name: "Elias", role: "Manager" }, 
+            "8096": { name: "Jorge", role: "Manager", loc: "LP_Willis" }, 
+            "0623": { name: "Luis H", role: "Manager", loc: "LP_Willis" }, 
+            "6660": { name: "Elias", role: "Manager", loc: "LP_Huntsville" }, 
             "1116": { name: "Stephanie", role: "Owner" }, 
             "0523": { name: "Luis M", role: "Owner" } 
         };
@@ -312,10 +285,14 @@
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
             if (TEAM_PINS[pin]) {
-                activeUser = TEAM_PINS[pin].name;
-                activeRole = TEAM_PINS[pin].role;
+                const user = TEAM_PINS[pin];
+                activeUser = user.name;
+                activeRole = user.role;
+                currentLocation = (activeRole === 'Owner') ? currentLocation : user.loc;
+                
                 localStorage.setItem('pericos_active_user', activeUser);
                 localStorage.setItem('pericos_active_role', activeRole);
+                localStorage.setItem('pericos_location', currentLocation);
                 location.reload();
             } else {
                 document.getElementById('pin-error').style.display = 'block';
@@ -339,13 +316,11 @@
             setTimeout(() => { location.reload(); }, 150);
         }
 
-        // ==========================================
-        // 🔥 ALL ITEMS RECOVERED HERE
-        // ==========================================
+        // --- FULL ITEM LIST RECOVERY ---
         function getSyscoDefaults() {
             const lb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
             const flOz = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
-            const unit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "PAPER TOWELS", "TOILET PAPER", "CAN TOMATILLO", "PACE MAT NINOS", "CRAYOLAS", "TRASH LINNER", "GLOVES", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "LIME JUICE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED"];
+            const unit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", "32oz CUPS", "16oz CUPS", "PAPER TOWELS", "TOILET PAPER", "CAN TOMATILLO", "PACE MAT NINOS", "CRAYOLAS", "TRASH LINNER", "GLOVES", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "LIME JUICE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED"];
             const mfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
             return {
                 weight: lb.concat(flOz).map(i => ({item: i, par:"", shelf:"", qty:"", targetUnit: lb.includes(i)?'lb':'fl oz', suppliers:[["Sysco","","","lb",0,"",""],["Gordon","","","lb",0,"",""],["Ben E Keith","","","lb",0,"",""]]})),
@@ -548,8 +523,19 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('user-badge').innerText = "👤 " + activeUser;
                 document.getElementById('user-badge').style.display = 'block';
-                document.getElementById('location-switcher').value = currentLocation;
-                if(activeRole !== 'Owner') document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                
+                const switcher = document.getElementById('location-switcher');
+                switcher.value = currentLocation;
+                
+                // 🔥 THE FIX: Switcher only visible to Owners
+                if(activeRole === 'Owner') {
+                    switcher.style.display = 'inline-block';
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
+                } else {
+                    switcher.style.display = 'none';
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                }
+                
                 loadFromDatabase();
             }
         });
