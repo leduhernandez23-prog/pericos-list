@@ -186,29 +186,41 @@
         .feed-action { font-size: 14px; color: var(--text-main); }
 
         /* =========================================
-           CALENDAR VIEW & MODAL STYLES
+           PRO CALENDAR VIEW & MODAL STYLES
            ========================================= */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .calendar-day-header { text-align: center; font-weight: bold; font-size: 12px; color: var(--text-muted); padding-bottom: 5px;}
-        .calendar-day { min-height: 80px; border: 1px solid var(--border); border-radius: 6px; padding: 5px; background: var(--input-bg); font-size: 12px; display:flex; flex-direction:column; gap:2px; }
-        .calendar-day.empty { background: transparent; border: none; }
-        .calendar-day.today { border: 2px solid var(--primary); background: rgba(37, 99, 235, 0.05); }
-        .calendar-date { font-weight: bold; margin-bottom: 5px; color: var(--text-main); text-align:right;}
-        .cal-event { background: var(--primary); color: white; padding: 3px 5px; border-radius: 4px; font-size: 10px; font-weight:bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: transform 0.1s, opacity 0.2s;}
-        .cal-event.reservation { background: var(--success); }
-        .cal-event:hover { opacity: 0.8; transform: scale(1.02); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; }
+        .calendar-header h2 { font-size: 22px; letter-spacing: -0.5px; color: var(--text-main); margin: 0; }
+        .cal-nav-btn { background: var(--toggle-bg); border: 1px solid var(--border); color: var(--text-main); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s ease; font-size: 14px; font-weight: bold; }
+        .cal-nav-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .calendar-day-header { text-align: center; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding-bottom: 10px; }
+        
+        .calendar-day { min-height: 90px; border: 1px solid var(--border); border-radius: 10px; padding: 6px; background: var(--surface); transition: background-color 0.2s, box-shadow 0.2s; display:flex; flex-direction:column; gap:4px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .calendar-day:hover:not(.empty) { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .calendar-day.empty { background: transparent; border: 1px dashed var(--border); opacity: 0.5; box-shadow: none; }
+        
+        .calendar-day.today { border: 2px solid var(--primary); background: var(--surface); }
+        .calendar-day.today .calendar-date { background: var(--primary); color: white; border-radius: 50%; }
+        
+        .calendar-date { font-weight: 600; margin-bottom: 4px; color: var(--text-main); font-size: 13px; margin-left: auto; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+        
+        .cal-event { background: rgba(37, 99, 235, 0.1); color: var(--primary); padding: 5px 6px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: transform 0.1s, background 0.2s, box-shadow 0.2s; border-left: 3px solid var(--primary); }
+        .cal-event.reservation { background: rgba(16, 185, 129, 0.1); color: var(--success); border-left: 3px solid var(--success); }
+        .cal-event:hover { transform: translateY(-1px); filter: brightness(0.95); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        body.dark-mode .cal-event { filter: brightness(1.2); }
 
         #eventModalOverlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.6); z-index: 9999999;
             display: none; justify-content: center; align-items: center;
             opacity: 0; transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box;
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
         }
         .modal-card {
             background: var(--surface); width: 100%; max-width: 420px;
-            border-radius: 16px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            position: relative; transform: translateY(20px); transition: transform 0.3s ease;
+            border-radius: 20px; padding: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            position: relative; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid var(--border); max-height: 90vh; overflow-y: auto;
         }
         .modal-close {
@@ -381,9 +393,9 @@
 
         <div id="calendarView" style="display:none;">
             <div class="calendar-header">
-                <button onclick="changeMonth(-1)" class="submit-btn" style="width:auto; margin:0; padding:8px 15px;">⬅️</button>
-                <h2 id="calendarMonthYear" style="margin:0;">Month Year</h2>
-                <button onclick="changeMonth(1)" class="submit-btn" style="width:auto; margin:0; padding:8px 15px;">➡️</button>
+                <button onclick="changeMonth(-1)" class="cal-nav-btn">❮</button>
+                <h2 id="calendarMonthYear">Month Year</h2>
+                <button onclick="changeMonth(1)" class="cal-nav-btn">❯</button>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
         </div>
@@ -946,13 +958,11 @@
                 
                 dayEvents.forEach(ev => {
                     const isRes = ev.type === 'Reservation';
-                    // Added openEventModal Trigger
                     eventsHtml += `<div class="cal-event ${isRes ? 'reservation' : ''}" title="${ev.customer} @ ${ev.start}" onclick="openEventModal('${ev.id}')">
                         ${ev.start} - ${ev.customer.split(' ')[0]}
                     </div>`;
                 });
                 
-                // Highlight today's date block
                 const isToday = (day === todayActual.getDate() && month === todayActual.getMonth() && year === todayActual.getFullYear());
                 const todayClass = isToday ? ' today' : '';
                 
@@ -970,7 +980,6 @@
             renderCalendar();
         };
 
-        // NEW: Function to open the details modal over the calendar
         window.openEventModal = function(eventId) {
             const ev = window.cachedEvents.find(e => e.id === eventId);
             if(!ev) return;
@@ -984,7 +993,6 @@
             if (ev.type === 'Catering') {
                 const paidClass = ev.isPaid ? 'paid' : 'unpaid';
                 const paidText = ev.isPaid ? '✅ PAID' : '❌ UNPAID';
-                // Toggle paid inside the modal will also close the modal so they can see the calendar update
                 pillHtml = `<button onclick="togglePaid('${ev.id}', ${ev.isPaid}, '${safeCustName}'); closeEventModal();" class="status-pill ${paidClass}">${paidText}</button>`;
             }
             
@@ -1021,7 +1029,6 @@
             }, 10);
         };
         
-        // NEW: Close the details modal
         window.closeEventModal = function() {
             const overlay = document.getElementById('eventModalOverlay');
             overlay.style.opacity = '0';
