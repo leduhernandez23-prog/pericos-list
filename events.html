@@ -116,7 +116,7 @@
            TAB NAVIGATION
            ========================================= */
         .tab-nav { display: flex; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; transition: var(--theme-transition); }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 15px; transition: all 0.3s ease; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 14px; transition: all 0.3s ease; }
         .tab-btn.active { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
         body.dark-mode .tab-btn.active { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
 
@@ -178,6 +178,28 @@
             padding: 12px; border-radius: 8px; border: 1px dashed var(--danger);
             font-size: 13px; font-weight: bold; margin-bottom: 20px; text-align: center;
         }
+
+        /* =========================================
+           ACTIVITY FEED STYLES
+           ========================================= */
+        .feed-item { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .feed-item:last-child { border-bottom: none; }
+        .feed-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+        .feed-user { font-weight: bold; color: var(--primary); }
+        .feed-action { font-size: 14px; color: var(--text-main); }
+
+        /* =========================================
+           UPLOAD PROGRESS OVERLAY STYLES
+           ========================================= */
+        #upload-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg); z-index: 9999999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .upload-logo { width: 140px; height: 140px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 1.5s infinite; margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .upload-logo.success { animation: none; border-color: var(--success); box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); }
+        .upload-status { font-size: 20px; font-weight: bold; color: var(--text-main); letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -195,6 +217,11 @@
     <div id="splash-screen" style="display:none;">
         <img src="image_0.png" alt="Logo" class="splash-logo">
         <div class="splash-text">Syncing...</div>
+    </div>
+
+    <div id="upload-overlay" style="display:none;">
+        <img src="image_0.png" alt="Logo" id="upload-logo-img" class="upload-logo">
+        <div id="upload-status-text" class="upload-status">Processing...</div>
     </div>
 
     <div class="card" id="app-container" style="display:none;">
@@ -232,6 +259,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" id="btn-add" onclick="switchView('add')">➕ Add Event</button>
             <button class="tab-btn" id="btn-board" onclick="switchView('board')">📋 View Board</button>
+            <button class="tab-btn" id="btn-activity" onclick="switchView('activity')">📝 Activity</button>
         </div>
 
         <form id="eventForm">
@@ -306,6 +334,13 @@
             <h2 style="margin-top:0; margin-bottom:15px;">Booking Board</h2>
             <input type="text" id="eventSearch" class="search-bar" placeholder="🔍 Search by customer name..." onkeyup="filterEvents(this.value)">
             <div id="event-list">Loading...</div>
+        </div>
+
+        <div id="activityView" style="display:none;">
+            <h2 style="margin-top:0; margin-bottom:15px;">Recent Activity</h2>
+            <div id="activity-list" style="background:var(--toggle-bg); padding:15px; border-radius:12px; border:1px solid var(--border);">
+                Loading logs...
+            </div>
         </div>
     </div>
 
@@ -401,9 +436,52 @@
         function switchView(view) {
             document.getElementById('eventForm').style.display = view === 'add' ? 'block' : 'none';
             document.getElementById('boardView').style.display = view === 'board' ? 'block' : 'none';
+            document.getElementById('activityView').style.display = view === 'activity' ? 'block' : 'none';
+            
             document.getElementById('btn-add').classList.toggle('active', view === 'add');
             document.getElementById('btn-board').classList.toggle('active', view === 'board');
+            document.getElementById('btn-activity').classList.toggle('active', view === 'activity');
+            
             if(view === 'board') loadBoard();
+            if(view === 'activity') loadActivityFeed();
+        }
+
+        // --- LOGGING SYSTEM ---
+        function logEventAction(actionText) {
+            if(!activeUser) return;
+            let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+            db.ref(currentLocation + '/events_logs').push({
+                user: activeUser,
+                action: actionText,
+                time: now,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        function loadActivityFeed() {
+            const list = document.getElementById('activity-list');
+            list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Fetching logs...</p>';
+            
+            db.ref(currentLocation + '/events_logs').limitToLast(50).once('value').then(snapshot => {
+                let logs = snapshot.val();
+                let feedHtml = '';
+                if(logs) {
+                    Object.values(logs).reverse().forEach(log => {
+                        feedHtml += `
+                            <div class="feed-item">
+                                <div class="feed-header">
+                                    <span class="feed-user">👤 ${log.user}</span>
+                                    <span>${log.time}</span>
+                                </div>
+                                <div class="feed-action">${log.action}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    feedHtml = '<p style="text-align:center; color:var(--text-muted);">No activity recorded yet.</p>';
+                }
+                list.innerHTML = feedHtml;
+            });
         }
 
         // --- 4. FORM LOGIC ---
@@ -484,6 +562,7 @@
         });
 
         // --- IMAGE COMPRESSION HELPER ---
+        // Shrunk to 800x800 at 40% quality for lightning-fast uploads
         function compressImage(file, maxWidth, maxHeight, quality) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -523,27 +602,36 @@
         // Submit Form
         document.getElementById('eventForm').addEventListener('submit', async function(e) {
             e.preventDefault(); 
-            const submitBtn = document.getElementById('submitEventBtn');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = "Uploading...";
-
+            
             const eventType = document.querySelector('input[name="eventType"]:checked').value;
             const isCatering = eventType === 'Catering';
+            const custName = document.getElementById('customerName').value;
+
+            // Trigger Overlay
+            const overlay = document.getElementById('upload-overlay');
+            const statusText = document.getElementById('upload-status-text');
+            const logoImg = document.getElementById('upload-logo-img');
+            
+            overlay.style.display = 'flex';
+            setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+            
+            // Reset logo states in case of previous runs
+            logoImg.className = 'upload-logo';
+            statusText.style.color = 'var(--text-main)';
 
             try {
                 let finalImageUrl = "";
                 let isPaidStatus = false;
 
-                // Only handle photos and payment if it's a Catering event
                 if (isCatering) {
                     isPaidStatus = isPaidInput.value === 'true';
                     const file = ticketInput.files[0];
                     if (file) {
-                        submitBtn.innerText = "Compressing Photo...";
-                        const compressedBlob = await compressImage(file, 1200, 1200, 0.7);
+                        statusText.innerText = "Shrinking Photo...";
+                        // Ultra compression for fast cell-data uploads
+                        const compressedBlob = await compressImage(file, 800, 800, 0.4);
                         
-                        submitBtn.innerText = "Uploading to Cloud...";
+                        statusText.innerText = "Uploading to Cloud...";
                         const uniqueFileName = `tickets/${currentLocation}/${Date.now()}_ticket.jpg`;
                         const storageRef = storage.ref().child(uniqueFileName);
                         await storageRef.put(compressedBlob);
@@ -551,11 +639,11 @@
                     }
                 }
 
-                submitBtn.textContent = "Saving to Database...";
+                statusText.innerText = "Saving to Database...";
                 
                 await db.ref(currentLocation + '/events').push({
                     type: eventType,
-                    customer: document.getElementById('customerName').value,
+                    customer: custName,
                     phone: document.getElementById('customerPhone').value,
                     guests: document.getElementById('headcount').value,
                     date: document.getElementById('eventDate').value,
@@ -567,27 +655,39 @@
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
 
-                alert("Success! Event saved.");
+                // Trigger Success State
+                logoImg.className = 'upload-logo success';
+                statusText.innerText = "✅ Picture Completed! Booking Saved.";
+                statusText.style.color = "var(--success)";
                 
-                // Reset Form
-                document.getElementById('eventForm').reset();
-                paymentBtn.className = 'payment-toggle unpaid';
-                paymentBtn.textContent = 'Unpaid';
-                isPaidInput.value = 'false';
-                ticketInput.value = '';
-                imagePreview.src = '';
-                imagePreviewContainer.style.display = 'none';
-                document.getElementById('weekendWarning').style.display = 'none';
-                
-                // Jump to board to see the new event
-                switchView('board');
+                logEventAction(`Added a new ${eventType} for ${custName}`);
+
+                // Wait 2 seconds so they can read the success message, then transition
+                setTimeout(() => {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        
+                        // Reset Form
+                        document.getElementById('eventForm').reset();
+                        paymentBtn.className = 'payment-toggle unpaid';
+                        paymentBtn.textContent = 'Unpaid';
+                        isPaidInput.value = 'false';
+                        ticketInput.value = '';
+                        imagePreview.src = '';
+                        imagePreviewContainer.style.display = 'none';
+                        document.getElementById('weekendWarning').style.display = 'none';
+                        
+                        // Jump to board to see the new event
+                        switchView('board');
+                    }, 300);
+                }, 2000);
 
             } catch (error) {
                 console.error("Error:", error);
-                alert("Error saving event.");
-            } finally {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
+                overlay.style.opacity = '0';
+                setTimeout(() => { overlay.style.display = 'none'; }, 300);
+                alert("Error saving event. Please check your connection and try again.");
             }
         });
 
@@ -636,12 +736,16 @@
                     if (ev.type === 'Catering') {
                         const paidClass = ev.isPaid ? 'paid' : 'unpaid';
                         const paidText = ev.isPaid ? '✅ PAID' : '❌ UNPAID';
-                        pillHtml = `<button onclick="togglePaid('${ev.id}', ${ev.isPaid})" class="status-pill ${paidClass}">${paidText}</button>`;
+                        // Safe escape for name to prevent JS errors
+                        const safeCustName = ev.customer.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                        pillHtml = `<button onclick="togglePaid('${ev.id}', ${ev.isPaid}, '${safeCustName}')" class="status-pill ${paidClass}">${paidText}</button>`;
                     }
                     
+                    const safeCustName = ev.customer.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+
                     html += `
                         <div class="event-item">
-                            <button onclick="deleteEvent('${ev.id}')" class="del-btn">🗑️</button>
+                            <button onclick="deleteEvent('${ev.id}', '${safeCustName}')" class="del-btn">🗑️</button>
                             ${pillHtml}
                             
                             <div style="font-size:12px; color:var(--primary); font-weight:800; margin: 8px 0 2px 0;">${ev.type.toUpperCase()}</div>
@@ -677,8 +781,19 @@
             });
         }
 
-        window.togglePaid = (id, current) => { db.ref(currentLocation + '/events/' + id).update({ isPaid: !current }); };
-        window.deleteEvent = (id) => { if(confirm("Permanently delete this event?")) db.ref(currentLocation+'/events/'+id).remove(); };
+        // Updated toggles to include logging
+        window.togglePaid = (id, current, customerName) => { 
+            let newStatus = !current;
+            db.ref(currentLocation + '/events/' + id).update({ isPaid: newStatus }); 
+            logEventAction(`Marked ${customerName} as ${newStatus ? 'PAID' : 'UNPAID'}`);
+        };
+
+        window.deleteEvent = (id, customerName) => { 
+            if(confirm("Permanently delete this event?")) {
+                db.ref(currentLocation+'/events/'+id).remove(); 
+                logEventAction(`Deleted event for ${customerName}`);
+            }
+        };
     </script>
 </body>
 </html>
