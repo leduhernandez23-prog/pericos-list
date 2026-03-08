@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
     <style>
         /* =========================================
@@ -401,6 +402,7 @@
         firebase.initializeApp(config);
         const db = firebase.database();
         const storage = firebase.storage();
+        const messaging = firebase.messaging(); // ADDED: Initialize Messaging
 
         const TEAM_PINS = {
             "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
@@ -443,6 +445,29 @@
             }
         }
 
+        // ADDED: Push Notification Setup Function
+        async function setupPushNotifications() {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    console.log('Notification permission granted.');
+                    // Replace this string with the key you generated in the Firebase Console
+                    const token = await messaging.getToken({ vapidKey: 'BF8y6NGNpYcVc4SlFwMtXii40cQxLffSHCxX05A9iXdHikvpee8hGu4uNr50EJXkK-e4JmuymZs6M1qMd-0qF_k' });
+                    if (token) {
+                        // Save the device token to the database so you can send them messages later
+                        db.ref(`${currentLocation}/fcmTokens/${activeUser}`).set(token);
+                    }
+                }
+            } catch (error) {
+                console.error('Error setting up push notifications', error);
+            }
+        }
+
+        // ADDED: Foreground Message Listener (When they have the app open)
+        messaging.onMessage((payload) => {
+            alert(`📣 New Update: ${payload.notification.body}`);
+        });
+
         function startApp() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
@@ -456,6 +481,9 @@
             } else {
                 locSwitcher.style.display = 'none';
             }
+
+            // TRIGGER: Ask for notification permission after login
+            setupPushNotifications();
 
             setTimeout(() => {
                 document.getElementById('splash-screen').style.opacity = '0';
@@ -771,7 +799,6 @@
         };
 
         // --- 5. BOARD LOGIC & AUTO DELETE ---
-        // FEATURE: Global array added to feed the visual calendar
         window.cachedEvents = [];
 
         function loadBoard() {
@@ -804,10 +831,9 @@
                     eventsArray.push({ id: child.key, ...ev });
                 });
 
-                window.cachedEvents = eventsArray; // Save it to build the calendar
+                window.cachedEvents = eventsArray; 
                 eventsArray.sort((a, b) => new Date(a.date) - new Date(b.date));
                 
-                // If the user is currently looking at the calendar, update it instantly
                 if (document.getElementById('calendarView').style.display === 'block') {
                     renderCalendar();
                 }
@@ -827,8 +853,6 @@
                     }
                     
                     const safeCustName = ev.customer.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-                    
-                    // FEATURE: Auto-Generate SMS Body
                     const smsBody = encodeURIComponent(`Hi ${ev.customer}, Los Pericos has you down for a ${ev.type.toLowerCase()} on ${ev.date} at ${ev.start}. We look forward to serving you!`);
 
                     html += `
@@ -885,13 +909,11 @@
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
-            // Add empty blocks for days before the 1st of the month
             for (let i = 0; i < firstDay; i++) {
                 grid.innerHTML += `<div class="calendar-day empty"></div>`;
             }
             
             for (let day = 1; day <= daysInMonth; day++) {
-                // Format the date to match the database (YYYY-MM-DD)
                 const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 
                 const dayEvents = window.cachedEvents.filter(e => e.date === dateStr);
