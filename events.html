@@ -82,7 +82,7 @@
         .pin-box { background: var(--surface); padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); width: 85%; max-width: 340px; }
         .pin-input { width: 100%; font-size: 32px; text-align: center; letter-spacing: 15px; padding: 15px; border-radius: 12px; border: 2px solid var(--primary); background: var(--input-bg); color: var(--text-main); margin: 20px 0; box-sizing: border-box; }
         
-        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 2s infinite; }
+        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 1.5s infinite; }
         
         /* =========================================
            HEADER & LOGO AREA
@@ -287,11 +287,11 @@
             <div class="row">
                 <div class="form-group">
                     <label for="eventDate">Date</label>
-                    <input type="date" id="eventDate" required onchange="checkWeekendWarning(); validateTime();">
+                    <input type="date" id="eventDate" required onchange="checkWeekendWarning(); updateTimeLimits();">
                 </div>
                 <div class="form-group">
                     <label for="startTime">Start Time</label>
-                    <input type="time" id="startTime" required onchange="checkWeekendWarning(); validateTime();">
+                    <input type="time" id="startTime" min="11:00" required onchange="checkWeekendWarning(); validateTimeLimits();">
                 </div>
             </div>
             
@@ -395,7 +395,7 @@
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user && activeUser) {
-                // Good to go
+                startApp();
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('splash-screen').style.display = 'none';
@@ -424,7 +424,7 @@
 
         function startApp() {
             document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('splash-screen').style.display = 'flex';
+            document.getElementById('app-container').style.display = 'block';
             
             document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
             
@@ -441,7 +441,6 @@
                 document.getElementById('splash-screen').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('splash-screen').style.display = 'none';
-                    document.getElementById('app-container').style.display = 'block';
                 }, 600);
             }, 800);
         }
@@ -543,37 +542,44 @@
             }
         }
 
-        function validateTime() {
+        // FIX: THE GOLD STANDARD TIME RESTRICTION
+        function updateTimeLimits() {
             const dateVal = document.getElementById('eventDate').value;
-            const timeVal = document.getElementById('startTime').value;
+            const timeInput = document.getElementById('startTime');
             const timeWarn = document.getElementById('timeWarning');
             
-            if (!dateVal || !timeVal) {
-                timeWarn.style.display = 'none';
-                return; 
-            }
+            if (!dateVal) return;
 
             const [y, m, d] = dateVal.split('-');
             const dateObj = new Date(y, m - 1, d);
             const dayOfWeek = dateObj.getDay(); 
 
-            const [hours, minutes] = timeVal.split(':').map(Number);
-            const timeInMinutes = hours * 60 + minutes;
-            
-            const openTime = 11 * 60; // 11:00 AM
-            let closeTime = 21 * 60; // 9:00 PM for Sun-Wed
-            let closeString = "9:00 PM";
-            
-            // If Thursday (4), Friday (5), or Saturday (6), push closing to 10:00 PM
+            // Thu(4)-Sat(6) closes at 10pm (22:00)
+            // Sun(0)-Wed(3) closes at 9pm (21:00)
             if (dayOfWeek >= 4 && dayOfWeek <= 6) {
-                closeTime = 22 * 60; 
-                closeString = "10:00 PM";
+                timeInput.max = "22:00";
+            } else {
+                timeInput.max = "21:00";
             }
 
-            if (timeInMinutes < openTime || timeInMinutes > closeTime) {
-                timeWarn.innerText = `⚠️ Please select a time within operating hours (11:00 AM - ${closeString}).`;
+            // Silently check if current value is now invalid
+            if (timeInput.value && timeInput.value > timeInput.max) {
+                timeInput.value = "";
+                timeWarn.innerText = `⚠️ Please select a time within operating hours (11:00 AM - ${dayOfWeek >= 4 && dayOfWeek <= 6 ? '10:00 PM' : '9:00 PM'}).`;
                 timeWarn.style.display = 'block';
-                document.getElementById('startTime').value = ''; 
+            } else {
+                timeWarn.style.display = 'none';
+            }
+        }
+        
+        // Final safety check for manual typing
+        function validateTimeLimits() {
+            const timeInput = document.getElementById('startTime');
+            const timeWarn = document.getElementById('timeWarning');
+            if (timeInput.value && (timeInput.value < "11:00" || timeInput.value > timeInput.max)) {
+                timeInput.value = "";
+                timeWarn.innerText = `⚠️ Closed at this time. Please choose 11 AM to ${timeInput.max === '22:00' ? '10 PM' : '9 PM'}.`;
+                timeWarn.style.display = 'block';
             } else {
                 timeWarn.style.display = 'none';
             }
@@ -594,7 +600,6 @@
             }
         });
 
-        // Image Preview
         const ticketInput = document.getElementById('ticketImage');
         const imagePreviewContainer = document.getElementById('imagePreviewContainer');
         const imagePreview = document.getElementById('imagePreview');
@@ -719,7 +724,6 @@
                     const uniqueFileName = `tickets/${currentLocation}/${Date.now()}_ticket.jpg`;
                     const storageRef = storage.ref().child(uniqueFileName);
                     
-                    // We don't await this, we just let it run
                     storageRef.put(compressedBlob).then(async (snapshot) => {
                         const finalUrl = await snapshot.ref.getDownloadURL();
                         db.ref(currentLocation + '/events/' + eventId).update({ photo: finalUrl });
@@ -730,7 +734,7 @@
                     });
                 }
 
-                // 5. DISMISS AND RESET AFTER A 1.5 SEC DELAY TO READ THE SUCCESS MSG
+                // 5. DISMISS AND RESET
                 setTimeout(() => {
                     overlay.style.opacity = '0';
                     setTimeout(() => {
@@ -743,7 +747,7 @@
                         imagePreview.src = '';
                         imagePreviewContainer.style.display = 'none';
                         document.getElementById('weekendWarning').style.display = 'none';
-                        document.getElementById('timeWarning').style.display = 'none'; // Added to clear warning
+                        document.getElementById('timeWarning').style.display = 'none';
                         
                         switchView('board');
                     }, 300);
