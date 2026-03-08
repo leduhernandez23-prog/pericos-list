@@ -13,9 +13,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
     <style>
-        /* =========================================
-           CSS VARIABLES (Color Palette)
-           ========================================= */
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
@@ -43,15 +40,12 @@
             --toggle-active: #334155;
         }
 
-        /* =========================================
-           CORE LAYOUT & TYPOGRAPHY
-           ========================================= */
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
-            padding: 20px 15px; /* Reduced padding for mobile */
+            padding: 20px 15px;
             display: flex;
             justify-content: center;
             transition: var(--theme-transition);
@@ -61,154 +55,102 @@
             background-color: var(--surface);
             width: 100%;
             max-width: 550px;
-            padding: 25px; /* Shrunk padding for mobile comfort */
+            padding: 25px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(0,0,0,0.02);
             transition: var(--theme-transition);
         }
 
-        body.dark-mode .card { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); }
+        /* MOBILE FIX: Stacking the rows so buttons don't touch on small screens */
+        .row { display: flex; flex-direction: column; gap: 15px; }
+        @media (min-width: 480px) {
+            .row { flex-direction: row; gap: 20px; }
+            .row > div { flex: 1; }
+        }
 
-        /* =========================================
-           PIN LOGIN & SPLASH SCREEN
-           ========================================= */
         #login-screen, #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background-color: var(--bg); z-index: 9999999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; 
         }
-        #splash-screen { z-index: 999999; transition: opacity 0.6s ease-out; }
         
         .pin-box { background: var(--surface); padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); width: 85%; max-width: 340px; }
         .pin-input { width: 100%; font-size: 32px; text-align: center; letter-spacing: 15px; padding: 15px; border-radius: 12px; border: 2px solid var(--primary); background: var(--input-bg); color: var(--text-main); margin: 20px 0; box-sizing: border-box; }
         
-        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 2s infinite; }
-        
-        /* =========================================
-           HEADER & LOGO AREA
-           ========================================= */
-        .app-nav { text-align: center; margin-bottom: 25px; }
-        .app-nav a { display: inline-block; background-color: var(--text-muted); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: background-color 0.3s; }
-        .app-nav a:hover { opacity: 0.9; }
-
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .logo-group { display: flex; align-items: center; gap: 12px; } /* Slightly tighter gap */
-        
-        .logo { width: 42px; height: 42px; min-width: 42px; border-radius: 10px; background-color: var(--primary); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .logo-group { display: flex; align-items: center; gap: 15px; }
+        .logo { width: 44px; height: 44px; border-radius: 10px; background-color: var(--primary); display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .logo img { width: 100%; height: 100%; object-fit: cover; }
 
-        .header-text h2 { margin: 0; font-size: 18px; font-weight: 700; color: var(--text-main); transition: var(--theme-transition); }
-        .header-text p { margin: 1px 0 0 0; color: var(--text-muted); font-size: 12px; transition: var(--theme-transition); }
+        .header-text h2 { margin: 0; font-size: 18px; font-weight: 700; color: var(--text-main); }
+        .header-text p { margin: 2px 0 0 0; color: var(--text-muted); font-size: 13px; }
         
-        .theme-toggle { background: none; border: 1px solid var(--border); color: var(--text-muted); width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
-        .theme-toggle:hover { border-color: var(--primary); color: var(--primary); background-color: rgba(37, 99, 235, 0.05); }
+        .theme-toggle { background: none; border: 1px solid var(--border); color: var(--text-muted); width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .header-controls { width: 100%; max-width: 550px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
+        .header-controls { width: 100%; max-width: 550px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         #location-switcher { padding: 6px 10px; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); color: var(--text-main); font-weight: bold; font-size: 13px; outline: none; cursor: pointer; }
 
-        /* =========================================
-           TAB NAVIGATION
-           ========================================= */
-        .tab-nav { display: flex; flex-wrap: wrap; background: var(--toggle-bg); padding: 4px; border-radius: 10px; margin-bottom: 25px; transition: var(--theme-transition); }
+        .tab-nav { display: flex; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; transition: var(--theme-transition); }
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 14px; transition: all 0.3s ease; }
         .tab-btn.active { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
 
-        /* =========================================
-           FORM ELEMENTS & MOBILE FIXES
-           ========================================= */
-        .type-toggle { display: flex; background-color: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; transition: var(--theme-transition); }
-        .type-toggle input[type="radio"] { display: none; }
-        .type-label { flex: 1; text-align: center; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); transition: all 0.3s ease; font-size: 15px; }
-        .type-toggle input[type="radio"]:checked + .type-label { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
-
         .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-main); font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 15px; color: var(--text-main); background-color: var(--input-bg); }
 
-        /* FIXED: MOBILE ROW STACKING */
-        .row { display: flex; gap: 15px; flex-direction: column; } /* Default to column for mobile */
-        @media (min-width: 480px) {
-            .row { flex-direction: row; gap: 20px; } /* Switch to row for tablet/desktop */
-            .row > div { flex: 1; }
-        }
-
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-main); font-size: 14px; transition: var(--theme-transition); }
-        input, select, textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 15px; color: var(--text-main); background-color: var(--input-bg); transition: var(--theme-transition), box-shadow 0.2s; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-
-        /* =========================================
-           IMAGE UPLOAD & PREVIEW STYLES
-           ========================================= */
-        .file-upload-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: var(--input-bg); color: var(--primary); padding: 15px; border-radius: 8px; border: 2px dashed var(--border); cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .file-upload-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: var(--input-bg); color: var(--primary); padding: 15px; border-radius: 8px; border: 2px dashed var(--border); cursor: pointer; font-weight: 600; }
         input[type="file"] { display: none; }
 
-        #imagePreviewContainer { display: none; margin-top: 15px; text-align: center; background-color: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
-        #imagePreview { max-width: 100%; max-height: 250px; border-radius: 6px; object-fit: contain; display: block; margin: 0 auto; }
-        .remove-img-btn { background: none; border: none; color: var(--danger); cursor: pointer; margin-top: 10px; font-weight: 600; font-size: 14px; padding: 8px 16px; border-radius: 6px; }
+        #imagePreviewContainer { display: none; margin-top: 15px; text-align: center; }
+        #imagePreview { max-width: 100%; max-height: 200px; border-radius: 6px; }
 
-        .payment-toggle { width: 100%; padding: 15px; font-size: 16px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; color: white; text-transform: uppercase; letter-spacing: 1px; }
-        .unpaid { background-color: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
-        .paid { background-color: var(--success); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .payment-toggle { width: 100%; padding: 15px; font-size: 16px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; color: white; text-transform: uppercase; }
+        .unpaid { background-color: var(--danger); }
+        .paid { background-color: var(--success); }
 
-        .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; transition: background-color 0.3s, transform 0.1s; }
+        .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; }
 
-        /* =========================================
-           PRO CALENDAR VIEW & MODAL STYLES
-           ========================================= */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; }
-        .calendar-header h2 { font-size: 20px; color: var(--text-main); margin: 0; }
-        .cal-nav-btn { background: var(--toggle-bg); border: 1px solid var(--border); color: var(--text-main); border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
-
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; } /* Slightly tighter gap for mobile */
-        .calendar-day-header { text-align: center; font-weight: 700; font-size: 10px; text-transform: uppercase; color: var(--text-muted); padding-bottom: 8px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .calendar-day-header { text-align: center; font-weight: 700; font-size: 10px; text-transform: uppercase; color: var(--text-muted); padding-bottom: 10px; }
+        .calendar-day { min-height: 70px; border: 1px solid var(--border); border-radius: 10px; padding: 5px; background: var(--surface); display:flex; flex-direction:column; gap:3px; }
+        .calendar-date { font-weight: 600; color: var(--text-main); font-size: 11px; margin-left: auto; }
         
-        .calendar-day { min-height: 75px; border: 1px solid var(--border); border-radius: 10px; padding: 4px; background: var(--surface); display:flex; flex-direction:column; gap:3px; }
-        .calendar-day.today { border: 2px solid var(--primary); }
-        
-        .calendar-date { font-weight: 600; color: var(--text-main); font-size: 11px; margin-left: auto; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
-        
-        .cal-event { background: rgba(37, 99, 235, 0.1); color: var(--primary); padding: 4px; border-radius: 4px; font-size: 9px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; border-left: 2px solid var(--primary); }
+        .cal-event { background: rgba(37, 99, 235, 0.1); color: var(--primary); padding: 3px 4px; border-radius: 4px; font-size: 9px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-left: 2px solid var(--primary); cursor: pointer; }
         .cal-event.reservation { background: rgba(16, 185, 129, 0.1); color: var(--success); border-left: 2px solid var(--success); }
 
         #eventModalOverlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.6); z-index: 9999999;
             display: none; justify-content: center; align-items: center;
-            opacity: 0; transition: opacity 0.3s ease; padding: 15px; box-sizing: border-box;
+            opacity: 0; transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box;
             backdrop-filter: blur(3px);
         }
         .modal-card {
             background: var(--surface); width: 100%; max-width: 420px;
             border-radius: 20px; padding: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-            position: relative; transform: translateY(20px); transition: transform 0.3s ease;
-            border: 1px solid var(--border); max-height: 90vh; overflow-y: auto;
+            position: relative; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto;
         }
         .modal-close {
-            position: absolute; top: 12px; right: 12px; background: var(--toggle-bg);
-            border: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            position: absolute; top: 15px; right: 15px; background: var(--toggle-bg);
+            border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-weight: bold; color: var(--text-muted); cursor: pointer;
         }
 
         .action-link { display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 12px; font-weight: bold; text-decoration: none; color: var(--primary); padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); flex: 1; text-align: center; }
 
-        /* =========================================
-           UPLOAD PROGRESS OVERLAY STYLES
-           ========================================= */
         #upload-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: var(--bg); z-index: 9999999;
             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
             opacity: 0; transition: opacity 0.3s ease;
         }
-        .upload-logo { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 1.5s infinite; margin-bottom: 20px; }
+        .upload-logo { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 1.5s infinite; margin-bottom: 25px; }
         .upload-status { font-size: 18px; font-weight: bold; color: var(--text-main); }
 
         @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(37, 99, 235, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } }
         
-        .weekend-warning {
-            display: none; background: rgba(239, 68, 68, 0.1); color: var(--danger); 
-            padding: 12px; border-radius: 8px; border: 1px dashed var(--danger);
-            font-size: 13px; font-weight: bold; margin-bottom: 20px; text-align: center;
-        }
+        .weekend-warning { display: none; background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 12px; border-radius: 8px; border: 1px dashed var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 20px; text-align: center; }
     </style>
 </head>
 <body>
@@ -224,8 +166,8 @@
     </div>
 
     <div id="splash-screen" style="display:none;">
-        <img src="image_0.png" alt="Logo" class="splash-logo">
-        <div class="splash-text">Syncing...</div>
+        <img src="image_0.png" alt="Logo" style="width:140px; border-radius:50%; border:4px solid var(--primary);">
+        <div style="margin-top:15px; font-weight:bold; color:var(--text-muted);">Syncing...</div>
     </div>
 
     <div id="upload-overlay" style="display:none;">
@@ -244,7 +186,6 @@
         
         <div class="header-controls">
             <a href="index.html" style="text-decoration:none; font-weight:bold; color:var(--text-muted); font-size:12px;">⬅ Back to Inventory</a>
-            
             <select id="location-switcher" onchange="switchLocation(this.value)">
                 <option value="LP_Willis">📍 Willis</option>
                 <option value="LP_Huntsville">📍 Huntsville</option>
@@ -253,26 +194,20 @@
 
         <div class="header">
             <div class="logo-group">
-                <div class="logo">
-                    <img src="image_0.png" alt="Los Pericos Logo">
-                </div>
+                <div class="logo"><img src="image_0.png"></div>
                 <div class="header-text">
                     <h2>Los Pericos Events</h2>
-                    <p>Caterings & Reservations</p>
+                    <p id="user-display">Loading...</p>
                 </div>
             </div>
             
             <div style="display: flex; gap: 10px;">
-                <button class="theme-toggle" id="notificationBell" onclick="openNotifications()" style="position:relative;" title="Activity Feed">
+                <button class="theme-toggle" id="notificationBell" onclick="openNotifications()" style="position:relative;">
                     🔔
                     <span id="bellBadge" style="display:none; position:absolute; top:4px; right:4px; width:8px; height:8px; background:var(--danger); border-radius:50%; border:2px solid var(--surface);"></span>
                 </button>
-                <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+                <button class="theme-toggle" id="themeToggle">🌙</button>
             </div>
-        </div>
-
-        <div style="text-align:center; margin-bottom: 20px;">
-            <div id="user-display" class="user-badge">👤 Loading...</div>
         </div>
 
         <div class="tab-nav">
@@ -282,50 +217,49 @@
         </div>
 
         <form id="eventForm">
-            <div class="type-toggle">
-                <input type="radio" id="catering" name="eventType" value="Catering" checked>
-                <label for="catering" class="type-label">Catering</label>
-                <input type="radio" id="reservation" name="eventType" value="Reservation">
-                <label for="reservation" class="type-label">Reservation</label>
+            <div class="type-toggle" style="display:flex; background:var(--toggle-bg); border-radius:10px; padding:5px; margin-bottom:20px;">
+                <input type="radio" id="catering" name="eventType" value="Catering" checked style="display:none;">
+                <label for="catering" style="flex:1; text-align:center; padding:10px; cursor:pointer; font-weight:bold; border-radius:8px;">Catering</label>
+                <input type="radio" id="reservation" name="eventType" value="Reservation" style="display:none;">
+                <label for="reservation" style="flex:1; text-align:center; padding:10px; cursor:pointer; font-weight:bold; border-radius:8px;">Reservation</label>
             </div>
 
             <div class="form-group">
-                <label for="customerName">Customer Name</label>
-                <input type="text" id="customerName" placeholder="e.g. Maria Garcia" required>
+                <label>Customer Name</label>
+                <input type="text" id="customerName" required>
             </div>
 
             <div class="row">
                 <div class="form-group">
-                    <label for="customerPhone">Phone Number</label>
-                    <input type="tel" id="customerPhone" placeholder="(555)555-5555" oninput="let x = this.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/); this.value = !x[2] ? x[1] : '(' + x[1] + ')' + x[2] + (x[3] ? '-' + x[3] : '');" required>
+                    <label>Phone Number</label>
+                    <input type="tel" id="customerPhone" placeholder="(000)000-0000" oninput="let x = this.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/); this.value = !x[2] ? x[1] : '(' + x[1] + ')' + x[2] + (x[3] ? '-' + x[3] : '');" required>
                 </div>
                 <div class="form-group">
-                    <label for="headcount">Headcount</label>
-                    <input type="number" id="headcount" min="1" placeholder="50" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                    <label>Headcount</label>
+                    <input type="number" id="headcount" min="1" required>
                 </div>
             </div>
 
             <div class="row">
                 <div class="form-group">
-                    <label for="eventDate">Date</label>
+                    <label>Event Date</label>
                     <input type="date" id="eventDate" required onchange="checkWeekendWarning(); updateTimeLimits();">
                 </div>
                 <div class="form-group">
-                    <label for="startTime">Start Time</label>
-                    <input type="time" id="startTime" min="11:00" required onchange="checkWeekendWarning(); validateTimeLimits();">
+                    <label>Start Time</label>
+                    <input type="time" id="startTime" min="11:00" required onchange="checkWeekendWarning();">
                 </div>
             </div>
             
             <div id="weekendWarning" class="weekend-warning">⚠️ Not a Reservation just a heads up</div>
-            <div id="timeWarning" class="weekend-warning" style="display:none;"></div>
 
             <div id="catering-fields">
                 <div class="form-group">
-                    <label class="file-upload-btn" for="ticketImage">📷 Tap to Upload Ticket</label>
+                    <label class="file-upload-btn" for="ticketImage">📷 Upload Ticket Photo</label>
                     <input type="file" id="ticketImage" accept="image/*">
                     <div id="imagePreviewContainer">
-                        <img id="imagePreview" alt="Ticket Preview">
-                        <button type="button" class="remove-img-btn" id="removeImageBtn">✖ Remove Photo</button>
+                        <img id="imagePreview">
+                        <button type="button" class="remove-img-btn" id="removeImageBtn" style="color:var(--danger); background:none; border:none; font-weight:bold; margin-top:5px;">Remove Photo</button>
                     </div>
                 </div>
                 <div class="form-group">
@@ -336,11 +270,11 @@
             </div>
 
             <div class="form-group">
-                <label for="notes">Special Notes</label>
-                <textarea id="notes" rows="3" placeholder="Needs chafing dishes, allergies, etc."></textarea>
+                <label>Special Notes</label>
+                <textarea id="notes" rows="3"></textarea>
             </div>
 
-            <button type="button" class="submit-btn" id="submitEventBtn" onclick="submitEventForm()">Save Booking</button>
+            <button type="button" class="submit-btn" onclick="submitEventForm()">Save Booking</button>
         </form>
 
         <div id="calendarView" style="display:none;">
@@ -353,7 +287,7 @@
         </div>
 
         <div id="activityView" style="display:none;">
-            <h2 style="margin-top:0; margin-bottom:15px; font-size:18px;">Recent Activity</h2>
+            <h2 style="margin:0 0 15px 0; font-size:18px;">Recent Activity</h2>
             <div id="activity-list" style="background:var(--toggle-bg); padding:15px; border-radius:12px; border:1px solid var(--border); font-size:13px;">
                 Loading logs...
             </div>
@@ -361,16 +295,14 @@
     </div>
 
     <script>
-        // --- 1. DARK MODE LOGIC ---
+        // --- 1. THEME & AUTH LOGIC ---
         const themeToggle = document.getElementById('themeToggle');
-        if (localStorage.getItem('restaurantCalcDarkMode') === 'true') document.body.classList.add('dark-mode');
+        if (localStorage.getItem('pericos_dark') === 'true') document.body.classList.add('dark-mode');
+        themeToggle.onclick = () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('pericos_dark', isDark);
+        };
 
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('restaurantCalcDarkMode', document.body.classList.contains('dark-mode'));
-        });
-
-        // --- 2. FIREBASE & AUTH LOGIC ---
         const config = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
             authDomain: "los-pericos-46378.firebaseapp.com",
@@ -384,16 +316,8 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        const TEAM_PINS = {
-            "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
-            "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
-            "6660": { name: "Elias", role: "Manager", location: "LP_Huntsville" },
-            "1116": { name: "Stephanie", role: "Owner", location: "All" },
-            "0523": { name: "Luis M", role: "Owner", location: "All" }
-        };
-
+        const TEAM_PINS = { "8096":"Jorge", "0623":"Luis H", "6660":"Elias", "1116":"Stephanie", "0523":"Luis M" };
         let activeUser = localStorage.getItem('pericos_active_user');
-        let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
 
         firebase.auth().onAuthStateChanged((user) => {
@@ -405,38 +329,18 @@
             let pin = document.getElementById('pin-input').value;
             if (TEAM_PINS[pin]) {
                 firebase.auth().signInAnonymously().then(() => {
-                    activeUser = TEAM_PINS[pin].name;
-                    activeRole = TEAM_PINS[pin].role;
+                    activeUser = TEAM_PINS[pin];
                     localStorage.setItem('pericos_active_user', activeUser);
-                    localStorage.setItem('pericos_active_role', activeRole);
-                    startApp();
+                    location.reload();
                 });
             } else { document.getElementById('pin-error').style.display = 'block'; }
         }
-
-        function checkNotifications() {
-            if(!activeUser) return;
-            const lastChecked = localStorage.getItem('pericos_last_checked_' + currentLocation) || 0;
-            db.ref(currentLocation + '/events_logs').limitToLast(1).on('value', snap => {
-                if(snap.exists()) {
-                    let latestLog = Object.values(snap.val())[0];
-                    if(latestLog.timestamp > lastChecked) { document.getElementById('bellBadge').style.display = 'block'; }
-                }
-            });
-        }
-
-        window.openNotifications = function() {
-            localStorage.setItem('pericos_last_checked_' + currentLocation, Date.now());
-            document.getElementById('bellBadge').style.display = 'none';
-            switchView('activity'); 
-        };
 
         function startApp() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
             document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
             document.getElementById('location-switcher').value = currentLocation;
-            if(activeRole !== 'Owner') document.getElementById('location-switcher').style.display = 'none';
             loadData();
             checkNotifications();
         }
@@ -454,30 +358,10 @@
             document.getElementById('btn-calendar').classList.toggle('active', view === 'calendar');
             document.getElementById('btn-activity').classList.toggle('active', view === 'activity');
             if(view === 'calendar') renderCalendar();
-            if(view === 'activity') loadActivityFeed();
+            if(view === 'activity') loadActivityLogs();
         }
 
-        function logEventAction(actionText) {
-            db.ref(currentLocation + '/events_logs').push({
-                user: activeUser, action: actionText,
-                time: new Date().toLocaleString(), timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-        }
-
-        function loadActivityFeed() {
-            const list = document.getElementById('activity-list');
-            db.ref(currentLocation + '/events_logs').limitToLast(30).once('value').then(snapshot => {
-                let logs = snapshot.val();
-                let feedHtml = logs ? Object.values(logs).reverse().map(log => `
-                    <div class="feed-item">
-                        <div class="feed-header"><span class="feed-user">👤 ${log.user}</span><span>${log.time}</span></div>
-                        <div class="feed-action">${log.action}</div>
-                    </div>`).join('') : 'No activity recorded yet.';
-                list.innerHTML = feedHtml;
-            });
-        }
-
-        // --- 4. FORM & CALENDAR LOGIC ---
+        // --- 2. LOGIC & DATA HANDLING ---
         let cachedEvents = [];
         function loadData() {
             db.ref(currentLocation + '/events').on('value', snap => {
@@ -489,53 +373,6 @@
                     else { cachedEvents.push({ id: child.key, ...ev }); }
                 });
                 if (document.getElementById('calendarView').style.display === 'block') renderCalendar();
-            });
-        }
-
-        function checkWeekendWarning() {
-            const dateVal = document.getElementById('eventDate').value;
-            const timeVal = document.getElementById('startTime').value;
-            if(!dateVal || !timeVal) return;
-            const dateObj = new Date(dateVal.replace(/-/g, '\/'));
-            const day = dateObj.getDay(); 
-            const hours = parseInt(timeVal.split(':')[0]);
-            const isWeekend = (day === 5 || day === 6 || (day === 0 && hours < 14));
-            document.getElementById('weekendWarning').style.display = isWeekend ? 'block' : 'none';
-        }
-
-        function updateTimeLimits() {
-            const dateVal = document.getElementById('eventDate').value;
-            if (!dateVal) return;
-            const day = new Date(dateVal.replace(/-/g, '\/')).getDay();
-            document.getElementById('startTime').max = (day >= 4 && day <= 6) ? "22:00" : "21:00";
-        }
-
-        const paymentBtn = document.getElementById('paymentBtn');
-        paymentBtn.addEventListener('click', () => {
-            const isPaid = document.getElementById('isPaid').value === 'true';
-            document.getElementById('isPaid').value = !isPaid;
-            paymentBtn.textContent = !isPaid ? 'Paid' : 'Unpaid';
-            paymentBtn.className = `payment-toggle ${!isPaid ? 'paid' : 'unpaid'}`;
-        });
-
-        // Image optimization logic
-        function compressImage(file, maxWidth, maxHeight, quality) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = event => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width, height = img.height;
-                        if (width > height) { if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; } } 
-                        else { if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; } }
-                        canvas.width = width; canvas.height = height;
-                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                        canvas.toBlob((blob) => { resolve(blob); }, 'image/jpeg', quality);
-                    };
-                };
             });
         }
 
@@ -559,22 +396,37 @@
             };
 
             await evRef.set(evData);
-            logEventAction(`Added a new ${evData.type} for ${evData.customer}`);
+            logAction(`Added ${evData.type} for ${evData.customer}`);
 
             const file = document.getElementById('ticketImage').files[0];
             if (file) {
-                const blob = await compressImage(file, 800, 800, 0.4);
                 const storageRef = storage.ref(`tickets/${currentLocation}/${Date.now()}.jpg`);
-                storageRef.put(blob).then(async (snap) => {
-                    const url = await snap.ref.getDownloadURL();
-                    evRef.update({ photo: url });
-                });
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                await evRef.update({ photo: url });
             }
 
             setTimeout(() => { location.reload(); }, 1200);
         }
 
-        // --- CALENDAR RENDER ---
+        function checkWeekendWarning() {
+            const dateVal = document.getElementById('eventDate').value;
+            const timeVal = document.getElementById('startTime').value;
+            if(!dateVal || !timeVal) return;
+            const day = new Date(dateVal.replace(/-/g, '\/')).getDay();
+            const hours = parseInt(timeVal.split(':')[0]);
+            const isWeekend = (day === 5 || day === 6 || (day === 0 && hours < 14));
+            document.getElementById('weekendWarning').style.display = isWeekend ? 'block' : 'none';
+        }
+
+        function updateTimeLimits() {
+            const dateVal = document.getElementById('eventDate').value;
+            if (!dateVal) return;
+            const day = new Date(dateVal.replace(/-/g, '\/')).getDay();
+            document.getElementById('startTime').max = (day >= 4 && day <= 6) ? "22:00" : "21:00";
+        }
+
+        // --- 3. CALENDAR & NOTIFICATIONS ---
         let currentCalDate = new Date();
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
@@ -586,14 +438,12 @@
             grid.innerHTML = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="calendar-day-header">${d}</div>`).join('');
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const today = new Date();
 
             for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="calendar-day" style="opacity:0.2; border:none;"></div>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 const events = cachedEvents.filter(e => e.date === dateStr);
-                const isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
-                grid.innerHTML += `<div class="calendar-day ${isToday ? 'today':''}">
+                grid.innerHTML += `<div class="calendar-day">
                     <div class="calendar-date">${d}</div>
                     ${events.map(e => `<div class="cal-event ${e.type === 'Reservation' ? 'reservation':''}" onclick="openEventModal('${e.id}')">${e.start} ${e.customer.split(' ')[0]}</div>`).join('')}
                 </div>`;
@@ -607,15 +457,13 @@
             const overlay = document.getElementById('eventModalOverlay');
             document.getElementById('modalContentDetails').innerHTML = `
                 <div style="font-size:12px; color:var(--primary); font-weight:800; margin-bottom:5px;">${ev.type.toUpperCase()}</div>
-                <b style="font-size:20px;">${ev.customer}</b>
-                <div style="font-size:14px; color:var(--text-muted); margin:10px 0;">
-                    📅 ${ev.date} @ ${ev.start}<br>👥 ${ev.guests} Guests<br>👤 By: ${ev.createdBy}
-                </div>
+                <b style="font-size:22px;">${ev.customer}</b>
+                <div style="font-size:14px; color:var(--text-muted); margin:10px 0;">📅 ${ev.date} @ ${ev.start}<br>👥 ${ev.guests} Guests<br>👤 By: ${ev.createdBy}</div>
                 ${ev.notes ? `<div style="background:var(--toggle-bg); padding:10px; border-radius:8px; font-size:13px; margin-bottom:15px;">${ev.notes}</div>` : ''}
                 <div style="display:flex; gap:10px;">
-                    <a href="tel:${ev.phone}" class="action-link">📞 CALL</a>
-                    <a href="sms:${ev.phone}" class="action-link">💬 TEXT</a>
-                    ${ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 TICKET</a>` : ''}
+                    <a href="tel:${ev.phone}" class="action-link">📞 Call</a>
+                    <a href="sms:${ev.phone}" class="action-link">💬 Text</a>
+                    ${ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 Ticket</a>` : ''}
                 </div>
                 <button onclick="deleteEvent('${ev.id}', '${ev.customer.replace(/'/g,"")}')" class="submit-btn" style="background:var(--danger); margin-top:15px;">🗑️ Delete Event</button>`;
             overlay.style.display = 'flex';
@@ -628,14 +476,53 @@
         };
 
         window.deleteEvent = (id, name) => {
-            if(confirm("Delete this booking?")) {
+            if(confirm("Delete this?")) {
                 db.ref(currentLocation + '/events/' + id).remove();
-                logEventAction(`Deleted event for ${name}`);
+                logAction(`Deleted event for ${name}`);
                 closeEventModal();
             }
         };
 
-        // Ticket image preview
+        function logAction(txt) {
+            db.ref(currentLocation + '/events_logs').push({
+                user: activeUser, action: txt, time: new Date().toLocaleString(), timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        function loadActivityLogs() {
+            db.ref(currentLocation + '/events_logs').limitToLast(20).once('value', snap => {
+                let html = '';
+                snap.forEach(child => {
+                    const l = child.val();
+                    html = `<div style="padding:10px; border-bottom:1px solid var(--border);"><b>${l.user}</b>: ${l.action}<br><small color="var(--text-muted)">${l.time}</small></div>` + html;
+                });
+                document.getElementById('activity-list').innerHTML = html || 'No activity recorded yet.';
+            });
+        }
+
+        function checkNotifications() {
+            const lastChecked = localStorage.getItem('pericos_notif_'+currentLocation) || 0;
+            db.ref(currentLocation + '/events_logs').limitToLast(1).on('value', snap => {
+                snap.forEach(child => {
+                    if(child.val().timestamp > lastChecked) document.getElementById('bellBadge').style.display = 'block';
+                });
+            });
+        }
+
+        window.openNotifications = () => {
+            localStorage.setItem('pericos_notif_'+currentLocation, Date.now());
+            document.getElementById('bellBadge').style.display = 'none';
+            switchView('activity');
+        };
+
+        const pBtn = document.getElementById('paymentBtn');
+        pBtn.onclick = () => {
+            const isPaid = document.getElementById('isPaid').value === 'true';
+            document.getElementById('isPaid').value = !isPaid;
+            pBtn.innerText = !isPaid ? 'Paid' : 'Unpaid';
+            pBtn.className = `payment-toggle ${!isPaid ? 'paid' : 'unpaid'}`;
+        };
+
         document.getElementById('ticketImage').onchange = (e) => {
             const reader = new FileReader();
             reader.onload = (ev) => {
