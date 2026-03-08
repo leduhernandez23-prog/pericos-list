@@ -61,6 +61,7 @@
             transition: var(--theme-transition);
         }
 
+        /* Form Row stacking for mobile */
         .row { display: flex; flex-direction: column; gap: 15px; }
         @media (min-width: 480px) {
             .row { flex-direction: row; gap: 20px; }
@@ -108,6 +109,37 @@
         .paid { background-color: var(--success); }
 
         .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; }
+
+        /* CALENDAR FIX: Forcing arrows and title to stay in one row */
+        .calendar-header { 
+            display: flex !important; 
+            flex-direction: row !important; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            padding: 0 5px; 
+            width: 100%;
+        }
+        .calendar-header h2 { 
+            font-size: 18px; 
+            color: var(--text-main); 
+            margin: 0; 
+            white-space: nowrap; 
+        }
+        .cal-nav-btn { 
+            background: var(--toggle-bg); 
+            border: 1px solid var(--border); 
+            color: var(--text-main); 
+            border-radius: 50%; 
+            width: 38px; 
+            height: 38px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-weight: bold; 
+            flex-shrink: 0;
+        }
 
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
         .calendar-day-header { text-align: center; font-weight: 700; font-size: 10px; text-transform: uppercase; color: var(--text-muted); padding-bottom: 10px; }
@@ -436,12 +468,14 @@
             grid.innerHTML = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="calendar-day-header">${d}</div>`).join('');
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
 
             for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="calendar-day" style="opacity:0.2; border:none;"></div>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 const events = cachedEvents.filter(e => e.date === dateStr);
-                grid.innerHTML += `<div class="calendar-day">
+                const isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                grid.innerHTML += `<div class="calendar-day ${isToday ? 'today':''}">
                     <div class="calendar-date">${d}</div>
                     ${events.map(e => `<div class="cal-event ${e.type === 'Reservation' ? 'reservation':''}" onclick="openEventModal('${e.id}')">${e.start} ${e.customer.split(' ')[0]}</div>`).join('')}
                 </div>`;
