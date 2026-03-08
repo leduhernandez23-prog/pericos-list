@@ -21,6 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
     <style>
         :root {
@@ -1328,6 +1329,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const messaging = firebase.messaging(); // ADDED for Notifications
         
         let isAppLoading = true; 
         const mySyncId = Math.random().toString(36).substr(2, 9);
@@ -1395,7 +1397,9 @@
                 let splash = document.getElementById('splash-screen');
                 splash.style.display = 'flex';
                 splash.style.opacity = '1';
+                
                 loadFromDatabase(); 
+                setupPushNotifications(); // ADDED: Trigger notification handshake
             } else {
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('login-screen').style.display = 'flex';
@@ -1403,6 +1407,21 @@
                 document.getElementById('pin-input').focus();
             }
         });
+
+        // ADDED: The Notification Security Guard
+        async function setupPushNotifications() {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const token = await messaging.getToken({ vapidKey: 'RPqGl8tZPh6nJ6cwnHnrZxCRTPUJy-siimRTs3cD3gA' });
+                    if (token) {
+                        db.ref(`${currentLocation}/fcmTokens/${activeUser}`).set(token);
+                    }
+                }
+            } catch (error) {
+                console.error('Notification error:', error);
+            }
+        }
 
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
@@ -1433,6 +1452,7 @@
 
                     logAction(`🟢 Logged into ${currentLocation.replace('_', ' ')}`);
                     loadFromDatabase();
+                    setupPushNotifications(); // ADDED: Trigger handshake on first login
                 }).catch((error) => {
                     alert("⚠️ Cannot connect to Firebase Security. Check your internet connection.");
                     console.error(error);
