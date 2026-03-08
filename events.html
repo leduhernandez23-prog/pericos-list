@@ -298,6 +298,8 @@
             <div id="weekendWarning" class="weekend-warning">
                 ⚠️ Not a Reservation just a heads up
             </div>
+            
+            <div id="timeWarning" class="weekend-warning" style="display:none;"></div>
 
             <div id="catering-fields">
                 <div class="form-group">
@@ -370,7 +372,6 @@
             authDomain: "los-pericos-46378.firebaseapp.com",
             databaseURL: "https://los-pericos-46378-default-rtdb.firebaseio.com",
             projectId: "los-pericos-46378",
-            // FIX: Corrected storage bucket and added IDs for flawless connection
             storageBucket: "los-pericos-46378.firebasestorage.app",
             messagingSenderId: "463221124647",
             appId: "1:463221124647:web:5e54ad293b174992096802"
@@ -392,7 +393,6 @@
         let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
 
-        // FIX: Re-added Auth State Listener to ensure security rules pass
         firebase.auth().onAuthStateChanged((user) => {
             if (user && activeUser) {
                 // Good to go
@@ -406,7 +406,6 @@
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
             if (TEAM_PINS[pin]) {
-                // FIX: Added Anonymous Sign-In so Database lets you upload
                 firebase.auth().signInAnonymously().then(() => {
                     activeUser = TEAM_PINS[pin].name;
                     activeRole = TEAM_PINS[pin].role;
@@ -544,12 +543,15 @@
             }
         }
 
-        // FIX: Added validateTime function to strictly enforce operating hours
         function validateTime() {
             const dateVal = document.getElementById('eventDate').value;
             const timeVal = document.getElementById('startTime').value;
+            const timeWarn = document.getElementById('timeWarning');
             
-            if (!dateVal || !timeVal) return; 
+            if (!dateVal || !timeVal) {
+                timeWarn.style.display = 'none';
+                return; 
+            }
 
             const [y, m, d] = dateVal.split('-');
             const dateObj = new Date(y, m - 1, d);
@@ -569,8 +571,11 @@
             }
 
             if (timeInMinutes < openTime || timeInMinutes > closeTime) {
-                alert(`Please select a time within operating hours (11:00 AM - ${closeString}).`);
+                timeWarn.innerText = `⚠️ Please select a time within operating hours (11:00 AM - ${closeString}).`;
+                timeWarn.style.display = 'block';
                 document.getElementById('startTime').value = ''; 
+            } else {
+                timeWarn.style.display = 'none';
             }
         }
 
@@ -738,6 +743,7 @@
                         imagePreview.src = '';
                         imagePreviewContainer.style.display = 'none';
                         document.getElementById('weekendWarning').style.display = 'none';
+                        document.getElementById('timeWarning').style.display = 'none'; // Added to clear warning
                         
                         switchView('board');
                     }, 300);
