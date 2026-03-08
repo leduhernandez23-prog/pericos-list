@@ -186,16 +186,37 @@
         .feed-action { font-size: 14px; color: var(--text-main); }
 
         /* =========================================
-           CALENDAR VIEW STYLES
+           CALENDAR VIEW & MODAL STYLES
            ========================================= */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
         .calendar-day-header { text-align: center; font-weight: bold; font-size: 12px; color: var(--text-muted); padding-bottom: 5px;}
         .calendar-day { min-height: 80px; border: 1px solid var(--border); border-radius: 6px; padding: 5px; background: var(--input-bg); font-size: 12px; display:flex; flex-direction:column; gap:2px; }
         .calendar-day.empty { background: transparent; border: none; }
+        .calendar-day.today { border: 2px solid var(--primary); background: rgba(37, 99, 235, 0.05); }
         .calendar-date { font-weight: bold; margin-bottom: 5px; color: var(--text-main); text-align:right;}
-        .cal-event { background: var(--primary); color: white; padding: 3px 5px; border-radius: 4px; font-size: 10px; font-weight:bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;}
+        .cal-event { background: var(--primary); color: white; padding: 3px 5px; border-radius: 4px; font-size: 10px; font-weight:bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: transform 0.1s, opacity 0.2s;}
         .cal-event.reservation { background: var(--success); }
+        .cal-event:hover { opacity: 0.8; transform: scale(1.02); }
+
+        #eventModalOverlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); z-index: 9999999;
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box;
+        }
+        .modal-card {
+            background: var(--surface); width: 100%; max-width: 420px;
+            border-radius: 16px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative; transform: translateY(20px); transition: transform 0.3s ease;
+            border: 1px solid var(--border); max-height: 90vh; overflow-y: auto;
+        }
+        .modal-close {
+            position: absolute; top: 15px; right: 15px; background: var(--toggle-bg);
+            border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: var(--text-muted); cursor: pointer; transition: 0.2s;
+        }
+        .modal-close:hover { background: var(--danger); color: white; }
 
         /* =========================================
            UPLOAD PROGRESS OVERLAY STYLES
@@ -233,6 +254,14 @@
     <div id="upload-overlay" style="display:none;">
         <img src="image_0.png" alt="Logo" id="upload-logo-img" class="upload-logo">
         <div id="upload-status-text" class="upload-status">Processing...</div>
+    </div>
+
+    <div id="eventModalOverlay">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeEventModal()">✖</button>
+            <div id="modalContentDetails">
+                </div>
+        </div>
     </div>
 
     <div class="card" id="app-container" style="display:none;">
@@ -402,7 +431,7 @@
         firebase.initializeApp(config);
         const db = firebase.database();
         const storage = firebase.storage();
-        const messaging = firebase.messaging(); // ADDED: Initialize Messaging
+        const messaging = firebase.messaging(); 
 
         const TEAM_PINS = {
             "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
@@ -445,16 +474,13 @@
             }
         }
 
-        // ADDED: Push Notification Setup Function
         async function setupPushNotifications() {
             try {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     console.log('Notification permission granted.');
-                    // Replace this string with the key you generated in the Firebase Console
-                    const token = await messaging.getToken({ vapidKey: 'BF8y6NGNpYcVc4SlFwMtXii40cQxLffSHCxX05A9iXdHikvpee8hGu4uNr50EJXkK-e4JmuymZs6M1qMd-0qF_k' });
+                    const token = await messaging.getToken({ vapidKey: 'YOUR_VAPID_KEY_HERE' });
                     if (token) {
-                        // Save the device token to the database so you can send them messages later
                         db.ref(`${currentLocation}/fcmTokens/${activeUser}`).set(token);
                     }
                 }
@@ -463,7 +489,6 @@
             }
         }
 
-        // ADDED: Foreground Message Listener (When they have the app open)
         messaging.onMessage((payload) => {
             alert(`📣 New Update: ${payload.notification.body}`);
         });
@@ -482,7 +507,6 @@
                 locSwitcher.style.display = 'none';
             }
 
-            // TRIGGER: Ask for notification permission after login
             setupPushNotifications();
 
             setTimeout(() => {
@@ -848,11 +872,11 @@
                     if (ev.type === 'Catering') {
                         const paidClass = ev.isPaid ? 'paid' : 'unpaid';
                         const paidText = ev.isPaid ? '✅ PAID' : '❌ UNPAID';
-                        const safeCustName = ev.customer.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                        const safeCustName = ev.customer.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                         pillHtml = `<button onclick="togglePaid('${ev.id}', ${ev.isPaid}, '${safeCustName}')" class="status-pill ${paidClass}">${paidText}</button>`;
                     }
                     
-                    const safeCustName = ev.customer.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                    const safeCustName = ev.customer.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                     const smsBody = encodeURIComponent(`Hi ${ev.customer}, Los Pericos has you down for a ${ev.type.toLowerCase()} on ${ev.date} at ${ev.start}. We look forward to serving you!`);
 
                     html += `
@@ -883,7 +907,7 @@
             });
         }
 
-        // --- 6. CALENDAR LOGIC ---
+        // --- 6. CALENDAR LOGIC WITH PRO MODAL ---
         let currentCalDate = new Date();
 
         function renderCalendar() {
@@ -909,25 +933,31 @@
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
+            const todayActual = new Date();
+            
             for (let i = 0; i < firstDay; i++) {
                 grid.innerHTML += `<div class="calendar-day empty"></div>`;
             }
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                
                 const dayEvents = window.cachedEvents.filter(e => e.date === dateStr);
                 let eventsHtml = '';
                 
                 dayEvents.forEach(ev => {
                     const isRes = ev.type === 'Reservation';
-                    eventsHtml += `<div class="cal-event ${isRes ? 'reservation' : ''}" title="${ev.customer} @ ${ev.start}">
+                    // Added openEventModal Trigger
+                    eventsHtml += `<div class="cal-event ${isRes ? 'reservation' : ''}" title="${ev.customer} @ ${ev.start}" onclick="openEventModal('${ev.id}')">
                         ${ev.start} - ${ev.customer.split(' ')[0]}
                     </div>`;
                 });
                 
+                // Highlight today's date block
+                const isToday = (day === todayActual.getDate() && month === todayActual.getMonth() && year === todayActual.getFullYear());
+                const todayClass = isToday ? ' today' : '';
+                
                 grid.innerHTML += `
-                    <div class="calendar-day">
+                    <div class="calendar-day${todayClass}">
                         <div class="calendar-date">${day}</div>
                         ${eventsHtml}
                     </div>
@@ -938,6 +968,65 @@
         window.changeMonth = function(dir) {
             currentCalDate.setMonth(currentCalDate.getMonth() + dir);
             renderCalendar();
+        };
+
+        // NEW: Function to open the details modal over the calendar
+        window.openEventModal = function(eventId) {
+            const ev = window.cachedEvents.find(e => e.id === eventId);
+            if(!ev) return;
+            
+            const overlay = document.getElementById('eventModalOverlay');
+            const content = document.getElementById('modalContentDetails');
+            
+            let pillHtml = '';
+            const safeCustName = ev.customer.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+            if (ev.type === 'Catering') {
+                const paidClass = ev.isPaid ? 'paid' : 'unpaid';
+                const paidText = ev.isPaid ? '✅ PAID' : '❌ UNPAID';
+                // Toggle paid inside the modal will also close the modal so they can see the calendar update
+                pillHtml = `<button onclick="togglePaid('${ev.id}', ${ev.isPaid}, '${safeCustName}'); closeEventModal();" class="status-pill ${paidClass}">${paidText}</button>`;
+            }
+            
+            const smsBody = encodeURIComponent(`Hi ${ev.customer}, Los Pericos has you down for a ${ev.type.toLowerCase()} on ${ev.date} at ${ev.start}. We look forward to serving you!`);
+
+            content.innerHTML = `
+                ${pillHtml}
+                <div style="font-size:12px; color:var(--primary); font-weight:800; margin: 8px 0 2px 0;">${ev.type.toUpperCase()}</div>
+                <b style="font-size:22px; color:var(--text-main); display:block; margin-bottom:10px;">${ev.customer}</b>
+                
+                <div style="font-size:15px; color:var(--text-muted); line-height: 1.6; margin-bottom:15px;">
+                    📅 <b>Date:</b> ${ev.date}<br>
+                    ⏰ <b>Time:</b> ${ev.start}<br>
+                    👥 <b>Guests:</b> ${ev.guests}<br>
+                    📞 <b>Phone:</b> <a href="tel:${ev.phone}" style="color:var(--primary); text-decoration:none;">${ev.phone}</a><br>
+                    👤 <b>Booked By:</b> ${ev.createdBy}
+                </div>
+                
+                ${ev.notes ? `<div style="background:var(--toggle-bg); padding:12px; border-radius:8px; margin-bottom:15px; font-size:14px; color:var(--text-main);"><b>Notes:</b><br>${ev.notes}</div>` : ''}
+
+                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
+                    <a href="tel:${ev.phone}" class="action-link" style="flex:1; text-align:center; justify-content:center;">📞 CALL</a>
+                    <a href="sms:${ev.phone}?&body=${smsBody}" class="action-link" style="flex:1; text-align:center; justify-content:center;">💬 TEXT</a>
+                    ${ev.photo === "uploading" ? `<span class="action-link" style="opacity:0.5; flex:1; text-align:center; justify-content:center;">⌛ UPLOADING...</span>` : 
+                     (ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link" style="flex:1; text-align:center; justify-content:center;">📄 TICKET</a>` : '')}
+                </div>
+                <button onclick="deleteEvent('${ev.id}', '${safeCustName}'); closeEventModal();" class="submit-btn" style="background:var(--danger); margin-top:15px;">🗑️ Delete Event</button>
+            `;
+            
+            overlay.style.display = 'flex';
+            setTimeout(() => { 
+                overlay.style.opacity = '1'; 
+                overlay.querySelector('.modal-card').style.transform = 'translateY(0)';
+            }, 10);
+        };
+        
+        // NEW: Close the details modal
+        window.closeEventModal = function() {
+            const overlay = document.getElementById('eventModalOverlay');
+            overlay.style.opacity = '0';
+            overlay.querySelector('.modal-card').style.transform = 'translateY(20px)';
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
         };
 
         function filterEvents(query) {
