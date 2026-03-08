@@ -86,12 +86,15 @@
         @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(37, 99, 235, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } }
 
         /* =========================================
-           HEADER & LOGO AREA
+           APP SWITCHER NAVIGATION
            ========================================= */
         .app-nav { text-align: center; margin-bottom: 25px; }
         .app-nav a { display: inline-block; background-color: var(--text-muted); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: background-color 0.3s; }
         .app-nav a:hover { opacity: 0.9; }
 
+        /* =========================================
+           HEADER & LOGO AREA (FIXED SIZES)
+           ========================================= */
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .logo-group { display: flex; align-items: center; gap: 15px; }
         
@@ -417,7 +420,7 @@
             });
         });
 
-        // Weekend Warning Logic (Updated to exact specifications)
+        // Weekend Warning Logic (Friday all day, Saturday all day, Sunday 11am-2pm)
         function checkWeekendWarning() {
             const dateVal = document.getElementById('eventDate').value;
             const timeVal = document.getElementById('startTime').value;
@@ -425,17 +428,14 @@
             
             if(!dateVal || !timeVal) { warningDiv.style.display = 'none'; return; }
 
-            // Parse Date safely
             const [y, m, d] = dateVal.split('-');
             const dateObj = new Date(y, m - 1, d);
-            const dayOfWeek = dateObj.getDay(); // 0 = Sun, 5 = Fri, 6 = Sat
+            const dayOfWeek = dateObj.getDay(); 
 
-            // Parse Time
             const [hours, mins] = timeVal.split(':').map(Number);
             
-            // Trigger logic: Friday (5) all day, Saturday (6) all day, Sunday (0) 11am-2pm
-            const isFriOrSat = (dayOfWeek === 5 || dayOfWeek === 6);
             const isSundayLunch = dayOfWeek === 0 && ((hours >= 11 && hours < 14) || (hours === 14 && mins === 0));
+            const isFriOrSat = (dayOfWeek === 5 || dayOfWeek === 6);
 
             if(isFriOrSat || isSundayLunch) {
                 warningDiv.style.display = 'block';
@@ -483,6 +483,43 @@
             imagePreviewContainer.style.display = 'none'; 
         });
 
+        // --- IMAGE COMPRESSION HELPER ---
+        function compressImage(file, maxWidth, maxHeight, quality) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height *= maxWidth / width;
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width *= maxHeight / height;
+                                height = maxHeight;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => {
+                            resolve(blob);
+                        }, 'image/jpeg', quality);
+                    };
+                };
+            });
+        }
+
         // Submit Form
         document.getElementById('eventForm').addEventListener('submit', async function(e) {
             e.preventDefault(); 
@@ -503,9 +540,13 @@
                     isPaidStatus = isPaidInput.value === 'true';
                     const file = ticketInput.files[0];
                     if (file) {
-                        const uniqueFileName = `tickets/${currentLocation}/${Date.now()}_${file.name}`;
+                        submitBtn.innerText = "Compressing Photo...";
+                        const compressedBlob = await compressImage(file, 1200, 1200, 0.7);
+                        
+                        submitBtn.innerText = "Uploading to Cloud...";
+                        const uniqueFileName = `tickets/${currentLocation}/${Date.now()}_ticket.jpg`;
                         const storageRef = storage.ref().child(uniqueFileName);
-                        await storageRef.put(file);
+                        await storageRef.put(compressedBlob);
                         finalImageUrl = await storageRef.getDownloadURL();
                     }
                 }
