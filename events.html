@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Los Pericos | Events & Catering</title>
+    <title>Los Pericos | Event Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -12,6 +12,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
     <style>
+        /* =========================================
+           CSS VARIABLES (Color Palette)
+           ========================================= */
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
@@ -21,8 +24,11 @@
             --text-muted: #64748b;
             --border: #e2e8f0;
             --input-bg: #fcfcfc;
+            --toggle-bg: #f1f5f9;
+            --toggle-active: #ffffff;
             --danger: #ef4444;
             --success: #10b981;
+            --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         body.dark-mode {
@@ -32,8 +38,13 @@
             --text-muted: #94a3b8;
             --border: #334155;
             --input-bg: #0f172a;
+            --toggle-bg: #111827;
+            --toggle-active: #334155;
         }
 
+        /* =========================================
+           CORE LAYOUT & TYPOGRAPHY
+           ========================================= */
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
@@ -41,162 +52,266 @@
             margin: 0;
             padding: 40px 20px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: 0.3s;
-        }
-
-        /* SPLASH SCREEN */
-        #splash-screen { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background-color: var(--bg); z-index: 999999; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.6s ease-out; 
-        }
-        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 2s infinite; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        .splash-text { margin-top: 30px; font-size: 18px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; }
-        @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(37, 99, 235, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } }
-
-        .header-controls {
-            width: 100%;
-            max-width: 550px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        #location-switcher {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text-main);
-            font-weight: bold;
-            font-size: 14px;
-            outline: none;
-            cursor: pointer;
+            justify-content: center;
+            transition: var(--theme-transition);
         }
 
         .card {
             background-color: var(--surface);
             width: 100%;
             max-width: 550px;
-            padding: 30px;
+            padding: 35px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
-            box-sizing: border-box;
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: var(--theme-transition);
         }
 
-        .tab-nav {
-            display: flex;
-            background: var(--border);
-            padding: 4px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            width: 100%;
-            max-width: 550px;
-        }
-        .tab-btn {
-            flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: var(--text-muted);
-        }
-        .tab-btn.active {
-            background: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
+        body.dark-mode .card { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); }
 
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; }
-        input, select, textarea { 
-            width: 100%; padding: 12px; border: 1px solid var(--border); 
-            border-radius: 10px; background-color: var(--input-bg); 
-            color: var(--text-main); font-family: inherit; box-sizing: border-box;
+        /* =========================================
+           PIN LOGIN & SPLASH SCREEN
+           ========================================= */
+        #login-screen, #splash-screen { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background-color: var(--bg); z-index: 9999999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; 
         }
+        #splash-screen { z-index: 999999; transition: opacity 0.6s ease-out; }
+        
+        .pin-box { background: var(--surface); padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); width: 85%; max-width: 340px; }
+        .pin-input { width: 100%; font-size: 32px; text-align: center; letter-spacing: 15px; padding: 15px; border-radius: 12px; border: 2px solid var(--primary); background: var(--input-bg); color: var(--text-main); margin: 20px 0; box-sizing: border-box; }
+        
+        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 2s infinite; }
+        @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(37, 99, 235, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } }
 
-        .submit-btn {
-            width: 100%; background-color: var(--primary); color: white; padding: 16px;
-            font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer;
-        }
+        /* =========================================
+           APP SWITCHER NAVIGATION
+           ========================================= */
+        .app-nav { text-align: center; margin-bottom: 25px; }
+        .app-nav a { display: inline-block; background-color: var(--text-muted); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: background-color 0.3s; }
+        .app-nav a:hover { opacity: 0.9; }
 
-        /* BOARD STYLES */
+        /* =========================================
+           HEADER & LOGO AREA (FIXED SIZES)
+           ========================================= */
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .logo-group { display: flex; align-items: center; gap: 15px; }
+        
+        .logo { width: 48px; height: 48px; min-width: 48px; border-radius: 12px; background-color: var(--primary); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .logo img { width: 100%; height: 100%; object-fit: cover; }
+
+        .header-text h2 { margin: 0; font-size: 20px; font-weight: 700; color: var(--text-main); transition: var(--theme-transition); }
+        .header-text p { margin: 2px 0 0 0; color: var(--text-muted); font-size: 14px; transition: var(--theme-transition); }
+        
+        .theme-toggle { background: none; border: 1px solid var(--border); color: var(--text-muted); width: 42px; height: 42px; min-width: 42px; flex-shrink: 0; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
+        .theme-toggle:hover { border-color: var(--primary); color: var(--primary); background-color: rgba(37, 99, 235, 0.05); }
+        body.dark-mode .theme-toggle:hover { background-color: rgba(37, 99, 235, 0.1); }
+
+        /* =========================================
+           TAB NAVIGATION
+           ========================================= */
+        .tab-nav { display: flex; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; transition: var(--theme-transition); }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 15px; transition: all 0.3s ease; }
+        .tab-btn.active { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        body.dark-mode .tab-btn.active { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+
+        /* =========================================
+           FORM ELEMENTS
+           ========================================= */
+        .type-toggle { display: flex; background-color: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; transition: var(--theme-transition); }
+        .type-toggle input[type="radio"] { display: none; }
+        .type-label { flex: 1; text-align: center; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); transition: all 0.3s ease; font-size: 15px; }
+        .type-toggle input[type="radio"]:checked + .type-label { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        body.dark-mode .type-toggle input[type="radio"]:checked + .type-label { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+
+        .form-group { margin-bottom: 20px; }
+        .row { display: flex; gap: 20px; }
+        .row > div { flex: 1; }
+
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-main); font-size: 14px; transition: var(--theme-transition); }
+        input, select, textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 15px; color: var(--text-main); background-color: var(--input-bg); transition: var(--theme-transition), box-shadow 0.2s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+        /* =========================================
+           IMAGE UPLOAD & PREVIEW STYLES
+           ========================================= */
+        .file-upload-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: var(--input-bg); color: var(--primary); padding: 15px; border-radius: 8px; border: 2px dashed var(--border); cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .file-upload-btn:hover { background-color: var(--toggle-bg); border-color: var(--primary); }
+        input[type="file"] { display: none; }
+
+        #imagePreviewContainer { display: none; margin-top: 15px; text-align: center; background-color: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+        #imagePreview { max-width: 100%; max-height: 250px; border-radius: 6px; object-fit: contain; display: block; margin: 0 auto; }
+        .remove-img-btn { background: none; border: none; color: var(--danger); cursor: pointer; margin-top: 10px; font-weight: 600; font-size: 14px; padding: 8px 16px; border-radius: 6px; transition: background-color 0.2s; }
+        .remove-img-btn:hover { background-color: rgba(239, 68, 68, 0.1); }
+
+        /* Payment & Submit Buttons */
+        .payment-toggle { width: 100%; padding: 15px; font-size: 16px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; color: white; text-transform: uppercase; letter-spacing: 1px; }
+        .unpaid { background-color: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+        .paid { background-color: var(--success); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
+        .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; transition: background-color 0.3s, transform 0.1s; }
+        .submit-btn:hover { background-color: var(--primary-hover); }
+        .submit-btn:active { transform: scale(0.98); }
+
+        /* =========================================
+           BOARD VIEW STYLES
+           ========================================= */
         .event-item { border-bottom: 1px solid var(--border); padding: 20px 0; position: relative; }
         .event-item:last-child { border: none; }
         .del-btn { position: absolute; right: 0; top: 20px; color: var(--danger); background: none; border: none; cursor: pointer; font-size: 18px; }
         
-        .status-toggle {
-            display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; text-transform: uppercase;
-        }
-        .status-paid { background: #dcfce7; color: #166534; }
-        .status-unpaid { background: #fee2e2; color: #991b1b; }
-
-        .action-link { 
-            display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
-            font-size: 12px; font-weight: bold; text-decoration: none; color: var(--primary);
-            padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg);
-        }
-
-        .user-badge { font-size: 13px; font-weight: bold; padding: 6px 12px; border-radius: 20px; background: rgba(37, 99, 235, 0.1); color: var(--primary); }
+        .status-pill { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; margin-bottom: 10px; color: white; }
+        .action-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; font-size: 12px; font-weight: bold; text-decoration: none; color: var(--primary); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); margin-right: 5px;}
+        
+        .user-badge { font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: 20px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="splash-screen">
-        <img src="image_0.png" alt="Logo" class="splash-logo">
-        <div class="splash-text">Syncing Events...</div>
+    <div id="login-screen">
+        <div class="pin-box">
+            <img src="logo.png" style="width:80px; border-radius:50%; margin-bottom:15px;">
+            <h2 style="margin:0; color:var(--text-main);">Staff Access</h2>
+            <input type="password" id="pin-input" class="pin-input" inputmode="numeric" maxlength="4" placeholder="••••">
+            <button class="submit-btn" onclick="verifyPin()">Unlock Events</button>
+            <p id="pin-error" style="color:var(--danger); display:none; font-weight:bold; margin-top:15px;">❌ Invalid PIN</p>
+        </div>
     </div>
 
-    <div class="header-controls">
-        <a href="index.html" style="text-decoration:none; font-weight:bold; color:var(--primary); font-size: 14px;">⬅ BACK TO INVENTORY</a>
+    <div id="splash-screen" style="display:none;">
+        <img src="logo.png" alt="Logo" class="splash-logo">
+        <div class="splash-text">Syncing...</div>
+    </div>
+
+    <div class="card" id="app-container" style="display:none;">
         
-        <select id="location-switcher" onchange="switchLocation(this.value)">
-            <option value="LP_Willis">📍 LP Willis</option>
-            <option value="LP_Huntsville">📍 LP Huntsville</option>
-        </select>
+        <div class="app-nav">
+            <a href="index.html">⬅ Back to Inventory</a>
+        </div>
 
-        <div id="user-display" class="user-badge">👤 User</div>
-    </div>
+        <div class="header">
+            <div class="logo-group">
+                <div class="logo">
+                    <img src="logo.png" alt="Los Pericos Logo">
+                </div>
+                <div class="header-text">
+                    <h2>Los Pericos Events</h2>
+                    <p>Manage caterings & reservations</p>
+                </div>
+            </div>
+            
+            <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg id="sunIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="18.36" x2="5.64" y2="19.78"></line><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"></line></svg>
+            </button>
+        </div>
 
-    <div class="tab-nav">
-        <button class="tab-btn active" id="btn-add" onclick="switchTab('add')">➕ ADD EVENT</button>
-        <button class="tab-btn" id="btn-board" onclick="switchTab('board')">📋 VIEW BOARD</button>
-    </div>
+        <div id="user-display" class="user-badge">👤 Loading...</div>
 
-    <div id="view-add" class="card">
-        <h2 style="margin-top:0;">New Booking</h2>
+        <div class="tab-nav">
+            <button class="tab-btn active" id="btn-add" onclick="switchView('add')">➕ Add Event</button>
+            <button class="tab-btn" id="btn-board" onclick="switchView('board')">📋 View Board</button>
+        </div>
+
         <form id="eventForm">
-            <div class="form-group"><label>Customer Name</label><input type="text" id="cName" required></div>
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <div style="flex:1;"><label>Phone</label><input type="tel" id="cPhone" required></div>
-                <div style="flex:1;"><label>Guests</label><input type="number" id="cGuests" required></div>
+            <div class="type-toggle">
+                <input type="radio" id="catering" name="eventType" value="Catering" checked>
+                <label for="catering" class="type-label">Catering</label>
+                <input type="radio" id="reservation" name="eventType" value="Reservation">
+                <label for="reservation" class="type-label">Reservation</label>
             </div>
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <div style="flex:1;"><label>Event Date</label><input type="date" id="eDate" required></div>
-                <div style="flex:1;"><label>Start Time</label><input type="time" id="eStart" required></div>
-            </div>
-            <div class="form-group">
-                <label style="display:block; text-align:center; padding:15px; border:2px dashed var(--border); border-radius:10px; cursor:pointer; color:var(--primary); font-weight:bold;">
-                    📷 UPLOAD TICKET PHOTO
-                    <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none;">
-                </label>
-            </div>
-            <div class="form-group">
-                <label>Payment Status</label>
-                <select id="isPaid">
-                    <option value="false">❌ Unpaid</option>
-                    <option value="true">✅ Paid</option>
+
+            <div class="form-group" id="location-group">
+                <label for="location">Location</label>
+                <select id="location" name="location">
+                    <option value="LP_Willis">LP Willis</option>
+                    <option value="LP_Huntsville">LP Huntsville</option>
                 </select>
             </div>
-            <button type="submit" class="submit-btn" id="saveBtn">Save to Cloud</button>
-        </form>
-    </div>
 
-    <div id="view-board" class="card" style="display:none;">
-        <h2 style="margin-top:0;">Booking Board</h2>
-        <div id="event-list">Loading...</div>
+            <div class="form-group">
+                <label for="customerName">Customer Name</label>
+                <input type="text" id="customerName" placeholder="e.g. Maria Garcia" required>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="customerPhone">Phone Number</label>
+                    <input type="tel" id="customerPhone" placeholder="555-0198" required>
+                </div>
+                <div class="form-group">
+                    <label for="headcount">Headcount</label>
+                    <input type="number" id="headcount" min="1" placeholder="50" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="eventDate">Date</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="startTime">Start Time</label>
+                    <input type="time" id="startTime" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Ticket Photo</label>
+                <label class="file-upload-btn" for="ticketImage">
+                    📷 Tap to Upload Ticket
+                </label>
+                <input type="file" id="ticketImage" accept="image/*" capture="environment">
+                
+                <div id="imagePreviewContainer">
+                    <img id="imagePreview" alt="Ticket Preview">
+                    <button type="button" class="remove-img-btn" id="removeImageBtn">✖ Remove Photo</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Status</label>
+                <input type="hidden" id="isPaid" value="false">
+                <button type="button" id="paymentBtn" class="payment-toggle unpaid">Unpaid</button>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Special Notes</label>
+                <textarea id="notes" rows="3" placeholder="Needs chafing dishes, allergies, etc."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitEventBtn">Save Event</button>
+        </form>
+
+        <div id="boardView" style="display:none;">
+            <div id="event-list">Loading...</div>
+        </div>
     </div>
 
     <script>
+        // --- 1. DARK MODE LOGIC ---
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const moonIcon = document.getElementById('moonIcon');
+        const sunIcon = document.getElementById('sunIcon');
+
+        if (localStorage.getItem('restaurantCalcDarkMode') === 'true') enableDarkMode();
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.contains('dark-mode') ? disableDarkMode() : enableDarkMode();
+        });
+
+        function enableDarkMode() {
+            body.classList.add('dark-mode'); localStorage.setItem('restaurantCalcDarkMode', 'true');
+            moonIcon.style.display = 'none'; sunIcon.style.display = 'block';
+        }
+        function disableDarkMode() {
+            body.classList.remove('dark-mode'); localStorage.setItem('restaurantCalcDarkMode', 'false');
+            moonIcon.style.display = 'block'; sunIcon.style.display = 'none';
+        }
+
+        // --- 2. FIREBASE & AUTH LOGIC ---
         const config = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
             authDomain: "los-pericos-46378.firebaseapp.com",
@@ -208,80 +323,194 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // SHARED KEYS WITH INDEX.HTML
+        const TEAM_PINS = { "8096": "Jorge", "0623": "Luis H", "6660": "Elias", "1116": "Stephanie", "0523": "Luis M" };
         let activeUser = localStorage.getItem('pericos_active_user');
         let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
 
-        // Redirect if not logged in
-        if(!activeUser) { window.location.href = "index.html"; }
-
-        // Setup Header
-        const locSwitcher = document.getElementById('location-switcher');
-        locSwitcher.value = currentLocation;
-        if(activeRole !== 'Owner') {
-            locSwitcher.disabled = true;
-            locSwitcher.style.opacity = '0.7';
-        }
-        document.getElementById('user-display').innerText = `👤 ${activeUser}`;
-
-        function switchLocation(loc) {
-            const splash = document.getElementById('splash-screen');
-            splash.style.display = 'flex'; splash.style.opacity = '1';
-            currentLocation = loc;
-            localStorage.setItem('pericos_location', loc);
-            setTimeout(() => { location.reload(); }, 300);
+        function verifyPin() {
+            let pin = document.getElementById('pin-input').value;
+            if (TEAM_PINS[pin]) {
+                activeUser = TEAM_PINS[pin];
+                activeRole = (pin === "1116" || pin === "0523") ? 'Owner' : 'Manager';
+                localStorage.setItem('pericos_active_user', activeUser);
+                localStorage.setItem('pericos_active_role', activeRole);
+                document.getElementById('pin-error').style.display = 'none';
+                startApp();
+            } else { 
+                document.getElementById('pin-error').style.display = 'block'; 
+            }
         }
 
-        function switchTab(tab) {
-            document.getElementById('view-add').style.display = tab === 'add' ? 'block' : 'none';
-            document.getElementById('view-board').style.display = tab === 'board' ? 'block' : 'none';
-            document.getElementById('btn-add').classList.toggle('active', tab === 'add');
-            document.getElementById('btn-board').classList.toggle('active', tab === 'board');
-            if(tab === 'board') loadBoard();
+        function startApp() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('splash-screen').style.display = 'flex';
+            
+            document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
+            document.getElementById('location').value = currentLocation;
+            
+            if(activeRole !== 'Owner') {
+                document.getElementById('location-group').style.display = 'none';
+            }
+
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                    document.getElementById('app-container').style.display = 'block';
+                }, 600);
+            }, 800);
         }
 
-        document.getElementById('eventForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "Saving...";
-            let url = ""; 
-            const file = document.getElementById('fileInput').files[0];
-            try {
-                if (file) {
-                    const ref = storage.ref().child(`tickets/${currentLocation}/${Date.now()}`);
-                    await ref.put(file); url = await ref.getDownloadURL();
+        if(activeUser) startApp();
+
+        // Handle Owner Location Change in Form
+        document.getElementById('location').addEventListener('change', function(e) {
+            currentLocation = e.target.value;
+            localStorage.setItem('pericos_location', currentLocation);
+            document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
+            loadBoard(); // Reload board if they switch locations
+        });
+
+        // --- 3. NAVIGATION LOGIC ---
+        function switchView(view) {
+            document.getElementById('eventForm').style.display = view === 'add' ? 'block' : 'none';
+            document.getElementById('boardView').style.display = view === 'board' ? 'block' : 'none';
+            document.getElementById('btn-add').classList.toggle('active', view === 'add');
+            document.getElementById('btn-board').classList.toggle('active', view === 'board');
+            if(view === 'board') loadBoard();
+        }
+
+        // --- 4. FORM LOGIC ---
+        const paymentBtn = document.getElementById('paymentBtn');
+        const isPaidInput = document.getElementById('isPaid');
+
+        paymentBtn.addEventListener('click', function() {
+            if (isPaidInput.value === 'false') {
+                isPaidInput.value = 'true';
+                paymentBtn.textContent = 'Paid';
+                paymentBtn.className = 'payment-toggle paid';
+            } else {
+                isPaidInput.value = 'false';
+                paymentBtn.textContent = 'Unpaid';
+                paymentBtn.className = 'payment-toggle unpaid';
+            }
+        });
+
+        // Image Preview
+        const ticketInput = document.getElementById('ticketImage');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+
+        ticketInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.style.display = 'block'; 
                 }
-                await db.ref(currentLocation + '/events').push({
-                    customer: document.getElementById('cName').value,
-                    phone: document.getElementById('cPhone').value,
-                    guests: document.getElementById('cGuests').value,
-                    date: document.getElementById('eDate').value,
-                    start: document.getElementById('eStart').value,
-                    isPaid: document.getElementById('isPaid').value === 'true',
-                    photo: url, createdBy: activeUser, timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                alert("✅ Event Saved!"); location.reload();
-            } catch (err) { alert("Error saving."); btn.disabled = false; }
-        };
+                reader.readAsDataURL(file); 
+            }
+        });
 
+        removeImageBtn.addEventListener('click', function() {
+            ticketInput.value = ''; 
+            imagePreview.src = '';
+            imagePreviewContainer.style.display = 'none'; 
+        });
+
+        // Submit Form
+        document.getElementById('eventForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); 
+            const submitBtn = document.getElementById('submitEventBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Uploading...";
+
+            try {
+                let finalImageUrl = "";
+                const file = ticketInput.files[0];
+
+                if (file) {
+                    const uniqueFileName = `tickets/${currentLocation}/${Date.now()}_${file.name}`;
+                    const storageRef = storage.ref().child(uniqueFileName);
+                    await storageRef.put(file);
+                    finalImageUrl = await storageRef.getDownloadURL();
+                }
+
+                submitBtn.textContent = "Saving to Database...";
+                
+                await db.ref(currentLocation + '/events').push({
+                    type: document.querySelector('input[name="eventType"]:checked').value,
+                    customer: document.getElementById('customerName').value,
+                    phone: document.getElementById('customerPhone').value,
+                    guests: document.getElementById('headcount').value,
+                    date: document.getElementById('eventDate').value,
+                    start: document.getElementById('startTime').value,
+                    isPaid: isPaidInput.value === 'true',
+                    notes: document.getElementById('notes').value,
+                    photo: finalImageUrl,
+                    createdBy: activeUser,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                alert("Success! Event saved.");
+                
+                // Reset Form
+                document.getElementById('eventForm').reset();
+                paymentBtn.className = 'payment-toggle unpaid';
+                paymentBtn.textContent = 'Unpaid';
+                isPaidInput.value = 'false';
+                ticketInput.value = '';
+                imagePreview.src = '';
+                imagePreviewContainer.style.display = 'none';
+                
+                // Jump to board to see the new event
+                switchView('board');
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error saving event.");
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // --- 5. BOARD LOGIC ---
         function loadBoard() {
             const list = document.getElementById('event-list');
+            list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Fetching from cloud...</p>';
+            
             db.ref(currentLocation + '/events').on('value', snap => {
                 let html = '';
-                if(!snap.exists()) { list.innerHTML = 'No bookings for ' + currentLocation.replace('_',' ') + '.'; return; }
+                if(!snap.exists()) { list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No bookings found for this location.</p>'; return; }
+                
                 snap.forEach(child => {
                     const ev = child.val();
-                    const paidClass = ev.isPaid ? 'status-paid' : 'status-unpaid';
+                    const paidClass = ev.isPaid ? 'paid' : 'unpaid';
                     const paidText = ev.isPaid ? '✅ PAID' : '❌ UNPAID';
+                    
                     html += `
                         <div class="event-item">
                             <button onclick="deleteEvent('${child.key}')" class="del-btn">🗑️</button>
-                            <button onclick="togglePaid('${child.key}', ${ev.isPaid})" class="status-toggle ${paidClass}">${paidText}</button>
-                            <div style="margin-top:10px;"><b style="font-size:18px;">${ev.customer}</b></div>
-                            <span style="font-size:13px; color:var(--text-muted);">📅 ${ev.date} | ⏰ ${ev.start} | 👥 ${ev.guests} Guests</span><br>
-                            <div style="display:flex; gap:10px;">
+                            <button onclick="togglePaid('${child.key}', ${ev.isPaid})" class="status-pill ${paidClass}">${paidText}</button>
+                            
+                            <div style="font-size:12px; color:var(--primary); font-weight:800; margin: 8px 0 2px 0;">${ev.type.toUpperCase()}</div>
+                            <b style="font-size:18px;">${ev.customer}</b>
+                            
+                            <div style="font-size:14px; color:var(--text-muted); margin-top:5px; line-height: 1.5;">
+                                📅 ${ev.date} | ⏰ ${ev.start}<br>
+                                👥 ${ev.guests} Guests | 👤 ${ev.createdBy}
+                            </div>
+                            
+                            ${ev.notes ? `<div style="background:var(--toggle-bg); padding:10px; border-radius:8px; margin-top:10px; font-size:13px; color:var(--text-main);"><b>Notes:</b> ${ev.notes}</div>` : ''}
+
+                            <div style="display:flex; gap:10px; margin-top:10px;">
                                 <a href="tel:${ev.phone}" class="action-link">📞 CALL</a>
-                                ${ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 VIEW TICKET</a>` : ''}
+                                ${ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 TICKET</a>` : ''}
                             </div>
                         </div>`;
                 });
@@ -290,16 +519,7 @@
         }
 
         window.togglePaid = (id, current) => { db.ref(currentLocation + '/events/' + id).update({ isPaid: !current }); };
-        window.deleteEvent = (id) => { if(confirm("Delete this event?")) db.ref(currentLocation+'/events/'+id).remove(); };
-
-        if(localStorage.getItem('restaurantCalcDarkMode') === 'true') document.body.classList.add('dark-mode');
-        window.onload = () => { setTimeout(() => { 
-            const splash = document.getElementById('splash-screen');
-            if(splash) {
-                splash.style.opacity = '0';
-                setTimeout(() => splash.style.display = 'none', 600);
-            }
-        }, 800); };
+        window.deleteEvent = (id) => { if(confirm("Permanently delete this event?")) db.ref(currentLocation+'/events/'+id).remove(); };
     </script>
 </body>
 </html>
