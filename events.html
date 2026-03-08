@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
     <style>
         :root {
@@ -62,7 +61,6 @@
             transition: var(--theme-transition);
         }
 
-        /* MOBILE FIX: Stacking the rows so buttons don't touch on small screens */
         .row { display: flex; flex-direction: column; gap: 15px; }
         @media (min-width: 480px) {
             .row { flex-direction: row; gap: 20px; }
@@ -426,7 +424,7 @@
             document.getElementById('startTime').max = (day >= 4 && day <= 6) ? "22:00" : "21:00";
         }
 
-        // --- 3. CALENDAR & NOTIFICATIONS ---
+        // --- 3. CALENDAR & LOGS ---
         let currentCalDate = new Date();
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
