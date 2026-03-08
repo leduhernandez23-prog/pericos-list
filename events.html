@@ -13,7 +13,7 @@
 
     <style>
         /* =========================================
-           CSS VARIABLES (Matching Index Master)
+           CSS VARIABLES 
            ========================================= */
         :root {
             --bg-color: #f4f4f9;
@@ -75,12 +75,14 @@
 
         /* HEADER & NAV */
         .header-controls { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        #location-switcher { padding: 8px 12px; border-radius: 8px; border: 2px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-weight: bold; cursor: pointer; }
+        #location-switcher { padding: 8px 12px; border-radius: 8px; border: 2px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-weight: bold; cursor: pointer; display: none; }
 
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
         .logo-group { display: flex; align-items: center; gap: 15px; }
         .logo { width: 48px; height: 48px; border-radius: 12px; background-color: var(--primary-color); display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .logo img { width: 100%; height: 100%; object-fit: cover; }
+
+        .user-badge { font-size: 13px; font-weight: bold; color: var(--primary-color); text-align: center; background: rgba(37, 99, 235, 0.1); padding: 8px 12px; border-radius: 20px; display: inline-block; margin-bottom: 20px;}
 
         /* TABS */
         .tab-nav { display: flex; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; }
@@ -114,6 +116,7 @@
         /* BOARD ITEMS */
         .event-item { border-bottom: 1px solid var(--border-color); padding: 20px 0; position: relative; }
         .del-btn { position: absolute; right: 0; top: 20px; background: none; border: none; cursor: pointer; font-size: 18px; }
+        .status-pill { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; margin-bottom: 10px; color: white; }
         .action-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; font-size: 12px; font-weight: bold; text-decoration: none; color: var(--primary-color); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); margin-right: 5px; }
         
         .weekend-warning { display: none; background: rgba(239, 68, 68, 0.1); color: var(--danger-color); padding: 12px; border-radius: 8px; border: 1px dashed var(--danger-color); font-size: 13px; font-weight: bold; margin-bottom: 20px; text-align: center; }
@@ -156,6 +159,14 @@
                     <p style="margin:0; font-size:12px; color:var(--text-muted);">Manage caterings & reservations</p>
                 </div>
             </div>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleDarkMode()">
+                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg id="sunIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle></svg>
+            </button>
+        </div>
+
+        <div style="text-align:center;">
+            <div id="user-display" class="user-badge">👤 Loading...</div>
         </div>
 
         <div class="tab-nav">
@@ -202,12 +213,12 @@
         </form>
 
         <div id="boardView" style="display:none;">
-            <input type="text" id="eventSearch" style="margin-bottom:15px;" placeholder="🔍 Search customers..." onkeyup="filterEvents(this.value)">
+            <input type="text" id="eventSearch" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:15px; box-sizing:border-box; background:var(--input-bg); color:var(--text-color);" placeholder="🔍 Search customers..." onkeyup="filterEvents(this.value)">
             <div id="event-list"></div>
         </div>
 
         <div id="activityView" style="display:none;">
-            <div id="activity-list"></div>
+            <div id="activity-list" style="background:var(--toggle-bg); padding:15px; border-radius:12px; border:1px solid var(--border-color);"></div>
         </div>
     </div>
 
@@ -224,25 +235,56 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        const TEAM_PINS = { "8096": "Jorge", "0623": "Luis H", "6660": "Elias", "1116": "Stephanie", "0523": "Luis M" };
+        // Exact unsimplified PINS from Master Index
+        const TEAM_PINS = {
+            "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
+            "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
+            "6660": { name: "Elias", role: "Manager", location: "LP_Huntsville" },
+            "1116": { name: "Stephanie", role: "Owner", location: "All" },
+            "0523": { name: "Luis M", role: "Owner", location: "All" }
+        };
+
         let activeUser = localStorage.getItem('pericos_active_user');
+        let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
 
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
             if (TEAM_PINS[pin]) {
-                activeUser = TEAM_PINS[pin];
+                activeUser = TEAM_PINS[pin].name;
+                activeRole = TEAM_PINS[pin].role;
                 localStorage.setItem('pericos_active_user', activeUser);
+                localStorage.setItem('pericos_active_role', activeRole);
+                document.getElementById('pin-error').style.display = 'none';
                 startApp();
-            } else { document.getElementById('pin-error').style.display = 'block'; }
+            } else { 
+                document.getElementById('pin-error').style.display = 'block'; 
+            }
         }
 
         function startApp() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
-            document.getElementById('location-switcher').value = currentLocation;
-            if (localStorage.getItem('restaurantCalcDarkMode') === 'true') document.body.classList.add('dark-mode');
+            
+            // Restore Username display perfectly
+            document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
+            
+            // Restore Location logic for owners
+            const locSwitcher = document.getElementById('location-switcher');
+            locSwitcher.value = currentLocation;
+            if(activeRole === 'Owner') {
+                locSwitcher.style.display = 'inline-block';
+            } else {
+                locSwitcher.style.display = 'none';
+            }
+
+            if (localStorage.getItem('restaurantCalcDarkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('moonIcon').style.display = 'none';
+                document.getElementById('sunIcon').style.display = 'block';
+            }
         }
+
         if(activeUser) startApp();
 
         function switchLocation(loc) {
@@ -259,6 +301,14 @@
             document.getElementById('btn-' + view).classList.add('active');
             if(view === 'board') loadBoard();
             if(view === 'activity') loadActivity();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('restaurantCalcDarkMode', isDark);
+            document.getElementById('moonIcon').style.display = isDark ? 'none' : 'block';
+            document.getElementById('sunIcon').style.display = isDark ? 'block' : 'none';
         }
 
         // --- FORM LOGIC ---
@@ -322,8 +372,11 @@
 
             const overlay = document.getElementById('upload-overlay');
             const status = document.getElementById('upload-status-text');
+            const logo = document.getElementById('upload-logo-img');
+            
             overlay.style.display = 'flex';
             setTimeout(() => overlay.style.opacity = '1', 10);
+            logo.className = 'pulse-logo';
 
             try {
                 const type = document.querySelector('input[name="eventType"]:checked').value;
@@ -340,7 +393,7 @@
                     createdBy: activeUser, timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
 
-                if(file) {
+                if(file && type === 'Catering') {
                     status.innerText = "Optimizing photo...";
                     const blob = await compressImage(file);
                     status.innerText = "Sending to cloud...";
@@ -351,13 +404,20 @@
                     });
                 }
 
-                status.innerText = "✅ Picture Completed!";
+                status.innerText = "✅ Booking Saved!";
+                status.style.color = "var(--success-color)";
+                logo.style.animation = "none";
+                logo.style.borderColor = "var(--success-color)";
+                
                 db.ref(currentLocation + '/events_logs').push({ user: activeUser, action: `Added ${type}: ${cust}`, time: new Date().toLocaleString() });
 
                 setTimeout(() => {
                     overlay.style.opacity = '0';
                     setTimeout(() => {
                         overlay.style.display = 'none';
+                        status.style.color = "var(--text-color)";
+                        logo.style.borderColor = "var(--primary-color)";
+                        
                         document.getElementById('eventForm').reset();
                         removeImg();
                         switchView('board');
@@ -370,7 +430,7 @@
         // --- BOARD & LOGS ---
         function loadBoard() {
             const list = document.getElementById('event-list');
-            list.innerHTML = "Fetching...";
+            list.innerHTML = "Fetching from cloud...";
             db.ref(currentLocation + '/events').on('value', snap => {
                 let html = '';
                 let arr = [];
@@ -382,21 +442,41 @@
                 });
                 arr.sort((a,b) => a.date.localeCompare(b.date));
                 arr.forEach(ev => {
+                    
+                    let pillHtml = '';
+                    if (ev.type === 'Catering') {
+                        const paidClass = ev.isPaid ? 'paid' : 'unpaid';
+                        const paidText = ev.isPaid ? '✅ PAID' : '❌ UNPAID';
+                        const safeName = ev.customer.replace(/'/g, "\\'");
+                        pillHtml = `<button onclick="togglePaymentBoard('${ev.id}', ${ev.isPaid}, '${safeName}')" class="status-pill ${paidClass}">${paidText}</button>`;
+                    }
+
                     html += `
                     <div class="event-item">
-                        <button class="del-btn" onclick="deleteEv('${ev.id}','${ev.customer}')">🗑️</button>
+                        <button class="del-btn" onclick="deleteEv('${ev.id}','${ev.customer.replace(/'/g, "\\'")}')">🗑️</button>
+                        ${pillHtml}
                         <div style="font-weight:bold; font-size:18px;">${ev.customer}</div>
-                        <div style="color:var(--primary-color); font-size:12px; font-weight:bold;">${ev.type.toUpperCase()}</div>
-                        <div style="font-size:14px; color:var(--text-muted); margin-top:5px;">📅 ${ev.date} @ ${ev.start} | 👥 ${ev.guests}</div>
-                        <div style="margin-top:10px;">
+                        <div style="color:var(--primary-color); font-size:12px; font-weight:bold; margin-bottom: 5px;">${ev.type.toUpperCase()}</div>
+                        <div style="font-size:14px; color:var(--text-muted); line-height:1.5;">
+                            📅 ${ev.date} @ ${ev.start}<br>
+                            👥 ${ev.guests} Guests | 👤 ${ev.createdBy}
+                        </div>
+                        ${ev.notes ? `<div style="background:var(--toggle-bg); padding:10px; border-radius:8px; margin-top:10px; font-size:13px;"><b>Notes:</b> ${ev.notes}</div>` : ''}
+                        <div style="margin-top:10px; display:flex; gap:10px;">
                             ${ev.photo === "uploading" ? '<span class="action-link" style="opacity:0.5;">⌛ UPLOADING...</span>' : (ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 TICKET</a>` : '')}
                             <a href="tel:${ev.phone}" class="action-link">📞 CALL</a>
                         </div>
                     </div>`;
                 });
-                list.innerHTML = html || "No upcoming bookings.";
+                list.innerHTML = html || "<p style='text-align:center; color:gray;'>No upcoming bookings.</p>";
             });
         }
+
+        window.togglePaymentBoard = (id, currentStatus, name) => {
+            let newStatus = !currentStatus;
+            db.ref(currentLocation + '/events/' + id).update({ isPaid: newStatus });
+            db.ref(currentLocation + '/events_logs').push({ user: activeUser, action: `Marked ${name} as ${newStatus ? 'PAID' : 'UNPAID'}`, time: new Date().toLocaleString() });
+        };
 
         window.deleteEv = (id, name) => { 
             if(confirm("Delete " + name + "?")) {
@@ -410,9 +490,9 @@
                 let html = '';
                 snap.forEach(c => {
                     let l = c.val();
-                    html = `<div class="feed-item"><b>${l.user}</b>: ${l.action}<br><small style="color:gray;">${l.time}</small></div>` + html;
+                    html = `<div class="feed-item"><div class="feed-header"><span class="feed-user">👤 ${l.user}</span><span>${l.time}</span></div><div class="feed-action">${l.action}</div></div>` + html;
                 });
-                document.getElementById('activity-list').innerHTML = html || "No activity yet.";
+                document.getElementById('activity-list').innerHTML = html || "<p style='text-align:center; color:gray;'>No activity yet.</p>";
             });
         }
 
