@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Los Pericos | Event Management</title>
+    <title>Los Pericos | Events & Catering</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -108,6 +108,10 @@
         .theme-toggle:hover { border-color: var(--primary); color: var(--primary); background-color: rgba(37, 99, 235, 0.05); }
         body.dark-mode .theme-toggle:hover { background-color: rgba(37, 99, 235, 0.1); }
 
+        .header-controls { width: 100%; max-width: 550px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        #location-switcher { padding: 8px 12px; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); color: var(--text-main); font-weight: bold; font-size: 14px; outline: none; cursor: pointer; }
+        #location-switcher:hover { border-color: var(--primary); }
+
         /* =========================================
            TAB NAVIGATION
            ========================================= */
@@ -132,6 +136,8 @@
         label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-main); font-size: 14px; transition: var(--theme-transition); }
         input, select, textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 15px; color: var(--text-main); background-color: var(--input-bg); transition: var(--theme-transition), box-shadow 0.2s; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+        .search-bar { margin-bottom: 20px; font-weight: 500; }
 
         /* =========================================
            IMAGE UPLOAD & PREVIEW STYLES
@@ -164,14 +170,21 @@
         .status-pill { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; margin-bottom: 10px; color: white; }
         .action-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; font-size: 12px; font-weight: bold; text-decoration: none; color: var(--primary); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); margin-right: 5px;}
         
-        .user-badge { font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: 20px; text-align: center; }
+        .user-badge { font-size: 13px; font-weight: bold; color: var(--primary); text-align: center; background: rgba(37, 99, 235, 0.1); padding: 6px 12px; border-radius: 20px; }
+
+        /* Weekend Warning Box */
+        .weekend-warning {
+            display: none; background: rgba(239, 68, 68, 0.1); color: var(--danger); 
+            padding: 12px; border-radius: 8px; border: 1px dashed var(--danger);
+            font-size: 13px; font-weight: bold; margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="pin-box">
-            <img src="logo.png" style="width:80px; border-radius:50%; margin-bottom:15px;">
+            <img src="image_0.png" style="width:80px; border-radius:50%; margin-bottom:15px;">
             <h2 style="margin:0; color:var(--text-main);">Staff Access</h2>
             <input type="password" id="pin-input" class="pin-input" inputmode="numeric" maxlength="4" placeholder="••••">
             <button class="submit-btn" onclick="verifyPin()">Unlock Events</button>
@@ -180,20 +193,25 @@
     </div>
 
     <div id="splash-screen" style="display:none;">
-        <img src="logo.png" alt="Logo" class="splash-logo">
+        <img src="image_0.png" alt="Logo" class="splash-logo">
         <div class="splash-text">Syncing...</div>
     </div>
 
     <div class="card" id="app-container" style="display:none;">
         
-        <div class="app-nav">
-            <a href="index.html">⬅ Back to Inventory</a>
+        <div class="header-controls">
+            <a href="index.html" style="text-decoration:none; font-weight:bold; color:var(--text-muted);">⬅ Back to Inventory</a>
+            
+            <select id="location-switcher" onchange="switchLocation(this.value)">
+                <option value="LP_Willis">📍 LP Willis</option>
+                <option value="LP_Huntsville">📍 LP Huntsville</option>
+            </select>
         </div>
 
         <div class="header">
             <div class="logo-group">
                 <div class="logo">
-                    <img src="logo.png" alt="Los Pericos Logo">
+                    <img src="image_0.png" alt="Los Pericos Logo">
                 </div>
                 <div class="header-text">
                     <h2>Los Pericos Events</h2>
@@ -207,7 +225,9 @@
             </button>
         </div>
 
-        <div id="user-display" class="user-badge">👤 Loading...</div>
+        <div style="text-align:center; margin-bottom: 20px;">
+            <div id="user-display" class="user-badge">👤 Loading...</div>
+        </div>
 
         <div class="tab-nav">
             <button class="tab-btn active" id="btn-add" onclick="switchView('add')">➕ Add Event</button>
@@ -220,14 +240,6 @@
                 <label for="catering" class="type-label">Catering</label>
                 <input type="radio" id="reservation" name="eventType" value="Reservation">
                 <label for="reservation" class="type-label">Reservation</label>
-            </div>
-
-            <div class="form-group" id="location-group">
-                <label for="location">Location</label>
-                <select id="location" name="location">
-                    <option value="LP_Willis">LP Willis</option>
-                    <option value="LP_Huntsville">LP Huntsville</option>
-                </select>
             </div>
 
             <div class="form-group">
@@ -249,31 +261,37 @@
             <div class="row">
                 <div class="form-group">
                     <label for="eventDate">Date</label>
-                    <input type="date" id="eventDate" required>
+                    <input type="date" id="eventDate" required onchange="checkWeekendWarning()">
                 </div>
                 <div class="form-group">
                     <label for="startTime">Start Time</label>
-                    <input type="time" id="startTime" required>
+                    <input type="time" id="startTime" required onchange="checkWeekendWarning()">
                 </div>
             </div>
-
-            <div class="form-group">
-                <label>Ticket Photo</label>
-                <label class="file-upload-btn" for="ticketImage">
-                    📷 Tap to Upload Ticket
-                </label>
-                <input type="file" id="ticketImage" accept="image/*" capture="environment">
-                
-                <div id="imagePreviewContainer">
-                    <img id="imagePreview" alt="Ticket Preview">
-                    <button type="button" class="remove-img-btn" id="removeImageBtn">✖ Remove Photo</button>
-                </div>
+            
+            <div id="weekendWarning" class="weekend-warning">
+                ⚠️ Not a Reservation just a heads up
             </div>
 
-            <div class="form-group">
-                <label>Payment Status</label>
-                <input type="hidden" id="isPaid" value="false">
-                <button type="button" id="paymentBtn" class="payment-toggle unpaid">Unpaid</button>
+            <div id="catering-fields">
+                <div class="form-group">
+                    <label>Ticket Photo</label>
+                    <label class="file-upload-btn" for="ticketImage">
+                        📷 Tap to Upload Ticket
+                    </label>
+                    <input type="file" id="ticketImage" accept="image/*" capture="environment">
+                    
+                    <div id="imagePreviewContainer">
+                        <img id="imagePreview" alt="Ticket Preview">
+                        <button type="button" class="remove-img-btn" id="removeImageBtn">✖ Remove Photo</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Status</label>
+                    <input type="hidden" id="isPaid" value="false">
+                    <button type="button" id="paymentBtn" class="payment-toggle unpaid">Unpaid</button>
+                </div>
             </div>
 
             <div class="form-group">
@@ -281,10 +299,12 @@
                 <textarea id="notes" rows="3" placeholder="Needs chafing dishes, allergies, etc."></textarea>
             </div>
 
-            <button type="submit" class="submit-btn" id="submitEventBtn">Save Event</button>
+            <button type="submit" class="submit-btn" id="submitEventBtn">Save Booking</button>
         </form>
 
         <div id="boardView" style="display:none;">
+            <h2 style="margin-top:0; margin-bottom:15px;">Booking Board</h2>
+            <input type="text" id="eventSearch" class="search-bar" placeholder="🔍 Search by customer name..." onkeyup="filterEvents(this.value)">
             <div id="event-list">Loading...</div>
         </div>
     </div>
@@ -331,8 +351,8 @@
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
             if (TEAM_PINS[pin]) {
-                activeUser = TEAM_PINS[pin];
-                activeRole = (pin === "1116" || pin === "0523") ? 'Owner' : 'Manager';
+                activeUser = TEAM_PINS[pin].name;
+                activeRole = TEAM_PINS[pin].role;
                 localStorage.setItem('pericos_active_user', activeUser);
                 localStorage.setItem('pericos_active_role', activeRole);
                 document.getElementById('pin-error').style.display = 'none';
@@ -347,10 +367,14 @@
             document.getElementById('splash-screen').style.display = 'flex';
             
             document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
-            document.getElementById('location').value = currentLocation;
             
+            // Owner Location Switcher Logic
+            const locSwitcher = document.getElementById('location-switcher');
+            locSwitcher.value = currentLocation;
             if(activeRole !== 'Owner') {
-                document.getElementById('location-group').style.display = 'none';
+                locSwitcher.disabled = true;
+                locSwitcher.style.opacity = '0.5';
+                locSwitcher.style.cursor = 'not-allowed';
             }
 
             setTimeout(() => {
@@ -364,13 +388,14 @@
 
         if(activeUser) startApp();
 
-        // Handle Owner Location Change in Form
-        document.getElementById('location').addEventListener('change', function(e) {
-            currentLocation = e.target.value;
-            localStorage.setItem('pericos_location', currentLocation);
-            document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
-            loadBoard(); // Reload board if they switch locations
-        });
+        function switchLocation(loc) {
+            currentLocation = loc;
+            localStorage.setItem('pericos_location', loc);
+            // Show splash and reload to sync everything cleanly
+            document.getElementById('splash-screen').style.display = 'flex';
+            document.getElementById('splash-screen').style.opacity = '1';
+            setTimeout(() => { location.reload(); }, 300);
+        }
 
         // --- 3. NAVIGATION LOGIC ---
         function switchView(view) {
@@ -382,6 +407,45 @@
         }
 
         // --- 4. FORM LOGIC ---
+        
+        // Dynamic Fields for Catering vs Reservation
+        const cateringFields = document.getElementById('catering-fields');
+        document.querySelectorAll('input[name="eventType"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if(e.target.value === 'Reservation') {
+                    cateringFields.style.display = 'none';
+                } else {
+                    cateringFields.style.display = 'block';
+                }
+            });
+        });
+
+        // Weekend Warning Logic
+        function checkWeekendWarning() {
+            const dateVal = document.getElementById('eventDate').value;
+            const timeVal = document.getElementById('startTime').value;
+            const warningDiv = document.getElementById('weekendWarning');
+            
+            if(!dateVal || !timeVal) { warningDiv.style.display = 'none'; return; }
+
+            // Parse Date safely
+            const [y, m, d] = dateVal.split('-');
+            const dateObj = new Date(y, m - 1, d);
+            const dayOfWeek = dateObj.getDay(); // 0 = Sun, 5 = Fri, 6 = Sat
+
+            // Parse Time
+            const [hours, mins] = timeVal.split(':').map(Number);
+            
+            const isSundayLunch = dayOfWeek === 0 && ((hours >= 11 && hours < 14) || (hours === 14 && mins === 0));
+        const isFriOrSat = (dayOfWeek === 5 || dayOfWeek === 6);
+
+        if(isFriOrSat || isSundayLunch) {
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.style.display = 'none';
+            }
+        }
+
         const paymentBtn = document.getElementById('paymentBtn');
         const isPaidInput = document.getElementById('isPaid');
 
@@ -429,27 +493,35 @@
             submitBtn.disabled = true;
             submitBtn.textContent = "Uploading...";
 
+            const eventType = document.querySelector('input[name="eventType"]:checked').value;
+            const isCatering = eventType === 'Catering';
+
             try {
                 let finalImageUrl = "";
-                const file = ticketInput.files[0];
+                let isPaidStatus = false;
 
-                if (file) {
-                    const uniqueFileName = `tickets/${currentLocation}/${Date.now()}_${file.name}`;
-                    const storageRef = storage.ref().child(uniqueFileName);
-                    await storageRef.put(file);
-                    finalImageUrl = await storageRef.getDownloadURL();
+                // Only handle photos and payment if it's a Catering event
+                if (isCatering) {
+                    isPaidStatus = isPaidInput.value === 'true';
+                    const file = ticketInput.files[0];
+                    if (file) {
+                        const uniqueFileName = `tickets/${currentLocation}/${Date.now()}_${file.name}`;
+                        const storageRef = storage.ref().child(uniqueFileName);
+                        await storageRef.put(file);
+                        finalImageUrl = await storageRef.getDownloadURL();
+                    }
                 }
 
                 submitBtn.textContent = "Saving to Database...";
                 
                 await db.ref(currentLocation + '/events').push({
-                    type: document.querySelector('input[name="eventType"]:checked').value,
+                    type: eventType,
                     customer: document.getElementById('customerName').value,
                     phone: document.getElementById('customerPhone').value,
                     guests: document.getElementById('headcount').value,
                     date: document.getElementById('eventDate').value,
                     start: document.getElementById('startTime').value,
-                    isPaid: isPaidInput.value === 'true',
+                    isPaid: isPaidStatus,
                     notes: document.getElementById('notes').value,
                     photo: finalImageUrl,
                     createdBy: activeUser,
@@ -466,6 +538,7 @@
                 ticketInput.value = '';
                 imagePreview.src = '';
                 imagePreviewContainer.style.display = 'none';
+                document.getElementById('weekendWarning').style.display = 'none';
                 
                 // Jump to board to see the new event
                 switchView('board');
@@ -479,27 +552,61 @@
             }
         });
 
-        // --- 5. BOARD LOGIC ---
+        // --- 5. BOARD LOGIC & AUTO DELETE ---
         function loadBoard() {
             const list = document.getElementById('event-list');
             list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Fetching from cloud...</p>';
             
+            // Set up "Today" for Auto-Delete comparison
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
             db.ref(currentLocation + '/events').on('value', snap => {
                 let html = '';
                 if(!snap.exists()) { list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No bookings found for this location.</p>'; return; }
                 
+                let eventsArray = [];
                 snap.forEach(child => {
                     const ev = child.val();
-                    const paidClass = ev.isPaid ? 'paid' : 'unpaid';
-                    const paidText = ev.isPaid ? '✅ PAID' : '❌ UNPAID';
+                    
+                    // Auto-Delete Logic: check if event date is strictly in the past
+                    if (ev.date) {
+                        const [y, m, d] = ev.date.split('-');
+                        const evDate = new Date(y, m - 1, d);
+                        if (evDate < today) {
+                            // Event is over, delete it and skip adding it to the board
+                            db.ref(currentLocation + '/events/' + child.key).remove();
+                            return; 
+                        }
+                    }
+                    
+                    eventsArray.push({ id: child.key, ...ev });
+                });
+
+                // Sort by date (earliest first)
+                eventsArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                if(eventsArray.length === 0) {
+                    list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No upcoming bookings found.</p>';
+                    return;
+                }
+
+                eventsArray.forEach(ev => {
+                    // Only show Payment Pill for Catering
+                    let pillHtml = '';
+                    if (ev.type === 'Catering') {
+                        const paidClass = ev.isPaid ? 'paid' : 'unpaid';
+                        const paidText = ev.isPaid ? '✅ PAID' : '❌ UNPAID';
+                        pillHtml = `<button onclick="togglePaid('${ev.id}', ${ev.isPaid})" class="status-pill ${paidClass}">${paidText}</button>`;
+                    }
                     
                     html += `
                         <div class="event-item">
-                            <button onclick="deleteEvent('${child.key}')" class="del-btn">🗑️</button>
-                            <button onclick="togglePaid('${child.key}', ${ev.isPaid})" class="status-pill ${paidClass}">${paidText}</button>
+                            <button onclick="deleteEvent('${ev.id}')" class="del-btn">🗑️</button>
+                            ${pillHtml}
                             
                             <div style="font-size:12px; color:var(--primary); font-weight:800; margin: 8px 0 2px 0;">${ev.type.toUpperCase()}</div>
-                            <b style="font-size:18px;">${ev.customer}</b>
+                            <b class="board-cust-name" style="font-size:18px;">${ev.customer}</b>
                             
                             <div style="font-size:14px; color:var(--text-muted); margin-top:5px; line-height: 1.5;">
                                 📅 ${ev.date} | ⏰ ${ev.start}<br>
@@ -510,11 +617,24 @@
 
                             <div style="display:flex; gap:10px; margin-top:10px;">
                                 <a href="tel:${ev.phone}" class="action-link">📞 CALL</a>
-                                ${ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 TICKET</a>` : ''}
+                                ${ev.photo && ev.type === 'Catering' ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 TICKET</a>` : ''}
                             </div>
                         </div>`;
                 });
                 list.innerHTML = html;
+                
+                // Re-apply any existing search filter after reloading data
+                filterEvents(document.getElementById('eventSearch').value);
+            });
+        }
+
+        // Search Filter Logic
+        function filterEvents(query) {
+            const q = query.toLowerCase();
+            const items = document.querySelectorAll('.event-item');
+            items.forEach(item => {
+                const name = item.querySelector('.board-cust-name').innerText.toLowerCase();
+                item.style.display = name.includes(q) ? 'block' : 'none';
             });
         }
 
