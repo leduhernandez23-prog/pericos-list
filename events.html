@@ -82,7 +82,7 @@
         .pin-box { background: var(--surface); padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); width: 85%; max-width: 340px; }
         .pin-input { width: 100%; font-size: 32px; text-align: center; letter-spacing: 15px; padding: 15px; border-radius: 12px; border: 2px solid var(--primary); background: var(--input-bg); color: var(--text-main); margin: 20px 0; box-sizing: border-box; }
         
-        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 1.5s infinite; }
+        .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 2s infinite; }
         
         /* =========================================
            HEADER & LOGO AREA
@@ -111,7 +111,7 @@
         /* =========================================
            TAB NAVIGATION
            ========================================= */
-        .tab-nav { display: flex; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; transition: var(--theme-transition); }
+        .tab-nav { display: flex; flex-wrap: wrap; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 25px; transition: var(--theme-transition); }
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 15px; transition: all 0.3s ease; }
         .tab-btn.active { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
         body.dark-mode .tab-btn.active { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
@@ -183,6 +183,18 @@
         .feed-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
         .feed-user { font-weight: bold; color: var(--primary); }
         .feed-action { font-size: 14px; color: var(--text-main); }
+
+        /* =========================================
+           CALENDAR VIEW STYLES
+           ========================================= */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .calendar-day-header { text-align: center; font-weight: bold; font-size: 12px; color: var(--text-muted); padding-bottom: 5px;}
+        .calendar-day { min-height: 80px; border: 1px solid var(--border); border-radius: 6px; padding: 5px; background: var(--input-bg); font-size: 12px; display:flex; flex-direction:column; gap:2px; }
+        .calendar-day.empty { background: transparent; border: none; }
+        .calendar-date { font-weight: bold; margin-bottom: 5px; color: var(--text-main); text-align:right;}
+        .cal-event { background: var(--primary); color: white; padding: 3px 5px; border-radius: 4px; font-size: 10px; font-weight:bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;}
+        .cal-event.reservation { background: var(--success); }
 
         /* =========================================
            UPLOAD PROGRESS OVERLAY STYLES
@@ -257,6 +269,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" id="btn-add" onclick="switchView('add')">➕ Add Event</button>
             <button class="tab-btn" id="btn-board" onclick="switchView('board')">📋 View Board</button>
+            <button class="tab-btn" id="btn-calendar" onclick="switchView('calendar')">📅 Calendar</button>
             <button class="tab-btn" id="btn-activity" onclick="switchView('activity')">📝 Activity</button>
         </div>
 
@@ -276,7 +289,7 @@
             <div class="row">
                 <div class="form-group">
                     <label for="customerPhone">Phone Number</label>
-                    <input type="tel" id="customerPhone" placeholder="555-0198" required>
+                    <input type="tel" id="customerPhone" placeholder="(555)555-5555" oninput="let x = this.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/); this.value = !x[2] ? x[1] : '(' + x[1] + ')' + x[2] + (x[3] ? '-' + x[3] : '');" required>
                 </div>
                 <div class="form-group">
                     <label for="headcount">Headcount</label>
@@ -336,6 +349,15 @@
             <div id="event-list">Loading...</div>
         </div>
 
+        <div id="calendarView" style="display:none;">
+            <div class="calendar-header">
+                <button onclick="changeMonth(-1)" class="submit-btn" style="width:auto; margin:0; padding:8px 15px;">⬅️</button>
+                <h2 id="calendarMonthYear" style="margin:0;">Month Year</h2>
+                <button onclick="changeMonth(1)" class="submit-btn" style="width:auto; margin:0; padding:8px 15px;">➡️</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
         <div id="activityView" style="display:none;">
             <h2 style="margin-top:0; margin-bottom:15px;">Recent Activity</h2>
             <div id="activity-list" style="background:var(--toggle-bg); padding:15px; border-radius:12px; border:1px solid var(--border);">
@@ -380,7 +402,6 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // Exact pins from your master setup
         const TEAM_PINS = {
             "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
             "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
@@ -428,13 +449,12 @@
             
             document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
             
-            // Owner Location Switcher Logic
             const locSwitcher = document.getElementById('location-switcher');
             locSwitcher.value = currentLocation;
-            if(activeRole !== 'Owner') {
-                locSwitcher.disabled = true;
-                locSwitcher.style.opacity = '0.5';
-                locSwitcher.style.cursor = 'not-allowed';
+            if(activeRole === 'Owner') {
+                locSwitcher.style.display = 'inline-block';
+            } else {
+                locSwitcher.style.display = 'none';
             }
 
             setTimeout(() => {
@@ -444,8 +464,6 @@
                 }, 600);
             }, 800);
         }
-
-        if(activeUser) startApp();
 
         function switchLocation(loc) {
             currentLocation = loc;
@@ -459,13 +477,16 @@
         function switchView(view) {
             document.getElementById('eventForm').style.display = view === 'add' ? 'block' : 'none';
             document.getElementById('boardView').style.display = view === 'board' ? 'block' : 'none';
+            document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
             document.getElementById('activityView').style.display = view === 'activity' ? 'block' : 'none';
             
             document.getElementById('btn-add').classList.toggle('active', view === 'add');
             document.getElementById('btn-board').classList.toggle('active', view === 'board');
+            document.getElementById('btn-calendar').classList.toggle('active', view === 'calendar');
             document.getElementById('btn-activity').classList.toggle('active', view === 'activity');
             
             if(view === 'board') loadBoard();
+            if(view === 'calendar') { loadBoard(); renderCalendar(); }
             if(view === 'activity') loadActivityFeed();
         }
 
@@ -542,7 +563,6 @@
             }
         }
 
-        // FIX: THE GOLD STANDARD TIME RESTRICTION
         function updateTimeLimits() {
             const dateVal = document.getElementById('eventDate').value;
             const timeInput = document.getElementById('startTime');
@@ -554,15 +574,12 @@
             const dateObj = new Date(y, m - 1, d);
             const dayOfWeek = dateObj.getDay(); 
 
-            // Thu(4)-Sat(6) closes at 10pm (22:00)
-            // Sun(0)-Wed(3) closes at 9pm (21:00)
             if (dayOfWeek >= 4 && dayOfWeek <= 6) {
                 timeInput.max = "22:00";
             } else {
                 timeInput.max = "21:00";
             }
 
-            // Silently check if current value is now invalid
             if (timeInput.value && timeInput.value > timeInput.max) {
                 timeInput.value = "";
                 timeWarn.innerText = `⚠️ Please select a time within operating hours (11:00 AM - ${dayOfWeek >= 4 && dayOfWeek <= 6 ? '10:00 PM' : '9:00 PM'}).`;
@@ -572,7 +589,6 @@
             }
         }
         
-        // Final safety check for manual typing
         function validateTimeLimits() {
             const timeInput = document.getElementById('startTime');
             const timeWarn = document.getElementById('timeWarning');
@@ -623,7 +639,6 @@
             imagePreviewContainer.style.display = 'none'; 
         });
 
-        // --- IMAGE COMPRESSION HELPER ---
         function compressImage(file, maxWidth, maxHeight, quality) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -660,7 +675,6 @@
             });
         }
 
-        // --- BULLETPROOF BACKGROUND UPLOAD ---
         window.submitEventForm = async function() {
             const eventType = document.querySelector('input[name="eventType"]:checked').value;
             const isCatering = eventType === 'Catering';
@@ -690,7 +704,6 @@
                 const eventRef = db.ref(currentLocation + '/events').push();
                 const eventId = eventRef.key;
 
-                // 1. SAVE TEXT INSTANTLY
                 await eventRef.set({
                     type: eventType,
                     customer: custName,
@@ -707,19 +720,16 @@
 
                 logEventAction(`Added a new ${eventType} for ${custName}`);
 
-                // 2. CRUNCH IMAGE IN MEMORY (Takes ~50ms)
                 let compressedBlob = null;
                 if (isCatering && file) {
                     statusText.innerText = "Optimizing Photo...";
                     compressedBlob = await compressImage(file, 800, 800, 0.4);
                 }
 
-                // 3. SHOW SUCCESS INSTANTLY
                 logoImg.className = 'upload-logo success';
                 statusText.innerText = "✅ Booking Saved!";
                 statusText.style.color = "var(--success)";
 
-                // 4. FIRE THE CLOUD UPLOAD IN THE BACKGROUND
                 if (compressedBlob) {
                     const uniqueFileName = `tickets/${currentLocation}/${Date.now()}_ticket.jpg`;
                     const storageRef = storage.ref().child(uniqueFileName);
@@ -734,7 +744,6 @@
                     });
                 }
 
-                // 5. DISMISS AND RESET
                 setTimeout(() => {
                     overlay.style.opacity = '0';
                     setTimeout(() => {
@@ -762,6 +771,9 @@
         };
 
         // --- 5. BOARD LOGIC & AUTO DELETE ---
+        // FEATURE: Global array added to feed the visual calendar
+        window.cachedEvents = [];
+
         function loadBoard() {
             const list = document.getElementById('event-list');
             list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Fetching from cloud...</p>';
@@ -771,7 +783,12 @@
 
             db.ref(currentLocation + '/events').on('value', snap => {
                 let html = '';
-                if(!snap.exists()) { list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No bookings found for this location.</p>'; return; }
+                if(!snap.exists()) { 
+                    list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No bookings found for this location.</p>'; 
+                    window.cachedEvents = [];
+                    if (document.getElementById('calendarView').style.display === 'block') renderCalendar();
+                    return; 
+                }
                 
                 let eventsArray = [];
                 snap.forEach(child => {
@@ -787,8 +804,14 @@
                     eventsArray.push({ id: child.key, ...ev });
                 });
 
+                window.cachedEvents = eventsArray; // Save it to build the calendar
                 eventsArray.sort((a, b) => new Date(a.date) - new Date(b.date));
                 
+                // If the user is currently looking at the calendar, update it instantly
+                if (document.getElementById('calendarView').style.display === 'block') {
+                    renderCalendar();
+                }
+
                 if(eventsArray.length === 0) {
                     list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No upcoming bookings found.</p>';
                     return;
@@ -804,6 +827,9 @@
                     }
                     
                     const safeCustName = ev.customer.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                    
+                    // FEATURE: Auto-Generate SMS Body
+                    const smsBody = encodeURIComponent(`Hi ${ev.customer}, Los Pericos has you down for a ${ev.type.toLowerCase()} on ${ev.date} at ${ev.start}. We look forward to serving you!`);
 
                     html += `
                         <div class="event-item">
@@ -822,6 +848,7 @@
 
                             <div style="display:flex; gap:10px; margin-top:10px;">
                                 <a href="tel:${ev.phone}" class="action-link">📞 CALL</a>
+                                <a href="sms:${ev.phone}?&body=${smsBody}" class="action-link">💬 TEXT</a>
                                 ${ev.photo === "uploading" ? `<span class="action-link" style="opacity:0.5;">⌛ UPLOADING...</span>` : 
                                  (ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 TICKET</a>` : '')}
                             </div>
@@ -831,6 +858,65 @@
                 filterEvents(document.getElementById('eventSearch').value);
             });
         }
+
+        // --- 6. CALENDAR LOGIC ---
+        let currentCalDate = new Date();
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthYearLabel = document.getElementById('calendarMonthYear');
+            
+            const year = currentCalDate.getFullYear();
+            const month = currentCalDate.getMonth();
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            monthYearLabel.innerText = `${monthNames[month]} ${year}`;
+            
+            grid.innerHTML = `
+                <div class="calendar-day-header">Sun</div>
+                <div class="calendar-day-header">Mon</div>
+                <div class="calendar-day-header">Tue</div>
+                <div class="calendar-day-header">Wed</div>
+                <div class="calendar-day-header">Thu</div>
+                <div class="calendar-day-header">Fri</div>
+                <div class="calendar-day-header">Sat</div>
+            `;
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Add empty blocks for days before the 1st of the month
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += `<div class="calendar-day empty"></div>`;
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                // Format the date to match the database (YYYY-MM-DD)
+                const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                const dayEvents = window.cachedEvents.filter(e => e.date === dateStr);
+                let eventsHtml = '';
+                
+                dayEvents.forEach(ev => {
+                    const isRes = ev.type === 'Reservation';
+                    eventsHtml += `<div class="cal-event ${isRes ? 'reservation' : ''}" title="${ev.customer} @ ${ev.start}">
+                        ${ev.start} - ${ev.customer.split(' ')[0]}
+                    </div>`;
+                });
+                
+                grid.innerHTML += `
+                    <div class="calendar-day">
+                        <div class="calendar-date">${day}</div>
+                        ${eventsHtml}
+                    </div>
+                `;
+            }
+        }
+
+        window.changeMonth = function(dir) {
+            currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+            renderCalendar();
+        };
 
         function filterEvents(query) {
             const q = query.toLowerCase();
