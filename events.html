@@ -346,8 +346,16 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        const TEAM_PINS = { "8096":"Jorge", "0623":"Luis H", "6660":"Elias", "1116":"Stephanie", "0523":"Luis M" };
+      const TEAM_PINS = {
+            "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
+            "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
+            "6660": { name: "Elias", role: "Manager", location: "LP_Huntsville" },
+            "1116": { name: "Stephanie", role: "Owner", location: "All" },
+            "0523": { name: "Luis M", role: "Owner", location: "All" }
+        };
+
         let activeUser = localStorage.getItem('pericos_active_user');
+        let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
 
         firebase.auth().onAuthStateChanged((user) => {
@@ -357,10 +365,25 @@
 
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
-            if (TEAM_PINS[pin]) {
+            let userData = TEAM_PINS[pin];
+            
+            if (userData) {
                 firebase.auth().signInAnonymously().then(() => {
-                    activeUser = TEAM_PINS[pin];
+                    activeUser = userData.name;
+                    activeRole = userData.role;
+                    
+                    // If they are an owner, keep whatever location they were just looking at. 
+                    // If they are a manager, force them into their assigned store.
+                    if (activeRole === 'Owner') {
+                        currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
+                    } else {
+                        currentLocation = userData.location;
+                    }
+
                     localStorage.setItem('pericos_active_user', activeUser);
+                    localStorage.setItem('pericos_active_role', activeRole);
+                    localStorage.setItem('pericos_location', currentLocation);
+                    
                     location.reload();
                 });
             } else { document.getElementById('pin-error').style.display = 'block'; }
@@ -370,7 +393,17 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
             document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
-            document.getElementById('location-switcher').value = currentLocation;
+            
+            let locSwitcher = document.getElementById('location-switcher');
+            locSwitcher.value = currentLocation;
+            
+            // This is the lock! Hide the dropdown if they aren't an Owner
+            if (activeRole !== 'Owner') {
+                locSwitcher.style.display = 'none';
+            } else {
+                locSwitcher.style.display = 'inline-block';
+            }
+
             loadData();
             checkNotifications();
         }
