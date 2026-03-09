@@ -1408,17 +1408,27 @@
             }
         });
 
-        // ADDED: The Notification Security Guard
+                // UPGRADED: The Notification Security Guard with Diagnostics
         async function setupPushNotifications() {
             try {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
+                    // Step 1: Permission granted
                     const token = await messaging.getToken({ vapidKey: 'RPqGl8tZPh6nJ6cwnHnrZxCRTPUJy-siimRTs3cD3gA' });
+                    
                     if (token) {
-                        db.ref(`${currentLocation}/fcmTokens/${activeUser}`).set(token);
+                        // Step 2: Token successfully created
+                        await db.ref(`${currentLocation}/fcmTokens/${activeUser}`).set(token);
+                        alert("✅ SUCCESS! Your phone is now registered for " + currentLocation + " notifications.");
+                    } else {
+                        alert("⚠️ ERROR: Phone allowed notifications, but Google refused to generate a token.");
                     }
+                } else {
+                    alert("⚠️ ERROR: You clicked Deny, or the browser is blocking the popup.");
                 }
             } catch (error) {
+                // Step 3: Something crashed (usually Database Rules or missing Service Worker)
+                alert("🚨 CRASH REPORT: " + error.message);
                 console.error('Notification error:', error);
             }
         }
