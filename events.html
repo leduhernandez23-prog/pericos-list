@@ -94,6 +94,14 @@
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 14px; transition: all 0.3s ease; }
         .tab-btn.active { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
 
+        /* TOGGLE FIX: Highlights the active radio button */
+        input[type="radio"]:checked + label {
+            background-color: var(--surface);
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
         .form-group { margin-bottom: 20px; }
         label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-main); font-size: 14px; }
         input, select, textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 15px; color: var(--text-main); background-color: var(--input-bg); }
@@ -248,9 +256,10 @@
 
         <form id="eventForm">
             <div class="type-toggle" style="display:flex; background:var(--toggle-bg); border-radius:10px; padding:5px; margin-bottom:20px;">
-                <input type="radio" id="catering" name="eventType" value="Catering" checked style="display:none;">
+                <input type="radio" id="catering" name="eventType" value="Catering" checked style="display:none;" onchange="toggleEventFields()">
                 <label for="catering" style="flex:1; text-align:center; padding:10px; cursor:pointer; font-weight:bold; border-radius:8px;">Catering</label>
-                <input type="radio" id="reservation" name="eventType" value="Reservation" style="display:none;">
+                
+                <input type="radio" id="reservation" name="eventType" value="Reservation" style="display:none;" onchange="toggleEventFields()">
                 <label for="reservation" style="flex:1; text-align:center; padding:10px; cursor:pointer; font-weight:bold; border-radius:8px;">Reservation</label>
             </div>
 
@@ -346,7 +355,8 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-      const TEAM_PINS = {
+        // MANAGER LOCK FIX: Using roles and specific locations
+        const TEAM_PINS = {
             "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
             "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
             "6660": { name: "Elias", role: "Manager", location: "LP_Huntsville" },
@@ -372,8 +382,6 @@
                     activeUser = userData.name;
                     activeRole = userData.role;
                     
-                    // If they are an owner, keep whatever location they were just looking at. 
-                    // If they are a manager, force them into their assigned store.
                     if (activeRole === 'Owner') {
                         currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
                     } else {
@@ -397,7 +405,6 @@
             let locSwitcher = document.getElementById('location-switcher');
             locSwitcher.value = currentLocation;
             
-            // This is the lock! Hide the dropdown if they aren't an Owner
             if (activeRole !== 'Owner') {
                 locSwitcher.style.display = 'none';
             } else {
@@ -424,6 +431,18 @@
             if(view === 'activity') loadActivityLogs();
         }
 
+        // TOGGLE FIX: Hides the photo upload and payment status for reservations
+        function toggleEventFields() {
+            const evType = document.querySelector('input[name="eventType"]:checked').value;
+            const cateringFields = document.getElementById('catering-fields');
+            
+            if (evType === 'Reservation') {
+                cateringFields.style.display = 'none';
+            } else {
+                cateringFields.style.display = 'block';
+            }
+        }
+
         // --- 2. LOGIC & DATA HANDLING ---
         let cachedEvents = [];
         function loadData() {
@@ -444,15 +463,16 @@
             overlay.style.display = 'flex';
             setTimeout(() => overlay.style.opacity = '1', 10);
             
+            const evType = document.querySelector('input[name="eventType"]:checked').value;
             const evRef = db.ref(currentLocation + '/events').push();
             const evData = {
-                type: document.querySelector('input[name="eventType"]:checked').value,
+                type: evType,
                 customer: document.getElementById('customerName').value,
                 phone: document.getElementById('customerPhone').value,
                 guests: document.getElementById('headcount').value,
                 date: document.getElementById('eventDate').value,
                 start: document.getElementById('startTime').value,
-                isPaid: document.getElementById('isPaid').value === 'true',
+                isPaid: evType === 'Catering' ? (document.getElementById('isPaid').value === 'true') : false,
                 notes: document.getElementById('notes').value,
                 createdBy: activeUser,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -461,12 +481,14 @@
             await evRef.set(evData);
             logAction(`Added ${evData.type} for ${evData.customer}`);
 
-            const file = document.getElementById('ticketImage').files[0];
-            if (file) {
-                const storageRef = storage.ref(`tickets/${currentLocation}/${Date.now()}.jpg`);
-                await storageRef.put(file);
-                const url = await storageRef.getDownloadURL();
-                await evRef.update({ photo: url });
+            if (evType === 'Catering') {
+                const file = document.getElementById('ticketImage').files[0];
+                if (file) {
+                    const storageRef = storage.ref(`tickets/${currentLocation}/${Date.now()}.jpg`);
+                    await storageRef.put(file);
+                    const url = await storageRef.getDownloadURL();
+                    await evRef.update({ photo: url });
+                }
             }
 
             setTimeout(() => { location.reload(); }, 1200);
