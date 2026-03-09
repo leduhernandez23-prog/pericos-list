@@ -1397,8 +1397,7 @@
                 document.getElementById('pin-input').focus();
             }
         });
-
-          // UPGRADED: The Notification Security Guard with Valid VAPID Key
+        // UPGRADED: The Notification Security Guard with Valid VAPID Key
         async function setupPushNotifications() {
             try {
                 const permission = await Notification.requestPermission();
@@ -1429,6 +1428,7 @@
             }
         }
 
+        
 
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
