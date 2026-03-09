@@ -79,6 +79,7 @@
             transition: background-color 0.3s, color 0.3s; 
         }
         
+        /* PIN LOGIN OVERLAY */
         #login-screen { 
             position: fixed; 
             top: 0; 
@@ -137,6 +138,7 @@
             display: none; 
         }
 
+        /* SPLASH SCREEN */
         #splash-screen { 
             position: fixed; 
             top: 0; 
@@ -183,6 +185,7 @@
             100% { opacity: 0.5; } 
         }
 
+        /* HEADER LAYOUT */
         .header-container { 
             display: flex; 
             justify-content: space-between; 
@@ -267,6 +270,7 @@
             outline: none; 
         }
 
+        /* APP SECTIONS */
         .app-section { 
             display: none; 
             padding: 0 20px; 
@@ -344,6 +348,7 @@
             margin-bottom: 15px; 
             text-align: right; 
             font-weight: bold; 
+            padding: 0 20px; 
         }
 
         .tabs { 
@@ -399,6 +404,7 @@
             display: block; 
         }
 
+        /* CARD UI SYSTEM */
         .table-container { 
             display: flex; 
             flex-direction: column; 
@@ -841,6 +847,7 @@
             font-size: 18px; 
         }
 
+        /* RECEIVING MODE SPECIFIC STYLES */
         .receiving-card { 
             border: 2px solid var(--border-color); 
             transition: 0.3s; 
@@ -1080,7 +1087,7 @@
 
     <div id="login-screen">
         <div class="pin-box">
-            <img src="image_0.png" alt="Los Pericos Logo" style="width:100px; border-radius:50%; margin-bottom:10px; border:2px solid var(--border-color);">
+            <img src="image_0.png" alt="Logo" style="width:100px; border-radius:50%; margin-bottom:10px; border:2px solid var(--border-color);">
             <h2 style="margin:0; font-size:24px;">Staff Login</h2>
             <p style="color:var(--result-text); font-size:14px; margin-top:5px;">Enter your 4-digit PIN</p>
             <input type="password" id="pin-input" class="pin-input" inputmode="numeric" maxlength="4" placeholder="••••">
@@ -1090,13 +1097,13 @@
     </div>
 
     <div id="splash-screen" style="display:none;">
-        <img src="image_0.png" alt="Los Pericos Logo" class="splash-logo">
+        <img src="image_0.png" alt="Logo" class="splash-logo">
         <div class="splash-text">Unlocking Vault...</div>
     </div>
 
     <div class="header-container" id="brand-header">
         <div class="pericos-branding">
-            <img src="image_0.png" alt="Los Pericos Logo" class="header-logo">
+            <img src="image_0.png" alt="Logo" class="header-logo">
             <h1 class="main-title">LOS PERICOS MASTER</h1>
         </div>
         <div class="header-utils">
@@ -1114,7 +1121,7 @@
 
     <div id="sysco-wrapper" class="app-section sysco-wrapper active-app">
         <div class="cloud-status" id="conn-sysco">☁️ Connecting to Server...</div>
-        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Sysco item..." onkeyup="filterTable('sysco', this.value)">
+        <input type="text" class="search-bar" placeholder="🔍 Search Sysco..." onkeyup="filterTable('sysco', this.value)">
         <div class="timestamp" id="time-sysco">Last updated: Loading Cloud Data...</div>
 
         <div class="tabs">
@@ -1143,7 +1150,6 @@
                 <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
                     <input type="checkbox" onchange="toggleHidePrices('sysco')"> Hide Prices
                 </label>
-                
                 <button class="btn-yellow" onclick="resetQuantities('sysco')">🔄 Send to Receiving & Reset</button>
                 <button class="btn-red admin-only" onclick="clearData('sysco')">🗑️ Master Clear</button>
                 <button class="btn-text-msg" onclick="copyForTextMsg('sysco')">💬 Copy for Text</button>
@@ -1156,7 +1162,7 @@
 
     <div id="verdura-wrapper" class="app-section verdura-wrapper">
         <div class="cloud-status" id="conn-verdura">☁️ Connecting to Server...</div>
-        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Produce item..." onkeyup="filterTable('verdura', this.value)">
+        <input type="text" class="search-bar" placeholder="🔍 Search Produce..." onkeyup="filterTable('verdura', this.value)">
         <div class="timestamp" id="time-verdura">Last updated: Loading Cloud Data...</div>
 
         <div class="tabs">
@@ -1185,7 +1191,6 @@
                 <label style="cursor:pointer; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:5px; margin-right:auto;">
                     <input type="checkbox" onchange="toggleHidePrices('verdura')"> Hide Prices
                 </label>
-                
                 <button class="btn-yellow" onclick="resetQuantities('verdura')">🔄 Send to Receiving & Reset</button>
                 <button class="btn-red admin-only" onclick="clearData('verdura')">🗑️ Master Clear</button>
                 <button class="btn-text-msg" onclick="copyForTextMsg('verdura')">💬 Copy for Text</button>
@@ -1197,34 +1202,20 @@
     </div>
 
     <div id="receiving-wrapper" class="app-section receiving-wrapper">
-        <div style="text-align:center; padding: 10px 0;">
-            <h2 style="margin:0; font-size:28px;">🚚 Delivery Day</h2>
-            <p style="color:var(--result-text); font-size:14px; margin-top:5px;">Verify quantities and invoice prices as the truck is unloaded</p>
-        </div>
-
+        <h2 style="text-align:center;">🚚 Delivery Checklist</h2>
         <div class="tabs" style="justify-content: center;">
-            <button class="tab-btn active" onclick="openTab(event, 'receiving', 'Rec_Sysco')">📦 Main Delivery</button>
-            <button class="tab-btn" onclick="openTab(event, 'receiving', 'Rec_Verdura')">🥦 Produce Delivery</button>
+            <button class="tab-btn active" onclick="openTab(event, 'receiving', 'Rec_Sysco')">📦 Sysco</button>
+            <button class="tab-btn" onclick="openTab(event, 'receiving', 'Rec_Verdura')">🥦 Produce</button>
         </div>
-
-        <div id="Rec_Sysco" class="tab-content active">
-            <div id="receiving-list-sysco" class="table-container"></div>
-        </div>
-
-        <div id="Rec_Verdura" class="tab-content">
-            <div id="receiving-list-verdura" class="table-container"></div>
-        </div>
+        <div id="Rec_Sysco" class="tab-content active"><div id="receiving-list-sysco" class="table-container"></div></div>
+        <div id="Rec_Verdura" class="tab-content"><div id="receiving-list-verdura" class="table-container"></div></div>
     </div>
 
     <div id="analytics-wrapper" class="app-section analytics-wrapper">
-        <div style="text-align:center; padding: 10px 0;">
-            <h2 style="margin:0; font-size:28px;">📊 Restaurant Analytics</h2>
-        </div>
-
+        <h2 style="text-align:center;">📊 Analytics</h2>
         <div class="analytics-box" style="background: linear-gradient(135deg, var(--success-color), #155724); color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(40,167,69,0.3); border:none;">
             <h3 style="margin:0; color: rgba(255,255,255,0.9); font-size:14px; text-transform:uppercase; letter-spacing:1px;">Walk-In Net Worth</h3>
             <div style="font-size: 42px; font-weight: bold; margin-top: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);" id="net-worth-display">$0.00</div>
-            <p style="margin: 5px 0 0 0; font-size: 13px; color: rgba(255,255,255,0.9);">Total cash value of current on-shelf inventory</p>
         </div>
 
         <div class="tabs" style="justify-content: center;">
@@ -1235,7 +1226,6 @@
         </div>
 
         <div id="Tab_Trends" class="tab-content active">
-            <p style="color:var(--result-text); font-size:14px; text-align:center; margin-top:0;">Comparing today's prices against your last reset</p>
             <div class="trends-panel-container">
                 <div class="analytics-box trend-box up">
                     <h3 style="color:var(--danger-color);">🔺 Prices Went Up</h3>
@@ -1249,17 +1239,13 @@
         </div>
 
         <div id="Tab_Spend" class="tab-content">
-            <p style="color:var(--result-text); font-size:14px; text-align:center; margin-top:0;">Live budget breakdown of your current cart</p>
             <div class="analytics-box">
                 <h3 style="text-align:center; margin-top:0;">Current Cart Distribution</h3>
-                <div class="chart-container">
-                    <canvas id="spendChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="spendChart"></canvas></div>
             </div>
         </div>
 
         <div id="Tab_Ledger" class="tab-content">
-            <p style="color:var(--result-text); font-size:14px; text-align:center; margin-top:0;">Saved snapshots from previous resets</p>
             <div class="analytics-box" style="background:transparent; box-shadow:none; padding:0;">
                 <div id="ledger-sysco-list"></div>
                 <div id="ledger-verdura-list"></div>
@@ -1267,46 +1253,23 @@
         </div>
 
         <div id="Tab_Activity" class="tab-content">
-            <p style="color:var(--result-text); font-size:14px; text-align:center; margin-top:0;">Live feed of all manager actions</p>
-            <div class="analytics-box" id="activity-feed-list">
-            </div>
+            <div class="analytics-box" id="activity-feed-list"></div>
         </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button id="nav-sysco" class="nav-btn active-sysco" onclick="switchApp('sysco')"><span class="nav-icon">📦</span>Sysco</button>
+        <button id="nav-verdura" class="nav-btn" onclick="switchApp('verdura')"><span class="nav-icon">🥦</span>Produce</button>
+        <button id="nav-receiving" class="nav-btn" onclick="switchApp('receiving')"><span class="nav-icon">🚚</span>Truck</button>
+        <button id="nav-analytics" class="nav-btn" onclick="switchApp('analytics')"><span class="nav-icon">📊</span>Stats</button>
+        <button class="nav-btn" onclick="scrollToCart()">
+            <span class="nav-icon" style="position:relative;">🛒<div class="cart-badge" id="nav-cart-badge">0</div></span>Checkout
+        </button>
     </div>
 
     <button class="fab-btn" onclick="quickAddRow()">+</button>
 
-    <div class="bottom-nav">
-        <button id="nav-sysco" class="nav-btn active-sysco" onclick="switchApp('sysco')">
-            <span class="nav-icon">📦</span>
-            <span>Sysco</span>
-        </button>
-        <button id="nav-verdura" class="nav-btn" onclick="switchApp('verdura')">
-            <span class="nav-icon">🥦</span>
-            <span>Produce</span>
-        </button>
-        <button id="nav-receiving" class="nav-btn" onclick="switchApp('receiving')">
-            <span class="nav-icon">🚚</span>
-            <span>Truck</span>
-        </button>
-        <button id="nav-analytics" class="nav-btn" onclick="switchApp('analytics')">
-            <span class="nav-icon">📊</span>
-            <span>Analytics</span>
-        </button>
-        <button class="nav-btn" onclick="scrollToCart()">
-            <span class="nav-icon" style="position:relative;">
-                🛒
-                <div class="cart-badge" id="nav-cart-badge" style="top:-8px; right:-12px; transform: scale(0.8);">0</div>
-            </span>
-            <span>Checkout</span>
-        </button>
-    </div>
-
     <script>
-        if (localStorage.getItem('restaurantCalcDarkMode') === 'true') {
-            document.getElementById('darkModeBtn').innerText = '☀️ Light Mode';
-        }
-
-        // --- FIREBASE INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
             authDomain: "los-pericos-46378.firebaseapp.com",
@@ -1319,169 +1282,56 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const messaging = firebase.messaging(); // Required for Notifications
+        const messaging = firebase.messaging(); 
         
-        let isAppLoading = true; 
+        let isAppLoading = true;
         const mySyncId = Math.random().toString(36).substr(2, 9);
         let spendChartInstance = null; 
 
-        // ==========================================
-        // LEVEL 4: FINAL TEAM PINS
-        // ==========================================
-        const TEAM_PINS = {
-            "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
-            "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
-            "6660": { name: "Elias", role: "Manager", location: "LP_Huntsville" },
-            "1116": { name: "Stephanie", role: "Owner", location: "All" },
-            "0523": { name: "Luis M", role: "Owner", location: "All" }
+        const TEAM_PINS = { 
+            "8096": { name: "Jorge", role: "Manager", loc: "LP_Willis" }, 
+            "0623": { name: "Luis H", role: "Manager", loc: "LP_Willis" }, 
+            "6660": { name: "Elias", role: "Manager", loc: "LP_Huntsville" }, 
+            "1116": { name: "Stephanie", role: "Owner" }, 
+            "0523": { name: "Luis M", role: "Owner" } 
         };
 
         let activeUser = localStorage.getItem('pericos_active_user');
         let activeRole = localStorage.getItem('pericos_active_role');
-        let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis'; 
-
-        function updateLoginUI() {
-            let badge = document.getElementById('user-badge');
-            let locSwitcher = document.getElementById('location-switcher');
-            let adminButtons = document.querySelectorAll('.admin-only');
-
-            if (activeUser) {
-                let displayLocation = currentLocation.replace('_', ' ');
-                badge.innerText = `👤 ${activeUser} | ${displayLocation}`;
-                badge.style.display = 'flex';
-                
-                if (activeRole === 'Owner') {
-                    locSwitcher.style.display = 'inline-block';
-                    locSwitcher.value = currentLocation;
-                    adminButtons.forEach(btn => btn.style.display = 'inline-block');
-                } else {
-                    locSwitcher.style.display = 'none';
-                    adminButtons.forEach(btn => btn.style.display = 'none');
-                }
-            } else {
-                badge.style.display = 'none';
-                locSwitcher.style.display = 'none';
-            }
-        }
-
-        function switchLocation(newLocation) {
-            db.ref(currentLocation).off(); 
-            currentLocation = newLocation;
-            localStorage.setItem('pericos_location', currentLocation);
-            
-            updateLoginUI(); 
-            
-            isAppLoading = true;
-            let splash = document.getElementById('splash-screen');
-            splash.style.display = 'flex';
-            splash.style.opacity = '1';
-            
-            loadFromDatabase(); 
-        }
-
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user && activeUser) {
-                document.getElementById('login-screen').style.display = 'none';
-                updateLoginUI();
-                
-                let splash = document.getElementById('splash-screen');
-                splash.style.display = 'flex';
-                splash.style.opacity = '1';
-                
-                loadFromDatabase(); 
-                setupPushNotifications(); // Trigger notification handshake
-            } else {
-                document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('login-screen').style.opacity = '1';
-                document.getElementById('pin-input').focus();
-            }
-        });
-        // UPGRADED: The Notification Security Guard with Valid VAPID Key
-        async function setupPushNotifications() {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    
-                    // 1. Manually find and register the Service Worker in the current folder
-                    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
-                    
-                    // 2. Tell Firebase to use THIS specific worker and your full 87-character key
-                    const token = await messaging.getToken({ 
-                        vapidKey: 'BIMlErwSGg4lU5iyhlpSkw3hm3QGLq0Bqz_wihLr0CRfGz0EQyLaZfHthlORbtoUK12zquN0njp0_iTN4H_DE7w',
-                        serviceWorkerRegistration: registration 
-                    });
-                    
-                    if (token) {
-                        // 3. Save the token to the correct location in the database
-                        await db.ref(`${currentLocation}/fcmTokens/${activeUser}`).set(token);
-                        alert("✅ SUCCESS! Your phone is now registered for " + currentLocation + " notifications.");
-                    } else {
-                        alert("⚠️ ERROR: Phone allowed notifications, but Google refused to generate a token.");
-                    }
-                } else {
-                    alert("⚠️ ERROR: You clicked Deny, or the browser is blocking the popup.");
-                }
-            } catch (error) {
-                alert("🚨 CRASH REPORT: " + error.message);
-                console.error('Notification error:', error);
-            }
-        }
-
-        
+        let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
 
         function verifyPin() {
             let pin = document.getElementById('pin-input').value;
-            let userData = TEAM_PINS[pin];
-            
-            if (userData) {
-                firebase.auth().signInAnonymously().then(() => {
-                    activeUser = userData.name;
-                    activeRole = userData.role;
-                    
-                    if (activeRole === 'Owner') {
-                        currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
-                    } else {
-                        currentLocation = userData.location;
-                    }
-
-                    localStorage.setItem('pericos_active_user', activeUser);
-                    localStorage.setItem('pericos_active_role', activeRole);
-                    localStorage.setItem('pericos_location', currentLocation);
-                    
-                    document.getElementById('pin-error').style.display = 'none';
-                    updateLoginUI();
-                    
-                    document.getElementById('login-screen').style.display = 'none';
-                    let splash = document.getElementById('splash-screen');
-                    splash.style.display = 'flex';
-                    splash.style.opacity = '1';
-
-                    logAction(`🟢 Logged into ${currentLocation.replace('_', ' ')}`);
-                    loadFromDatabase();
-                    setupPushNotifications(); // Trigger handshake on first login
-                }).catch((error) => {
-                    alert("⚠️ Cannot connect to Firebase Security. Check your internet connection.");
-                    console.error(error);
-                });
-                
+            if (TEAM_PINS[pin]) {
+                const user = TEAM_PINS[pin];
+                activeUser = user.name;
+                activeRole = user.role;
+                currentLocation = (activeRole === 'Owner') ? currentLocation : user.loc;
+                localStorage.setItem('pericos_active_user', activeUser);
+                localStorage.setItem('pericos_active_role', activeRole);
+                localStorage.setItem('pericos_location', currentLocation);
+                location.reload();
             } else {
                 document.getElementById('pin-error').style.display = 'block';
-                document.getElementById('pin-input').value = '';
             }
         }
 
-        function logoutUser() {
-            if(confirm("Are you sure you want to log out?")) {
-                logAction(`🚪 Logged out`);
-                firebase.auth().signOut().then(() => {
-                    localStorage.removeItem('pericos_active_user');
-                    localStorage.removeItem('pericos_active_role');
-                    activeUser = null;
-                    activeRole = null;
-                    location.reload(); 
-                });
-            }
+        function switchApp(target) {
+            document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-sysco', 'active-verdura', 'active-analytics', 'active-receiving'));
+            document.getElementById(target + '-wrapper').classList.add('active-app');
+            let navBtn = document.getElementById('nav-' + target);
+            if(navBtn) navBtn.classList.add('active-' + target);
+            if (target === 'analytics') generateAnalyticsDashboard();
+            else generateShoppingList(target);
+        }
+
+        function switchLocation(loc) {
+            const splash = document.getElementById('splash-screen');
+            splash.style.display = 'flex'; splash.style.opacity = '1';
+            currentLocation = loc;
+            localStorage.setItem('pericos_location', loc);
+            setTimeout(() => { location.reload(); }, 150);
         }
 
         function logAction(actionText) {
@@ -1499,7 +1349,6 @@
             if(isAppLoading) return;
             let newVal = parseFloat(inputElem.value) || 0;
             let oldVal = parseFloat(inputElem.getAttribute('data-baseline')) || 0;
-            
             if(newVal !== oldVal && newVal > 0) {
                 let card = inputElem.closest('.item-card');
                 let itemName = card ? card.querySelector('.item-name').value.trim() : 'Unknown Item';
@@ -1508,948 +1357,267 @@
             }
         }
 
-        function showSyncToast() {
-            let toast = document.getElementById("sync-toast");
-            toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        function getSyscoDefaults() {
+            const lb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
+            const flOz = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
+            const unit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "PAPER TOWELS", "TOILET PAPER", "CAN TOMATILLO", "PACE MAT NINOS", "CRAYOLAS", "TRASH LINNER", "GLOVES", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "LIME JUICE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED"];
+            const mfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
+            return {
+                weight: lb.concat(flOz).map(i => ({item: i, par:"", shelf:"", qty:"", targetUnit: lb.includes(i)?'lb':'fl oz', suppliers:[["Sysco","","","lb",0,"",""],["Gordon","","","lb",0,"",""],["Ben E Keith","","","lb",0,"",""]]})),
+                unit: unit.map(i => ({item: i, par:"", shelf:"", qty:"", targetUnit:"oz", suppliers:[["Sysco","","","oz",0,"",""],["Gordon","","","oz",0,"",""],["Ben E Keith","","","oz",0,"",""]]})),
+                mfe: mfe.map(i => ({item: i, par:"", shelf:"", qty:"", targetUnit:"oz", suppliers:[["MFE","","","oz",0,"",""]] }))
+            };
         }
 
-        function switchApp(appTarget) {
-            document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-sysco', 'active-verdura', 'active-analytics', 'active-receiving'));
-            
-            document.getElementById(appTarget + '-wrapper').classList.add('active-app');
-            let navBtn = document.getElementById('nav-' + appTarget);
-            if(navBtn) navBtn.classList.add('active-' + appTarget);
-            
-            if (appTarget === 'analytics') { generateAnalyticsDashboard(); } 
-            else if (appTarget !== 'receiving') { generateShoppingList(appTarget); }
+        function getVerduraDefaults() {
+            const wt = ["HABANERO", "SERRANO", "CHILE DE ARBOL", "BROCCOLI", "ZUCCHINI", "SQUASH", "GUAJILLO", "OREGANO", "PIMIENTA", "AJO MOLIDO", "PAPRIKA"];
+            const un = ["AJO PELADO", "TOMATE", "AGUACATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "POBLANO PEPPER", "JALAPENO PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "LIMES", "LEMONS", "CELERY", "CEBOLLA", "NARANJA", "RED CABAGE", "HONGOS", "POTATO #2", "PAN X TORTA", "COCA", "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "POT WHITE", "ACEITE", "HUEVOS", "JALAPENEO LATA"];
+            const dc = ["CHIPS", "VERDE", "ROJA", "BLANCA"];
+            return {
+                weight: wt.map(i => ({item: i, par:"", shelf:"", qty:"", targetUnit: 'lb', suppliers:[["Mr. Pepper","","","lb",0,"",""],["Cantu","","","lb",0,"",""],["Produce 3","","","lb",0,"",""]]})),
+                unit: un.map(i => ({item: i, par:"", shelf:"", qty:"", targetUnit:"oz", suppliers:[["Mr. Pepper","","","oz",0,"",""],["Cantu","","","oz",0,"",""],["Produce 3","","","oz",0,"",""]]})),
+                delComal: dc.map(i => ({item: i, par:"", shelf:"", qty:"", targetUnit:"oz", suppliers:[["Del Comal","","","oz",0,"",""]] }))
+            };
         }
 
-        function scrollToCart() {
-            let activeApp = document.querySelector('.active-app').id.split('-')[0];
-            if (activeApp === 'analytics' || activeApp === 'receiving') { switchApp('sysco'); activeApp = 'sysco'; }
-            let panel = document.querySelector(`#${activeApp}-wrapper .shopping-list-panel`);
-            panel.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            document.getElementById('darkModeBtn').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-            localStorage.setItem('restaurantCalcDarkMode', isDark);
-            if(document.querySelector('.active-app').id === 'analytics-wrapper') generateAnalyticsDashboard();
-        }
-
-        function toggleHidePrices(appName) {
-            const panel = document.querySelector(`#${appName}-wrapper .shopping-list-panel`);
-            panel.classList.toggle('hide-prices-active');
-        }
-
-        function openTab(evt, appName, tabId) {
-            let wrapper = document.getElementById(appName + '-wrapper');
-            wrapper.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-            wrapper.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
-            document.getElementById(tabId).classList.add("active");
-            evt.currentTarget.classList.add("active");
-        }
-
-        function filterTable(appName, query) {
-            let q = query.toLowerCase();
-            let rows = document.querySelectorAll(`#${appName}-wrapper .item-card`);
-            rows.forEach(row => {
-                let name = row.querySelector('.item-name').value.toLowerCase();
-                row.style.display = name.includes(q) ? '' : 'none';
-            });
-        }
-
-        function quickAddRow() {
-            let activeBtn = document.querySelector('.app-section.active-app .tab-content.active .add-row-btn');
-            if(activeBtn) {
-                activeBtn.click();
-                setTimeout(() => {
-                    let newCard = document.querySelector('.app-section.active-app .tab-content.active .table-container').lastElementChild;
-                    if(newCard) { newCard.scrollIntoView({behavior: 'smooth', block: 'center'}); }
-                }, 100);
-            }
-        }
-
-        function copyForTextMsg(appName) {
-            let wrapper = document.getElementById(appName + '-wrapper');
-            let allRows = wrapper.querySelectorAll('.item-card');
-            let listBySupplier = {};
-
-            allRows.forEach(row => {
-                let itemName = row.querySelector('.item-name').value.trim();
-                let winningCells = row.querySelectorAll('.best-deal');
-                if (itemName && winningCells.length > 0) {
-                    winningCells.forEach(wc => {
-                        let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
-                        let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
-                        if (aQty > 0) {
-                            if (!listBySupplier[sName]) listBySupplier[sName] = [];
-                            listBySupplier[sName].push(`${aQty}x ${itemName}`);
-                        }
-                    });
+        function loadFromDatabase() {
+            db.ref(currentLocation).on('value', (snap) => {
+                let dbData = snap.val();
+                if (!dbData || !dbData.inventory) {
+                    db.ref(currentLocation).set({ inventory: { sysco: getSyscoDefaults(), verdura: getVerduraDefaults() } });
+                    return; 
                 }
-            });
-
-            if(Object.keys(listBySupplier).length === 0) { alert("Your cart is empty! Add quantities before copying."); return; }
-            let textOutput = `📋 ${currentLocation.replace('_', ' ')} ${appName === 'sysco' ? 'Main' : 'Produce'} Order\n`;
-            Object.keys(listBySupplier).forEach(supp => {
-                textOutput += `\n📦 ${supp}:\n`;
-                listBySupplier[supp].forEach(item => { textOutput += `- ${item}\n`; });
-            });
-            navigator.clipboard.writeText(textOutput).then(() => {
-                alert("✅ List copied to clipboard!");
-            }).catch(err => { alert("Oops, browser blocked copy. Please download PDF instead."); });
-        }
-
-        function resetQuantities(appName) {
-            if(confirm(`Ready to dispatch? \n\nThis will save the order to your Ledger, send it to the 🚚 RECEIVING checklist, and clear the active board for a new week.`)) {
-                let grandTotal = 0; let suppTotals = {};
-                let rows = document.querySelectorAll(`#${appName}-wrapper .item-card`);
-                let pendingItems = []; 
-
-                rows.forEach(row => {
-                    let itemName = row.querySelector('.item-name').value.trim();
-                    row.querySelectorAll('.best-deal').forEach(wc => {
-                        let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
-                        let price = parseFloat(wc.querySelector('.s-price').value) || 0;
-                        let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
-                        if (aQty > 0) {
-                            let lineTotal = price * aQty;
-                            grandTotal += lineTotal;
-                            if (!suppTotals[sName]) suppTotals[sName] = 0;
-                            suppTotals[sName] += lineTotal;
-                            
-                            pendingItems.push({
-                                item: itemName,
-                                supplier: sName,
-                                qty: aQty,
-                                expectedPrice: price
-                            });
-                        }
-                    });
-                });
-
-                if (grandTotal > 0) {
-                    let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
-                    db.ref(currentLocation + '/ledger/' + appName).push({ date: now, total: grandTotal, breakdown: suppTotals });
-                    
-                    db.ref(currentLocation + '/pending_delivery/' + appName).set(pendingItems);
-                }
-
-                rows.forEach(row => {
-                    row.querySelector('.order-qty').value = '';
-                    row.querySelector('.shelf-qty').value = '';
-                    row.querySelectorAll('.s-price').forEach(input => {
-                        let currentVal = parseFloat(input.value) || 0;
-                        if(currentVal > 0) input.setAttribute('data-baseline', currentVal);
-                    });
-                    processRowUpdate(row.querySelector('.item-name'), true); 
-                });
+                if (dbData.metadata && dbData.metadata.lastEditor === mySyncId && !isAppLoading) return;
                 
-                logAction(`🔄 Dispatched ${appName.toUpperCase()} order and reset the board`);
-                saveToDatabase(appName);
-                generateShoppingList(appName);
-                alert("✅ Order dispatched to Receiving and saved to Ledger!");
-            }
+                rebuildTable('weightTable_sysco', 'sysco', dbData.inventory.sysco.weight);
+                rebuildTable('unitTable_sysco', 'sysco', dbData.inventory.sysco.unit);
+                rebuildTable('mfeTable_sysco', 'sysco', dbData.inventory.sysco.mfe);
+                rebuildTable('weightTable_verdura', 'verdura', dbData.inventory.verdura.weight);
+                rebuildTable('unitTable_verdura', 'verdura', dbData.inventory.verdura.unit);
+                rebuildTable('delComalTable_verdura', 'verdura', dbData.inventory.verdura.delComal);
+
+                renderReceivingList('sysco', dbData.pending_delivery ? dbData.pending_delivery.sysco : null);
+                renderReceivingList('verdura', dbData.pending_delivery ? dbData.pending_delivery.verdura : null);
+
+                if (isAppLoading) {
+                    document.getElementById('splash-screen').style.display = 'none';
+                    isAppLoading = false;
+                }
+            });
         }
 
-        function calcOrder(elem) {
-            let card = elem.closest('.item-card');
-            let parInput = card.querySelector('.par-qty');
-            let shelfInput = card.querySelector('.shelf-qty');
-            let orderInput = card.querySelector('.order-qty');
-            
-            let par = parseFloat(parInput.value);
-            let shelf = parseFloat(shelfInput.value) || 0;
-
-            if (!isNaN(par)) {
-                let order = Math.max(0, par - shelf);
-                orderInput.value = order;
-            }
-            processRowUpdate(elem);
+        function rebuildTable(tid, app, data) {
+            const container = document.getElementById(tid);
+            container.innerHTML = '';
+            if(!data) return;
+            data.forEach(rd => {
+                addRow(tid, app, rd.item, rd.par, rd.shelf, rd.qty, rd.suppliers[0], rd.suppliers[1], rd.suppliers[2]);
+            });
         }
 
-        function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, oldTrend, baselineVal) {
-            let qtyHtml = '';
-            if (hasUnits) {
-                qtyHtml = `
-                <div style="display:flex; width:100%; gap:4px; margin-top:8px;">
-                    <input type="number" class="s-qty" placeholder="Qty" value="${qtyVal}" style="width:60%;" oninput="processRowUpdate(this)">
-                    <select class="s-unit" style="width:40%; padding:4px; font-size:12px;" onchange="processRowUpdate(this)">
-                        <option value="oz" ${unitVal==='oz'?'selected':''}>oz</option>
-                        <option value="lb" ${unitVal==='lb'?'selected':''}>lb</option>
-                        <option value="fl oz" ${unitVal==='fl oz'?'selected':''}>fl oz</option>
-                        <option value="ml" ${unitVal==='ml'?'selected':''}>ml</option>
-                    </select>
-                </div>`;
-            } else {
-                qtyHtml = `<input type="number" class="s-qty" placeholder="Pack Size" value="${qtyVal}" style="width:100%; margin-top:8px;" oninput="processRowUpdate(this)">`;
-            }
-
-            let safeBaseline = baselineVal !== undefined && baselineVal !== "" ? baselineVal : priceVal;
-
-            return `
-                <div class="supplier-cell">
-                    <input type="text" class="s-name" placeholder="Supplier Name" value="${supplierName}" oninput="processRowUpdate(this)">
-                    <div style="position:relative; display:flex; align-items:center;">
-                        <span style="position:absolute; left:10px; color:var(--result-text); font-weight:bold;">$</span>
-                        <input type="number" class="s-price" style="padding-left:22px; width:100%; font-size:16px; font-weight:bold;" placeholder="Price" value="${priceVal}" data-baseline="${safeBaseline}" oninput="processRowUpdate(this)" onchange="logPriceChange(this)">
-                    </div>
-                    ${qtyHtml}
-                    <div class="s-result" data-value="0">$0.00</div>
-                    <div class="tie-split-ui">
-                        <span>Tie Qty:</span>
-                        <input type="number" class="split-qty" min="0" step="0.5" value="${splitVal || 0}" oninput="handleManualSplitChange(this)">
-                    </div>
-                </div>
-            `;
-        }
-
-        function addRow(tableId, appName, pLabel, qLabel, itemName = "", parQty = "", shelfQty = "", orderQty = "", targetUnit = "oz", s1, s2, s3) {
-            let container = document.getElementById(tableId);
-            let hasUnits = container.getAttribute('data-has-units') === 'true';
-            let isSingle = container.classList.contains('single-vendor-table');
-            
-            let card = document.createElement('div');
+        function addRow(tid, app, itemName="", par="", shelf="", order="", s1, s2, s3) {
+            const card = document.createElement('div');
             card.className = 'item-card';
-
-            let targetUnitHtml = '';
-            if (hasUnits) {
-                targetUnitHtml = `
-                <div style="display:flex; align-items:center; gap:5px;">
-                    <span class="qty-label">Compare Per:</span>
-                    <select class="target-unit" onchange="processRowUpdate(this)" style="padding:4px; font-size:12px; margin:0; width:auto; border-radius:6px;">
-                        <option value="oz" ${targetUnit==='oz'?'selected':''}>oz</option>
-                        <option value="lb" ${targetUnit==='lb'?'selected':''}>lb</option>
-                        <option value="fl oz" ${targetUnit==='fl oz'?'selected':''}>fl oz</option>
-                        <option value="ml" ${targetUnit==='ml'?'selected':''}>ml</option>
-                    </select>
-                </div>`;
-            }
-
-            let html = `
+            const isSingle = document.getElementById(tid).classList.contains('single-vendor-table');
+            const hasUnits = document.getElementById(tid).getAttribute('data-has-units') === 'true';
+            
+            card.innerHTML = `
                 <div class="card-header">
-                    <input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)">
+                    <input type="text" class="item-name" value="${itemName}" oninput="processRowUpdate(this)">
                     <div class="inventory-controls">
-                        <div class="inv-group"><label>Par</label><input type="number" class="inv-input par-qty" value="${parQty}" min="0" oninput="calcOrder(this)"></div>
-                        <div class="inv-group"><label>Shelf</label><input type="number" class="inv-input shelf-qty" value="${shelfQty}" min="0" oninput="calcOrder(this)"></div>
-                        <div class="inv-group order-group"><label>Order</label><input type="number" class="inv-input order-qty" value="${orderQty}" min="0" oninput="processRowUpdate(this)"></div>
+                        <div class="inv-group"><label>Par</label><input type="number" class="inv-input par-qty" value="${par}" oninput="calcOrder(this)"></div>
+                        <div class="inv-group"><label>Shelf</label><input type="number" class="inv-input shelf-qty" value="${shelf}" oninput="calcOrder(this)"></div>
+                        <div class="inv-group order-group"><label>Order</label><input type="number" class="inv-input order-qty order-qty-input" value="${order}" oninput="processRowUpdate(this)"></div>
                     </div>
                 </div>
                 <div class="card-body">
-            `;
-
-            html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0, s1[5] || '', s1[6]);
-            if (!isSingle) {
-                html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits?'lb':'oz'), hasUnits, s2[4] || 0, s2[5] || '', s2[6]);
-                html += createSupplierCellHTML(s3[0], s3[1], s3[2], s3[3] || (hasUnits?'lb':'oz'), hasUnits, s3[4] || 0, s3[5] || '', s3[6]);
-            }
-            
-            let s1Fallback = `['${s1[0]}','','','${s1[3]||'lb'}',0,'','']`;
-            let s2Fallback = isSingle ? '' : `, ['${s2[0]}','','','${s2[3]||'lb'}',0,'','']`;
-            let s3Fallback = isSingle ? '' : `, ['${s3[0]}','','','${s3[3]||'lb'}',0,'','']`;
-
-            html += `
+                    ${createCell(s1, hasUnits)} ${!isSingle ? createCell(s2, hasUnits) + createCell(s3, hasUnits) : ''}
                 </div>
                 <div class="card-footer">
-                    ${targetUnitHtml}
                     <div class="card-actions">
-                        <button class="icon-btn" onclick="insertRowRelative(this, 'before', '${appName}', ${s1Fallback}${s2Fallback}${s3Fallback})">⬆️ Add</button>
-                        <button class="icon-btn" onclick="insertRowRelative(this, 'after', '${appName}', ${s1Fallback}${s2Fallback}${s3Fallback})">⬇️ Add</button>
-                        <button class="delete-btn" onclick="deleteRow(this)">🗑️ Remove</button>
+                        <button class="delete-btn icon-btn" onclick="this.closest('.item-card').remove(); saveToDatabase('${app}');">🗑️ Remove</button>
                     </div>
-                </div>
-            `;
-            
-            card.innerHTML = html;
-            container.appendChild(card);
+                </div>`;
+            document.getElementById(tid).appendChild(card);
             processRowUpdate(card.querySelector('.item-name'), true);
         }
 
-        function insertRowRelative(btn, direction, appName, s1, s2, s3) {
-            let currentCard = btn.closest('.item-card');
-            let container = currentCard.closest('.table-container');
-            let tUnit = container.getAttribute('data-has-units') === 'true' ? 'lb' : 'oz';
-            addRow(container.id, appName, 'Price $', 'Qty', '', '', '', '', tUnit, s1, s2, s3); 
-            let newCard = container.lastElementChild; 
-            if (direction === 'before') container.insertBefore(newCard, currentCard);
-            else if (direction === 'after') container.insertBefore(newCard, currentCard.nextSibling);
-            newCard.querySelector('.item-name').focus();
-            if(!isAppLoading) saveToDatabase(appName); 
+        function createCell(s, hasUnits) {
+            if(!s) s = ["","","","lb",0,"",""];
+            return `<div class="supplier-cell">
+                <input type="text" class="s-name" value="${s[0]}" oninput="processRowUpdate(this)">
+                <div style="display:flex; align-items:center;">$<input type="number" class="s-price" value="${s[1]}" data-baseline="${s[6]||s[1]}" oninput="processRowUpdate(this)"></div>
+                <input type="number" class="s-qty" value="${s[2]}" oninput="processRowUpdate(this)">
+                <div class="s-result">$0.00</div>
+            </div>`;
         }
 
-        function processRowUpdate(inputElem, skipSave = false) {
-            if(!inputElem) return;
-            let card = inputElem.closest('.item-card');
-            let container = card.closest('.table-container');
-            let appName = card.closest('.app-section').id.split('-')[0];
-            
-            let hasUnits = container.getAttribute('data-has-units') === 'true';
-            let baseUnitLabel = container.getAttribute('data-unit-label') || "";
-            let cells = card.querySelectorAll('.supplier-cell');
-            let minPrice = Infinity;
-            const conversionFactors = { "oz": 1, "lb": 16, "fl oz": 1, "ml": 0.033814 };
+        function calcOrder(el) {
+            const card = el.closest('.item-card');
+            const p = parseFloat(card.querySelector('.par-qty').value)||0;
+            const s = parseFloat(card.querySelector('.shelf-qty').value)||0;
+            card.querySelector('.order-qty').value = Math.max(0, p-s);
+            processRowUpdate(el);
+        }
 
-            let targetUnitSelect = card.querySelector('.target-unit');
-            let targetUnit = targetUnitSelect ? targetUnitSelect.value : null;
-            let displayUnitLabel = targetUnit ? `/ ${targetUnit}` : baseUnitLabel;
-
-            cells.forEach(cell => {
-                let priceInput = cell.querySelector('.s-price');
-                let newPrice = parseFloat(priceInput.value) || 0;
-                let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
-
-                if (baseline === 0 && newPrice > 0) {
-                    priceInput.setAttribute('data-baseline', newPrice);
-                    baseline = newPrice;
-                }
-
-                let qtyInput = cell.querySelector('.s-qty').value;
-                let qty = parseFloat(qtyInput);
-                if (isNaN(qty)) qty = 1; 
-
-                let finalPrice = 0;
-                if (newPrice > 0) {
-                    if (hasUnits && targetUnit) {
-                        if (qty === 0) qty = 1;
-                        let sUnit = cell.querySelector('.s-unit') ? cell.querySelector('.s-unit').value : targetUnit;
-                        let qtyInBase = qty * conversionFactors[sUnit];
-                        let finalQtyInTargetUnit = qtyInBase / conversionFactors[targetUnit];
-                        finalPrice = newPrice / finalQtyInTargetUnit;
-                    } else {
-                        if (qty === 0) qty = 1;
-                        finalPrice = newPrice / qty;
-                    }
-                }
-
-                let resultDiv = cell.querySelector('.s-result');
-                if (finalPrice > 0) {
-                    resultDiv.innerText = "$" + finalPrice.toFixed(3) + " " + displayUnitLabel;
-                    resultDiv.setAttribute('data-value', finalPrice);
-                    if (finalPrice < minPrice) minPrice = finalPrice;
-                } else {
-                    resultDiv.innerText = "$0.00 " + displayUnitLabel;
-                    resultDiv.setAttribute('data-value', 0);
-                }
+        function processRowUpdate(el, skipSave=false) {
+            const card = el.closest('.item-card');
+            if(!card) return;
+            let min = Infinity;
+            card.querySelectorAll('.supplier-cell').forEach(cell => {
+                const p = parseFloat(cell.querySelector('.s-price').value)||0;
+                const q = parseFloat(cell.querySelector('.s-qty').value)||1;
+                const res = p/q;
+                cell.querySelector('.s-result').innerText = "$" + res.toFixed(3);
+                cell.setAttribute('data-val', res);
+                if(res > 0 && res < min) min = res;
                 cell.classList.remove('best-deal');
             });
+            card.querySelectorAll('.supplier-cell').forEach(cell => {
+                if(parseFloat(cell.getAttribute('data-val')) === min && min !== Infinity) cell.classList.add('best-deal');
+            });
+            let o = parseFloat(card.querySelector('.order-qty').value)||0;
+            if(o > 0) card.classList.add('has-order'); else card.classList.remove('has-order');
+            if(!skipSave && !isAppLoading) saveToDatabase(card.closest('.app-section').id.split('-')[0]);
+        }
 
-            if (minPrice !== Infinity) {
-                cells.forEach(cell => {
-                    let val = parseFloat(cell.querySelector('.s-result').getAttribute('data-value'));
-                    if (val === minPrice && val > 0) cell.classList.add('best-deal');
-                });
-            }
-
-            let winningCells = card.querySelectorAll('.best-deal');
-            let orderQty = parseFloat(card.querySelector('.order-qty').value) || 0;
-            let shelfQty = parseFloat(card.querySelector('.shelf-qty').value) || 0;
-
-            let invWrapper = card.querySelector('.inventory-controls');
-            if (orderQty > 0 || shelfQty > 0) {
-                card.classList.add('has-order');
-                if(invWrapper) invWrapper.classList.add('active');
+        function saveToDatabase(app) {
+            if(isAppLoading) return;
+            const data = { weight:[], unit:[], mfe:[], delComal:[] };
+            if(app === 'sysco') {
+                extract('weightTable_sysco', data.weight); extract('unitTable_sysco', data.unit); extract('mfeTable_sysco', data.mfe);
             } else {
-                card.classList.remove('has-order');
-                if(invWrapper) invWrapper.classList.remove('active');
+                extract('weightTable_verdura', data.weight); extract('unitTable_verdura', data.unit); extract('delComalTable_verdura', data.delComal);
             }
+            db.ref(currentLocation + '/inventory/' + app).set(data);
+            db.ref(currentLocation + '/metadata/lastEditor').set(mySyncId);
+        }
 
-            if (winningCells.length > 1) {
-                let currentSplitSum = 0;
-                winningCells.forEach(cell => {
-                    currentSplitSum += parseFloat(cell.querySelector('.split-qty').value) || 0;
-                    cell.querySelector('.tie-split-ui').style.display = 'block';
+        function extract(tid, arr) {
+            document.querySelectorAll(`#${tid} .item-card`).forEach(c => {
+                const row = { item:c.querySelector('.item-name').value, par:c.querySelector('.par-qty').value, shelf:c.querySelector('.shelf-qty').value, qty:c.querySelector('.order-qty').value, suppliers:[] };
+                c.querySelectorAll('.supplier-cell').forEach(sc => {
+                    row.suppliers.push([ sc.querySelector('.s-name').value, sc.querySelector('.s-price').value, sc.querySelector('.s-qty').value, 'lb', 0, '', sc.querySelector('.s-price').getAttribute('data-baseline') ]);
                 });
-                if (Math.abs(currentSplitSum - orderQty) > 0.02) {
-                    let equalSplit = orderQty / winningCells.length;
-                    let displaySplit = equalSplit % 1 === 0 ? equalSplit : equalSplit.toFixed(2);
-                    winningCells.forEach(cell => cell.querySelector('.split-qty').value = displaySplit);
-                }
-                cells.forEach(cell => { if (!cell.classList.contains('best-deal')) cell.querySelector('.tie-split-ui').style.display = 'none'; });
-            } else {
-                cells.forEach(cell => {
-                    cell.querySelector('.tie-split-ui').style.display = 'none';
-                    cell.querySelector('.split-qty').value = cell.classList.contains('best-deal') ? orderQty : 0;
+                arr.push(row);
+            });
+        }
+
+        function resetQuantities(app) {
+            if(confirm("Dispatch to Receiving?")) {
+                const pending = [];
+                document.querySelectorAll(`#${app}-wrapper .item-card`).forEach(c => {
+                    const o = parseFloat(c.querySelector('.order-qty').value)||0;
+                    if(o > 0) {
+                        const win = c.querySelector('.best-deal');
+                        pending.push({ item: c.querySelector('.item-name').value, supplier: win.querySelector('.s-name').value, qty: o, expectedPrice: parseFloat(win.querySelector('.s-price').value) });
+                    }
                 });
-            }
-
-            if(!skipSave && !isAppLoading) {
-                if(appName === 'analytics') { generateAnalyticsDashboard(); } 
-                else { generateShoppingList(appName); }
-                saveToDatabase(appName);
+                db.ref(currentLocation + '/pending_delivery/' + app).set(pending);
+                document.querySelectorAll(`#${app}-wrapper .inv-input`).forEach(i => i.value = '');
+                saveToDatabase(app);
+                alert("🚚 Order sent to Receiving Tab!");
             }
         }
 
-        function handleManualSplitChange(splitInput) {
-            let card = splitInput.closest('.item-card');
-            let appName = card.closest('.app-section').id.split('-')[0];
-            let newTotal = 0;
-            card.querySelectorAll('.best-deal').forEach(c => newTotal += parseFloat(c.querySelector('.split-qty').value) || 0);
-            card.querySelector('.order-qty').value = newTotal;
-            generateShoppingList(appName);
-            if(!isAppLoading) saveToDatabase(appName);
+        function renderReceivingList(app, data) {
+            const container = document.getElementById(`receiving-list-${app}`);
+            container.innerHTML = data ? data.map(i => `
+                <div class="item-card receiving-card status-ok">
+                    <b>${i.item}</b> (📦 ${i.supplier})<br>
+                    Order: ${i.qty} | Expected: $${i.expectedPrice}
+                    <button class="btn-green" style="margin-top:10px; width:100%; border:none; padding:10px; border-radius:6px; font-weight:bold; color:white; cursor:pointer;" onclick="this.parentElement.remove()">✅ Received</button>
+                </div>`).join('') : '<p style="text-align:center; color:#999; padding:20px;">No pending orders.</p>';
         }
 
-        function deleteRow(btn) {
-            let card = btn.closest('.item-card');
-            let appName = card.closest('.app-section').id.split('-')[0];
-            let iName = card.querySelector('.item-name').value || "an item";
-            card.remove();
-            logAction(`🗑️ Deleted ${iName} from the list`);
-            generateShoppingList(appName);
-            if(!isAppLoading) saveToDatabase(appName);
-        }
-
-        function generateShoppingList(appName) {
-            if(appName === 'analytics') return; 
-            let wrapper = document.getElementById(appName + '-wrapper');
-            let allCards = wrapper.querySelectorAll('.item-card');
-            let listBySupplier = {};
-            let totalsBySupplier = {};
-            let totalItemsInCart = 0;
-
-            allCards.forEach(card => {
-                let itemName = card.querySelector('.item-name').value.trim();
-                let winningCells = card.querySelectorAll('.best-deal');
-
-                if (itemName && winningCells.length > 0) {
-                    let tieCount = winningCells.length;
-                    winningCells.forEach(wc => {
-                        let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
-                        let priceInput = wc.querySelector('.s-price');
-                        let unitPrice = parseFloat(priceInput.value) || 0;
-                        let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
-                        let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
-                        
-                        let trendBadge = '';
-                        if (unitPrice > baseline && baseline > 0) {
-                            trendBadge = '<span style="font-size:12px; margin-left:4px;" title="Price went up">🔺</span>';
-                        } else if (unitPrice < baseline && unitPrice > 0) {
-                            trendBadge = '<span style="font-size:12px; margin-left:4px;" title="Price went down">🔻</span>';
-                        }
-
-                        if (aQty > 0) {
-                            let lineTotal = unitPrice * aQty;
-                            if (!listBySupplier[sName]) { listBySupplier[sName] = []; totalsBySupplier[sName] = 0; }
-                            listBySupplier[sName].push(`
-                                <span><span class="qty-badge" style="color:var(--${appName === 'verdura' ? 'verdura' : 'primary'}-color);">${aQty}</span> ${itemName} ${tieCount > 1 ? `<span class="tie-badge">(Tie Split)</span>` : ''}</span> 
-                                <span class="price-badge">${wc.querySelector('.s-result').innerText} ${trendBadge} <span style="color:var(--result-text); font-weight:normal;">(Total: $${lineTotal.toFixed(2)})</span></span>
-                            `);
-                            totalsBySupplier[sName] += lineTotal;
-                            totalItemsInCart++;
-                        }
-                    });
+        function generateShoppingList(app) {
+            const container = document.getElementById(`list-content-${app}`);
+            const cards = document.querySelectorAll(`#${app}-wrapper .item-card.has-order`);
+            let html = ''; let count = 0;
+            cards.forEach(c => {
+                const name = c.querySelector('.item-name').value;
+                const qty = c.querySelector('.order-qty').value;
+                const win = c.querySelector('.best-deal');
+                if(win) {
+                    html += `<div class="supplier-group" style="padding:10px; margin-bottom:5px;"><b>${qty}x ${name}</b> <span style="float:right;">📦 ${win.querySelector('.s-name').value}</span></div>`;
+                    count++;
                 }
             });
-
-            document.getElementById('nav-cart-badge').innerText = totalItemsInCart;
-
-            const container = document.getElementById('list-content-' + appName);
-            container.innerHTML = '';
-            
-            if(Object.keys(listBySupplier).length === 0) {
-                container.innerHTML = `<p style="color:#999; font-style:italic; padding:20px; text-align:center;">Your cart is empty. Add quantities above to generate your list.</p>`;
-                return;
-            }
-
-            Object.keys(listBySupplier).forEach(supp => {
-                let html = `<div class="supplier-group"><h4>📦 ${supp}</h4><ul>`;
-                listBySupplier[supp].forEach(itemHtml => { html += `<li>${itemHtml}</li>`; });
-                html += `</ul><div class="invoice-total"><span>Est. Invoice:</span><span class="invoice-amount">$${totalsBySupplier[supp].toFixed(2)}</span></div></div>`;
-                container.insertAdjacentHTML('beforeend', html);
-            });
+            container.innerHTML = html || '<p>Cart empty.</p>';
+            document.getElementById('nav-cart-badge').innerText = count;
         }
 
-        // ==========================================
-        // RECEIVING LOGIC (PHASE 2)
-        // ==========================================
-        function renderReceivingList(appName, data) {
-            let container = document.getElementById(`receiving-list-${appName}`);
-            if (!data || data.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:#999; font-style:italic; padding:40px;">No pending deliveries.<br><br>Generate an order and click "Send to Receiving" to send your checklist here.</p>`;
-                return;
-            }
-            let html = '';
-            data.forEach((item, index) => {
-                html += `
-                <div class="item-card receiving-card status-ok" id="rec-${appName}-${index}" data-expected-qty="${item.qty}" data-expected-price="${item.expectedPrice}">
-                    <div class="card-header" style="border-bottom:none; margin-bottom:0; padding-bottom:5px;">
-                        <div style="font-size:18px; font-weight:bold;" class="rec-item-name">${item.item}</div>
-                        <div style="color:var(--primary-color); font-weight:bold;" class="rec-supp-name">📦 ${item.supplier}</div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; gap:10px; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;">
-                        <div style="flex:1; text-align:center;">
-                            <label style="font-size:11px; color:var(--result-text); font-weight:bold;">RECEIVED QTY (Order: ${item.qty})</label>
-                            <input type="number" class="rec-qty" value="${item.qty}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; margin-top:5px; background:var(--input-bg); color:var(--text-color);">
-                        </div>
-                        <div style="flex:1; text-align:center;">
-                            <label style="font-size:11px; color:var(--result-text); font-weight:bold;">INVOICE PRICE (Quote: $${item.expectedPrice.toFixed(2)})</label>
-                            <div style="position:relative; margin-top:5px;">
-                                <span style="position:absolute; left:10px; top:8px; color:var(--result-text); font-weight:bold; font-size:18px;">$</span>
-                                <input type="number" class="rec-price" value="${item.expectedPrice.toFixed(2)}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; background:var(--input-bg); color:var(--text-color);">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rec-status-msg" style="font-size:14px; font-weight:bold; margin-top:15px; text-align:center; color:var(--success-color);">✅ Perfect Match</div>
-                </div>`;
-            });
-            container.innerHTML = html + `<button class="btn-green" style="width:100%; padding:15px; margin-top:20px; font-size:18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);" onclick="completeDelivery('${appName}')">✅ Mark Delivery Complete</button>`;
-        }
-
-        function checkReceivingMatch(inputElem) {
-            let card = inputElem.closest('.receiving-card');
-            let expQty = parseFloat(card.getAttribute('data-expected-qty'));
-            let expPrice = parseFloat(card.getAttribute('data-expected-price'));
-            
-            let actQty = parseFloat(card.querySelector('.rec-qty').value) || 0;
-            let actPrice = parseFloat(card.querySelector('.rec-price').value) || 0;
-            
-            let statusMsg = card.querySelector('.rec-status-msg');
-            
-            card.classList.remove('status-ok', 'status-warn', 'status-danger');
-            
-            if (actPrice > expPrice) {
-                card.classList.add('status-danger');
-                statusMsg.innerHTML = "🚨 PRICE INCREASE DETECTED";
-                statusMsg.style.color = "var(--danger-color)";
-            } else if (actQty < expQty) {
-                card.classList.add('status-warn');
-                statusMsg.innerHTML = "⚠️ SHORTED DELIVERY";
-                statusMsg.style.color = "var(--warning-color)";
-            } else {
-                card.classList.add('status-ok');
-                statusMsg.innerHTML = "✅ Perfect Match";
-                statusMsg.style.color = "var(--success-color)";
-            }
-        }
-
-        function completeDelivery(appName) {
-            if(confirm("Are you sure you want to complete this delivery?\n\nIf you changed any prices on this checklist, the Master Inventory will be automatically updated!")) {
-                let hasUpdates = false;
-
-                document.querySelectorAll(`#receiving-list-${appName} .receiving-card`).forEach(card => {
-                    let itemName = card.querySelector('.rec-item-name').innerText;
-                    let suppName = card.querySelector('.rec-supp-name').innerText.replace('📦 ', '');
-                    let newPrice = parseFloat(card.querySelector('.rec-price').value);
-                    let expPrice = parseFloat(card.getAttribute('data-expected-price'));
-
-                    if (newPrice !== expPrice) {
-                        let mainCards = document.querySelectorAll(`#${appName}-wrapper .item-card`);
-                        mainCards.forEach(mainCard => {
-                            if (mainCard.querySelector('.item-name').value === itemName) {
-                                mainCard.querySelectorAll('.supplier-cell').forEach(cell => {
-                                    if (cell.querySelector('.s-name').value === suppName) {
-                                        let pInput = cell.querySelector('.s-price');
-                                        pInput.value = newPrice;
-                                        logAction(`🚚 Auto-Updated ${itemName} (${suppName}) from Delivery Invoice to $${newPrice.toFixed(2)}`);
-                                        processRowUpdate(pInput, true); 
-                                        hasUpdates = true;
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-
-                if(hasUpdates) { saveToDatabase(appName); }
-                
-                db.ref(currentLocation + '/pending_delivery/' + appName).remove();
-                logAction(`✅ Checked in the ${appName.toUpperCase()} Delivery Truck`);
-                alert("Delivery complete! Inventory and Prices have been updated.");
-            }
-        }
-
-        function generateAnalyticsDashboard() {
-            let upList = document.getElementById('trends-up-list');
-            let downList = document.getElementById('trends-down-list');
-            let upHTML = ''; let downHTML = '';
-            
-            let totalNetWorth = 0; 
-
-            document.querySelectorAll('.item-card').forEach(card => {
-                let itemName = card.querySelector('.item-name').value.trim();
-                
-                let shelfQty = parseFloat(card.querySelector('.shelf-qty').value) || 0;
-                if(shelfQty > 0) {
-                    let bestDealCell = card.querySelector('.best-deal');
-                    if(bestDealCell) {
-                        let unitPrice = parseFloat(bestDealCell.querySelector('.s-result').getAttribute('data-value')) || 0;
-                        totalNetWorth += (shelfQty * unitPrice);
-                    } else {
-                        let firstPrice = 0;
-                        card.querySelectorAll('.supplier-cell').forEach(cell => {
-                            let p = parseFloat(cell.querySelector('.s-result').getAttribute('data-value')) || 0;
-                            if(p > 0 && firstPrice === 0) firstPrice = p;
-                        });
-                        totalNetWorth += (shelfQty * firstPrice);
-                    }
-                }
-
-                if(!itemName) return;
-                card.querySelectorAll('.supplier-cell').forEach(cell => {
-                    let sName = cell.querySelector('.s-name').value.trim() || "Unknown";
-                    let priceInput = cell.querySelector('.s-price');
-                    let price = parseFloat(priceInput.value) || 0;
-                    let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
-                    
-                    if(price > 0 && baseline > 0 && price !== baseline) {
-                        let diff = Math.abs(price - baseline).toFixed(2);
-                        let isUp = price > baseline;
-                        let li = `<li>
-                            <strong>${itemName}</strong> <span style="font-size:12px; color:var(--result-text);">(${sName})</span><br>
-                            <span style="color:var(--result-text);">$${baseline.toFixed(2)} ➔ $${price.toFixed(2)}</span> 
-                            <span class="trend-diff ${isUp ? 'diff-up' : 'diff-down'}">${isUp ? '+' : '-'}$${diff}</span>
-                        </li>`;
-                        if(isUp) upHTML += li; else downHTML += li;
-                    }
-                });
-            });
-            
-            document.getElementById('net-worth-display').innerText = '$' + totalNetWorth.toFixed(2);
-
-            upList.innerHTML = upHTML || '<li style="color:#999; font-style:italic; border:none;">No price increases tracked since last reset.</li>';
-            downList.innerHTML = downHTML || '<li style="color:#999; font-style:italic; border:none;">No price decreases tracked since last reset.</li>';
-
-            let suppTotals = {};
-            document.querySelectorAll('.item-card').forEach(card => {
-                card.querySelectorAll('.best-deal').forEach(wc => {
-                    let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
-                    let price = parseFloat(wc.querySelector('.s-price').value) || 0;
-                    let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
-                    if (aQty > 0) {
-                        if (!suppTotals[sName]) suppTotals[sName] = 0;
-                        suppTotals[sName] += (price * aQty);
-                    }
-                });
-            });
-
-            let labels = Object.keys(suppTotals);
-            let dataPoints = Object.values(suppTotals);
-            
-            const ctx = document.getElementById('spendChart').getContext('2d');
-            if (spendChartInstance) spendChartInstance.destroy(); 
-            
-            if(dataPoints.length > 0) {
-                let isDark = document.body.classList.contains('dark-mode');
-                spendChartInstance = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: dataPoints,
-                            backgroundColor: ['#0056b3', '#28a745', '#f39c12', '#e74c3c', '#8e44ad', '#34495e'],
-                            borderWidth: 2,
-                            borderColor: isDark ? '#1e1e1e' : '#ffffff'
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { color: isDark ? '#fff' : '#333' } },
-                            tooltip: { callbacks: { label: function(c) { return ' $' + c.raw.toFixed(2); } } }
-                        }
-                    }
-                });
-            }
-
-            db.ref(currentLocation + '/ledger').once('value').then(snapshot => {
-                let ledgerData = snapshot.val();
-                let syscoHtml = '<h3 style="margin-top:0;">📦 Sysco App History</h3>';
-                let verduraHtml = '<h3>🥦 Produce App History</h3>';
-                
-                if (ledgerData && ledgerData.sysco) {
-                    Object.values(ledgerData.sysco).reverse().forEach(entry => {
-                        let breakdownStr = Object.keys(entry.breakdown).map(k => `${k}: $${entry.breakdown[k].toFixed(2)}`).join(' | ');
-                        syscoHtml += `<div class="ledger-item">
-                            <div><div class="l-date">${entry.date}</div><div class="l-breakdown">${breakdownStr}</div></div>
-                            <div class="l-total">$${entry.total.toFixed(2)}</div>
-                        </div>`;
-                    });
-                } else { syscoHtml += '<p style="color:#999; font-style:italic;">No saved resets yet.</p>'; }
-
-                if (ledgerData && ledgerData.verdura) {
-                    Object.values(ledgerData.verdura).reverse().forEach(entry => {
-                        let breakdownStr = Object.keys(entry.breakdown).map(k => `${k}: $${entry.breakdown[k].toFixed(2)}`).join(' | ');
-                        verduraHtml += `<div class="ledger-item">
-                            <div><div class="l-date">${entry.date}</div><div class="l-breakdown">${breakdownStr}</div></div>
-                            <div class="l-total">$${entry.total.toFixed(2)}</div>
-                        </div>`;
-                    });
-                } else { verduraHtml += '<p style="color:#999; font-style:italic;">No saved resets yet.</p>'; }
-
-                document.getElementById('ledger-sysco-list').innerHTML = syscoHtml;
-                document.getElementById('ledger-verdura-list').innerHTML = verduraHtml;
-            });
-
-            db.ref(currentLocation + '/logs').limitToLast(50).once('value').then(snapshot => {
-                let logs = snapshot.val();
-                let feedHtml = '';
-                if(logs) {
-                    Object.values(logs).reverse().forEach(log => {
-                        feedHtml += `
-                            <div class="feed-item">
-                                <div class="feed-header">
-                                    <span class="feed-user">👤 ${log.user}</span>
-                                    <span>${log.time}</span>
-                                </div>
-                                <div class="feed-action">${log.action}</div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    feedHtml = '<p style="color:#999; font-style:italic; text-align:center;">No activity recorded yet.</p>';
-                }
-                document.getElementById('activity-feed-list').innerHTML = feedHtml;
-            });
-        }
-
+        // --- 🔥 FIXED PDF ENGINE ---
         function downloadPDF(appName) {
             const printElement = document.createElement('div');
             printElement.style.padding = "40px";
             printElement.style.backgroundColor = "#ffffff";
             printElement.style.color = "#000000";
-            printElement.style.fontFamily = "system-ui, -apple-system, sans-serif";
-            printElement.style.width = "1000px"; 
+            printElement.style.fontFamily = "system-ui, sans-serif";
+            printElement.style.width = "800px";
 
-            const headerHtml = `<div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-                <img src="image_0.png" style="height:80px; border-radius:50%;">
-                <h1 style="margin:0; font-size:32px; text-transform:uppercase;">${currentLocation.replace('_', ' ')} MASTER</h1>
-            </div>`;
+            const headerHtml = `
+                <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px; border-bottom: 2px solid #333; padding-bottom: 10px;">
+                    <img src="image_0.png" style="height:60px; border-radius:50%;">
+                    <h1 style="margin:0; font-size:24px; text-transform:uppercase;">${currentLocation.replace('_', ' ')}: ${appName.toUpperCase()} ORDER</h1>
+                </div>`;
             
-            let timeTracker = document.getElementById('time-' + appName).innerText;
-            const listHtml = `<div style="text-align:right; font-size:12px; color:#666; font-style:italic;">${timeTracker}</div>` + document.querySelector(`#${appName}-wrapper .shopping-list-panel`).outerHTML;
-            
-            printElement.innerHTML = headerHtml + listHtml;
+            const listContent = document.getElementById('list-content-' + appName).innerHTML;
+            printElement.innerHTML = headerHtml + listContent;
 
-            if(document.querySelector(`#${appName}-wrapper .shopping-list-panel`).classList.contains('hide-prices-active')) {
-                printElement.querySelector('.shopping-list-panel').classList.add('hide-prices-active');
-            }
+            const opt = { 
+                margin: 0.5, 
+                filename: `${currentLocation}_${appName}_Order.pdf`, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
+            };
 
-            let actionBtns = printElement.querySelector('.action-btns'); if(actionBtns) actionBtns.remove();
-            let gridContainer = printElement.querySelector('.supplier-grid');
-            if(gridContainer) { gridContainer.style.display = 'flex'; gridContainer.style.flexDirection = 'row'; }
-
-            const opt = { margin: 0.5, filename: `${currentLocation}_${appName}_Order.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } };
             html2pdf().set(opt).from(printElement).save();
         }
 
-        function extractTableData(tableId, targetArray) {
-            document.querySelectorAll(`#${tableId} .item-card`).forEach(card => {
-                let rowData = { 
-                    item: card.querySelector('.item-name').value, 
-                    par: card.querySelector('.par-qty').value, 
-                    shelf: card.querySelector('.shelf-qty').value, 
-                    qty: card.querySelector('.order-qty').value, 
-                    targetUnit: card.querySelector('.target-unit') ? card.querySelector('.target-unit').value : null, 
-                    suppliers: [] 
-                };
-                card.querySelectorAll('.supplier-cell').forEach(cell => {
-                    let priceInput = cell.querySelector('.s-price');
-                    let sUnit = cell.querySelector('.s-unit');
-                    let sSplit = cell.querySelector('.split-qty');
-                    let baseline = priceInput.getAttribute('data-baseline') || 0;
-
-                    rowData.suppliers.push([
-                        cell.querySelector('.s-name').value,
-                        priceInput.value,
-                        cell.querySelector('.s-qty').value,
-                        sUnit ? sUnit.value : 'oz',
-                        sSplit ? sSplit.value : 0,
-                        '', 
-                        baseline 
-                    ]);
-                });
-                targetArray.push(rowData);
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); localStorage.setItem('restaurantCalcDarkMode', document.body.classList.contains('dark-mode')); }
+        function logoutUser() { localStorage.removeItem('pericos_active_user'); location.reload(); }
+        function filterTable(app, q) {
+            const query = q.toLowerCase();
+            document.querySelectorAll(`#${app}-wrapper .item-card`).forEach(c => {
+                c.style.display = c.querySelector('.item-name').value.toLowerCase().includes(query) ? '' : 'none';
             });
         }
-
-        function saveToDatabase(appName) {
-            if(isAppLoading || appName === 'analytics') return; 
-
-            let now = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-            db.ref(currentLocation + '/metadata/' + appName).set(now);
-            db.ref(currentLocation + '/metadata/lastEditor').set(mySyncId);
-            document.getElementById(`time-${appName}`).innerText = `Last updated: ${now}`;
-
-            let data = {};
-            if(appName === 'sysco') {
-                data = { weight: [], unit: [], mfe: [] };
-                extractTableData('weightTable_sysco', data.weight);
-                extractTableData('unitTable_sysco', data.unit);
-                extractTableData('mfeTable_sysco', data.mfe);
-            } else if (appName === 'verdura') {
-                data = { weight: [], unit: [], delComal: [] };
-                extractTableData('weightTable_verdura', data.weight);
-                extractTableData('unitTable_verdura', data.unit);
-                extractTableData('delComalTable_verdura', data.delComal);
-            }
-            db.ref(currentLocation + '/inventory/' + appName).set(data);
+        function openTab(e, app, tab) {
+            document.querySelectorAll(`#${app}-wrapper .tab-content`).forEach(tc => tc.classList.remove('active'));
+            document.querySelectorAll(`#${app}-wrapper .tab-btn`).forEach(tb => tb.classList.remove('active'));
+            document.getElementById(tab).classList.add("active");
+            e.currentTarget.classList.add('active');
         }
-
-        function rebuildTable(tableId, appName, rowDataArray, pLabel, qLabel, s1def, s2def, s3def) {
-            document.getElementById(tableId).innerHTML = '';
-            if(!rowDataArray || rowDataArray.length === 0) { 
-                addRow(tableId, appName, pLabel, qLabel, '', '', '', '', 'oz', s1def, s2def, s3def); return; 
-            }
-            rowDataArray.forEach(rd => { 
-                let s1 = rd.suppliers[0] || [s1def[0], "", "", "lb", 0, "", ""];
-                let s2 = rd.suppliers[1] || [s2def[0], "", "", "lb", 0, "", ""];
-                let s3 = rd.suppliers[2] || [s3def[0], "", "", "lb", 0, "", ""];
-                if (s1.length < 7) s1.push(s1[1] || ""); 
-                if (s2.length < 7) s2.push(s2[1] || ""); 
-                if (s3.length < 7) s3.push(s3[1] || ""); 
-                addRow(tableId, appName, pLabel, qLabel, rd.item, rd.par || "", rd.shelf || "", rd.qty || "", rd.targetUnit || "oz", s1, s2, s3); 
+        function generateAnalyticsDashboard() {
+            let total = 0;
+            document.querySelectorAll('.item-card').forEach(c => {
+                const s = parseFloat(c.querySelector('.shelf-qty').value)||0;
+                const win = c.querySelector('.best-deal');
+                if(s > 0 && win) total += (s * parseFloat(win.getAttribute('data-val')));
             });
+            document.getElementById('net-worth-display').innerText = "$" + total.toFixed(2);
         }
+        function scrollToCart() { document.querySelector('.shopping-list-panel').scrollIntoView({behavior: 'smooth'}); }
 
-        function getSyscoDefaults() {
-            const syscoWeightLb = [
-                "QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", 
-                "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", 
-                "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", 
-                "SOY SAUCE", "CHICKEN THIGH"
-            ];
-            const syscoWeightFlOz = [
-                "COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"
-            ];
-            const syscoUnit = [
-                "RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", 
-                "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", 
-                "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", 
-                "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', 
-                "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", 
-                "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", 
-                "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", 
-                "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", 
-                "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", 
-                "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", 
-                "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", 
-                "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", 
-                "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", 
-                "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", 
-                "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", 
-                "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", 
-                "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", 
-                "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", 
-                "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"
-            ];
-            const syscoMfe = [
-                "BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"
-            ];
-            return {
-                weight: [...syscoWeightLb.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0,"",""], ["Ben E Keith","","","lb",0,"",""], ["Gordon","","","lb",0,"",""]] })),
-                         ...syscoWeightFlOz.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0,"",""], ["Ben E Keith","","","fl oz",0,"",""], ["Gordon","","","fl oz",0,"",""]] }))],
-                unit: syscoUnit.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,"",""], ["Ben E Keith","","","oz",0,"",""], ["Gordon","","","oz",0,"",""]] })),
-                mfe: syscoMfe.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0,"",""]] }))
-            };
-        }
-
-        function getVerduraDefaults() {
-            const verdWeight = [
-                "HABANERO", "SERRANO", "CHILE DE ARBOL", "BROCCOLI", "ZUCCHINI", "SQUASH", "GUAJILLO", 
-                "OREGANO", "PIMIENTA", "AJO MOLIDO", "PAPRIKA"
-            ];
-            const verdUnit = [
-                "AJO PELADO", "TOMATE", "AGUACATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "POBLANO PEPPER", 
-                "JALAPENO PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "LIMES", "LEMONS", 
-                "CELERY", "CEBOLLA", "NARANJA", "RED CABAGE", "HONGOS", "POTATO #2", "PAN X TORTA", "COCA", 
-                "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "POT WHITE", "ACEITE", 
-                "HUEVOS", "JALAPENEO LATA"
-            ];
-            const verdDelComal = ["CHIPS", "VERDE", "ROJA", "BLANCA"];
-            return {
-                weight: verdWeight.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,"",""], ["Cantu","","","lb",0,"",""], ["Produce 3","","","lb",0,"",""]] })),
-                unit: verdUnit.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0,"",""], ["Cantu","","","oz",0,"",""], ["Produce 3","","","oz",0,"",""]] })),
-                delComal: verdDelComal.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0,"",""]] }))
-            };
-        }
-
-        function loadFromDatabase() {
-            db.ref('.info/connected').on('value', function(snap) {
-                let sDiv = document.getElementById('conn-sysco');
-                let vDiv = document.getElementById('conn-verdura');
-                if (snap.val() === true) {
-                    sDiv.innerText = '☁️ Live Cloud Sync Active'; sDiv.classList.remove('offline');
-                    vDiv.innerText = '☁️ Live Cloud Sync Active'; vDiv.classList.remove('offline');
+        firebase.auth().onAuthStateChanged((user) => {
+            if (activeUser) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('user-badge').innerText = "👤 " + activeUser;
+                document.getElementById('user-badge').style.display = 'block';
+                const switcher = document.getElementById('location-switcher');
+                switcher.value = currentLocation;
+                if(activeRole === 'Owner') {
+                    switcher.style.display = 'inline-block';
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
                 } else {
-                    sDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; sDiv.classList.add('offline');
-                    vDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; vDiv.classList.add('offline');
+                    switcher.style.display = 'none';
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
                 }
-            });
-
-            db.ref(currentLocation).on('value', (snapshot) => {
-                let dbData = snapshot.val();
-
-                if (!dbData || !dbData.inventory) {
-                    let payload = { inventory: { sysco: getSyscoDefaults(), verdura: getVerduraDefaults() }, metadata: { sysco: "New Store", verdura: "New Store" } };
-                    db.ref(currentLocation).set(payload);
-                    return; 
-                }
-
-                if (dbData.metadata && dbData.metadata.lastEditor === mySyncId && !isAppLoading) { return; }
-                if (!isAppLoading) showSyncToast();
-                
-                let syscoData = dbData.inventory ? dbData.inventory.sysco : null;
-                if (!syscoData) { syscoData = getSyscoDefaults(); db.ref(currentLocation + '/inventory/sysco').set(syscoData); }
-                rebuildTable('weightTable_sysco', 'sysco', syscoData.weight, 'Total $', 'Total oz', ['Sysco','','','lb',0,'',''], ['Ben E Keith','','','lb',0,'',''], ['Gordon','','','lb',0,'','']);
-                rebuildTable('unitTable_sysco', 'sysco', syscoData.unit, 'Bulk $', 'Count', ['Sysco','','','oz',0,'',''], ['Ben E Keith','','','oz',0,'',''], ['Gordon','','','oz',0,'','']);
-                rebuildTable('mfeTable_sysco', 'sysco', syscoData.mfe, 'Bulk $', 'Count', ['MFE','','','oz',0,'',''], ['','','','oz',0,'',''], ['','','','oz',0,'','']);
-                generateShoppingList('sysco');
-
-                let verduraData = dbData.inventory ? dbData.inventory.verdura : null;
-                if (!verduraData) { verduraData = getVerduraDefaults(); db.ref(currentLocation + '/inventory/verdura').set(verduraData); }
-                rebuildTable('weightTable_verdura', 'verdura', verduraData.weight, 'Total $', 'Total oz', ['Mr. Pepper','','','lb',0,'',''], ['Cantu','','','lb',0,'',''], ['Produce 3','','','lb',0,'','']);
-                rebuildTable('unitTable_verdura', 'verdura', verduraData.unit, 'Bulk $', 'Count', ['Mr. Pepper','','','oz',0,'',''], ['Cantu','','','oz',0,'',''], ['Produce 3','','','oz',0,'','']);
-                rebuildTable('delComalTable_verdura', 'verdura', verduraData.delComal, 'Bulk $', 'Count', ['Del Comal','','','oz',0,'',''], ['','','','oz',0,'',''], ['','','','oz',0,'','']);
-                generateShoppingList('verdura');
-
-                // LOAD PENDING DELIVERIES INTO RECEIVING TAB
-                let pendingSysco = dbData.pending_delivery ? dbData.pending_delivery.sysco : null;
-                let pendingVerdura = dbData.pending_delivery ? dbData.pending_delivery.verdura : null;
-                renderReceivingList('sysco', pendingSysco);
-                renderReceivingList('verdura', pendingVerdura);
-
-                let meta = dbData.metadata || {};
-                document.getElementById('time-sysco').innerText = meta.sysco ? `Last updated: ${meta.sysco}` : 'Last updated: Never';
-                document.getElementById('time-verdura').innerText = meta.verdura ? `Last updated: ${meta.verdura}` : 'Last updated: Never';
-
-                let activeApp = document.querySelector('.active-app');
-                if(activeApp && activeApp.id === 'analytics-wrapper') { generateAnalyticsDashboard(); }
-
-                if (isAppLoading) {
-                    setTimeout(() => {
-                        let splash = document.getElementById('splash-screen');
-                        if(splash) {
-                            splash.style.opacity = '0';
-                            setTimeout(() => splash.remove(), 600);
-                        }
-                    }, 500); 
-                }
-
-                isAppLoading = false; 
-                
-            }, (error) => {
-                console.error("Database access denied:", error);
-                alert("🔒 Vault Locked: Your security session expired or was denied by Google. Please log in again to get a fresh key.");
-                firebase.auth().signOut().then(() => {
-                    localStorage.removeItem('pericos_active_user');
-                    localStorage.removeItem('pericos_active_role');
-                    location.reload(); 
-                });
-            });
-        }
-
-        function clearData(appName) {
-            if(confirm(`⚠️ WARNING: Are you sure you want to completely WIPE the ${currentLocation.replace('_', ' ')} cloud database?`)) {
-                logAction(`🗑️ Wiped the entire ${appName.toUpperCase()} database for ${currentLocation}`);
-                db.ref(currentLocation + '/inventory/' + appName).remove();
-                db.ref(currentLocation + '/metadata/' + appName).remove();
+                loadFromDatabase();
             }
-        }
+        });
     </script>
 </body>
 </html>
