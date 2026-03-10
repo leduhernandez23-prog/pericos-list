@@ -2192,65 +2192,62 @@
             });
         }
 
-        // PDF FIX: Completely rewritten to generate a clean HTML document from scratch
+       // PDF FIX: Generates pure string HTML and strips CSS variables to prevent iOS crashes
         function downloadPDF(appName) {
             let listContentDiv = document.getElementById('list-content-' + appName);
             
             if (!listContentDiv || listContentDiv.innerHTML.trim() === '' || listContentDiv.innerHTML.includes('Your cart is empty')) {
-                alert("Your cart is empty! Please add items to your cart before printing a PDF.");
+                alert("Your cart is empty! Please add items to your cart before printing.");
                 return;
             }
 
-            // 1. Create a clean, unattached HTML wrapper
-            let printElement = document.createElement('div');
-            printElement.style.padding = "20px";
-            printElement.style.fontFamily = "Arial, sans-serif";
-            printElement.style.color = "#000";
-            printElement.style.backgroundColor = "#fff";
-
-            // 2. Build a clean text header (Avoiding image CORS issues)
             let timeTracker = document.getElementById('time-' + appName).innerText;
             let displayLocation = currentLocation.replace('_', ' ');
             let displayApp = appName === 'sysco' ? 'MAIN INVOICE' : 'PRODUCE INVOICE';
             
-            let headerHtml = `
-                <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
-                    <h1 style="margin:0; font-size:28px; text-transform:uppercase; font-weight:bold;">${displayLocation} - ${displayApp}</h1>
-                    <div style="font-size:14px; color:#555; margin-top:5px;">${timeTracker}</div>
-                </div>
-            `;
-
-            // 3. Grab the raw list HTML
-            let rawHtml = listContentDiv.innerHTML;
-            
-            // 4. Check if prices are hidden by the toggle
             let isHidden = document.querySelector(`#${appName}-wrapper .shopping-list-panel`).classList.contains('hide-prices-active');
-            
+            let rawHtml = listContentDiv.innerHTML;
+
             if (isHidden) {
-                // If hidden, mathematically delete the price badges from the code string
+                // Erase the price badges from the code if the toggle is checked
                 rawHtml = rawHtml.replace(/<span class="price-badge"[\s\S]*?<\/span><\/span>/g, '</span>');
             }
 
-            // 5. Inject hard-coded "inline styles" into the raw HTML so the PDF engine cannot ignore them
-            rawHtml = rawHtml.replace(/class="supplier-group"/g, 'style="display: inline-block; width: 31%; vertical-align: top; margin-right: 2%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;"');
-            rawHtml = rawHtml.replace(/<h4/g, '<h4 style="margin-top:0; margin-bottom:10px; border-bottom:1px solid #ccc; padding-bottom:5px; font-size: 16px;"');
-            rawHtml = rawHtml.replace(/<ul/g, '<ul style="margin:0; padding-left:15px; list-style-type:square;"');
-            rawHtml = rawHtml.replace(/<li/g, '<li style="padding:5px 0; border-bottom:1px dashed #eee; font-size:13px;"');
-            rawHtml = rawHtml.replace(/class="invoice-total"/g, 'style="margin-top:10px; padding-top:10px; border-top:2px dashed #999; font-weight:bold; display:flex; justify-content:space-between;"');
+            // CRITICAL FIX: The PDF engine crashes if it sees 'var(--color)'. We force them all to black.
+            rawHtml = rawHtml.replace(/var\(--[a-zA-Z0-9-]+\)/g, '#000000');
 
-            // 6. Combine and prep the PDF
-            printElement.innerHTML = headerHtml + `<div>${rawHtml}</div>`;
+            // Strip CSS classes and inject hard-coded styles directly into the elements
+            rawHtml = rawHtml.replace(/class="supplier-group"/g, 'style="display: inline-block; width: 31%; vertical-align: top; margin-right: 2%; margin-bottom: 20px; padding: 10px; border: 1px solid #999; border-radius: 8px; box-sizing: border-box; background-color: #fff; page-break-inside: avoid;"');
+            rawHtml = rawHtml.replace(/<h4/g, '<h4 style="margin-top:0; margin-bottom:10px; border-bottom:2px solid #000; padding-bottom:5px; font-size: 16px; color:#000;"');
+            rawHtml = rawHtml.replace(/<ul/g, '<ul style="margin:0; padding-left:15px; list-style-type:none; color:#000;"');
+            rawHtml = rawHtml.replace(/<li/g, '<li style="padding:6px 0; border-bottom:1px solid #eee; font-size:13px; color:#000;"');
+            rawHtml = rawHtml.replace(/class="invoice-total"/g, 'style="margin-top:10px; padding-top:10px; border-top:2px solid #000; font-weight:bold; color:#000; font-size: 16px; text-align:right; display:flex; justify-content:space-between;"');
+            rawHtml = rawHtml.replace(/class="qty-badge"/g, 'style="font-weight:bold; margin-right:5px; font-size:14px;"');
+            rawHtml = rawHtml.replace(/class="price-badge"/g, 'style="font-weight:bold; display:block; margin-top:2px; font-size:13px;"');
+
+            // Construct the final document wrapper
+            let finalHtml = `
+                <div style="padding: 30px; background: #ffffff; width: 1050px; color: #000000; font-family: Helvetica, Arial, sans-serif;">
+                    <div style="border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                        <h1 style="margin: 0; font-size: 28px; text-transform: uppercase; font-weight: bold;">${displayLocation} - ${displayApp}</h1>
+                        <p style="margin: 5px 0 0 0; color: #555; font-size: 14px;">${timeTracker}</p>
+                    </div>
+                    <div style="width: 100%; display: block;">
+                        ${rawHtml}
+                    </div>
+                </div>
+            `;
 
             const opt = { 
-                margin: 0.5, 
+                margin: 0.2, 
                 filename: `${currentLocation}_${appName}_Order.pdf`, 
-                image: { type: 'jpeg', quality: 0.98 }, 
-                html2canvas: { scale: 2, useCORS: true }, 
+                image: { type: 'jpeg', quality: 1 }, 
+                html2canvas: { scale: 2, useCORS: true, windowWidth: 1100, backgroundColor: '#ffffff' }, 
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } 
             };
             
-            // 7. Fire!
-            html2pdf().set(opt).from(printElement).save();
+            // Generate instantly from the string
+            html2pdf().set(opt).from(finalHtml).save();
         }
 
         function extractTableData(tableId, targetArray) {
