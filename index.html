@@ -49,7 +49,7 @@
         }
 
         body.dark-mode {
-            --bg: #121212;
+            --bg-color: #121212;
             --text-color: #e0e0e0;
             --container-bg: #1e1e1e;
             --border-color: #333;
@@ -1075,7 +1075,7 @@
     </div>
 
     <script>
-        if (localStorage.getItem('restaurantCalcDarkMode') === 'true') { document.body.classList.add('dark-mode'); }
+        if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
     </script>
 
     <div id="login-screen">
@@ -1302,7 +1302,7 @@
     </div>
 
     <script>
-        if (localStorage.getItem('restaurantCalcDarkMode') === 'true') {
+        if (localStorage.getItem('pericos_dark') === 'true') {
             document.getElementById('darkModeBtn').innerText = '☀️ Light Mode';
         }
 
@@ -1403,23 +1403,16 @@
             try {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
-                    
-                    // 1. Manually find and register the Service Worker in the background
                     const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
-                    
-                    // 2. Fetch the token using your full key
                     const token = await messaging.getToken({ 
                         vapidKey: 'BIMlErwSGg4lU5iyhlpSkw3hm3QGLq0Bqz_wihLr0CRfGz0EQyLaZfHthlORbtoUK12zquN0njp0_iTN4H_DE7w',
                         serviceWorkerRegistration: registration 
                     });
-                    
                     if (token) {
-                        // 3. Save the token to the database silently
                         await db.ref(`${currentLocation}/fcmTokens/${activeUser}`).set(token);
                     }
                 }
             } catch (error) {
-                // If it fails, it will just quietly log the error to the console instead of interrupting the user
                 console.error('Notification setup failed silently:', error);
             }
         }
@@ -1527,11 +1520,12 @@
             panel.scrollIntoView({ behavior: 'smooth' });
         }
 
+        // DARK MODE FIX: Now saves exactly the same variable as events.html
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
             document.getElementById('darkModeBtn').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-            localStorage.setItem('restaurantCalcDarkMode', isDark);
+            localStorage.setItem('pericos_dark', isDark);
             if(document.querySelector('.active-app').id === 'analytics-wrapper') generateAnalyticsDashboard();
         }
 
@@ -1958,9 +1952,6 @@
             });
         }
 
-        // ==========================================
-        // RECEIVING LOGIC (PHASE 2)
-        // ==========================================
         function renderReceivingList(appName, data) {
             let container = document.getElementById(`receiving-list-${appName}`);
             if (!data || data.length === 0) {
@@ -2201,51 +2192,54 @@
             });
         }
 
-        // PDF FIX: Temporarily attach to DOM for proper html2canvas rendering
+        // PDF FIX: Clones layout, ensures it is attached to DOM invisibly, and forces desktop width
         function downloadPDF(appName) {
-            const printElement = document.createElement('div');
-            printElement.style.padding = "40px";
-            printElement.style.backgroundColor = "#ffffff";
-            printElement.style.color = "#000000";
-            printElement.style.fontFamily = "system-ui, -apple-system, sans-serif";
-            printElement.style.width = "1000px"; 
-            
-            // Keeps it hidden off-screen while rendering
-            printElement.style.position = "absolute";
-            printElement.style.left = "-9999px";
-            printElement.style.top = "0";
+            let originalPanel = document.querySelector(`#${appName}-wrapper .shopping-list-panel`);
+            if(!originalPanel) return;
 
-            const headerHtml = `<div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-                <img src="image_0.png" crossorigin="anonymous" style="height:80px; border-radius:50%;">
-                <h1 style="margin:0; font-size:32px; text-transform:uppercase;">${currentLocation.replace('_', ' ')} MASTER</h1>
-            </div>`;
-            
+            let clonedPanel = originalPanel.cloneNode(true);
+
+            let btns = clonedPanel.querySelector('.action-btns');
+            if(btns) btns.remove();
+
+            let printWrapper = document.createElement('div');
+            printWrapper.style.padding = "20px";
+            printWrapper.style.backgroundColor = "#ffffff";
+            printWrapper.style.color = "#000000";
+            printWrapper.style.width = "1000px"; 
+
             let timeTracker = document.getElementById('time-' + appName).innerText;
-            const listHtml = `<div style="text-align:right; font-size:12px; color:#666; font-style:italic;">${timeTracker}</div>` + document.querySelector(`#${appName}-wrapper .shopping-list-panel`).outerHTML;
+            let headerHtml = `
+                <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px; border-bottom: 2px solid #ccc; padding-bottom: 10px;">
+                    <h1 style="margin:0; font-size:32px; text-transform:uppercase; color: #000;">${currentLocation.replace('_', ' ')} MASTER</h1>
+                </div>
+                <div style="text-align:right; font-size:12px; color:#666; font-style:italic; margin-bottom: 10px;">${timeTracker}</div>
+            `;
             
-            printElement.innerHTML = headerHtml + listHtml;
+            printWrapper.innerHTML = headerHtml;
+            printWrapper.appendChild(clonedPanel);
 
-            if(document.querySelector(`#${appName}-wrapper .shopping-list-panel`).classList.contains('hide-prices-active')) {
-                printElement.querySelector('.shopping-list-panel').classList.add('hide-prices-active');
-            }
-
-            let actionBtns = printElement.querySelector('.action-btns'); if(actionBtns) actionBtns.remove();
-            
-            let gridContainer = printElement.querySelector('.supplier-grid');
-            if(gridContainer) { 
-                gridContainer.style.display = 'flex'; 
-                gridContainer.style.flexWrap = 'wrap'; 
-                gridContainer.style.gap = '15px'; 
+            let grid = printWrapper.querySelector('.supplier-grid');
+            if (grid) {
+                grid.style.display = 'flex';
+                grid.style.flexWrap = 'wrap';
+                grid.style.gap = '10px';
             }
             
-            let suppGroups = printElement.querySelectorAll('.supplier-group');
-            suppGroups.forEach(grp => {
-                grp.style.width = '31%'; // Forces them side-by-side cleanly
+            printWrapper.querySelectorAll('.supplier-group').forEach(grp => {
+                grp.style.width = '31%';
+                grp.style.display = 'inline-block';
                 grp.style.margin = '0';
+                grp.style.border = '1px solid #ccc';
             });
 
-            // Append to DOM to fix the "Blank PDF" issue
-            document.body.appendChild(printElement);
+            if (originalPanel.classList.contains('hide-prices-active')) {
+                printWrapper.querySelectorAll('.price-badge').forEach(el => el.style.display = 'none');
+            }
+
+            printWrapper.style.position = "absolute";
+            printWrapper.style.top = "-10000px";
+            document.body.appendChild(printWrapper);
 
             const opt = { 
                 margin: 0.5, 
@@ -2255,9 +2249,8 @@
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } 
             };
             
-            html2pdf().set(opt).from(printElement).save().then(() => {
-                // Remove from DOM when done
-                document.body.removeChild(printElement);
+            html2pdf().set(opt).from(printWrapper).save().then(() => {
+                document.body.removeChild(printWrapper);
             });
         }
 
