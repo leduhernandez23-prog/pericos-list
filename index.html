@@ -1056,13 +1056,17 @@
             .supplier-group { width: 100% !important; display: block; margin-right: 0; }
         }
 
+        /* PRINT FIX: Forces the browser to instantly format the screen into a flawless PDF page */
         @media print {
-            body { background-color: #fff; margin: 0; padding: 0; color: #000; padding-bottom: 0; }
-            .header-container, .bottom-nav, .fab-btn, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, #login-screen { display: none !important; }
-            .shopping-list-panel, .analytics-box { box-shadow: none; border-top: none; margin-top: 0; padding: 0; background: #fff; }
+            body, body.dark-mode { background-color: #fff !important; margin: 0; padding: 0; color: #000 !important; padding-bottom: 0; }
+            .header-container, .bottom-nav, .fab-btn, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, #login-screen, .pericos-branding { display: none !important; }
+            .shopping-list-panel, .analytics-box { box-shadow: none !important; border-top: none !important; margin-top: 0 !important; padding: 0 !important; background: #fff !important; color: #000 !important; }
             .supplier-grid { display: block !important; width: 100% !important; }
-            .supplier-group, .trend-box { display: inline-block !important; width: 32% !important; border-left: 3px solid #000; border-top: none !important; background: none; break-inside: avoid; }
-            .supplier-group h4, .supplier-group li, .invoice-total { color: #000; border-color: #ddd; }
+            .supplier-group, .trend-box { display: inline-block !important; width: 31% !important; vertical-align: top !important; margin-right: 2% !important; border: 1px solid #ccc !important; border-top: none !important; background: transparent !important; break-inside: avoid; padding: 10px !important; border-radius: 8px !important; box-sizing: border-box !important;}
+            .supplier-group h4, .supplier-group li, .invoice-total { color: #000 !important; border-color: #ddd !important; }
+            .price-badge, .qty-badge { color: #000 !important; }
+            h2 { color: #000 !important; margin-bottom: 10px !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important; text-transform: uppercase !important; }
+            .app-section:not(.active-app) { display: none !important; }
         }
     </style>
 </head>
@@ -1520,7 +1524,6 @@
             panel.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // DARK MODE FIX: Now saves exactly the same variable as events.html
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
@@ -2192,7 +2195,7 @@
             });
         }
 
-       // PDF FIX: Generates pure string HTML and strips CSS variables to prevent iOS crashes
+        // PDF FIX: Uses native browser print which triggers your @media print CSS!
         function downloadPDF(appName) {
             let listContentDiv = document.getElementById('list-content-' + appName);
             
@@ -2201,53 +2204,16 @@
                 return;
             }
 
-            let timeTracker = document.getElementById('time-' + appName).innerText;
+            // Temporarily rename the webpage title so the downloaded file has a clean name
+            let originalTitle = document.title;
             let displayLocation = currentLocation.replace('_', ' ');
-            let displayApp = appName === 'sysco' ? 'MAIN INVOICE' : 'PRODUCE INVOICE';
-            
-            let isHidden = document.querySelector(`#${appName}-wrapper .shopping-list-panel`).classList.contains('hide-prices-active');
-            let rawHtml = listContentDiv.innerHTML;
+            document.title = `${displayLocation} - ${appName.toUpperCase()} Order`;
 
-            if (isHidden) {
-                // Erase the price badges from the code if the toggle is checked
-                rawHtml = rawHtml.replace(/<span class="price-badge"[\s\S]*?<\/span><\/span>/g, '</span>');
-            }
+            // This tells the browser/phone to step in and format the page perfectly using the CSS we wrote
+            window.print();
 
-            // CRITICAL FIX: The PDF engine crashes if it sees 'var(--color)'. We force them all to black.
-            rawHtml = rawHtml.replace(/var\(--[a-zA-Z0-9-]+\)/g, '#000000');
-
-            // Strip CSS classes and inject hard-coded styles directly into the elements
-            rawHtml = rawHtml.replace(/class="supplier-group"/g, 'style="display: inline-block; width: 31%; vertical-align: top; margin-right: 2%; margin-bottom: 20px; padding: 10px; border: 1px solid #999; border-radius: 8px; box-sizing: border-box; background-color: #fff; page-break-inside: avoid;"');
-            rawHtml = rawHtml.replace(/<h4/g, '<h4 style="margin-top:0; margin-bottom:10px; border-bottom:2px solid #000; padding-bottom:5px; font-size: 16px; color:#000;"');
-            rawHtml = rawHtml.replace(/<ul/g, '<ul style="margin:0; padding-left:15px; list-style-type:none; color:#000;"');
-            rawHtml = rawHtml.replace(/<li/g, '<li style="padding:6px 0; border-bottom:1px solid #eee; font-size:13px; color:#000;"');
-            rawHtml = rawHtml.replace(/class="invoice-total"/g, 'style="margin-top:10px; padding-top:10px; border-top:2px solid #000; font-weight:bold; color:#000; font-size: 16px; text-align:right; display:flex; justify-content:space-between;"');
-            rawHtml = rawHtml.replace(/class="qty-badge"/g, 'style="font-weight:bold; margin-right:5px; font-size:14px;"');
-            rawHtml = rawHtml.replace(/class="price-badge"/g, 'style="font-weight:bold; display:block; margin-top:2px; font-size:13px;"');
-
-            // Construct the final document wrapper
-            let finalHtml = `
-                <div style="padding: 30px; background: #ffffff; width: 1050px; color: #000000; font-family: Helvetica, Arial, sans-serif;">
-                    <div style="border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
-                        <h1 style="margin: 0; font-size: 28px; text-transform: uppercase; font-weight: bold;">${displayLocation} - ${displayApp}</h1>
-                        <p style="margin: 5px 0 0 0; color: #555; font-size: 14px;">${timeTracker}</p>
-                    </div>
-                    <div style="width: 100%; display: block;">
-                        ${rawHtml}
-                    </div>
-                </div>
-            `;
-
-            const opt = { 
-                margin: 0.2, 
-                filename: `${currentLocation}_${appName}_Order.pdf`, 
-                image: { type: 'jpeg', quality: 1 }, 
-                html2canvas: { scale: 2, useCORS: true, windowWidth: 1100, backgroundColor: '#ffffff' }, 
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } 
-            };
-            
-            // Generate instantly from the string
-            html2pdf().set(opt).from(finalHtml).save();
+            // Put the title back to normal
+            document.title = originalTitle;
         }
 
         function extractTableData(tableId, targetArray) {
