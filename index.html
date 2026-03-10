@@ -1043,7 +1043,7 @@
             .supplier-group { width: 100% !important; display: block; margin-right: 0; }
         }
 
-        /* PRINT FIX: Forces the browser to instantly format the screen into a flawless PDF page */
+      /* PRINT FIX: Forces the browser to instantly format the screen into a flawless PDF page */
         @media print {
             body, body.dark-mode { background-color: #fff !important; margin: 0; padding: 0; color: #000 !important; padding-bottom: 0; }
             
@@ -1051,28 +1051,46 @@
             .bottom-nav, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, #login-screen, .header-utils, .add-row-btn, #catering-banner, .fab-btn { display: none !important; }
             
             /* Show Header */
-            .header-container { display: flex !important; justify-content: flex-start !important; align-items: center !important; margin-bottom: 20px !important; margin-top: 0 !important; padding: 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 15px !important;}
-            .pericos-branding { display: flex !important; align-items: center !important; gap: 15px !important; }
-            .header-logo { display: block !important; height: 60px !important; border-radius: 50% !important; border: 2px solid #000 !important; }
-            .main-title { color: #000 !important; font-size: 28px !important; margin: 0 !important; }
+            .header-container { display: flex !important; justify-content: flex-start !important; align-items: center !important; margin-bottom: 10px !important; margin-top: 0 !important; padding: 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important;}
+            .pericos-branding { display: flex !important; align-items: center !important; gap: 10px !important; }
+            .header-logo { display: block !important; height: 50px !important; border-radius: 50% !important; border: 2px solid #000 !important; }
+            .main-title { color: #000 !important; font-size: 20px !important; margin: 0 !important; }
             
             /* List Panel */
             .shopping-list-panel { box-shadow: none !important; border-top: none !important; margin-top: 0 !important; padding: 0 !important; background: #fff !important; color: #000 !important; }
-            .shopping-list-panel h2 { color: #000 !important; margin-bottom: 15px !important; padding-bottom: 5px !important; text-transform: uppercase !important; font-size: 20px !important;}
+            .shopping-list-panel h2 { color: #000 !important; margin-bottom: 10px !important; padding-bottom: 5px !important; text-transform: uppercase !important; font-size: 16px !important;}
             
-            /* Columns */
-            .supplier-grid { display: block !important; width: 100% !important; }
-            .supplier-group { display: inline-block !important; width: 31% !important; vertical-align: top !important; margin-right: 2% !important; border: 1px solid #ccc !important; background: transparent !important; break-inside: avoid; padding: 10px !important; border-radius: 8px !important; box-sizing: border-box !important;}
-            .supplier-group:nth-child(3n) { margin-right: 0 !important; }
-            .supplier-group h4 { color: #000 !important; border-color: #000 !important; }
-            .supplier-group li { color: #000 !important; border-color: #eee !important; }
-            .invoice-total { color: #000 !important; border-color: #000 !important; }
-            .price-badge, .qty-badge { color: #000 !important; }
+            /* Columns - Changed to Flexbox for perfect equal columns */
+            .supplier-grid { display: flex !important; align-items: flex-start !important; gap: 2% !important; width: 100% !important; }
+            
+            /* THE FIX: removed "break-inside: avoid" from the whole group so it doesn't push to page 2 */
+            .supplier-group { display: block !important; flex: 1 !important; margin: 0 !important; border: 1px solid #ccc !important; background: transparent !important; padding: 8px !important; border-radius: 8px !important; box-sizing: border-box !important; break-inside: auto !important; }
+            
+            /* Make text smaller to fit more on one page */
+            .supplier-group h4 { color: #000 !important; border-color: #000 !important; font-size: 14px !important; margin-bottom: 5px !important; }
+            .supplier-group ul { padding-left: 15px !important; margin: 0 !important; }
+            
+            /* Apply the page-break lock to the individual items instead so they don't get cut in half */
+            .supplier-group li { color: #000 !important; border-color: #eee !important; font-size: 11px !important; padding: 4px 0 !important; break-inside: avoid !important; }
+            
+            .price-badge, .qty-badge { color: #000 !important; font-size: 10px !important; }
+            .invoice-total { color: #000 !important; border-color: #000 !important; font-size: 12px !important; padding: 8px !important; margin-top: 8px !important; }
             
             .app-section:not(.active-app) { display: none !important; }
             
-            /* Add standard margins so text doesn't hit edge of paper */
-            @page { margin: 0.4in; }
+            /* Native Title for Print */
+            body::before {
+                content: "LOS PERICOS MASTER INVOICE";
+                display: block;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 15px;
+                color: #000;
+            }
+            
+            /* Shrink page margins to give more room */
+            @page { margin: 0.3in; }
         }
     </style>
 </head>
