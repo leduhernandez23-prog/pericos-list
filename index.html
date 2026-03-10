@@ -2192,54 +2192,54 @@
             });
         }
 
-        // PDF FIX: Clones layout, ensures it is attached to DOM invisibly, and forces desktop width
+        // PDF FIX: Completely rewritten to generate a clean HTML document from scratch
         function downloadPDF(appName) {
-            let originalPanel = document.querySelector(`#${appName}-wrapper .shopping-list-panel`);
-            if(!originalPanel) return;
+            let listContentDiv = document.getElementById('list-content-' + appName);
+            
+            if (!listContentDiv || listContentDiv.innerHTML.trim() === '' || listContentDiv.innerHTML.includes('Your cart is empty')) {
+                alert("Your cart is empty! Please add items to your cart before printing a PDF.");
+                return;
+            }
 
-            let clonedPanel = originalPanel.cloneNode(true);
+            // 1. Create a clean, unattached HTML wrapper
+            let printElement = document.createElement('div');
+            printElement.style.padding = "20px";
+            printElement.style.fontFamily = "Arial, sans-serif";
+            printElement.style.color = "#000";
+            printElement.style.backgroundColor = "#fff";
 
-            let btns = clonedPanel.querySelector('.action-btns');
-            if(btns) btns.remove();
-
-            let printWrapper = document.createElement('div');
-            printWrapper.style.padding = "20px";
-            printWrapper.style.backgroundColor = "#ffffff";
-            printWrapper.style.color = "#000000";
-            printWrapper.style.width = "1000px"; 
-
+            // 2. Build a clean text header (Avoiding image CORS issues)
             let timeTracker = document.getElementById('time-' + appName).innerText;
+            let displayLocation = currentLocation.replace('_', ' ');
+            let displayApp = appName === 'sysco' ? 'MAIN INVOICE' : 'PRODUCE INVOICE';
+            
             let headerHtml = `
-                <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px; border-bottom: 2px solid #ccc; padding-bottom: 10px;">
-                    <h1 style="margin:0; font-size:32px; text-transform:uppercase; color: #000;">${currentLocation.replace('_', ' ')} MASTER</h1>
+                <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                    <h1 style="margin:0; font-size:28px; text-transform:uppercase; font-weight:bold;">${displayLocation} - ${displayApp}</h1>
+                    <div style="font-size:14px; color:#555; margin-top:5px;">${timeTracker}</div>
                 </div>
-                <div style="text-align:right; font-size:12px; color:#666; font-style:italic; margin-bottom: 10px;">${timeTracker}</div>
             `;
-            
-            printWrapper.innerHTML = headerHtml;
-            printWrapper.appendChild(clonedPanel);
 
-            let grid = printWrapper.querySelector('.supplier-grid');
-            if (grid) {
-                grid.style.display = 'flex';
-                grid.style.flexWrap = 'wrap';
-                grid.style.gap = '10px';
-            }
+            // 3. Grab the raw list HTML
+            let rawHtml = listContentDiv.innerHTML;
             
-            printWrapper.querySelectorAll('.supplier-group').forEach(grp => {
-                grp.style.width = '31%';
-                grp.style.display = 'inline-block';
-                grp.style.margin = '0';
-                grp.style.border = '1px solid #ccc';
-            });
-
-            if (originalPanel.classList.contains('hide-prices-active')) {
-                printWrapper.querySelectorAll('.price-badge').forEach(el => el.style.display = 'none');
+            // 4. Check if prices are hidden by the toggle
+            let isHidden = document.querySelector(`#${appName}-wrapper .shopping-list-panel`).classList.contains('hide-prices-active');
+            
+            if (isHidden) {
+                // If hidden, mathematically delete the price badges from the code string
+                rawHtml = rawHtml.replace(/<span class="price-badge"[\s\S]*?<\/span><\/span>/g, '</span>');
             }
 
-            printWrapper.style.position = "absolute";
-            printWrapper.style.top = "-10000px";
-            document.body.appendChild(printWrapper);
+            // 5. Inject hard-coded "inline styles" into the raw HTML so the PDF engine cannot ignore them
+            rawHtml = rawHtml.replace(/class="supplier-group"/g, 'style="display: inline-block; width: 31%; vertical-align: top; margin-right: 2%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;"');
+            rawHtml = rawHtml.replace(/<h4/g, '<h4 style="margin-top:0; margin-bottom:10px; border-bottom:1px solid #ccc; padding-bottom:5px; font-size: 16px;"');
+            rawHtml = rawHtml.replace(/<ul/g, '<ul style="margin:0; padding-left:15px; list-style-type:square;"');
+            rawHtml = rawHtml.replace(/<li/g, '<li style="padding:5px 0; border-bottom:1px dashed #eee; font-size:13px;"');
+            rawHtml = rawHtml.replace(/class="invoice-total"/g, 'style="margin-top:10px; padding-top:10px; border-top:2px dashed #999; font-weight:bold; display:flex; justify-content:space-between;"');
+
+            // 6. Combine and prep the PDF
+            printElement.innerHTML = headerHtml + `<div>${rawHtml}</div>`;
 
             const opt = { 
                 margin: 0.5, 
@@ -2249,9 +2249,8 @@
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } 
             };
             
-            html2pdf().set(opt).from(printWrapper).save().then(() => {
-                document.body.removeChild(printWrapper);
-            });
+            // 7. Fire!
+            html2pdf().set(opt).from(printElement).save();
         }
 
         function extractTableData(tableId, targetArray) {
