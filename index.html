@@ -2094,6 +2094,20 @@
 
             container.innerHTML = html + `<button class="btn-green" style="width:100%; padding:15px; margin-top:10px; font-size:18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);" onclick="completeDelivery('${appName}')">✅ Mark Delivery Complete</button>`;
         }
+        
+// Opens and closes the Receiving folders
+        window.toggleSupplierGroup = function(groupId) {
+            let div = document.getElementById(groupId);
+            let arrow = document.getElementById('arrow-' + groupId);
+            if (div.style.display === 'none') {
+                div.style.display = 'block';
+                arrow.innerText = '▼';
+            } else {
+                div.style.display = 'none';
+                arrow.innerText = '▶';
+            }
+        };
+        
         function checkReceivingMatch(inputElem) {
             let card = inputElem.closest('.receiving-card');
             let expQty = parseFloat(card.getAttribute('data-expected-qty'));
