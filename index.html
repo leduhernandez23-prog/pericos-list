@@ -2028,19 +2028,17 @@
             });
         }
 
-   function renderReceivingList(appName, data) {
+  function renderReceivingList(appName, data) {
             let container = document.getElementById(`receiving-list-${appName}`);
             if (!data || data.length === 0) {
                 container.innerHTML = `<p style="text-align:center; color:#999; font-style:italic; padding:40px;">No pending deliveries.<br><br>Generate an order and click "Send to Receiving" to send your checklist here.</p>`;
                 return;
             }
 
-            // 1. Group the items by their Supplier
             let groupedData = {};
             data.forEach((item, index) => {
                 let supp = item.supplier || "Unknown";
                 if (!groupedData[supp]) { groupedData[supp] = []; }
-                // Keep the original index so the IDs stay intact
                 item.originalIndex = index; 
                 groupedData[supp].push(item);
             });
@@ -2048,12 +2046,24 @@
             let html = '';
             let themeColor = appName === 'verdura' ? 'var(--verdura-color)' : 'var(--primary-color)';
 
-            // 2. Loop through each group and generate a header, then the items underneath
-            Object.keys(groupedData).forEach(supplierName => {
-                // Add the Supplier Header
-                html += `<h3 style="margin-top: 30px; margin-bottom: 15px; border-bottom: 3px solid ${themeColor}; padding-bottom: 5px; color: var(--text-color); font-size: 22px; text-transform: uppercase;">📦 ${supplierName} Invoice</h3>`;
+            // Loop through each group and create an Accordion Folder
+            Object.keys(groupedData).forEach((supplierName, groupIndex) => {
+                // Create a safe, unique ID for this folder
+                let safeSuppId = `group-${appName}-${supplierName.replace(/\s+/g, '-')}`;
+                // Keep the very first folder open by default, close the rest
+                let isFirst = groupIndex === 0;
+                let displayStyle = isFirst ? 'block' : 'none';
+                let arrow = isFirst ? '▼' : '▶';
+
+                // THE CLICKABLE HEADER
+                html += `
+                <div onclick="toggleSupplierGroup('${safeSuppId}')" style="cursor:pointer; background:var(--supplier-group-bg); padding:15px; border-radius:12px; margin-top:15px; margin-bottom:10px; border-left:4px solid ${themeColor}; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                    <h3 style="margin:0; color: var(--text-color); font-size: 18px; text-transform: uppercase;">📦 ${supplierName}</h3>
+                    <span id="arrow-${safeSuppId}" style="font-size:18px; color:var(--result-text); font-weight:bold;">${arrow}</span>
+                </div>
                 
-                // Add the item cards for this specific supplier
+                <div id="${safeSuppId}" style="display:${displayStyle}; margin-bottom: 20px; padding-left: 5px;">`;
+                
                 groupedData[supplierName].forEach(item => {
                     let idx = item.originalIndex;
                     html += `
@@ -2078,12 +2088,12 @@
                         <div class="rec-status-msg" style="font-size:14px; font-weight:bold; margin-top:15px; text-align:center; color:var(--success-color);">✅ Perfect Match</div>
                     </div>`;
                 });
+                
+                html += `</div>`; // Closes the hidden list
             });
 
-            // 3. Add the big green Complete button at the very bottom
-            container.innerHTML = html + `<button class="btn-green" style="width:100%; padding:15px; margin-top:30px; font-size:18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);" onclick="completeDelivery('${appName}')">✅ Mark Delivery Complete</button>`;
+            container.innerHTML = html + `<button class="btn-green" style="width:100%; padding:15px; margin-top:10px; font-size:18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);" onclick="completeDelivery('${appName}')">✅ Mark Delivery Complete</button>`;
         }
-
         function checkReceivingMatch(inputElem) {
             let card = inputElem.closest('.receiving-card');
             let expQty = parseFloat(card.getAttribute('data-expected-qty'));
