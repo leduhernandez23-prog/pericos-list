@@ -2028,37 +2028,60 @@
             });
         }
 
-        function renderReceivingList(appName, data) {
+   function renderReceivingList(appName, data) {
             let container = document.getElementById(`receiving-list-${appName}`);
             if (!data || data.length === 0) {
                 container.innerHTML = `<p style="text-align:center; color:#999; font-style:italic; padding:40px;">No pending deliveries.<br><br>Generate an order and click "Send to Receiving" to send your checklist here.</p>`;
                 return;
             }
-            let html = '';
+
+            // 1. Group the items by their Supplier
+            let groupedData = {};
             data.forEach((item, index) => {
-                html += `
-                <div class="item-card receiving-card status-ok" id="rec-${appName}-${index}" data-expected-qty="${item.qty}" data-expected-price="${item.expectedPrice}">
-                    <div class="card-header" style="border-bottom:none; margin-bottom:0; padding-bottom:5px;">
-                        <div style="font-size:18px; font-weight:bold;" class="rec-item-name">${item.item}</div>
-                        <div style="color:var(--primary-color); font-weight:bold;" class="rec-supp-name">📦 ${item.supplier}</div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; gap:10px; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;">
-                        <div style="flex:1; text-align:center;">
-                            <label style="font-size:11px; color:var(--result-text); font-weight:bold;">RECEIVED QTY (Order: ${item.qty})</label>
-                            <input type="number" class="rec-qty" value="${item.qty}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; margin-top:5px; background:var(--input-bg); color:var(--text-color);">
+                let supp = item.supplier || "Unknown";
+                if (!groupedData[supp]) { groupedData[supp] = []; }
+                // Keep the original index so the IDs stay intact
+                item.originalIndex = index; 
+                groupedData[supp].push(item);
+            });
+
+            let html = '';
+            let themeColor = appName === 'verdura' ? 'var(--verdura-color)' : 'var(--primary-color)';
+
+            // 2. Loop through each group and generate a header, then the items underneath
+            Object.keys(groupedData).forEach(supplierName => {
+                // Add the Supplier Header
+                html += `<h3 style="margin-top: 30px; margin-bottom: 15px; border-bottom: 3px solid ${themeColor}; padding-bottom: 5px; color: var(--text-color); font-size: 22px; text-transform: uppercase;">📦 ${supplierName} Invoice</h3>`;
+                
+                // Add the item cards for this specific supplier
+                groupedData[supplierName].forEach(item => {
+                    let idx = item.originalIndex;
+                    html += `
+                    <div class="item-card receiving-card status-ok" id="rec-${appName}-${idx}" data-expected-qty="${item.qty}" data-expected-price="${item.expectedPrice}">
+                        <div class="card-header" style="border-bottom:none; margin-bottom:0; padding-bottom:5px;">
+                            <div style="font-size:18px; font-weight:bold;" class="rec-item-name">${item.item}</div>
+                            <div style="color:${themeColor}; font-weight:bold; display:none;" class="rec-supp-name">📦 ${item.supplier}</div>
                         </div>
-                        <div style="flex:1; text-align:center;">
-                            <label style="font-size:11px; color:var(--result-text); font-weight:bold;">INVOICE PRICE (Quote: $${item.expectedPrice.toFixed(2)})</label>
-                            <div style="position:relative; margin-top:5px;">
-                                <span style="position:absolute; left:10px; top:8px; color:var(--result-text); font-weight:bold; font-size:18px;">$</span>
-                                <input type="number" class="rec-price" value="${item.expectedPrice.toFixed(2)}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; background:var(--input-bg); color:var(--text-color);">
+                        <div style="display:flex; justify-content:space-between; gap:10px; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;">
+                            <div style="flex:1; text-align:center;">
+                                <label style="font-size:11px; color:var(--result-text); font-weight:bold;">RECEIVED QTY (Order: ${item.qty})</label>
+                                <input type="number" class="rec-qty" value="${item.qty}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; margin-top:5px; background:var(--input-bg); color:var(--text-color);">
+                            </div>
+                            <div style="flex:1; text-align:center;">
+                                <label style="font-size:11px; color:var(--result-text); font-weight:bold;">INVOICE PRICE (Quote: $${item.expectedPrice.toFixed(2)})</label>
+                                <div style="position:relative; margin-top:5px;">
+                                    <span style="position:absolute; left:10px; top:8px; color:var(--result-text); font-weight:bold; font-size:18px;">$</span>
+                                    <input type="number" class="rec-price" value="${item.expectedPrice.toFixed(2)}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; background:var(--input-bg); color:var(--text-color);">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="rec-status-msg" style="font-size:14px; font-weight:bold; margin-top:15px; text-align:center; color:var(--success-color);">✅ Perfect Match</div>
-                </div>`;
+                        <div class="rec-status-msg" style="font-size:14px; font-weight:bold; margin-top:15px; text-align:center; color:var(--success-color);">✅ Perfect Match</div>
+                    </div>`;
+                });
             });
-            container.innerHTML = html + `<button class="btn-green" style="width:100%; padding:15px; margin-top:20px; font-size:18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);" onclick="completeDelivery('${appName}')">✅ Mark Delivery Complete</button>`;
+
+            // 3. Add the big green Complete button at the very bottom
+            container.innerHTML = html + `<button class="btn-green" style="width:100%; padding:15px; margin-top:30px; font-size:18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);" onclick="completeDelivery('${appName}')">✅ Mark Delivery Complete</button>`;
         }
 
         function checkReceivingMatch(inputElem) {
