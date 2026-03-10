@@ -282,7 +282,6 @@
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        /* STICKY SEARCH BAR FIX */
         .search-bar { 
             position: sticky;
             top: 10px;
@@ -528,7 +527,6 @@
             gap: 12px; 
         }
         
-        /* FORCED SUPPLIER CSS UPDATE */
         .supplier-cell { 
             border: 1px solid var(--border-color); 
             border-radius: 12px; 
@@ -679,7 +677,6 @@
             text-align: center; 
         }
 
-        /* NEW FULL-WIDTH ADD BUTTON */
         .add-row-btn { 
             display: block; 
             width: 100%; 
@@ -1049,31 +1046,39 @@
         /* PRINT FIX: Forces the browser to instantly format the screen into a flawless PDF page */
         @media print {
             body, body.dark-mode { background-color: #fff !important; margin: 0; padding: 0; color: #000 !important; padding-bottom: 0; }
-            .header-container, .bottom-nav, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, #login-screen, .pericos-branding { display: none !important; }
-            .shopping-list-panel, .analytics-box { box-shadow: none !important; border-top: none !important; margin-top: 0 !important; padding: 0 !important; background: #fff !important; color: #000 !important; }
+            
+            /* Hide UI elements */
+            .bottom-nav, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, #login-screen, .header-utils, .add-row-btn, #catering-banner, .fab-btn { display: none !important; }
+            
+            /* Show Header */
+            .header-container { display: flex !important; justify-content: flex-start !important; align-items: center !important; margin-bottom: 20px !important; margin-top: 0 !important; padding: 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 15px !important;}
+            .pericos-branding { display: flex !important; align-items: center !important; gap: 15px !important; }
+            .header-logo { display: block !important; height: 60px !important; border-radius: 50% !important; border: 2px solid #000 !important; }
+            .main-title { color: #000 !important; font-size: 28px !important; margin: 0 !important; }
+            
+            /* List Panel */
+            .shopping-list-panel { box-shadow: none !important; border-top: none !important; margin-top: 0 !important; padding: 0 !important; background: #fff !important; color: #000 !important; }
+            .shopping-list-panel h2 { color: #000 !important; margin-bottom: 15px !important; padding-bottom: 5px !important; text-transform: uppercase !important; font-size: 20px !important;}
+            
+            /* Columns */
             .supplier-grid { display: block !important; width: 100% !important; }
-            .supplier-group, .trend-box { display: inline-block !important; width: 31% !important; vertical-align: top !important; margin-right: 2% !important; border: 1px solid #ccc !important; border-top: none !important; background: transparent !important; break-inside: avoid; padding: 10px !important; border-radius: 8px !important; box-sizing: border-box !important;}
-            .supplier-group h4, .supplier-group li, .invoice-total { color: #000 !important; border-color: #ddd !important; }
+            .supplier-group { display: inline-block !important; width: 31% !important; vertical-align: top !important; margin-right: 2% !important; border: 1px solid #ccc !important; background: transparent !important; break-inside: avoid; padding: 10px !important; border-radius: 8px !important; box-sizing: border-box !important;}
+            .supplier-group:nth-child(3n) { margin-right: 0 !important; }
+            .supplier-group h4 { color: #000 !important; border-color: #000 !important; }
+            .supplier-group li { color: #000 !important; border-color: #eee !important; }
+            .invoice-total { color: #000 !important; border-color: #000 !important; }
             .price-badge, .qty-badge { color: #000 !important; }
-            h2 { color: #000 !important; margin-bottom: 10px !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important; text-transform: uppercase !important; }
+            
             .app-section:not(.active-app) { display: none !important; }
             
-            /* Native Title for Print */
-            body::before {
-                content: "LOS PERICOS MASTER INVOICE";
-                display: block;
-                font-size: 28px;
-                font-weight: bold;
-                text-align: center;
-                margin-bottom: 20px;
-                color: #000;
-            }
+            /* Add standard margins so text doesn't hit edge of paper */
+            @page { margin: 0.4in; }
         }
     </style>
 </head>
 <body>
 
-    <div style="text-align: center; padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: 20px; background-color: var(--container-bg); border-bottom: 2px solid var(--border-color);" class="pericos-branding">
+    <div id="catering-banner" style="text-align: center; padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: 20px; background-color: var(--container-bg); border-bottom: 2px solid var(--border-color);">
         <a href="events.html" style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background-color 0.3s;">
             📅 Go to Caterings & Reservations
         </a>
