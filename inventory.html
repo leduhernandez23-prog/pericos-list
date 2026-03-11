@@ -252,7 +252,7 @@
         /* PRINT FIX */
         @media print {
             body, body.dark-mode { background-color: #fff !important; margin: 0; padding: 0; color: #000 !important; padding-bottom: 0; }
-            .bottom-nav, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, #login-screen, .header-utils, .add-row-btn, #nav-banner, .fab-btn { display: none !important; }
+            .bottom-nav, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, .header-utils, .add-row-btn, #nav-banner, .fab-btn { display: none !important; }
             .header-container { display: flex !important; justify-content: flex-start !important; align-items: center !important; margin-bottom: 10px !important; margin-top: 0 !important; padding: 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important;}
             .pericos-branding { display: flex !important; align-items: center !important; gap: 10px !important; }
             .header-logo { display: block !important; height: 50px !important; border-radius: 50% !important; border: 2px solid #000 !important; }
@@ -301,7 +301,6 @@
             </select>
             <div id="user-badge" class="user-badge">👤 Unknown</div>
             <button class="util-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
-            <button class="util-btn" style="color:var(--danger-color); border-color:var(--danger-color);" onclick="logoutUser()">🚪 Log Out</button>
         </div>
     </div>
 
@@ -495,6 +494,7 @@
     <script>
         if (localStorage.getItem('pericos_dark') === 'true') { document.getElementById('darkModeBtn').innerText = '☀️ Light Mode'; }
 
+        // --- FIREBASE INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
             authDomain: "los-pericos-46378.firebaseapp.com",
@@ -579,20 +579,6 @@
             } catch (error) { console.error('Notification setup failed silently:', error); }
         }
 
-        function logoutUser() {
-            if(confirm("Are you sure you want to log out?")) {
-                logAction(`🚪 Logged out`);
-                firebase.auth().signOut().then(() => {
-                    localStorage.removeItem('pericos_active_user');
-                    localStorage.removeItem('pericos_active_role');
-                    activeUser = null;
-                    activeRole = null;
-                    window.location.href = 'index.html';
-                });
-            }
-        }
-
-        // ====== BUG FIX: Removed isAppLoading block here so log in actually records! ======
         function logAction(actionText) {
             if(!activeUser) return; 
             let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
@@ -1048,7 +1034,6 @@
             }
         }
 
-        // ====== BUG FIX: Skipping Delivery Cards to stop crashing ======
         function generateAnalyticsDashboard() {
             let upList = document.getElementById('trends-up-list');
             let downList = document.getElementById('trends-down-list');
@@ -1056,7 +1041,7 @@
             let totalNetWorth = 0; 
             document.querySelectorAll('.item-card').forEach(card => {
                 let nameInput = card.querySelector('.item-name');
-                if (!nameInput) return; // FIX: Skips receiving card
+                if (!nameInput) return;
                 let itemName = nameInput.value.trim();
                 let shelfQty = parseFloat(card.querySelector('.shelf-qty').value) || 0;
                 if(shelfQty > 0) {
@@ -1091,7 +1076,7 @@
 
             let suppTotals = {};
             document.querySelectorAll('.item-card').forEach(card => {
-                if(!card.querySelector('.item-name')) return; // FIX: Secondary skip
+                if(!card.querySelector('.item-name')) return;
                 card.querySelectorAll('.best-deal').forEach(wc => {
                     let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
                     let price = parseFloat(wc.querySelector('.s-price').value) || 0;
