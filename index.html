@@ -82,7 +82,6 @@
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* LOGIN SCREEN */
         #login-screen { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; z-index: 10; padding: 20px; box-sizing: border-box; }
         .pin-box { background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 40px 30px; border-radius: 30px; box-shadow: var(--shadow-soft); border: 1px solid var(--container-border); width: 100%; max-width: 360px; text-align: center; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .logo-img { width: 110px; border-radius: 50%; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border: 4px solid rgba(255,255,255,0.3); }
@@ -97,16 +96,17 @@
         body.dark-mode .pin-btn { background: #fff; color: #000; }
         #pin-error { color: var(--logout-color); font-weight: bold; margin-top: 15px; display: none; font-size: 14px; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 10px; }
 
-        /* DASHBOARD SCREEN */
         #dashboard-screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
         
         .user-profile { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 25px; border-radius: 24px; width: 100%; box-sizing: border-box; border: 1px solid var(--container-border); box-shadow: var(--shadow-soft); animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .profile-text h2 { margin: 0 0 5px 0; font-size: 26px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;}
         .profile-text p { margin: 0; color: var(--text-sub); font-size: 14px; font-weight: 600; letter-spacing: 0.5px; }
         .live-date { color: var(--date-color) !important; font-size: 12px !important; font-weight: 800 !important; text-transform: uppercase; margin-bottom: 6px !important; letter-spacing: 1.5px !important;}
+        
+        .loc-dropdown { margin-top: 10px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--container-border); background: var(--container-bg); color: var(--text-main); font-weight: bold; font-size: 13px; outline: none; cursor: pointer; box-shadow: var(--shadow-soft); display: none;}
+        
         .dash-logo { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 6px 15px rgba(0,0,0,0.12); border: 2px solid var(--container-border);}
 
-        /* NOTIFICATION BOARD */
         .notification-board { width: 100%; margin-bottom: 25px; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.1s; }
         
         .alert-bubble { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 14px; margin-bottom: 10px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
@@ -124,7 +124,6 @@
         .add-note-btn:active { transform: scale(0.95); }
         body.dark-mode .add-note-btn { background: #fff; color: #000; }
 
-        /* GRID LAYOUT */
         .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; }
         
         .app-btn { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 25px 20px; border-radius: 28px; text-decoration: none; color: white; box-shadow: var(--shadow-soft); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
@@ -140,7 +139,6 @@
         .app-title { font-size: 18px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 4px; z-index: 2; position: relative;}
         .app-subtext { font-size: 13px; font-weight: 500; opacity: 0.85; z-index: 2; position: relative;}
 
-        /* Make Events span full width at bottom */
         .btn-event { grid-column: span 2; flex-direction: row; justify-content: flex-start; padding: 30px 25px; }
         .btn-event .app-icon { margin-bottom: 0; margin-right: 20px; width: 60px; height: 60px; font-size: 30px; border-radius: 50%; }
         
@@ -148,7 +146,6 @@
         .btn-bar { background: var(--bar-grad); }
         .btn-event { background: var(--event-grad); }
 
-        /* BOTTOM CONTROLS */
         .controls { margin-top: 35px; display: flex; gap: 15px; justify-content: center; width: 100%; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.4s; }
         .control-btn { flex: 1; background: var(--container-bg); color: var(--text-main); border: 1px solid var(--container-border); padding: 16px 20px; border-radius: 18px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: var(--shadow-soft); transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; backdrop-filter: blur(10px); }
         .control-btn:active { transform: scale(0.95); }
@@ -191,13 +188,17 @@
                 <p id="live-date" class="live-date">Loading Date...</p>
                 <h2 id="display-name">Welcome</h2>
                 <p id="display-role">Loading Profile...</p>
+                
+                <select id="location-switcher" class="loc-dropdown" onchange="switchLocation(this.value)">
+                    <option value="LP_Willis">📍 LP Willis</option>
+                    <option value="LP_Huntsville">📍 LP Huntsville</option>
+                </select>
             </div>
             <img src="image_0.png" alt="Logo" class="dash-logo">
         </div>
 
         <div class="notification-board">
-            <div id="alerts-container">
-                </div>
+            <div id="alerts-container"></div>
             
             <div class="add-note-container">
                 <input type="text" id="quickNoteInput" class="add-note-input" placeholder="Drop a sticky note for the team..." onkeypress="if(event.key === 'Enter') postQuickNote()">
@@ -240,7 +241,6 @@
     <script>
         if (localStorage.getItem('pericos_dark') === 'true') { document.getElementById('darkModeBtn').innerText = '☀️ Light Theme'; }
 
-        // LIVE DATE & DYNAMIC GREETING GENERATOR
         function updateClockAndGreeting() {
             const now = new Date();
             const options = { weekday: 'long', month: 'long', day: 'numeric' };
@@ -254,7 +254,6 @@
             return greeting;
         }
 
-        // YOUR FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
             authDomain: "los-pericos-46378.firebaseapp.com",
@@ -329,23 +328,33 @@
             let timeGreeting = updateClockAndGreeting();
             document.getElementById('display-name').innerText = `${timeGreeting}, ${activeUser.split(' ')[0]}`;
             
-            let displayLoc = currentLocation ? currentLocation.replace('_', ' ') : 'System Access';
-            document.getElementById('display-role').innerText = `${activeRole} • ${displayLoc}`;
+            let locSwitcher = document.getElementById('location-switcher');
+            
+            if (activeRole === 'Owner') {
+                document.getElementById('display-role').innerText = `${activeRole} Access`;
+                locSwitcher.style.display = 'inline-block';
+                locSwitcher.value = currentLocation;
+            } else {
+                let displayLoc = currentLocation ? currentLocation.replace('_', ' ') : '';
+                document.getElementById('display-role').innerText = `${activeRole} • ${displayLoc}`;
+                locSwitcher.style.display = 'none';
+            }
 
             loadDashboardAlerts();
         }
 
-        // ==========================================
-        // NOTIFICATION BOARD LOGIC
-        // ==========================================
+        function switchLocation(newLocation) {
+            currentLocation = newLocation;
+            localStorage.setItem('pericos_location', currentLocation);
+            location.reload(); 
+        }
+
         function loadDashboardAlerts() {
             const container = document.getElementById('alerts-container');
             
-            // 1. Fetch Quick Notes
             db.ref(currentLocation + '/quick_notes').on('value', (snap) => {
                 let html = '';
                 
-                // --- STEP A: Check for upcoming Events ---
                 db.ref(currentLocation + '/events').once('value').then(evSnap => {
                     const todayStr = getLocalIsoDate(0);
                     const tomorrowStr = getLocalIsoDate(1);
@@ -369,7 +378,6 @@
                         }
                     });
 
-                    // --- STEP B: Inject the Manual Sticky Notes ---
                     snap.forEach(child => {
                         let note = child.val();
                         html += `<div class="alert-bubble alert-manual">
@@ -397,22 +405,19 @@
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
 
-            input.value = ''; // Clear box
+            input.value = ''; 
         }
 
         function deleteQuickNote(noteId) {
             db.ref(currentLocation + '/quick_notes/' + noteId).remove();
         }
 
-        // Helper to get timezone-accurate YYYY-MM-DD
         function getLocalIsoDate(daysOffset = 0) {
             const date = new Date();
             date.setDate(date.getDate() + daysOffset);
             const offset = date.getTimezoneOffset() * 60000;
             return (new Date(date.getTime() - offset)).toISOString().split('T')[0];
         }
-
-        // ==========================================
 
         function logoutUser() {
             if(confirm("Are you sure you want to securely log out of all apps?")) {
