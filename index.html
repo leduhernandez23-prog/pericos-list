@@ -20,7 +20,6 @@
 
     <style>
         :root {
-            /* Light Theme - Ambient Breathing Colors */
             --bg-gradient-1: #f4f7f6;
             --bg-gradient-2: #e0e5ec;
             --bg-gradient-3: #d1d8e0;
@@ -34,12 +33,16 @@
             --food-grad: linear-gradient(135deg, #0056b3, #00a8ff);
             --bar-grad: linear-gradient(135deg, #662d91, #9b59b6);
             --event-grad: linear-gradient(135deg, #1e824c, #2ecc71);
+            
             --logout-color: #e74c3c;
             --date-color: #0056b3;
+            --alert-bg: #fff3cd;
+            --alert-text: #856404;
+            --note-bg: #e8f5e9;
+            --note-text: #155724;
         }
 
         body.dark-mode {
-            /* Dark Theme - Ambient Breathing Obsidian */
             --bg-gradient-1: #0f171e;
             --bg-gradient-2: #050a0f;
             --bg-gradient-3: #1a222c;
@@ -53,12 +56,16 @@
             --food-grad: linear-gradient(135deg, #0f4c81, #2980b9);
             --bar-grad: linear-gradient(135deg, #4a235a, #8e44ad);
             --event-grad: linear-gradient(135deg, #145a32, #27ae60);
+            
             --date-color: #4da3ff;
+            --alert-bg: rgba(245, 158, 11, 0.15);
+            --alert-text: #fcd34d;
+            --note-bg: rgba(16, 185, 129, 0.15);
+            --note-text: #6ee7b7;
         }
 
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            /* Animated Breathing Background */
             background: linear-gradient(-45deg, var(--bg-gradient-1), var(--bg-gradient-2), var(--bg-gradient-3));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
@@ -73,185 +80,63 @@
             transition: color 0.4s ease; 
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
         /* LOGIN SCREEN */
-        #login-screen { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-            width: 100%; 
-            z-index: 10; 
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .pin-box { 
-            background: var(--container-bg); 
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            padding: 40px 30px; 
-            border-radius: 30px; 
-            box-shadow: var(--shadow-soft); 
-            border: 1px solid var(--container-border); 
-            width: 100%; 
-            max-width: 360px; 
-            text-align: center; 
-            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .logo-img {
-            width: 110px; 
-            border-radius: 50%; 
-            margin-bottom: 20px; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            border: 4px solid rgba(255,255,255,0.3);
-        }
-
+        #login-screen { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; z-index: 10; padding: 20px; box-sizing: border-box; }
+        .pin-box { background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 40px 30px; border-radius: 30px; box-shadow: var(--shadow-soft); border: 1px solid var(--container-border); width: 100%; max-width: 360px; text-align: center; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .logo-img { width: 110px; border-radius: 50%; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border: 4px solid rgba(255,255,255,0.3); }
         .pin-box h2 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
         .pin-box p { color: var(--text-sub); font-size: 15px; margin: 8px 0 25px 0; }
 
-        .pin-input { 
-            width: 100%; 
-            font-size: 40px; 
-            text-align: center; 
-            letter-spacing: 20px; 
-            padding: 15px; 
-            border-radius: 18px; 
-            border: 2px solid transparent; 
-            background: rgba(128, 128, 128, 0.1); 
-            color: var(--text-main); 
-            margin-bottom: 25px; 
-            box-sizing: border-box; 
-            font-family: monospace;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-
-        .pin-input:focus {
-            background: rgba(128, 128, 128, 0.15);
-            border-color: #00a8ff;
-            box-shadow: 0 0 20px rgba(0, 168, 255, 0.25);
-        }
-
-        .pin-btn { 
-            background: var(--text-main); 
-            color: var(--bg-gradient-1); 
-            border: none; 
-            padding: 18px; 
-            width: 100%; 
-            font-size: 18px; 
-            font-weight: bold; 
-            border-radius: 16px; 
-            cursor: pointer; 
-            transition: transform 0.2s, box-shadow 0.2s; 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
+        .pin-input { width: 100%; font-size: 40px; text-align: center; letter-spacing: 20px; padding: 15px; border-radius: 18px; border: 2px solid transparent; background: rgba(128, 128, 128, 0.1); color: var(--text-main); margin-bottom: 25px; box-sizing: border-box; font-family: monospace; transition: all 0.3s ease; outline: none; }
+        .pin-input:focus { background: rgba(128, 128, 128, 0.15); border-color: #00a8ff; box-shadow: 0 0 20px rgba(0, 168, 255, 0.25); }
         
+        .pin-btn { background: var(--text-main); color: var(--bg-gradient-1); border: none; padding: 18px; width: 100%; font-size: 18px; font-weight: bold; border-radius: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
         .pin-btn:active { transform: scale(0.95); }
         body.dark-mode .pin-btn { background: #fff; color: #000; }
-        
         #pin-error { color: var(--logout-color); font-weight: bold; margin-top: 15px; display: none; font-size: 14px; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 10px; }
 
         /* DASHBOARD SCREEN */
-        #dashboard-screen { 
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            width: 100%; 
-            max-width: 600px; 
-            padding: 20px; 
-            box-sizing: border-box; 
-        }
+        #dashboard-screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
         
-        .user-profile { 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 35px; 
-            background: var(--container-bg); 
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            padding: 25px; 
-            border-radius: 24px; 
-            width: 100%; 
-            box-sizing: border-box; 
-            border: 1px solid var(--container-border); 
-            box-shadow: var(--shadow-soft); 
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
+        .user-profile { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 25px; border-radius: 24px; width: 100%; box-sizing: border-box; border: 1px solid var(--container-border); box-shadow: var(--shadow-soft); animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .profile-text h2 { margin: 0 0 5px 0; font-size: 26px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;}
         .profile-text p { margin: 0; color: var(--text-sub); font-size: 14px; font-weight: 600; letter-spacing: 0.5px; }
         .live-date { color: var(--date-color) !important; font-size: 12px !important; font-weight: 800 !important; text-transform: uppercase; margin-bottom: 6px !important; letter-spacing: 1.5px !important;}
-        
         .dash-logo { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 6px 15px rgba(0,0,0,0.12); border: 2px solid var(--container-border);}
 
-        /* GRID LAYOUT WITH STAGGERED ANIMATIONS */
-        .app-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 20px; 
-            width: 100%; 
-        }
+        /* NOTIFICATION BOARD */
+        .notification-board { width: 100%; margin-bottom: 25px; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.1s; }
         
-        .app-btn { 
-            display: flex; 
-            flex-direction: column;
-            align-items: flex-start; 
-            justify-content: center;
-            padding: 25px 20px; 
-            border-radius: 28px; 
-            text-decoration: none; 
-            color: white; 
-            box-shadow: var(--shadow-soft); 
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
-            position: relative;
-            overflow: hidden;
-            /* Animation set to backward so they stay invisible until their delay triggers */
-            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-        }
+        .alert-bubble { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 14px; margin-bottom: 10px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .alert-auto { background: var(--alert-bg); color: var(--alert-text); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .alert-manual { background: var(--note-bg); color: var(--note-text); border: 1px solid rgba(16, 185, 129, 0.3); }
+        
+        .alert-author { font-size: 11px; opacity: 0.7; margin-bottom: 2px; font-weight: 800; text-transform: uppercase; }
+        .dismiss-btn { background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.6; transition: 0.2s; padding: 5px; }
+        .dismiss-btn:hover { opacity: 1; transform: scale(1.1); }
 
-        /* Staggered load effect */
-        .app-btn:nth-child(1) { animation-delay: 0.1s; }
-        .app-btn:nth-child(2) { animation-delay: 0.2s; }
+        .add-note-container { display: flex; gap: 8px; margin-top: 10px; }
+        .add-note-input { flex: 1; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--container-border); background: var(--container-bg); color: var(--text-main); font-size: 14px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+        .add-note-input:focus { border-color: var(--date-color); }
+        .add-note-btn { background: var(--text-main); color: var(--bg-gradient-1); border: none; padding: 0 15px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .add-note-btn:active { transform: scale(0.95); }
+        body.dark-mode .add-note-btn { background: #fff; color: #000; }
+
+        /* GRID LAYOUT */
+        .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; }
+        
+        .app-btn { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 25px 20px; border-radius: 28px; text-decoration: none; color: white; box-shadow: var(--shadow-soft); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+        .app-btn:nth-child(1) { animation-delay: 0.2s; }
+        .app-btn:nth-child(2) { animation-delay: 0.25s; }
         .app-btn:nth-child(3) { animation-delay: 0.3s; }
 
-        .app-btn::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
-        }
+        .app-btn::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%); }
+        .app-btn:hover { transform: translateY(-6px) scale(1.02); box-shadow: var(--shadow-hover); }
+        .app-btn:active { transform: scale(0.95); }
 
-        .app-btn:hover { 
-            transform: translateY(-6px) scale(1.02); 
-            box-shadow: var(--shadow-hover); 
-        }
-        
-        .app-btn:active { 
-            transform: scale(0.95); 
-        }
-
-        .app-icon { 
-            font-size: 34px; 
-            margin-bottom: 20px; 
-            background: rgba(255,255,255,0.25); 
-            width: 65px; 
-            height: 65px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border-radius: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-        }
-        
+        .app-icon { font-size: 34px; margin-bottom: 20px; background: rgba(255,255,255,0.25); width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(10px); }
         .app-title { font-size: 18px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 4px; z-index: 2; position: relative;}
         .app-subtext { font-size: 13px; font-weight: 500; opacity: 0.85; z-index: 2; position: relative;}
 
@@ -264,53 +149,14 @@
         .btn-event { background: var(--event-grad); }
 
         /* BOTTOM CONTROLS */
-        .controls { 
-            margin-top: 35px; 
-            display: flex; 
-            gap: 15px; 
-            justify-content: center; 
-            width: 100%; 
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-            animation-delay: 0.4s;
-        }
-        
-        .control-btn { 
-            flex: 1;
-            background: var(--container-bg); 
-            color: var(--text-main); 
-            border: 1px solid var(--container-border); 
-            padding: 16px 20px; 
-            border-radius: 18px; 
-            font-weight: 700; 
-            font-size: 14px;
-            cursor: pointer; 
-            box-shadow: var(--shadow-soft);
-            transition: all 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            backdrop-filter: blur(10px);
-        }
-
+        .controls { margin-top: 35px; display: flex; gap: 15px; justify-content: center; width: 100%; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.4s; }
+        .control-btn { flex: 1; background: var(--container-bg); color: var(--text-main); border: 1px solid var(--container-border); padding: 16px 20px; border-radius: 18px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: var(--shadow-soft); transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; backdrop-filter: blur(10px); }
         .control-btn:active { transform: scale(0.95); }
-        
         .control-btn.logout { color: var(--logout-color); }
 
-        @keyframes popIn { 
-            0% { opacity: 0; transform: scale(0.85) translateY(20px); } 
-            100% { opacity: 1; transform: scale(1) translateY(0); } 
-        }
-
-        @keyframes slideDown { 
-            0% { opacity: 0; transform: translateY(-30px); } 
-            100% { opacity: 1; transform: translateY(0); } 
-        }
-
-        @keyframes slideUp { 
-            0% { opacity: 0; transform: translateY(30px); } 
-            100% { opacity: 1; transform: translateY(0); } 
-        }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.85) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes slideDown { 0% { opacity: 0; transform: translateY(-30px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
 
         @media (max-width: 400px) {
             .app-grid { grid-template-columns: 1fr; }
@@ -347,6 +193,16 @@
                 <p id="display-role">Loading Profile...</p>
             </div>
             <img src="image_0.png" alt="Logo" class="dash-logo">
+        </div>
+
+        <div class="notification-board">
+            <div id="alerts-container">
+                </div>
+            
+            <div class="add-note-container">
+                <input type="text" id="quickNoteInput" class="add-note-input" placeholder="Drop a sticky note for the team..." onkeypress="if(event.key === 'Enter') postQuickNote()">
+                <button class="add-note-btn" onclick="postQuickNote()">Post</button>
+            </div>
         </div>
 
         <div class="app-grid">
@@ -459,7 +315,6 @@
             }
         }
 
-        // Quick login via Enter key
         document.getElementById("pin-input").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -472,11 +327,92 @@
             document.getElementById('dashboard-screen').style.display = 'flex';
             
             let timeGreeting = updateClockAndGreeting();
-            document.getElementById('display-name').innerText = `${timeGreeting}, ${activeUser.split(' ')[0]}`; // First name only
+            document.getElementById('display-name').innerText = `${timeGreeting}, ${activeUser.split(' ')[0]}`;
             
             let displayLoc = currentLocation ? currentLocation.replace('_', ' ') : 'System Access';
             document.getElementById('display-role').innerText = `${activeRole} • ${displayLoc}`;
+
+            loadDashboardAlerts();
         }
+
+        // ==========================================
+        // NOTIFICATION BOARD LOGIC
+        // ==========================================
+        function loadDashboardAlerts() {
+            const container = document.getElementById('alerts-container');
+            
+            // 1. Fetch Quick Notes
+            db.ref(currentLocation + '/quick_notes').on('value', (snap) => {
+                let html = '';
+                
+                // --- STEP A: Check for upcoming Events ---
+                db.ref(currentLocation + '/events').once('value').then(evSnap => {
+                    const todayStr = getLocalIsoDate(0);
+                    const tomorrowStr = getLocalIsoDate(1);
+
+                    evSnap.forEach(child => {
+                        let ev = child.val();
+                        if (ev.date === todayStr) {
+                            html += `<div class="alert-bubble alert-auto">
+                                <div>
+                                    <div class="alert-author">🚨 TODAY AT ${ev.start}</div>
+                                    ${ev.type}: ${ev.customer} (${ev.guests} Guests)
+                                </div>
+                            </div>`;
+                        } else if (ev.date === tomorrowStr) {
+                            html += `<div class="alert-bubble alert-auto">
+                                <div>
+                                    <div class="alert-author">📅 TOMORROW AT ${ev.start}</div>
+                                    ${ev.type}: ${ev.customer} (${ev.guests} Guests)
+                                </div>
+                            </div>`;
+                        }
+                    });
+
+                    // --- STEP B: Inject the Manual Sticky Notes ---
+                    snap.forEach(child => {
+                        let note = child.val();
+                        html += `<div class="alert-bubble alert-manual">
+                            <div>
+                                <div class="alert-author">👤 ${note.author}</div>
+                                ${note.message}
+                            </div>
+                            <button class="dismiss-btn" onclick="deleteQuickNote('${child.key}')" title="Dismiss Note">✅</button>
+                        </div>`;
+                    });
+
+                    container.innerHTML = html;
+                });
+            });
+        }
+
+        function postQuickNote() {
+            const input = document.getElementById('quickNoteInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            db.ref(currentLocation + '/quick_notes').push({
+                author: activeUser.split(' ')[0],
+                message: msg,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            input.value = ''; // Clear box
+        }
+
+        function deleteQuickNote(noteId) {
+            db.ref(currentLocation + '/quick_notes/' + noteId).remove();
+        }
+
+        // Helper to get timezone-accurate YYYY-MM-DD
+        function getLocalIsoDate(daysOffset = 0) {
+            const date = new Date();
+            date.setDate(date.getDate() + daysOffset);
+            const offset = date.getTimezoneOffset() * 60000;
+            return (new Date(date.getTime() - offset)).toISOString().split('T')[0];
+        }
+
+        // ==========================================
 
         function logoutUser() {
             if(confirm("Are you sure you want to securely log out of all apps?")) {
