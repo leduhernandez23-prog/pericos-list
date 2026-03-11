@@ -33,12 +33,10 @@
             --input-text: #333;
             --th-bg: #f8f9fa;
             
-            /* DEDICATED SUPPLIER COLORS */
-            --premier-color: #8e44ad; /* Purple */
-            --se-color: #2980b9;      /* Blue */
-            --faust-color: #f39c12;   /* Gold */
-            
-            --primary-color: #8e44ad; /* Default fallback */
+            --premier-color: #8e44ad; 
+            --se-color: #2980b9;      
+            --faust-color: #f39c12;   
+            --primary-color: #8e44ad; 
             
             --analytics-color: #16a085;
             --receiving-color: #c0392b;
@@ -65,7 +63,6 @@
             --premier-color: #af7ac5;
             --se-color: #5dade2;
             --faust-color: #f5b041;
-            
             --primary-color: #af7ac5;
             
             --analytics-color: #48c9b0;
@@ -79,12 +76,7 @@
 
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); max-width: 1200px; margin: 0 auto; padding: 0; padding-bottom: 120px; transition: background-color 0.3s, color 0.3s; }
         
-        #login-screen, #splash-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg-color); z-index: 9999999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .pin-box { background: var(--container-bg); padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid var(--border-color); width: 80%; max-width: 320px; }
-        .pin-input { width: 100%; font-size: 32px; text-align: center; letter-spacing: 15px; padding: 15px; border-radius: 12px; border: 2px solid var(--premier-color); background: var(--input-bg); color: var(--text-color); margin: 20px 0; box-sizing: border-box; }
-        .pin-btn { background: var(--premier-color); color: white; border: none; padding: 15px; width: 100%; font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; }
-        #pin-error { color: var(--danger-color); font-weight: bold; margin-top: 15px; display: none; }
-
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg-color); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.6s ease-out; }
         .splash-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--premier-color); animation: pulse-ring 2s infinite; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         .splash-text { margin-top: 30px; font-size: 18px; font-weight: bold; color: var(--text-color); letter-spacing: 3px; text-transform: uppercase; animation: fade-pulse 2s infinite; }
         
@@ -157,8 +149,6 @@
         .card-body { display: grid; grid-template-columns: 1fr; gap: 12px; }
         
         .supplier-cell { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; background: var(--supplier-group-bg); position: relative; transition: 0.3s; cursor: default; }
-        
-        /* Forces active styling since they are single-vendor tables */
         .premier-wrapper .supplier-cell { border-color: var(--premier-color); background: rgba(142, 68, 173, 0.05); }
         .silvereagle-wrapper .supplier-cell { border-color: var(--se-color); background: rgba(41, 128, 185, 0.05); }
         .faust-wrapper .supplier-cell { border-color: var(--faust-color); background: rgba(243, 156, 18, 0.05); }
@@ -302,25 +292,14 @@
 <body>
 
     <div id="nav-banner" style="text-align: center; padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: 20px; background-color: var(--container-bg); border-bottom: 2px solid var(--border-color);">
-        <a href="index.html" style="display: inline-block; background-color: #0056b3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background-color 0.3s;">
-            🥩 Go to Main Food Inventory
+        <a href="index.html" style="display: inline-block; background-color: #2c3e50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s;">
+            🏠 Back to Dashboard
         </a>
     </div>
 
     <script>
         if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
     </script>
-
-    <div id="login-screen">
-        <div class="pin-box">
-            <img src="image_0.png" alt="Los Pericos Logo" style="width:100px; border-radius:50%; margin-bottom:10px; border:2px solid var(--border-color);">
-            <h2 style="margin:0; font-size:24px;">Bar Vault</h2>
-            <p style="color:var(--result-text); font-size:14px; margin-top:5px;">Enter your 4-digit PIN</p>
-            <input type="password" id="pin-input" class="pin-input" inputmode="numeric" maxlength="4" placeholder="••••">
-            <button class="pin-btn" onclick="verifyPin()">Unlock Bar</button>
-            <p id="pin-error">❌ Invalid PIN. Try again.</p>
-        </div>
-    </div>
 
     <div id="splash-screen" style="display:none;">
         <img src="image_0.png" alt="Los Pericos Logo" class="splash-logo">
@@ -609,15 +588,6 @@
         const mySyncId = Math.random().toString(36).substr(2, 9);
         let spendChartInstance = null; 
 
-        // SHARED AUTH LOGIC
-        const TEAM_PINS = {
-            "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
-            "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
-            "6660": { name: "Elias", role: "Manager", location: "LP_Huntsville" },
-            "1116": { name: "Stephanie", role: "Owner", location: "All" },
-            "0523": { name: "Luis M", role: "Owner", location: "All" }
-        };
-
         let activeUser = localStorage.getItem('pericos_active_user');
         let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis'; 
@@ -653,25 +623,20 @@
             updateLoginUI(); 
             isAppLoading = true;
             let splash = document.getElementById('splash-screen');
-            splash.style.display = 'flex';
-            splash.style.opacity = '1';
+            if (splash) { splash.style.display = 'flex'; splash.style.opacity = '1'; }
             loadFromDatabase(); 
         }
 
+        // ====== BUG FIX: KICKS USER OUT IF THEY DON'T COME FROM INDEX.HTML ======
         firebase.auth().onAuthStateChanged((user) => {
             if (user && activeUser) {
-                document.getElementById('login-screen').style.display = 'none';
                 updateLoginUI();
                 let splash = document.getElementById('splash-screen');
-                splash.style.display = 'flex';
-                splash.style.opacity = '1';
+                if (splash) { splash.style.display = 'flex'; splash.style.opacity = '1'; }
                 loadFromDatabase(); 
                 setupPushNotifications(); 
             } else {
-                document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('login-screen').style.opacity = '1';
-                document.getElementById('pin-input').focus();
+                window.location.href = 'index.html';
             }
         });
 
@@ -689,56 +654,22 @@
             } catch (error) { console.error('Notification setup failed silently:', error); }
         }
 
-        function verifyPin() {
-            let pin = document.getElementById('pin-input').value;
-            let userData = TEAM_PINS[pin];
-            
-            if (userData) {
-                firebase.auth().signInAnonymously().then(() => {
-                    activeUser = userData.name;
-                    activeRole = userData.role;
-                    if (activeRole === 'Owner') { currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis'; } 
-                    else { currentLocation = userData.location; }
-
-                    localStorage.setItem('pericos_active_user', activeUser);
-                    localStorage.setItem('pericos_active_role', activeRole);
-                    localStorage.setItem('pericos_location', currentLocation);
-                    
-                    document.getElementById('pin-error').style.display = 'none';
-                    updateLoginUI();
-                    
-                    document.getElementById('login-screen').style.display = 'none';
-                    let splash = document.getElementById('splash-screen');
-                    splash.style.display = 'flex';
-                    splash.style.opacity = '1';
-
-                    logAction(`🟢 Logged into Bar Vault at ${currentLocation.replace('_', ' ')}`);
-                    loadFromDatabase();
-                    setupPushNotifications(); 
-                }).catch((error) => {
-                    alert("⚠️ Cannot connect to Firebase Security. Check your internet connection.");
-                });
-            } else {
-                document.getElementById('pin-error').style.display = 'block';
-                document.getElementById('pin-input').value = '';
-            }
-        }
-
         function logoutUser() {
             if(confirm("Are you sure you want to log out?")) {
-                logAction(`🚪 Logged out of Bar Vault`);
+                logAction(`🚪 Logged out`);
                 firebase.auth().signOut().then(() => {
                     localStorage.removeItem('pericos_active_user');
                     localStorage.removeItem('pericos_active_role');
                     activeUser = null;
                     activeRole = null;
-                    location.reload(); 
+                    window.location.href = 'index.html';
                 });
             }
         }
 
+        // ====== BUG FIX: Removed isAppLoading block here so log in actually records! ======
         function logAction(actionText) {
-            if(!activeUser || isAppLoading) return;
+            if(!activeUser) return; 
             let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
             db.ref(currentLocation + '/logs').push({
                 user: activeUser,
@@ -752,7 +683,6 @@
             if(isAppLoading) return;
             let newVal = parseFloat(inputElem.value) || 0;
             let oldVal = parseFloat(inputElem.getAttribute('data-baseline')) || 0;
-            
             if(newVal !== oldVal && newVal > 0) {
                 let card = inputElem.closest('.item-card');
                 let itemName = card ? card.querySelector('.item-name').value.trim() : 'Unknown Item';
@@ -770,10 +700,8 @@
         function switchApp(appTarget) {
             let activeAppElem = document.querySelector('.active-app');
             if (activeAppElem && activeAppElem.id === appTarget + '-wrapper') {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
+                window.scrollTo({ top: 0, behavior: 'smooth' }); return;
             }
-
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-premier', 'active-silvereagle', 'active-faust', 'active-analytics', 'active-receiving'));
             
@@ -783,7 +711,6 @@
             
             if (appTarget === 'analytics') { generateAnalyticsDashboard(); } 
             else if (appTarget !== 'receiving') { generateShoppingList(appTarget); }
-            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -839,7 +766,6 @@
             let wrapper = document.getElementById(appName + '-wrapper');
             let allRows = wrapper.querySelectorAll('.item-card');
             let listBySupplier = {};
-
             allRows.forEach(row => {
                 let itemName = row.querySelector('.item-name').value.trim();
                 let winningCells = row.querySelectorAll('.supplier-cell'); 
@@ -848,7 +774,6 @@
                         let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
                         let aQty = parseFloat(wc.querySelector('.s-qty').value) || 0; 
                         let mainQty = parseFloat(row.querySelector('.order-qty').value) || 0;
-                        
                         if (mainQty > 0) {
                             if (!listBySupplier[sName]) listBySupplier[sName] = [];
                             listBySupplier[sName].push(`${mainQty}x ${itemName}`);
@@ -856,7 +781,6 @@
                     });
                 }
             });
-
             if(Object.keys(listBySupplier).length === 0) { alert("Your cart is empty! Add quantities before copying."); return; }
             let textOutput = `📋 ${currentLocation.replace('_', ' ')} Bar Order\n`;
             Object.keys(listBySupplier).forEach(supp => {
@@ -872,7 +796,6 @@
                 let grandTotal = 0; let suppTotals = {};
                 let rows = document.querySelectorAll(`#${appName}-wrapper .item-card`);
                 let pendingItems = []; 
-
                 rows.forEach(row => {
                     let itemName = row.querySelector('.item-name').value.trim();
                     row.querySelectorAll('.supplier-cell').forEach(wc => {
@@ -884,18 +807,15 @@
                             grandTotal += lineTotal;
                             if (!suppTotals[sName]) suppTotals[sName] = 0;
                             suppTotals[sName] += lineTotal;
-                            
                             pendingItems.push({ item: itemName, supplier: sName, qty: aQty, expectedPrice: price });
                         }
                     });
                 });
-
                 if (grandTotal > 0) {
                     let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
                     db.ref(currentLocation + '/ledger/' + appName).push({ date: now, total: grandTotal, breakdown: suppTotals });
                     db.ref(currentLocation + '/pending_delivery/' + appName).set(pendingItems);
                 }
-
                 rows.forEach(row => {
                     row.querySelector('.order-qty').value = '';
                     row.querySelector('.shelf-qty').value = '';
@@ -906,7 +826,6 @@
                     });
                     processRowUpdate(row.querySelector('.item-name'), true); 
                 });
-                
                 logAction(`🔄 Dispatched ${appName.toUpperCase()} order and reset the board`);
                 saveToDatabase(appName);
                 generateShoppingList(appName);
@@ -919,96 +838,37 @@
             let parInput = card.querySelector('.par-qty');
             let shelfInput = card.querySelector('.shelf-qty');
             let orderInput = card.querySelector('.order-qty');
-            
             let par = parseFloat(parInput.value);
             let shelf = parseFloat(shelfInput.value) || 0;
-
-            if (!isNaN(par)) {
-                let order = Math.max(0, par - shelf);
-                orderInput.value = order;
-            }
+            if (!isNaN(par)) { orderInput.value = Math.max(0, par - shelf); }
             processRowUpdate(elem);
         }
 
         function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, oldTrend, baselineVal) {
             let qtyHtml = '';
             if (hasUnits) {
-                qtyHtml = `
-                <div style="display:none; width:100%; gap:4px; margin-top:8px;">
-                    <input type="number" class="s-qty" placeholder="Qty" value="${qtyVal}" style="width:60%;" oninput="processRowUpdate(this)">
-                    <select class="s-unit" style="width:40%; padding:4px; font-size:12px;" onchange="processRowUpdate(this)">
-                        <option value="oz" ${unitVal==='oz'?'selected':''}>oz</option>
-                        <option value="lb" ${unitVal==='lb'?'selected':''}>lb</option>
-                        <option value="fl oz" ${unitVal==='fl oz'?'selected':''}>fl oz</option>
-                        <option value="ml" ${unitVal==='ml'?'selected':''}>ml</option>
-                    </select>
-                </div>`;
+                qtyHtml = `<div style="display:none; width:100%; gap:4px; margin-top:8px;"><input type="number" class="s-qty" placeholder="Qty" value="${qtyVal}" style="width:60%;" oninput="processRowUpdate(this)"><select class="s-unit" style="width:40%; padding:4px; font-size:12px;" onchange="processRowUpdate(this)"><option value="oz" ${unitVal==='oz'?'selected':''}>oz</option><option value="lb" ${unitVal==='lb'?'selected':''}>lb</option><option value="fl oz" ${unitVal==='fl oz'?'selected':''}>fl oz</option><option value="ml" ${unitVal==='ml'?'selected':''}>ml</option></select></div>`;
             } else {
                 qtyHtml = `<input type="number" class="s-qty" placeholder="Pack Size" value="${qtyVal}" style="display:none; width:100%; margin-top:8px;" oninput="processRowUpdate(this)">`;
             }
-
             let safeBaseline = baselineVal !== undefined && baselineVal !== "" ? baselineVal : priceVal;
-
-            return `
-                <div class="supplier-cell" style="cursor: default;">
-                    <input type="text" class="s-name" placeholder="Supplier Name" value="${supplierName}" oninput="processRowUpdate(this)">
-                    <div style="position:relative; display:flex; align-items:center;">
-                        <span style="position:absolute; left:10px; color:var(--result-text); font-weight:bold;">$</span>
-                        <input type="number" class="s-price" style="padding-left:22px; width:100%; font-size:16px; font-weight:bold;" placeholder="Price" value="${priceVal}" data-baseline="${safeBaseline}" oninput="processRowUpdate(this)" onchange="logPriceChange(this)">
-                    </div>
-                    ${qtyHtml}
-                    <div class="s-result" data-value="0" style="display:none;">$0.00</div>
-                </div>
-            `;
+            return `<div class="supplier-cell" style="cursor: default;"><input type="text" class="s-name" placeholder="Supplier Name" value="${supplierName}" oninput="processRowUpdate(this)"><div style="position:relative; display:flex; align-items:center;"><span style="position:absolute; left:10px; color:var(--result-text); font-weight:bold;">$</span><input type="number" class="s-price" style="padding-left:22px; width:100%; font-size:16px; font-weight:bold;" placeholder="Price" value="${priceVal}" data-baseline="${safeBaseline}" oninput="processRowUpdate(this)" onchange="logPriceChange(this)"></div>${qtyHtml} <div class="s-result" data-value="0" style="display:none;">$0.00</div></div>`;
         }
 
         function addRow(tableId, appName, pLabel, qLabel, itemName = "", parQty = "", shelfQty = "", orderQty = "", targetUnit = "oz", s1, s2, s3, forcedSupp = null) {
             let container = document.getElementById(tableId);
             let hasUnits = container.getAttribute('data-has-units') === 'true';
-            
             let card = document.createElement('div');
             card.className = 'item-card';
+            if(forcedSupp) { card.setAttribute('data-forced-supplier', forcedSupp); }
 
             let targetUnitHtml = '';
-            if (hasUnits) {
-                targetUnitHtml = `
-                <div style="display:flex; align-items:center; gap:5px;">
-                    <span class="qty-label">Compare Per:</span>
-                    <select class="target-unit" onchange="processRowUpdate(this)" style="padding:4px; font-size:12px; margin:0; width:auto; border-radius:6px;">
-                        <option value="oz" ${targetUnit==='oz'?'selected':''}>oz</option>
-                        <option value="lb" ${targetUnit==='lb'?'selected':''}>lb</option>
-                        <option value="fl oz" ${targetUnit==='fl oz'?'selected':''}>fl oz</option>
-                        <option value="ml" ${targetUnit==='ml'?'selected':''}>ml</option>
-                    </select>
-                </div>`;
-            }
+            if (hasUnits) { targetUnitHtml = `<div style="display:flex; align-items:center; gap:5px;"><span class="qty-label">Compare Per:</span><select class="target-unit" onchange="processRowUpdate(this)" style="padding:4px; font-size:12px; margin:0; width:auto; border-radius:6px;"><option value="oz" ${targetUnit==='oz'?'selected':''}>oz</option><option value="lb" ${targetUnit==='lb'?'selected':''}>lb</option><option value="fl oz" ${targetUnit==='fl oz'?'selected':''}>fl oz</option><option value="ml" ${targetUnit==='ml'?'selected':''}>ml</option></select></div>`; }
 
-            let html = `
-                <div class="card-header">
-                    <input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)">
-                    <div class="inventory-controls">
-                        <div class="inv-group"><label>Par</label><input type="number" class="inv-input par-qty" value="${parQty}" min="0" oninput="calcOrder(this)"></div>
-                        <div class="inv-group"><label>Shelf</label><input type="number" class="inv-input shelf-qty" value="${shelfQty}" min="0" oninput="calcOrder(this)"></div>
-                        <div class="inv-group order-group"><label>Order</label><input type="number" class="inv-input order-qty" value="${orderQty}" min="0" oninput="processRowUpdate(this)"></div>
-                    </div>
-                </div>
-                <div class="card-body">
-            `;
-
+            let html = `<div class="card-header"><input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)"><div class="inventory-controls"><div class="inv-group"><label>Par</label><input type="number" class="inv-input par-qty" value="${parQty}" min="0" oninput="calcOrder(this)"></div><div class="inv-group"><label>Shelf</label><input type="number" class="inv-input shelf-qty" value="${shelfQty}" min="0" oninput="calcOrder(this)"></div><div class="inv-group order-group"><label>Order</label><input type="number" class="inv-input order-qty" value="${orderQty}" min="0" oninput="processRowUpdate(this)"></div></div></div><div class="card-body">`;
             html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0, s1[5] || '', s1[6]);
             let s1Fallback = `['${s1[0]}','','','${s1[3]||'lb'}',0,'','']`;
-
-            html += `
-                </div>
-                <div class="card-footer">
-                    ${targetUnitHtml}
-                    <div class="card-actions">
-                        <button class="icon-btn" onclick="insertRowRelative(this, 'before', '${appName}', ${s1Fallback})">⬆️ Add</button>
-                        <button class="icon-btn" onclick="insertRowRelative(this, 'after', '${appName}', ${s1Fallback})">⬇️ Add</button>
-                        <button class="delete-btn" onclick="deleteRow(this)">🗑️ Remove</button>
-                    </div>
-                </div>
-            `;
+            html += `</div><div class="card-footer">${targetUnitHtml}<div class="card-actions"><button class="icon-btn" onclick="insertRowRelative(this, 'before', '${appName}', ${s1Fallback})">⬆️ Add</button><button class="icon-btn" onclick="insertRowRelative(this, 'after', '${appName}', ${s1Fallback})">⬇️ Add</button><button class="delete-btn" onclick="deleteRow(this)">🗑️ Remove</button></div></div>`;
             
             card.innerHTML = html;
             container.appendChild(card);
@@ -1032,36 +892,25 @@
             let card = inputElem.closest('.item-card');
             let container = card.closest('.table-container');
             let appName = card.closest('.app-section').id.split('-')[0];
-            
             let cells = card.querySelectorAll('.supplier-cell');
 
             cells.forEach(cell => {
                 let priceInput = cell.querySelector('.s-price');
                 let newPrice = parseFloat(priceInput.value) || 0;
                 let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
-
-                if (baseline === 0 && newPrice > 0) {
-                    priceInput.setAttribute('data-baseline', newPrice);
-                }
+                if (baseline === 0 && newPrice > 0) { priceInput.setAttribute('data-baseline', newPrice); }
                 let resultDiv = cell.querySelector('.s-result');
                 resultDiv.setAttribute('data-value', newPrice);
             });
 
             let orderQty = parseFloat(card.querySelector('.order-qty').value) || 0;
             let shelfQty = parseFloat(card.querySelector('.shelf-qty').value) || 0;
-
             let invWrapper = card.querySelector('.inventory-controls');
-            if (orderQty > 0 || shelfQty > 0) {
-                card.classList.add('has-order');
-                if(invWrapper) invWrapper.classList.add('active');
-            } else {
-                card.classList.remove('has-order');
-                if(invWrapper) invWrapper.classList.remove('active');
-            }
+            if (orderQty > 0 || shelfQty > 0) { card.classList.add('has-order'); if(invWrapper) invWrapper.classList.add('active'); } 
+            else { card.classList.remove('has-order'); if(invWrapper) invWrapper.classList.remove('active'); }
 
             if(!skipSave && !isAppLoading) {
-                if(appName === 'analytics') { generateAnalyticsDashboard(); } 
-                else { generateShoppingList(appName); }
+                if(appName === 'analytics') { generateAnalyticsDashboard(); } else { generateShoppingList(appName); }
                 saveToDatabase(appName);
             }
         }
@@ -1092,14 +941,12 @@
             allCards.forEach(card => {
                 let itemName = card.querySelector('.item-name').value.trim();
                 let cell = card.querySelector('.supplier-cell');
-
                 if (itemName && cell) {
                     let sName = cell.querySelector('.s-name').value.trim() || "Unknown";
                     let priceInput = cell.querySelector('.s-price');
                     let unitPrice = parseFloat(priceInput.value) || 0;
                     let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
                     let aQty = parseFloat(card.querySelector('.order-qty').value) || 0;
-                    
                     let trendBadge = '';
                     if (unitPrice > baseline && baseline > 0) { trendBadge = '<span style="font-size:12px; margin-left:4px;" title="Price went up">🔺</span>'; } 
                     else if (unitPrice < baseline && unitPrice > 0) { trendBadge = '<span style="font-size:12px; margin-left:4px;" title="Price went down">🔻</span>'; }
@@ -1107,10 +954,7 @@
                     if (aQty > 0) {
                         let lineTotal = unitPrice * aQty;
                         if (!listBySupplier[sName]) { listBySupplier[sName] = []; totalsBySupplier[sName] = 0; }
-                        listBySupplier[sName].push(`
-                            <span><span class="qty-badge" style="color:${themeColor};">${aQty}</span> ${itemName}</span> 
-                            <span class="price-badge">$${unitPrice.toFixed(2)} ${trendBadge} <span style="color:var(--result-text); font-weight:normal;">(Total: $${lineTotal.toFixed(2)})</span></span>
-                        `);
+                        listBySupplier[sName].push(`<span><span class="qty-badge" style="color:${themeColor};">${aQty}</span> ${itemName}</span> <span class="price-badge">$${unitPrice.toFixed(2)} ${trendBadge} <span style="color:var(--result-text); font-weight:normal;">(Total: $${lineTotal.toFixed(2)})</span></span>`);
                         totalsBySupplier[sName] += lineTotal;
                         totalItemsInCart++;
                     }
@@ -1118,15 +962,9 @@
             });
 
             document.getElementById('nav-cart-badge').innerText = totalItemsInCart;
-
             const container = document.getElementById('list-content-' + appName);
             container.innerHTML = '';
-            
-            if(Object.keys(listBySupplier).length === 0) {
-                container.innerHTML = `<p style="color:#999; font-style:italic; padding:20px; text-align:center;">Your cart is empty. Add quantities above to generate your list.</p>`;
-                return;
-            }
-
+            if(Object.keys(listBySupplier).length === 0) { container.innerHTML = `<p style="color:#999; font-style:italic; padding:20px; text-align:center;">Your cart is empty. Add quantities above to generate your list.</p>`; return; }
             Object.keys(listBySupplier).forEach(supp => {
                 let html = `<div class="supplier-group"><h4>📦 ${supp}</h4><ul>`;
                 listBySupplier[supp].forEach(itemHtml => { html += `<li>${itemHtml}</li>`; });
@@ -1137,19 +975,13 @@
 
         function renderReceivingList(appName, data) {
             let container = document.getElementById(`receiving-list-${appName}`);
-            if (!data || data.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:#999; font-style:italic; padding:40px;">No pending deliveries.<br><br>Generate an order and click "Send to Receiving" to send your checklist here.</p>`;
-                return;
-            }
-
+            if (!data || data.length === 0) { container.innerHTML = `<p style="text-align:center; color:#999; font-style:italic; padding:40px;">No pending deliveries.<br><br>Generate an order and click "Send to Receiving" to send your checklist here.</p>`; return; }
             let groupedData = {};
             data.forEach((item, index) => {
                 let supp = item.supplier || "Unknown";
                 if (!groupedData[supp]) { groupedData[supp] = []; }
-                item.originalIndex = index; 
-                groupedData[supp].push(item);
+                item.originalIndex = index; groupedData[supp].push(item);
             });
-
             let html = '';
             let themeColor = 'var(--primary-color)';
             if(appName === 'premier') themeColor = 'var(--premier-color)';
@@ -1158,188 +990,115 @@
 
             Object.keys(groupedData).forEach((supplierName, groupIndex) => {
                 let safeSuppId = `group-${appName}-${supplierName.replace(/\s+/g, '-')}`;
-                let isFirst = groupIndex === 0;
-                let displayStyle = isFirst ? 'block' : 'none';
-                let arrow = isFirst ? '▼' : '▶';
-
-                html += `
-                <div onclick="toggleSupplierGroup('${safeSuppId}')" style="cursor:pointer; background:var(--supplier-group-bg); padding:15px; border-radius:12px; margin-top:15px; margin-bottom:10px; border-left:4px solid ${themeColor}; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                    <h3 style="margin:0; color: var(--text-color); font-size: 18px; text-transform: uppercase;">📦 ${supplierName}</h3>
-                    <span id="arrow-${safeSuppId}" style="font-size:18px; color:var(--result-text); font-weight:bold;">${arrow}</span>
-                </div>
-                <div id="${safeSuppId}" style="display:${displayStyle}; margin-bottom: 20px; padding-left: 5px;">`;
-                
+                let isFirst = groupIndex === 0; let displayStyle = isFirst ? 'block' : 'none'; let arrow = isFirst ? '▼' : '▶';
+                html += `<div onclick="toggleSupplierGroup('${safeSuppId}')" style="cursor:pointer; background:var(--supplier-group-bg); padding:15px; border-radius:12px; margin-top:15px; margin-bottom:10px; border-left:4px solid ${themeColor}; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05);"><h3 style="margin:0; color: var(--text-color); font-size: 18px; text-transform: uppercase;">📦 ${supplierName}</h3><span id="arrow-${safeSuppId}" style="font-size:18px; color:var(--result-text); font-weight:bold;">${arrow}</span></div><div id="${safeSuppId}" style="display:${displayStyle}; margin-bottom: 20px; padding-left: 5px;">`;
                 groupedData[supplierName].forEach(item => {
                     let idx = item.originalIndex;
-                    html += `
-                    <div class="item-card receiving-card status-ok" id="rec-${appName}-${idx}" data-expected-qty="${item.qty}" data-expected-price="${item.expectedPrice}">
-                        <div class="card-header" style="border-bottom:none; margin-bottom:0; padding-bottom:5px;">
-                            <div style="font-size:18px; font-weight:bold;" class="rec-item-name">${item.item}</div>
-                            <div style="color:${themeColor}; font-weight:bold; display:none;" class="rec-supp-name">📦 ${item.supplier}</div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; gap:10px; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;">
-                            <div style="flex:1; text-align:center;">
-                                <label style="font-size:11px; color:var(--result-text); font-weight:bold;">RECEIVED QTY (Order: ${item.qty})</label>
-                                <input type="number" class="rec-qty" value="${item.qty}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; margin-top:5px; background:var(--input-bg); color:var(--text-color);">
-                            </div>
-                            <div style="flex:1; text-align:center;">
-                                <label style="font-size:11px; color:var(--result-text); font-weight:bold;">INVOICE PRICE (Quote: $${item.expectedPrice.toFixed(2)})</label>
-                                <div style="position:relative; margin-top:5px;">
-                                    <span style="position:absolute; left:10px; top:8px; color:var(--result-text); font-weight:bold; font-size:18px;">$</span>
-                                    <input type="number" class="rec-price" value="${item.expectedPrice.toFixed(2)}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; background:var(--input-bg); color:var(--text-color);">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="rec-status-msg" style="font-size:14px; font-weight:bold; margin-top:15px; text-align:center; color:var(--success-color);">✅ Perfect Match</div>
-                    </div>`;
+                    html += `<div class="item-card receiving-card status-ok" id="rec-${appName}-${idx}" data-expected-qty="${item.qty}" data-expected-price="${item.expectedPrice}"><div class="card-header" style="border-bottom:none; margin-bottom:0; padding-bottom:5px;"><div style="font-size:18px; font-weight:bold;" class="rec-item-name">${item.item}</div><div style="color:${themeColor}; font-weight:bold; display:none;" class="rec-supp-name">📦 ${item.supplier}</div></div><div style="display:flex; justify-content:space-between; gap:10px; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;"><div style="flex:1; text-align:center;"><label style="font-size:11px; color:var(--result-text); font-weight:bold;">RECEIVED QTY (Order: ${item.qty})</label><input type="number" class="rec-qty" value="${item.qty}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; margin-top:5px; background:var(--input-bg); color:var(--text-color);"></div><div style="flex:1; text-align:center;"><label style="font-size:11px; color:var(--result-text); font-weight:bold;">INVOICE PRICE (Quote: $${item.expectedPrice.toFixed(2)})</label><div style="position:relative; margin-top:5px;"><span style="position:absolute; left:10px; top:8px; color:var(--result-text); font-weight:bold; font-size:18px;">$</span><input type="number" class="rec-price" value="${item.expectedPrice.toFixed(2)}" oninput="checkReceivingMatch(this)" style="font-size:20px; font-weight:bold; text-align:center; width:100%; border:2px solid var(--border-color); padding:5px; border-radius:8px; background:var(--input-bg); color:var(--text-color);"></div></div></div><div class="rec-status-msg" style="font-size:14px; font-weight:bold; margin-top:15px; text-align:center; color:var(--success-color);">✅ Perfect Match</div></div>`;
                 });
                 html += `</div>`; 
             });
-
             container.innerHTML = html + `<button class="btn-green" style="width:100%; padding:15px; margin-top:10px; font-size:18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);" onclick="completeDelivery('${appName}')">✅ Mark Delivery Complete</button>`;
         }
 
         window.toggleSupplierGroup = function(groupId) {
-            let div = document.getElementById(groupId);
-            let arrow = document.getElementById('arrow-' + groupId);
-            if (div.style.display === 'none') {
-                div.style.display = 'block';
-                arrow.innerText = '▼';
-            } else {
-                div.style.display = 'none';
-                arrow.innerText = '▶';
-            }
+            let div = document.getElementById(groupId); let arrow = document.getElementById('arrow-' + groupId);
+            if (div.style.display === 'none') { div.style.display = 'block'; arrow.innerText = '▼'; } else { div.style.display = 'none'; arrow.innerText = '▶'; }
         };
 
         function checkReceivingMatch(inputElem) {
             let card = inputElem.closest('.receiving-card');
-            let expQty = parseFloat(card.getAttribute('data-expected-qty'));
-            let expPrice = parseFloat(card.getAttribute('data-expected-price'));
-            let actQty = parseFloat(card.querySelector('.rec-qty').value) || 0;
-            let actPrice = parseFloat(card.querySelector('.rec-price').value) || 0;
+            let expQty = parseFloat(card.getAttribute('data-expected-qty')); let expPrice = parseFloat(card.getAttribute('data-expected-price'));
+            let actQty = parseFloat(card.querySelector('.rec-qty').value) || 0; let actPrice = parseFloat(card.querySelector('.rec-price').value) || 0;
             let statusMsg = card.querySelector('.rec-status-msg');
-            
             card.classList.remove('status-ok', 'status-warn', 'status-danger');
-            
-            if (actPrice > expPrice) {
-                card.classList.add('status-danger');
-                statusMsg.innerHTML = "🚨 PRICE INCREASE DETECTED";
-                statusMsg.style.color = "var(--danger-color)";
-            } else if (actQty < expQty) {
-                card.classList.add('status-warn');
-                statusMsg.innerHTML = "⚠️ SHORTED DELIVERY";
-                statusMsg.style.color = "var(--warning-color)";
-            } else {
-                card.classList.add('status-ok');
-                statusMsg.innerHTML = "✅ Perfect Match";
-                statusMsg.style.color = "var(--success-color)";
-            }
+            if (actPrice > expPrice) { card.classList.add('status-danger'); statusMsg.innerHTML = "🚨 PRICE INCREASE DETECTED"; statusMsg.style.color = "var(--danger-color)"; } 
+            else if (actQty < expQty) { card.classList.add('status-warn'); statusMsg.innerHTML = "⚠️ SHORTED DELIVERY"; statusMsg.style.color = "var(--warning-color)"; } 
+            else { card.classList.add('status-ok'); statusMsg.innerHTML = "✅ Perfect Match"; statusMsg.style.color = "var(--success-color)"; }
         }
 
         function completeDelivery(appName) {
             if(confirm("Are you sure you want to complete this delivery?\n\nIf you changed any prices on this checklist, the Master Inventory will be automatically updated!")) {
                 let hasUpdates = false;
-
                 document.querySelectorAll(`#receiving-list-${appName} .receiving-card`).forEach(card => {
                     let itemName = card.querySelector('.rec-item-name').innerText;
                     let suppName = card.querySelector('.rec-supp-name').innerText.replace('📦 ', '');
                     let newPrice = parseFloat(card.querySelector('.rec-price').value);
                     let expPrice = parseFloat(card.getAttribute('data-expected-price'));
-
                     if (newPrice !== expPrice) {
-                        let mainCards = document.querySelectorAll(`#${appName}-wrapper .item-card`);
-                        mainCards.forEach(mainCard => {
+                        document.querySelectorAll(`#${appName}-wrapper .item-card`).forEach(mainCard => {
                             if (mainCard.querySelector('.item-name').value === itemName) {
                                 mainCard.querySelectorAll('.supplier-cell').forEach(cell => {
                                     if (cell.querySelector('.s-name').value === suppName) {
-                                        let pInput = cell.querySelector('.s-price');
-                                        pInput.value = newPrice;
+                                        let pInput = cell.querySelector('.s-price'); pInput.value = newPrice;
                                         logAction(`🚚 Auto-Updated ${itemName} (${suppName}) from Delivery Invoice to $${newPrice.toFixed(2)}`);
-                                        processRowUpdate(pInput, true); 
-                                        hasUpdates = true;
+                                        processRowUpdate(pInput, true); hasUpdates = true;
                                     }
                                 });
                             }
                         });
                     }
                 });
-
                 if(hasUpdates) { saveToDatabase(appName); }
-                
                 db.ref(currentLocation + '/pending_delivery/' + appName).remove();
                 logAction(`✅ Checked in the ${appName.toUpperCase()} Delivery Truck`);
                 alert("Delivery complete! Inventory and Prices have been updated.");
             }
         }
 
+        // ====== BUG FIX: Skipping Delivery Cards to stop crashing ======
         function generateAnalyticsDashboard() {
-            let upList = document.getElementById('trends-up-list');
-            let downList = document.getElementById('trends-down-list');
-            let upHTML = ''; let downHTML = '';
-            let totalNetWorth = 0; 
-
+            let upList = document.getElementById('trends-up-list'); let downList = document.getElementById('trends-down-list');
+            let upHTML = ''; let downHTML = ''; let totalNetWorth = 0; 
             document.querySelectorAll('.item-card').forEach(card => {
-                let itemName = card.querySelector('.item-name').value.trim();
+                let nameInput = card.querySelector('.item-name');
+                if (!nameInput) return; // FIX: Skips receiving card
+                let itemName = nameInput.value.trim();
                 let shelfQty = parseFloat(card.querySelector('.shelf-qty').value) || 0;
-                
-                let cell = card.querySelector('.supplier-cell');
-                if(!itemName || !cell) return;
-
-                let sName = cell.querySelector('.s-name').value.trim() || "Unknown";
-                let priceInput = cell.querySelector('.s-price');
-                let price = parseFloat(priceInput.value) || 0;
-                let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
-
-                if(shelfQty > 0) { totalNetWorth += (shelfQty * price); }
-                
-                if(price > 0 && baseline > 0 && price !== baseline) {
-                    let diff = Math.abs(price - baseline).toFixed(2);
-                    let isUp = price > baseline;
-                    let li = `<li>
-                        <strong>${itemName}</strong> <span style="font-size:12px; color:var(--result-text);">(${sName})</span><br>
-                        <span style="color:var(--result-text);">$${baseline.toFixed(2)} ➔ $${price.toFixed(2)}</span> 
-                        <span class="trend-diff ${isUp ? 'diff-up' : 'diff-down'}">${isUp ? '+' : '-'}$${diff}</span>
-                    </li>`;
-                    if(isUp) upHTML += li; else downHTML += li;
+                if(shelfQty > 0) {
+                    let bestDealCell = card.querySelector('.best-deal');
+                    if(bestDealCell) { totalNetWorth += (shelfQty * (parseFloat(bestDealCell.querySelector('.s-result').getAttribute('data-value')) || 0)); } 
+                    else {
+                        let firstPrice = 0;
+                        card.querySelectorAll('.supplier-cell').forEach(cell => { let p = parseFloat(cell.querySelector('.s-result').getAttribute('data-value')) || 0; if(p > 0 && firstPrice === 0) firstPrice = p; });
+                        totalNetWorth += (shelfQty * firstPrice);
+                    }
                 }
+                if(!itemName) return;
+                card.querySelectorAll('.supplier-cell').forEach(cell => {
+                    let sName = cell.querySelector('.s-name').value.trim() || "Unknown";
+                    let priceInput = cell.querySelector('.s-price');
+                    let price = parseFloat(priceInput.value) || 0;
+                    let baseline = parseFloat(priceInput.getAttribute('data-baseline')) || 0;
+                    if(price > 0 && baseline > 0 && price !== baseline) {
+                        let diff = Math.abs(price - baseline).toFixed(2); let isUp = price > baseline;
+                        let li = `<li><strong>${itemName}</strong> <span style="font-size:12px; color:var(--result-text);">(${sName})</span><br><span style="color:var(--result-text);">$${baseline.toFixed(2)} ➔ $${price.toFixed(2)}</span> <span class="trend-diff ${isUp ? 'diff-up' : 'diff-down'}">${isUp ? '+' : '-'}$${diff}</span></li>`;
+                        if(isUp) upHTML += li; else downHTML += li;
+                    }
+                });
             });
-            
             document.getElementById('net-worth-display').innerText = '$' + totalNetWorth.toFixed(2);
             upList.innerHTML = upHTML || '<li style="color:#999; font-style:italic; border:none;">No price increases tracked since last reset.</li>';
             downList.innerHTML = downHTML || '<li style="color:#999; font-style:italic; border:none;">No price decreases tracked since last reset.</li>';
 
             let suppTotals = {};
             document.querySelectorAll('.item-card').forEach(card => {
-                let cell = card.querySelector('.supplier-cell');
-                if(cell) {
-                    let sName = cell.querySelector('.s-name').value.trim() || "Unknown";
-                    let price = parseFloat(cell.querySelector('.s-price').value) || 0;
-                    let aQty = parseFloat(card.querySelector('.order-qty').value) || 0;
-                    if (aQty > 0) {
-                        if (!suppTotals[sName]) suppTotals[sName] = 0;
-                        suppTotals[sName] += (price * aQty);
-                    }
-                }
+                if(!card.querySelector('.item-name')) return; // FIX: Secondary skip
+                card.querySelectorAll('.best-deal').forEach(wc => {
+                    let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
+                    let price = parseFloat(wc.querySelector('.s-price').value) || 0;
+                    let aQty = parseFloat(wc.querySelector('.split-qty').value) || 0;
+                    if (aQty > 0) { if (!suppTotals[sName]) suppTotals[sName] = 0; suppTotals[sName] += (price * aQty); }
+                });
             });
 
-            let labels = Object.keys(suppTotals);
-            let dataPoints = Object.values(suppTotals);
+            let labels = Object.keys(suppTotals); let dataPoints = Object.values(suppTotals);
             const ctx = document.getElementById('spendChart').getContext('2d');
             if (spendChartInstance) spendChartInstance.destroy(); 
-            
             if(dataPoints.length > 0) {
                 let isDark = document.body.classList.contains('dark-mode');
                 spendChartInstance = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: dataPoints,
-                            backgroundColor: ['#8e44ad', '#2980b9', '#f39c12', '#e74c3c', '#27ae60', '#34495e'],
-                            borderWidth: 2,
-                            borderColor: isDark ? '#1e1e1e' : '#ffffff'
-                        }]
-                    },
+                    type: 'doughnut', data: { labels: labels, datasets: [{ data: dataPoints, backgroundColor: ['#8e44ad', '#2980b9', '#f39c12', '#e74c3c', '#27ae60', '#34495e'], borderWidth: 2, borderColor: isDark ? '#1e1e1e' : '#ffffff' }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: isDark ? '#fff' : '#333' } }, tooltip: { callbacks: { label: function(c) { return ' $' + c.raw.toFixed(2); } } } } }
                 });
             }
@@ -1349,53 +1108,42 @@
                 let premierHtml = '<h3 style="margin-top:0;">🍸 Premier History</h3>';
                 let seHtml = '<h3>🦅 Silver Eagle History</h3>';
                 let faustHtml = '<h3>🍻 Faust History</h3>';
-                
                 if (ledgerData && ledgerData.premier) {
                     Object.values(ledgerData.premier).reverse().forEach(entry => {
                         let breakdownStr = Object.keys(entry.breakdown).map(k => `${k}: $${entry.breakdown[k].toFixed(2)}`).join(' | ');
                         premierHtml += `<div class="ledger-item"><div><div class="l-date">${entry.date}</div><div class="l-breakdown">${breakdownStr}</div></div><div class="l-total">$${entry.total.toFixed(2)}</div></div>`;
                     });
                 } else { premierHtml += '<p style="color:#999; font-style:italic;">No saved resets yet.</p>'; }
-
                 if (ledgerData && ledgerData.silvereagle) {
                     Object.values(ledgerData.silvereagle).reverse().forEach(entry => {
                         let breakdownStr = Object.keys(entry.breakdown).map(k => `${k}: $${entry.breakdown[k].toFixed(2)}`).join(' | ');
                         seHtml += `<div class="ledger-item"><div><div class="l-date">${entry.date}</div><div class="l-breakdown">${breakdownStr}</div></div><div class="l-total">$${entry.total.toFixed(2)}</div></div>`;
                     });
                 } else { seHtml += '<p style="color:#999; font-style:italic;">No saved resets yet.</p>'; }
-
                 if (ledgerData && ledgerData.faust) {
                     Object.values(ledgerData.faust).reverse().forEach(entry => {
                         let breakdownStr = Object.keys(entry.breakdown).map(k => `${k}: $${entry.breakdown[k].toFixed(2)}`).join(' | ');
                         faustHtml += `<div class="ledger-item"><div><div class="l-date">${entry.date}</div><div class="l-breakdown">${breakdownStr}</div></div><div class="l-total">$${entry.total.toFixed(2)}</div></div>`;
                     });
                 } else { faustHtml += '<p style="color:#999; font-style:italic;">No saved resets yet.</p>'; }
-
                 document.getElementById('ledger-premier-list').innerHTML = premierHtml;
                 document.getElementById('ledger-silvereagle-list').innerHTML = seHtml;
                 document.getElementById('ledger-faust-list').innerHTML = faustHtml;
             });
 
             db.ref(currentLocation + '/logs').limitToLast(50).once('value').then(snapshot => {
-                let logs = snapshot.val();
-                let feedHtml = '';
-                if(logs) {
-                    Object.values(logs).reverse().forEach(log => {
-                        feedHtml += `<div class="feed-item"><div class="feed-header"><span class="feed-user">👤 ${log.user}</span><span>${log.time}</span></div><div class="feed-action">${log.action}</div></div>`;
-                    });
-                } else { feedHtml = '<p style="color:#999; font-style:italic; text-align:center;">No activity recorded yet.</p>'; }
+                let logs = snapshot.val(); let feedHtml = '';
+                if(logs) { Object.values(logs).reverse().forEach(log => { feedHtml += `<div class="feed-item"><div class="feed-header"><span class="feed-user">👤 ${log.user}</span><span>${log.time}</span></div><div class="feed-action">${log.action}</div></div>`; }); } 
+                else { feedHtml = '<p style="color:#999; font-style:italic; text-align:center;">No activity recorded yet.</p>'; }
                 document.getElementById('activity-feed-list').innerHTML = feedHtml;
             });
         }
 
         function downloadPDF(appName) {
             let listContentDiv = document.getElementById('list-content-' + appName);
-            if (!listContentDiv || listContentDiv.innerHTML.trim() === '' || listContentDiv.innerHTML.includes('Your cart is empty')) {
-                alert("Your cart is empty! Please add items to your cart before printing."); return;
-            }
+            if (!listContentDiv || listContentDiv.innerHTML.trim() === '' || listContentDiv.innerHTML.includes('Your cart is empty')) { alert("Your cart is empty! Please add items to your cart before printing."); return; }
             let originalTitle = document.title;
-            let displayLocation = currentLocation.replace('_', ' ');
-            document.title = `${displayLocation} - ${appName.toUpperCase()} Order`;
+            document.title = `${currentLocation.replace('_', ' ')} - ${appName.toUpperCase()} Order`;
             window.print();
             document.title = originalTitle;
         }
@@ -1408,7 +1156,7 @@
                     shelf: card.querySelector('.shelf-qty').value, 
                     qty: card.querySelector('.order-qty').value, 
                     targetUnit: card.querySelector('.target-unit') ? card.querySelector('.target-unit').value : null,
-                    suppliers: [] 
+                    forced: card.getAttribute('data-forced-supplier') || null, suppliers: [] 
                 };
                 card.querySelectorAll('.supplier-cell').forEach(cell => {
                     let priceInput = cell.querySelector('.s-price');
@@ -1450,9 +1198,7 @@
 
         function rebuildTable(tableId, appName, rowDataArray, pLabel, qLabel, s1def) {
             document.getElementById(tableId).innerHTML = '';
-            if(!rowDataArray || rowDataArray.length === 0) { 
-                addRow(tableId, appName, pLabel, qLabel, '', '', '', '', 'btl', s1def); return; 
-            }
+            if(!rowDataArray || rowDataArray.length === 0) { addRow(tableId, appName, pLabel, qLabel, '', '', '', '', 'btl', s1def); return; }
             rowDataArray.forEach(rd => { 
                 let s1 = rd.suppliers[0] || [s1def[0], "", "", "btl", 0, "", ""];
                 if (s1.length < 7) s1.push(s1[1] || ""); 
@@ -1497,33 +1243,17 @@
 
         function loadFromDatabase() {
             db.ref('.info/connected').on('value', function(snap) {
-                let pDiv = document.getElementById('conn-premier');
-                let sDiv = document.getElementById('conn-silvereagle');
-                let fDiv = document.getElementById('conn-faust');
-                if (snap.val() === true) {
-                    pDiv.innerText = '☁️ Live Cloud Sync Active'; pDiv.classList.remove('offline');
-                    sDiv.innerText = '☁️ Live Cloud Sync Active'; sDiv.classList.remove('offline');
-                    fDiv.innerText = '☁️ Live Cloud Sync Active'; fDiv.classList.remove('offline');
-                } else {
-                    pDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; pDiv.classList.add('offline');
-                    sDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; sDiv.classList.add('offline');
-                    fDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; fDiv.classList.add('offline');
-                }
+                let pDiv = document.getElementById('conn-premier'); let sDiv = document.getElementById('conn-silvereagle'); let fDiv = document.getElementById('conn-faust');
+                if (snap.val() === true) { pDiv.innerText = '☁️ Live Cloud Sync Active'; pDiv.classList.remove('offline'); sDiv.innerText = '☁️ Live Cloud Sync Active'; sDiv.classList.remove('offline'); fDiv.innerText = '☁️ Live Cloud Sync Active'; fDiv.classList.remove('offline'); } 
+                else { pDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; pDiv.classList.add('offline'); sDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; sDiv.classList.add('offline'); fDiv.innerText = '⚠️ Offline Mode (Saving Locally...)'; fDiv.classList.add('offline'); }
             });
 
             db.ref(currentLocation).on('value', (snapshot) => {
                 let dbData = snapshot.val();
-                
-                // Set defaults if nothing exists
-                if (!dbData || !dbData.inventory) {
-                    let payload = { inventory: { premier: getPremierDefaults(), silvereagle: getSilverEagleDefaults(), faust: getFaustDefaults() }, metadata: { premier: "New Bar", silvereagle: "New Bar", faust: "New Bar" } };
-                    db.ref(currentLocation).set(payload); return; 
-                }
-
+                if (!dbData || !dbData.inventory) { let payload = { inventory: { premier: getPremierDefaults(), silvereagle: getSilverEagleDefaults(), faust: getFaustDefaults() }, metadata: { premier: "New Bar", silvereagle: "New Bar", faust: "New Bar" } }; db.ref(currentLocation).set(payload); return; }
                 if (dbData.metadata && dbData.metadata.lastEditor === mySyncId && !isAppLoading) { return; }
                 if (!isAppLoading) showSyncToast();
                 
-                // PREMIER
                 let premierData = dbData.inventory ? dbData.inventory.premier : null;
                 if (!premierData) { premierData = getPremierDefaults(); db.ref(currentLocation + '/inventory/premier').set(premierData); }
                 rebuildTable('tequilaTable_premier', 'premier', premierData.tequila, 'Price $', 'Count', ['Premier Beverage','','','btl',0,'','']);
@@ -1534,27 +1264,22 @@
                 rebuildTable('margaritaTable_premier', 'premier', premierData.margarita, 'Price $', 'Count', ['Premier Beverage','','','btl',0,'','']);
                 generateShoppingList('premier');
 
-                // SILVER EAGLE
                 let seData = dbData.inventory ? dbData.inventory.silvereagle : null;
                 if (!seData) { seData = getSilverEagleDefaults(); db.ref(currentLocation + '/inventory/silvereagle').set(seData); }
                 rebuildTable('bottlesTable_se', 'silvereagle', seData.bottles, 'Price $', 'Count', ['Silver Eagle','','','case',0,'','']);
                 rebuildTable('draftTable_se', 'silvereagle', seData.draft, 'Price $', 'Count', ['Silver Eagle','','','keg',0,'','']);
                 generateShoppingList('silvereagle');
 
-                // FAUST
                 let faustData = dbData.inventory ? dbData.inventory.faust : null;
                 if (!faustData) { faustData = getFaustDefaults(); db.ref(currentLocation + '/inventory/faust').set(faustData); }
                 rebuildTable('bottlesTable_faust', 'faust', faustData.bottles, 'Price $', 'Count', ['Faust Distributions','','','case',0,'','']);
                 rebuildTable('draftTable_faust', 'faust', faustData.draft, 'Price $', 'Count', ['Faust Distributions','','','keg',0,'','']);
                 generateShoppingList('faust');
 
-                // RECEIVING
                 let pendingPremier = dbData.pending_delivery ? dbData.pending_delivery.premier : null;
                 let pendingSE = dbData.pending_delivery ? dbData.pending_delivery.silvereagle : null;
                 let pendingFaust = dbData.pending_delivery ? dbData.pending_delivery.faust : null;
-                renderReceivingList('premier', pendingPremier);
-                renderReceivingList('silvereagle', pendingSE);
-                renderReceivingList('faust', pendingFaust);
+                renderReceivingList('premier', pendingPremier); renderReceivingList('silvereagle', pendingSE); renderReceivingList('faust', pendingFaust);
 
                 let meta = dbData.metadata || {};
                 document.getElementById('time-premier').innerText = meta.premier ? `Last updated: ${meta.premier}` : 'Last updated: Never';
@@ -1564,21 +1289,12 @@
                 let activeApp = document.querySelector('.active-app');
                 if(activeApp && activeApp.id === 'analytics-wrapper') { generateAnalyticsDashboard(); }
 
-                if (isAppLoading) {
-                    setTimeout(() => {
-                        let splash = document.getElementById('splash-screen');
-                        if(splash) { splash.style.opacity = '0'; setTimeout(() => splash.remove(), 600); }
-                    }, 500); 
-                }
+                if (isAppLoading) { setTimeout(() => { let splash = document.getElementById('splash-screen'); if(splash) { splash.style.opacity = '0'; setTimeout(() => splash.remove(), 600); } }, 500); }
                 isAppLoading = false; 
                 
             }, (error) => {
                 alert("🔒 Vault Locked: Your security session expired.");
-                firebase.auth().signOut().then(() => {
-                    localStorage.removeItem('pericos_active_user');
-                    localStorage.removeItem('pericos_active_role');
-                    location.reload(); 
-                });
+                firebase.auth().signOut().then(() => { localStorage.removeItem('pericos_active_user'); localStorage.removeItem('pericos_active_role'); window.location.href = 'index.html'; });
             });
         }
 
