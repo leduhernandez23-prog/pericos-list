@@ -20,61 +20,265 @@
 
     <style>
         :root {
-            --bg-color: #f4f4f9;
-            --text-color: #333;
-            --container-bg: #fff;
-            --border-color: #e0e0e0;
-            --input-bg: #fff;
-            --primary-color: #2c3e50; 
-            --danger-color: #dc3545;
-            --food-color: #0056b3;
-            --bar-color: #8e44ad;
-            --event-color: #27ae60;
+            /* Light Theme - Premium Soft Look */
+            --bg-gradient: linear-gradient(135deg, #f4f7f6 0%, #e0e5ec 100%);
+            --container-bg: rgba(255, 255, 255, 0.85);
+            --container-border: rgba(255, 255, 255, 0.4);
+            --text-main: #1a1a1a;
+            --text-sub: #6c7a89;
+            --shadow-soft: 0 15px 35px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.1);
+            
+            /* App Gradients */
+            --food-grad: linear-gradient(135deg, #0056b3, #00a8ff);
+            --bar-grad: linear-gradient(135deg, #662d91, #9b59b6);
+            --event-grad: linear-gradient(135deg, #1e824c, #2ecc71);
+            --logout-color: #e74c3c;
         }
 
         body.dark-mode {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --container-bg: #1e1e1e;
-            --border-color: #333;
-            --input-bg: #2c2c2c;
-            --primary-color: #34495e;
-            --food-color: #4da3ff;
-            --bar-color: #af7ac5;
-            --event-color: #2ecc71;
+            /* Dark Theme - Sleek Obsidian Look */
+            --bg-gradient: linear-gradient(135deg, #0f171e 0%, #000000 100%);
+            --container-bg: rgba(30, 41, 59, 0.7);
+            --container-border: rgba(255, 255, 255, 0.05);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --shadow-soft: 0 15px 35px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.5);
+            
+            /* Dark Mode App Gradients */
+            --food-grad: linear-gradient(135deg, #0f4c81, #2980b9);
+            --bar-grad: linear-gradient(135deg, #4a235a, #8e44ad);
+            --event-grad: linear-gradient(135deg, #145a32, #27ae60);
         }
 
-        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            transition: background 0.4s ease, color 0.4s ease; 
+        }
         
         /* LOGIN SCREEN */
-        #login-screen { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; z-index: 10; }
-        .pin-box { background: var(--container-bg); padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid var(--border-color); width: 80%; max-width: 320px; text-align: center; }
-        .pin-input { width: 100%; font-size: 32px; text-align: center; letter-spacing: 15px; padding: 15px; border-radius: 12px; border: 2px solid var(--primary-color); background: var(--input-bg); color: var(--text-color); margin: 20px 0; box-sizing: border-box; }
-        .pin-btn { background: var(--primary-color); color: white; border: none; padding: 15px; width: 100%; font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.2s; }
-        .pin-btn:active { transform: scale(0.95); }
-        #pin-error { color: var(--danger-color); font-weight: bold; margin-top: 15px; display: none; }
+        #login-screen { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            text-align: center; 
+            width: 100%; 
+            z-index: 10; 
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .pin-box { 
+            background: var(--container-bg); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px 30px; 
+            border-radius: 24px; 
+            box-shadow: var(--shadow-soft); 
+            border: 1px solid var(--container-border); 
+            width: 100%; 
+            max-width: 360px; 
+            text-align: center; 
+        }
+
+        .logo-img {
+            width: 110px; 
+            border-radius: 50%; 
+            margin-bottom: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        .pin-box h2 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .pin-box p { color: var(--text-sub); font-size: 15px; margin: 8px 0 20px 0; }
+
+        .pin-input { 
+            width: 100%; 
+            font-size: 40px; 
+            text-align: center; 
+            letter-spacing: 20px; 
+            padding: 15px; 
+            border-radius: 16px; 
+            border: 2px solid transparent; 
+            background: rgba(128, 128, 128, 0.1); 
+            color: var(--text-main); 
+            margin-bottom: 25px; 
+            box-sizing: border-box; 
+            font-family: monospace;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .pin-input:focus {
+            background: rgba(128, 128, 128, 0.15);
+            border-color: #00a8ff;
+            box-shadow: 0 0 15px rgba(0, 168, 255, 0.2);
+        }
+
+        .pin-btn { 
+            background: var(--text-main); 
+            color: var(--bg-gradient); 
+            border: none; 
+            padding: 16px; 
+            width: 100%; 
+            font-size: 18px; 
+            font-weight: bold; 
+            border-radius: 14px; 
+            cursor: pointer; 
+            transition: transform 0.2s, background 0.2s; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .pin-btn:active { transform: scale(0.96); }
+        body.dark-mode .pin-btn { background: #fff; color: #000; }
+        
+        #pin-error { color: var(--logout-color); font-weight: bold; margin-top: 15px; display: none; font-size: 14px; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 8px; }
 
         /* DASHBOARD SCREEN */
-        #dashboard-screen { display: none; flex-direction: column; align-items: center; text-align: center; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #dashboard-screen { 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 100%; 
+            max-width: 600px; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
         
-        .user-profile { margin-bottom: 30px; background: var(--container-bg); padding: 20px; border-radius: 16px; width: 100%; box-sizing: border-box; border: 2px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .user-profile h2 { margin: 0 0 5px 0; font-size: 24px; color: var(--text-color); }
-        .user-profile p { margin: 0; color: var(--result-text); font-size: 14px; font-weight: bold; }
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(30px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .user-profile { 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px; 
+            background: var(--container-bg); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 25px; 
+            border-radius: 20px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            border: 1px solid var(--container-border); 
+            box-shadow: var(--shadow-soft); 
+        }
+        
+        .profile-text h2 { margin: 0 0 4px 0; font-size: 22px; color: var(--text-main); font-weight: 800; }
+        .profile-text p { margin: 0; color: var(--text-sub); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .dash-logo { width: 50px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        .app-grid { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+        /* GRID LAYOUT */
+        .app-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 20px; 
+            width: 100%; 
+        }
         
-        .app-btn { display: flex; align-items: center; padding: 20px; border-radius: 16px; text-decoration: none; color: white; font-size: 20px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s, box-shadow 0.2s; }
-        .app-btn:active { transform: scale(0.98); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .app-icon { font-size: 32px; margin-right: 15px; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 12px; }
-        
-        .btn-food { background-color: var(--food-color); }
-        .btn-bar { background-color: var(--bar-color); }
-        .btn-event { background-color: var(--event-color); }
+        .app-btn { 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center;
+            padding: 30px 15px; 
+            border-radius: 24px; 
+            text-decoration: none; 
+            color: white; 
+            box-shadow: var(--shadow-soft); 
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+            position: relative;
+            overflow: hidden;
+        }
 
-        .controls { margin-top: 40px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .control-btn { background: transparent; color: var(--text-color); border: 2px solid var(--border-color); padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .control-btn.logout { border-color: var(--danger-color); color: var(--danger-color); }
+        .app-btn::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0));
+            border-radius: 24px;
+        }
+
+        .app-btn:hover { 
+            transform: translateY(-5px); 
+            box-shadow: var(--shadow-hover); 
+        }
+        
+        .app-btn:active { 
+            transform: scale(0.96); 
+        }
+
+        .app-icon { 
+            font-size: 38px; 
+            margin-bottom: 15px; 
+            background: rgba(255,255,255,0.2); 
+            width: 70px; 
+            height: 70px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 50%; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .app-title { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+
+        /* Make Events span full width at bottom */
+        .btn-event { grid-column: span 2; flex-direction: row; padding: 25px; }
+        .btn-event .app-icon { margin-bottom: 0; margin-right: 20px; width: 60px; height: 60px; font-size: 30px; }
+        
+        .btn-food { background: var(--food-grad); }
+        .btn-bar { background: var(--bar-grad); }
+        .btn-event { background: var(--event-grad); }
+
+        /* BOTTOM CONTROLS */
+        .controls { margin-top: 35px; display: flex; gap: 15px; justify-content: center; width: 100%; }
+        
+        .control-btn { 
+            flex: 1;
+            background: var(--container-bg); 
+            color: var(--text-main); 
+            border: 1px solid var(--container-border); 
+            padding: 14px 20px; 
+            border-radius: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            box-shadow: var(--shadow-soft);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:active { transform: scale(0.96); }
+        
+        .control-btn.logout { 
+            color: var(--logout-color); 
+        }
+
+        @media (max-width: 400px) {
+            .app-grid { grid-template-columns: 1fr; }
+            .btn-event { grid-column: span 1; }
+            .app-btn { flex-direction: row; justify-content: flex-start; padding: 20px 25px; }
+            .app-icon { margin-bottom: 0; margin-right: 20px; width: 55px; height: 55px; font-size: 26px; }
+            .controls { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
@@ -85,49 +289,52 @@
 
     <div id="login-screen">
         <div class="pin-box">
-            <img src="image_0.png" alt="Los Pericos Logo" style="width:120px; border-radius:50%; margin-bottom:15px; border:3px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            <h2 style="margin:0; font-size:26px;">Staff Login</h2>
-            <p style="color:#666; font-size:14px; margin-top:5px;">Enter your 4-digit PIN</p>
+            <img src="image_0.png" alt="Los Pericos Logo" class="logo-img">
+            <h2>Los Pericos</h2>
+            <p>Master Systems Authentication</p>
             <input type="password" id="pin-input" class="pin-input" inputmode="numeric" maxlength="4" placeholder="••••">
-            <button class="pin-btn" onclick="verifyPin()">Access Systems</button>
-            <p id="pin-error">❌ Invalid PIN. Try again.</p>
+            <button class="pin-btn" onclick="verifyPin()">Unlock Vault</button>
+            <p id="pin-error">❌ Authentication Failed.</p>
         </div>
     </div>
 
     <div id="dashboard-screen">
-        <img src="image_0.png" alt="Los Pericos Logo" style="width:80px; border-radius:50%; margin-bottom:15px; border:2px solid var(--border-color);">
         
         <div class="user-profile">
-            <h2 id="display-name">Welcome</h2>
-            <p id="display-role">Loading Profile...</p>
+            <div class="profile-text">
+                <h2 id="display-name">Welcome</h2>
+                <p id="display-role">Loading Profile...</p>
+            </div>
+            <img src="image_0.png" alt="Logo" class="dash-logo">
         </div>
 
         <div class="app-grid">
             <a href="inventory.html" class="app-btn btn-food">
-                <span class="app-icon">🥩</span>
-                Food Inventory
+                <div class="app-icon">🥩</div>
+                <div class="app-title">Food Vault</div>
             </a>
             
             <a href="liquor.html" class="app-btn btn-bar">
-                <span class="app-icon">🍸</span>
-                Bar Vault
+                <div class="app-icon">🍸</div>
+                <div class="app-title">Bar Vault</div>
             </a>
 
             <a href="events.html" class="app-btn btn-event">
-                <span class="app-icon">📅</span>
-                Caterings & Events
+                <div class="app-icon">📅</div>
+                <div class="app-title">Caterings & Events</div>
             </a>
         </div>
 
         <div class="controls">
-            <button class="control-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
-            <button class="control-btn logout" onclick="logoutUser()">🚪 Log Out</button>
+            <button class="control-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Theme</button>
+            <button class="control-btn logout" onclick="logoutUser()">🚪 Secure Logout</button>
         </div>
     </div>
 
     <script>
-        if (localStorage.getItem('pericos_dark') === 'true') { document.getElementById('darkModeBtn').innerText = '☀️ Light Mode'; }
+        if (localStorage.getItem('pericos_dark') === 'true') { document.getElementById('darkModeBtn').innerText = '☀️ Light Theme'; }
 
+        // YOUR FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
             authDomain: "los-pericos-46378.firebaseapp.com",
@@ -188,17 +395,25 @@
             }
         }
 
+        // Quick login via Enter key
+        document.getElementById("pin-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                verifyPin();
+            }
+        });
+
         function showDashboard() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard-screen').style.display = 'flex';
             
             document.getElementById('display-name').innerText = `Hello, ${activeUser}`;
             let displayLoc = currentLocation ? currentLocation.replace('_', ' ') : 'System Access';
-            document.getElementById('display-role').innerText = `${activeRole} | ${displayLoc}`;
+            document.getElementById('display-role').innerText = `${activeRole} • ${displayLoc}`;
         }
 
         function logoutUser() {
-            if(confirm("Are you sure you want to log out of all apps?")) {
+            if(confirm("Are you sure you want to securely log out of all apps?")) {
                 firebase.auth().signOut().then(() => {
                     localStorage.removeItem('pericos_active_user');
                     localStorage.removeItem('pericos_active_role');
@@ -210,7 +425,7 @@
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
-            document.getElementById('darkModeBtn').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            document.getElementById('darkModeBtn').innerText = isDark ? '☀️ Light Theme' : '🌙 Dark Theme';
             localStorage.setItem('pericos_dark', isDark);
         }
     </script>
