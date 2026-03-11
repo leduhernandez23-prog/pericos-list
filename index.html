@@ -285,7 +285,6 @@
         .search-bar { 
             position: -webkit-sticky; 
             position: sticky;
-            /* MAGIC FIX: Pushes it down safely below the iPhone camera */
             top: calc(10px + env(safe-area-inset-top)); 
             z-index: 100;
             width: 100%; 
@@ -1045,65 +1044,37 @@
             .supplier-group { width: 100% !important; display: block; margin-right: 0; }
         }
 
-      /* PRINT FIX: Forces the browser to instantly format the screen into a flawless PDF page */
+        /* PRINT FIX */
         @media print {
             body, body.dark-mode { background-color: #fff !important; margin: 0; padding: 0; color: #000 !important; padding-bottom: 0; }
-            
-            /* Hide UI elements */
             .bottom-nav, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, #login-screen, .header-utils, .add-row-btn, #catering-banner, .fab-btn { display: none !important; }
-            
-            /* Show Header */
             .header-container { display: flex !important; justify-content: flex-start !important; align-items: center !important; margin-bottom: 10px !important; margin-top: 0 !important; padding: 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important;}
             .pericos-branding { display: flex !important; align-items: center !important; gap: 10px !important; }
             .header-logo { display: block !important; height: 50px !important; border-radius: 50% !important; border: 2px solid #000 !important; }
             .main-title { color: #000 !important; font-size: 20px !important; margin: 0 !important; }
-            
-            /* List Panel */
             .shopping-list-panel { box-shadow: none !important; border-top: none !important; margin-top: 0 !important; padding: 0 !important; background: #fff !important; color: #000 !important; }
             .shopping-list-panel h2 { color: #000 !important; margin-bottom: 10px !important; padding-bottom: 5px !important; text-transform: uppercase !important; font-size: 16px !important;}
-            
-            /* Columns - Changed to Flexbox for perfect equal columns */
             .supplier-grid { display: flex !important; align-items: flex-start !important; gap: 2% !important; width: 100% !important; }
-            
-            /* THE FIX: removed "break-inside: avoid" from the whole group so it doesn't push to page 2 */
             .supplier-group { display: block !important; flex: 1 !important; margin: 0 !important; border: 1px solid #ccc !important; background: transparent !important; padding: 8px !important; border-radius: 8px !important; box-sizing: border-box !important; break-inside: auto !important; }
-            
-            /* Make text smaller to fit more on one page */
             .supplier-group h4 { color: #000 !important; border-color: #000 !important; font-size: 14px !important; margin-bottom: 5px !important; }
             .supplier-group ul { padding-left: 15px !important; margin: 0 !important; }
-            
-            /* Apply the page-break lock to the individual items instead so they don't get cut in half */
             .supplier-group li { color: #000 !important; border-color: #eee !important; font-size: 11px !important; padding: 4px 0 !important; break-inside: avoid !important; }
-            
             .price-badge, .qty-badge { color: #000 !important; font-size: 10px !important; }
             .invoice-total { color: #000 !important; border-color: #000 !important; font-size: 12px !important; padding: 8px !important; margin-top: 8px !important; }
-            
             .app-section:not(.active-app) { display: none !important; }
-            
-            /* Native Title for Print */
-            body::before {
-                content: "LOS PERICOS MASTER INVOICE";
-                display: block;
-                font-size: 20px;
-                font-weight: bold;
-                text-align: center;
-                margin-bottom: 15px;
-                color: #000;
-            }
-            
-            /* Shrink page margins to give more room */
+            body::before { content: "LOS PERICOS MASTER INVOICE"; display: block; font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 15px; color: #000; }
             @page { margin: 0.3in; }
         }
     </style>
 </head>
 <body>
 
- <div id="catering-banner" style="text-align: center; padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: 20px; background-color: var(--container-bg); border-bottom: 2px solid var(--border-color); display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+    <div id="catering-banner" style="text-align: center; padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: 20px; background-color: var(--container-bg); border-bottom: 2px solid var(--border-color); display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
         <a href="events.html" style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s;">
-            📅 Events
+            📅 Caterings
         </a>
         <a href="liquor.html" style="display: inline-block; background-color: #8e44ad; color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s;">
-            🍸 Bar & Liquor
+            🍸 Bar Vault
         </a>
     </div>
 
@@ -1147,7 +1118,7 @@
 
     <div id="sysco-wrapper" class="app-section sysco-wrapper active-app">
         <div class="cloud-status" id="conn-sysco">☁️ Connecting to Server...</div>
-        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Sysco item..." onkeyup="filterTable('sysco', this.value)">
+        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Sysco item..." oninput="filterTable('sysco', this.value)">
         <div class="timestamp" id="time-sysco">Last updated: Loading Cloud Data...</div>
 
         <div class="tabs">
@@ -1189,7 +1160,7 @@
 
     <div id="verdura-wrapper" class="app-section verdura-wrapper">
         <div class="cloud-status" id="conn-verdura">☁️ Connecting to Server...</div>
-        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Produce item..." onkeyup="filterTable('verdura', this.value)">
+        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Produce item..." oninput="filterTable('verdura', this.value)">
         <div class="timestamp" id="time-verdura">Last updated: Loading Cloud Data...</div>
 
         <div class="tabs">
@@ -1350,15 +1321,12 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const messaging = firebase.messaging(); // Required for Notifications
+        const messaging = firebase.messaging(); 
         
         let isAppLoading = true; 
         const mySyncId = Math.random().toString(36).substr(2, 9);
         let spendChartInstance = null; 
 
-        // ==========================================
-        // LEVEL 4: FINAL TEAM PINS
-        // ==========================================
         const TEAM_PINS = {
             "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
             "0623": { name: "Luis H", role: "Manager", location: "LP_Willis" },
@@ -1420,7 +1388,7 @@
                 splash.style.opacity = '1';
                 
                 loadFromDatabase(); 
-                setupPushNotifications(); // Trigger notification handshake
+                setupPushNotifications(); 
             } else {
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('login-screen').style.display = 'flex';
@@ -1429,7 +1397,6 @@
             }
         });
 
-        // FINAL: The Silent Notification Security Guard
         async function setupPushNotifications() {
             try {
                 const permission = await Notification.requestPermission();
@@ -1477,10 +1444,9 @@
 
                     logAction(`🟢 Logged into ${currentLocation.replace('_', ' ')}`);
                     loadFromDatabase();
-                    setupPushNotifications(); // Trigger handshake on first login
+                    setupPushNotifications(); 
                 }).catch((error) => {
                     alert("⚠️ Cannot connect to Firebase Security. Check your internet connection.");
-                    console.error(error);
                 });
                 
             } else {
@@ -1502,8 +1468,9 @@
             }
         }
 
+        // ====== BUG FIX: Removed isAppLoading block here so log in actually records! ======
         function logAction(actionText) {
-            if(!activeUser || isAppLoading) return;
+            if(!activeUser) return; 
             let now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
             db.ref(currentLocation + '/logs').push({
                 user: activeUser,
@@ -1534,8 +1501,6 @@
 
         function switchApp(appTarget) {
             let activeAppElem = document.querySelector('.active-app');
-            
-            // DOUBLE TAP FIX: If you click the tab you are already on, it scrolls to the top
             if (activeAppElem && activeAppElem.id === appTarget + '-wrapper') {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
@@ -1551,7 +1516,6 @@
             if (appTarget === 'analytics') { generateAnalyticsDashboard(); } 
             else if (appTarget !== 'receiving') { generateShoppingList(appTarget); }
             
-            // Auto scroll to top when opening a new tab
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1562,7 +1526,6 @@
             panel.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // DARK MODE FIX
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
@@ -1593,9 +1556,7 @@
             });
         }
 
-        // MANUAL SUPPLIER PIN FIX
         function forceSupplier(event, cell) {
-            // Ignore if they are clicking into the text box to type
             if(['INPUT', 'SELECT', 'OPTION'].includes(event.target.tagName)) return;
             
             let card = cell.closest('.item-card');
@@ -1604,14 +1565,12 @@
             
             let currentForce = card.getAttribute('data-forced-supplier');
             
-            // If they click the one that's already pinned, un-pin it
             if(currentForce === sName) {
                 card.removeAttribute('data-forced-supplier');
             } else {
                 card.setAttribute('data-forced-supplier', sName);
             }
             
-            // Re-run the math to show the new winner
             processRowUpdate(cell.querySelector('.s-price'));
         }
 
@@ -1684,7 +1643,6 @@
                 rows.forEach(row => {
                     row.querySelector('.order-qty').value = '';
                     row.querySelector('.shelf-qty').value = '';
-                    // Clear the forced pin upon reset
                     row.removeAttribute('data-forced-supplier');
                     
                     row.querySelectorAll('.s-price').forEach(input => {
@@ -1717,7 +1675,6 @@
             processRowUpdate(elem);
         }
 
-        // Updated HTML for clicking cells
         function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, oldTrend, baselineVal) {
             let qtyHtml = '';
             if (hasUnits) {
@@ -1887,7 +1844,6 @@
                 cell.classList.remove('best-deal');
             });
 
-            // UPDATED: Now checks if a manager pinned a specific supplier
             let forcedSupplier = card.getAttribute('data-forced-supplier');
             let forcedCell = null;
 
@@ -2031,7 +1987,7 @@
             });
         }
 
-  function renderReceivingList(appName, data) {
+        function renderReceivingList(appName, data) {
             let container = document.getElementById(`receiving-list-${appName}`);
             if (!data || data.length === 0) {
                 container.innerHTML = `<p style="text-align:center; color:#999; font-style:italic; padding:40px;">No pending deliveries.<br><br>Generate an order and click "Send to Receiving" to send your checklist here.</p>`;
@@ -2049,22 +2005,17 @@
             let html = '';
             let themeColor = appName === 'verdura' ? 'var(--verdura-color)' : 'var(--primary-color)';
 
-            // Loop through each group and create an Accordion Folder
             Object.keys(groupedData).forEach((supplierName, groupIndex) => {
-                // Create a safe, unique ID for this folder
                 let safeSuppId = `group-${appName}-${supplierName.replace(/\s+/g, '-')}`;
-                // Keep the very first folder open by default, close the rest
                 let isFirst = groupIndex === 0;
                 let displayStyle = isFirst ? 'block' : 'none';
                 let arrow = isFirst ? '▼' : '▶';
 
-                // THE CLICKABLE HEADER
                 html += `
                 <div onclick="toggleSupplierGroup('${safeSuppId}')" style="cursor:pointer; background:var(--supplier-group-bg); padding:15px; border-radius:12px; margin-top:15px; margin-bottom:10px; border-left:4px solid ${themeColor}; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
                     <h3 style="margin:0; color: var(--text-color); font-size: 18px; text-transform: uppercase;">📦 ${supplierName}</h3>
                     <span id="arrow-${safeSuppId}" style="font-size:18px; color:var(--result-text); font-weight:bold;">${arrow}</span>
                 </div>
-                
                 <div id="${safeSuppId}" style="display:${displayStyle}; margin-bottom: 20px; padding-left: 5px;">`;
                 
                 groupedData[supplierName].forEach(item => {
@@ -2091,14 +2042,12 @@
                         <div class="rec-status-msg" style="font-size:14px; font-weight:bold; margin-top:15px; text-align:center; color:var(--success-color);">✅ Perfect Match</div>
                     </div>`;
                 });
-                
-                html += `</div>`; // Closes the hidden list
+                html += `</div>`; 
             });
 
             container.innerHTML = html + `<button class="btn-green" style="width:100%; padding:15px; margin-top:10px; font-size:18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);" onclick="completeDelivery('${appName}')">✅ Mark Delivery Complete</button>`;
         }
-        
-// Opens and closes the Receiving folders
+
         window.toggleSupplierGroup = function(groupId) {
             let div = document.getElementById(groupId);
             let arrow = document.getElementById('arrow-' + groupId);
@@ -2110,7 +2059,7 @@
                 arrow.innerText = '▶';
             }
         };
-        
+
         function checkReceivingMatch(inputElem) {
             let card = inputElem.closest('.receiving-card');
             let expQty = parseFloat(card.getAttribute('data-expected-qty'));
@@ -2174,6 +2123,7 @@
             }
         }
 
+        // ====== BUG FIX: Avoid calculating empty Delivery Cards and breaking Analytics ======
         function generateAnalyticsDashboard() {
             let upList = document.getElementById('trends-up-list');
             let downList = document.getElementById('trends-down-list');
@@ -2182,9 +2132,12 @@
             let totalNetWorth = 0; 
 
             document.querySelectorAll('.item-card').forEach(card => {
-                let itemName = card.querySelector('.item-name').value.trim();
+                let nameInput = card.querySelector('.item-name');
+                if (!nameInput) return; // FIX: Skip receiving checklist cards
                 
+                let itemName = nameInput.value.trim();
                 let shelfQty = parseFloat(card.querySelector('.shelf-qty').value) || 0;
+                
                 if(shelfQty > 0) {
                     let bestDealCell = card.querySelector('.best-deal');
                     if(bestDealCell) {
@@ -2227,6 +2180,8 @@
 
             let suppTotals = {};
             document.querySelectorAll('.item-card').forEach(card => {
+                if(!card.querySelector('.item-name')) return; // FIX: Secondary check to skip delivery cards
+                
                 card.querySelectorAll('.best-deal').forEach(wc => {
                     let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
                     let price = parseFloat(wc.querySelector('.s-price').value) || 0;
@@ -2337,7 +2292,6 @@
             document.title = originalTitle;
         }
 
-        // Updated extractTableData to save the manual pin preference
         function extractTableData(tableId, targetArray) {
             document.querySelectorAll(`#${tableId} .item-card`).forEach(card => {
                 let rowData = { 
@@ -2345,7 +2299,7 @@
                     par: card.querySelector('.par-qty').value, 
                     shelf: card.querySelector('.shelf-qty').value, 
                     qty: card.querySelector('.order-qty').value, 
-                    targetUnit: card.querySelector('.target-unit') ? card.querySelector('.target-unit').value : null,
+                    targetUnit: card.querySelector('.target-unit') ? card.querySelector('.target-unit').value : null, 
                     forced: card.getAttribute('data-forced-supplier') || null,
                     suppliers: [] 
                 };
