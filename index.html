@@ -20,41 +20,48 @@
 
     <style>
         :root {
-            /* Light Theme - Premium Soft Look */
-            --bg-gradient: linear-gradient(135deg, #f4f7f6 0%, #e0e5ec 100%);
+            /* Light Theme - Ambient Breathing Colors */
+            --bg-gradient-1: #f4f7f6;
+            --bg-gradient-2: #e0e5ec;
+            --bg-gradient-3: #d1d8e0;
             --container-bg: rgba(255, 255, 255, 0.85);
-            --container-border: rgba(255, 255, 255, 0.4);
+            --container-border: rgba(255, 255, 255, 0.6);
             --text-main: #1a1a1a;
             --text-sub: #6c7a89;
             --shadow-soft: 0 15px 35px rgba(0, 0, 0, 0.05);
-            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.12);
             
-            /* App Gradients */
             --food-grad: linear-gradient(135deg, #0056b3, #00a8ff);
             --bar-grad: linear-gradient(135deg, #662d91, #9b59b6);
             --event-grad: linear-gradient(135deg, #1e824c, #2ecc71);
             --logout-color: #e74c3c;
+            --date-color: #0056b3;
         }
 
         body.dark-mode {
-            /* Dark Theme - Sleek Obsidian Look */
-            --bg-gradient: linear-gradient(135deg, #0f171e 0%, #000000 100%);
+            /* Dark Theme - Ambient Breathing Obsidian */
+            --bg-gradient-1: #0f171e;
+            --bg-gradient-2: #050a0f;
+            --bg-gradient-3: #1a222c;
             --container-bg: rgba(30, 41, 59, 0.7);
-            --container-border: rgba(255, 255, 255, 0.05);
+            --container-border: rgba(255, 255, 255, 0.08);
             --text-main: #f8fafc;
             --text-sub: #94a3b8;
-            --shadow-soft: 0 15px 35px rgba(0, 0, 0, 0.3);
-            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.5);
+            --shadow-soft: 0 15px 35px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.6);
             
-            /* Dark Mode App Gradients */
             --food-grad: linear-gradient(135deg, #0f4c81, #2980b9);
             --bar-grad: linear-gradient(135deg, #4a235a, #8e44ad);
             --event-grad: linear-gradient(135deg, #145a32, #27ae60);
+            --date-color: #4da3ff;
         }
 
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background: var(--bg-gradient); 
+            /* Animated Breathing Background */
+            background: linear-gradient(-45deg, var(--bg-gradient-1), var(--bg-gradient-2), var(--bg-gradient-3));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             color: var(--text-main); 
             margin: 0; 
             padding: 0; 
@@ -63,7 +70,13 @@
             align-items: center; 
             justify-content: center; 
             min-height: 100vh; 
-            transition: background 0.4s ease, color 0.4s ease; 
+            transition: color 0.4s ease; 
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         /* LOGIN SCREEN */
@@ -80,27 +93,28 @@
 
         .pin-box { 
             background: var(--container-bg); 
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             padding: 40px 30px; 
-            border-radius: 24px; 
+            border-radius: 30px; 
             box-shadow: var(--shadow-soft); 
             border: 1px solid var(--container-border); 
             width: 100%; 
             max-width: 360px; 
             text-align: center; 
+            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .logo-img {
             width: 110px; 
             border-radius: 50%; 
             margin-bottom: 20px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            border: 3px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border: 4px solid rgba(255,255,255,0.3);
         }
 
         .pin-box h2 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-        .pin-box p { color: var(--text-sub); font-size: 15px; margin: 8px 0 20px 0; }
+        .pin-box p { color: var(--text-sub); font-size: 15px; margin: 8px 0 25px 0; }
 
         .pin-input { 
             width: 100%; 
@@ -108,7 +122,7 @@
             text-align: center; 
             letter-spacing: 20px; 
             padding: 15px; 
-            border-radius: 16px; 
+            border-radius: 18px; 
             border: 2px solid transparent; 
             background: rgba(128, 128, 128, 0.1); 
             color: var(--text-main); 
@@ -122,27 +136,27 @@
         .pin-input:focus {
             background: rgba(128, 128, 128, 0.15);
             border-color: #00a8ff;
-            box-shadow: 0 0 15px rgba(0, 168, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.25);
         }
 
         .pin-btn { 
             background: var(--text-main); 
-            color: var(--bg-gradient); 
+            color: var(--bg-gradient-1); 
             border: none; 
-            padding: 16px; 
+            padding: 18px; 
             width: 100%; 
             font-size: 18px; 
             font-weight: bold; 
-            border-radius: 14px; 
+            border-radius: 16px; 
             cursor: pointer; 
-            transition: transform 0.2s, background 0.2s; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
-        .pin-btn:active { transform: scale(0.96); }
+        .pin-btn:active { transform: scale(0.95); }
         body.dark-mode .pin-btn { background: #fff; color: #000; }
         
-        #pin-error { color: var(--logout-color); font-weight: bold; margin-top: 15px; display: none; font-size: 14px; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 8px; }
+        #pin-error { color: var(--logout-color); font-weight: bold; margin-top: 15px; display: none; font-size: 14px; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 10px; }
 
         /* DASHBOARD SCREEN */
         #dashboard-screen { 
@@ -153,36 +167,32 @@
             max-width: 600px; 
             padding: 20px; 
             box-sizing: border-box; 
-            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
-        }
-        
-        @keyframes slideUp { 
-            from { opacity: 0; transform: translateY(30px); } 
-            to { opacity: 1; transform: translateY(0); } 
         }
         
         .user-profile { 
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 30px; 
+            margin-bottom: 35px; 
             background: var(--container-bg); 
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 20px 25px; 
-            border-radius: 20px; 
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 25px; 
+            border-radius: 24px; 
             width: 100%; 
             box-sizing: border-box; 
             border: 1px solid var(--container-border); 
             box-shadow: var(--shadow-soft); 
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
-        .profile-text h2 { margin: 0 0 4px 0; font-size: 22px; color: var(--text-main); font-weight: 800; }
-        .profile-text p { margin: 0; color: var(--text-sub); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .profile-text h2 { margin: 0 0 5px 0; font-size: 26px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;}
+        .profile-text p { margin: 0; color: var(--text-sub); font-size: 14px; font-weight: 600; letter-spacing: 0.5px; }
+        .live-date { color: var(--date-color) !important; font-size: 12px !important; font-weight: 800 !important; text-transform: uppercase; margin-bottom: 6px !important; letter-spacing: 1.5px !important;}
         
-        .dash-logo { width: 50px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .dash-logo { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 6px 15px rgba(0,0,0,0.12); border: 2px solid var(--container-border);}
 
-        /* GRID LAYOUT */
+        /* GRID LAYOUT WITH STAGGERED ANIMATIONS */
         .app-grid { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -193,70 +203,86 @@
         .app-btn { 
             display: flex; 
             flex-direction: column;
-            align-items: center; 
+            align-items: flex-start; 
             justify-content: center;
-            padding: 30px 15px; 
-            border-radius: 24px; 
+            padding: 25px 20px; 
+            border-radius: 28px; 
             text-decoration: none; 
             color: white; 
             box-shadow: var(--shadow-soft); 
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
             position: relative;
             overflow: hidden;
+            /* Animation set to backward so they stay invisible until their delay triggers */
+            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
         }
+
+        /* Staggered load effect */
+        .app-btn:nth-child(1) { animation-delay: 0.1s; }
+        .app-btn:nth-child(2) { animation-delay: 0.2s; }
+        .app-btn:nth-child(3) { animation-delay: 0.3s; }
 
         .app-btn::before {
             content: "";
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0));
-            border-radius: 24px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
         }
 
         .app-btn:hover { 
-            transform: translateY(-5px); 
+            transform: translateY(-6px) scale(1.02); 
             box-shadow: var(--shadow-hover); 
         }
         
         .app-btn:active { 
-            transform: scale(0.96); 
+            transform: scale(0.95); 
         }
 
         .app-icon { 
-            font-size: 38px; 
-            margin-bottom: 15px; 
-            background: rgba(255,255,255,0.2); 
-            width: 70px; 
-            height: 70px; 
+            font-size: 34px; 
+            margin-bottom: 20px; 
+            background: rgba(255,255,255,0.25); 
+            width: 65px; 
+            height: 65px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            border-radius: 50%; 
+            border-radius: 20px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
         }
         
-        .app-title { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+        .app-title { font-size: 18px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 4px; z-index: 2; position: relative;}
+        .app-subtext { font-size: 13px; font-weight: 500; opacity: 0.85; z-index: 2; position: relative;}
 
         /* Make Events span full width at bottom */
-        .btn-event { grid-column: span 2; flex-direction: row; padding: 25px; }
-        .btn-event .app-icon { margin-bottom: 0; margin-right: 20px; width: 60px; height: 60px; font-size: 30px; }
+        .btn-event { grid-column: span 2; flex-direction: row; justify-content: flex-start; padding: 30px 25px; }
+        .btn-event .app-icon { margin-bottom: 0; margin-right: 20px; width: 60px; height: 60px; font-size: 30px; border-radius: 50%; }
         
         .btn-food { background: var(--food-grad); }
         .btn-bar { background: var(--bar-grad); }
         .btn-event { background: var(--event-grad); }
 
         /* BOTTOM CONTROLS */
-        .controls { margin-top: 35px; display: flex; gap: 15px; justify-content: center; width: 100%; }
+        .controls { 
+            margin-top: 35px; 
+            display: flex; 
+            gap: 15px; 
+            justify-content: center; 
+            width: 100%; 
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+            animation-delay: 0.4s;
+        }
         
         .control-btn { 
             flex: 1;
             background: var(--container-bg); 
             color: var(--text-main); 
             border: 1px solid var(--container-border); 
-            padding: 14px 20px; 
-            border-radius: 14px; 
+            padding: 16px 20px; 
+            border-radius: 18px; 
             font-weight: 700; 
+            font-size: 14px;
             cursor: pointer; 
             box-shadow: var(--shadow-soft);
             transition: all 0.2s;
@@ -264,19 +290,33 @@
             justify-content: center;
             align-items: center;
             gap: 8px;
+            backdrop-filter: blur(10px);
         }
 
-        .control-btn:active { transform: scale(0.96); }
+        .control-btn:active { transform: scale(0.95); }
         
-        .control-btn.logout { 
-            color: var(--logout-color); 
+        .control-btn.logout { color: var(--logout-color); }
+
+        @keyframes popIn { 
+            0% { opacity: 0; transform: scale(0.85) translateY(20px); } 
+            100% { opacity: 1; transform: scale(1) translateY(0); } 
+        }
+
+        @keyframes slideDown { 
+            0% { opacity: 0; transform: translateY(-30px); } 
+            100% { opacity: 1; transform: translateY(0); } 
+        }
+
+        @keyframes slideUp { 
+            0% { opacity: 0; transform: translateY(30px); } 
+            100% { opacity: 1; transform: translateY(0); } 
         }
 
         @media (max-width: 400px) {
             .app-grid { grid-template-columns: 1fr; }
             .btn-event { grid-column: span 1; }
-            .app-btn { flex-direction: row; justify-content: flex-start; padding: 20px 25px; }
-            .app-icon { margin-bottom: 0; margin-right: 20px; width: 55px; height: 55px; font-size: 26px; }
+            .app-btn { flex-direction: row; justify-content: flex-start; padding: 25px; }
+            .app-icon { margin-bottom: 0; margin-right: 20px; }
             .controls { flex-direction: column; }
         }
     </style>
@@ -302,6 +342,7 @@
         
         <div class="user-profile">
             <div class="profile-text">
+                <p id="live-date" class="live-date">Loading Date...</p>
                 <h2 id="display-name">Welcome</h2>
                 <p id="display-role">Loading Profile...</p>
             </div>
@@ -311,17 +352,26 @@
         <div class="app-grid">
             <a href="inventory.html" class="app-btn btn-food">
                 <div class="app-icon">🥩</div>
-                <div class="app-title">Food Vault</div>
+                <div>
+                    <div class="app-title">Food Vault</div>
+                    <div class="app-subtext">Sysco & Produce</div>
+                </div>
             </a>
             
             <a href="liquor.html" class="app-btn btn-bar">
                 <div class="app-icon">🍸</div>
-                <div class="app-title">Bar Vault</div>
+                <div>
+                    <div class="app-title">Bar Vault</div>
+                    <div class="app-subtext">Liquor, Beer & Wine</div>
+                </div>
             </a>
 
             <a href="events.html" class="app-btn btn-event">
                 <div class="app-icon">📅</div>
-                <div class="app-title">Caterings & Events</div>
+                <div>
+                    <div class="app-title">Events & Catering</div>
+                    <div class="app-subtext">Manage Schedule & Tickets</div>
+                </div>
             </a>
         </div>
 
@@ -333,6 +383,20 @@
 
     <script>
         if (localStorage.getItem('pericos_dark') === 'true') { document.getElementById('darkModeBtn').innerText = '☀️ Light Theme'; }
+
+        // LIVE DATE & DYNAMIC GREETING GENERATOR
+        function updateClockAndGreeting() {
+            const now = new Date();
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            document.getElementById('live-date').innerText = now.toLocaleDateString('en-US', options);
+
+            const hour = now.getHours();
+            let greeting = "Good Evening";
+            if (hour < 12) greeting = "Good Morning";
+            else if (hour < 17) greeting = "Good Afternoon";
+            
+            return greeting;
+        }
 
         // YOUR FIREBASE CONFIG
         const firebaseConfig = {
@@ -407,7 +471,9 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard-screen').style.display = 'flex';
             
-            document.getElementById('display-name').innerText = `Hello, ${activeUser}`;
+            let timeGreeting = updateClockAndGreeting();
+            document.getElementById('display-name').innerText = `${timeGreeting}, ${activeUser.split(' ')[0]}`; // First name only
+            
             let displayLoc = currentLocation ? currentLocation.replace('_', ' ') : 'System Access';
             document.getElementById('display-role').innerText = `${activeRole} • ${displayLoc}`;
         }
