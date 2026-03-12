@@ -317,7 +317,6 @@
             </select>
             <div id="user-badge" class="user-badge">👤 Unknown</div>
             <button class="util-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark Mode</button>
-            <button class="util-btn" style="color:var(--danger-color); border-color:var(--danger-color);" onclick="logoutUser()">🚪 Log Out</button>
         </div>
     </div>
 
@@ -635,19 +634,6 @@
                 window.location.href = 'index.html';
             }
         });
-
-        function logoutUser() {
-            if(confirm("Are you sure you want to log out?")) {
-                logAction(`🚪 Logged out`);
-                firebase.auth().signOut().then(() => {
-                    localStorage.removeItem('pericos_active_user');
-                    localStorage.removeItem('pericos_active_role');
-                    activeUser = null;
-                    activeRole = null;
-                    window.location.href = 'index.html';
-                });
-            }
-        }
 
         function logAction(actionText) {
             if(!activeUser) return; 
