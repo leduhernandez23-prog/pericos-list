@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Los Pericos | Shift Checklists</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Checklists">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --input-bg: #fcfcfc;
+            --toggle-bg: #f1f5f9;
+            --toggle-active: #ffffff;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body.dark-mode {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --input-bg: #0f172a;
+            --toggle-bg: #111827;
+            --toggle-active: #334155;
+        }
+
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 20px; display: flex; flex-direction: column; align-items: center; transition: var(--theme-transition); }
+
+        #nav-banner { width: 100%; text-align: center; padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: 20px; background-color: var(--surface); border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+        #nav-banner a { display: inline-block; background-color: #2c3e50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; }
+
+        .card { background-color: var(--surface); width: 90%; max-width: 550px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); border: 1px solid rgba(0,0,0,0.02); transition: var(--theme-transition); box-sizing: border-box; }
+
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .logo-group { display: flex; align-items: center; gap: 15px; }
+        .logo { width: 44px; height: 44px; border-radius: 10px; background-color: var(--primary); display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 22px;}
+        .header-text h2 { margin: 0; font-size: 18px; font-weight: 700; color: var(--text-main); }
+        .header-text p { margin: 2px 0 0 0; color: var(--text-muted); font-size: 13px; }
+        
+        .header-controls { width: 100%; max-width: 550px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        #location-switcher { padding: 6px 10px; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); color: var(--text-main); font-weight: bold; font-size: 13px; outline: none; cursor: pointer; }
+
+        /* VIEW TOGGLE (Checklist vs History) */
+        .tab-nav { display: flex; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 20px; transition: var(--theme-transition); }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 14px; transition: all 0.3s ease; }
+        .tab-btn.active { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+
+        /* SHIFT TOGGLE (AM vs PM) */
+        .shift-toggle { display: flex; background: var(--toggle-bg); border-radius: 10px; padding: 5px; margin-bottom: 20px; position: relative; }
+        .radio-hidden { position: absolute; opacity: 0; width: 0; height: 0; }
+        .radio-label { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-weight: bold; border-radius: 8px; color: var(--text-muted); transition: all 0.3s ease; font-size: 14px; }
+        .radio-hidden:checked + .radio-label { background-color: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+
+        /* ROLE SELECTOR SCROLL BAR */
+        .role-nav { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
+        .role-btn { white-space: nowrap; padding: 10px 16px; background: var(--toggle-bg); border: 1px solid var(--border); border-radius: 20px; font-weight: 700; color: var(--text-muted); cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .role-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
+
+        /* CHECKLIST STYLES */
+        .task-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .task-item { display: flex; align-items: center; background: var(--input-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
+        .task-item:active { transform: scale(0.98); }
+        .task-item.checked { background: rgba(16, 185, 129, 0.1); border-color: var(--primary); }
+        .task-item.checked .task-text { text-decoration: line-through; opacity: 0.7; }
+        
+        .checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; transition: 0.2s; flex-shrink: 0;}
+        .task-item.checked .checkbox { background-color: var(--primary); border-color: var(--primary); }
+        .task-item.checked .checkbox::after { content: '✓'; }
+
+        .task-text { font-size: 15px; font-weight: 600; color: var(--text-main); flex: 1; user-select: none; }
+
+        .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .submit-btn:active { transform: scale(0.98); }
+        .submit-btn:disabled { background-color: var(--border); color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
+
+        /* HISTORY FEED */
+        .history-card { background: var(--toggle-bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .history-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .h-role { font-weight: 800; color: var(--text-main); font-size: 15px; }
+        .h-time { font-size: 12px; color: var(--text-muted); }
+        .h-user { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 5px;}
+        .h-badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; background: rgba(16, 185, 129, 0.15); color: var(--primary); }
+
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--primary); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1; bottom: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+    </style>
+</head>
+<body>
+
+    <div id="nav-banner">
+        <a href="index.html">🏠 Back to Dashboard</a>
+    </div>
+
+    <script>
+        if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
+    </script>
+
+    <div class="card" id="app-container" style="display:none;">
+        
+        <div class="header-controls">
+            <select id="location-switcher" onchange="switchLocation(this.value)">
+                <option value="LP_Willis">📍 Willis</option>
+                <option value="LP_Huntsville">📍 Huntsville</option>
+            </select>
+        </div>
+
+        <div class="header">
+            <div class="logo-group">
+                <div class="logo">✅</div>
+                <div class="header-text">
+                    <h2>Shift Checklists</h2>
+                    <p id="user-display">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" id="btn-do-list" onclick="switchView('do-list')">📋 Fill Checklist</button>
+            <button class="tab-btn" id="btn-history" onclick="switchView('history')">📖 View History</button>
+        </div>
+
+        <div id="view-do-list">
+            
+            <div class="shift-toggle">
+                <input type="radio" id="shiftAM" name="shiftType" value="AM" checked class="radio-hidden" onchange="renderChecklist()">
+                <label for="shiftAM" class="radio-label">☀️ Open (AM)</label>
+                
+                <input type="radio" id="shiftPM" name="shiftType" value="PM" class="radio-hidden" onchange="renderChecklist()">
+                <label for="shiftPM" class="radio-label">🌙 Close (PM)</label>
+            </div>
+
+            <div class="role-nav">
+                <button class="role-btn active" onclick="selectRole('Manager', this)">Manager</button>
+                <button class="role-btn" onclick="selectRole('Kitchen', this)">Kitchen</button>
+                <button class="role-btn" onclick="selectRole('Bar Server', this)">Bar Server</button>
+                <button class="role-btn" onclick="selectRole('Back Server', this)">Back Server</button>
+                <button class="role-btn" onclick="selectRole('BussBoy', this)">BussBoy</button>
+            </div>
+
+            <div id="dynamic-task-list" class="task-list">
+                </div>
+
+            <button id="submitBtn" class="submit-btn" onclick="submitChecklist()" disabled>Complete All Tasks First</button>
+        </div>
+
+        <div id="view-history" style="display:none;">
+            <div id="history-feed">
+                <p style="text-align:center; color:var(--text-muted); font-style:italic;">Loading records...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toast">✅ Shift Logged Successfully!</div>
+
+    <script>
+        const config = {
+            apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
+            authDomain: "los-pericos-46378.firebaseapp.com",
+            databaseURL: "https://los-pericos-46378-default-rtdb.firebaseio.com",
+            projectId: "los-pericos-46378",
+            storageBucket: "los-pericos-46378.firebasestorage.app",
+            messagingSenderId: "463221124647",
+            appId: "1:463221124647:web:5e54ad293b174992096802"
+        };
+        firebase.initializeApp(config);
+        const db = firebase.database();
+
+        let activeUser = localStorage.getItem('pericos_active_user');
+        let activeRole = localStorage.getItem('pericos_active_role');
+        let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
+        
+        let currentSelectedRole = 'Manager';
+
+        // THE DEFAULT CHECKLIST DATA
+        const standardTasks = {
+            "Manager": {
+                "AM": ["Unlock front doors & turn off alarm", "Count safe & setup registers", "Check employee labor & schedule", "Verify walk-in temps", "Do morning walk-through"],
+                "PM": ["Run End-of-Day POS reports", "Calculate server tip-outs", "Lock safe & drop deposits", "Verify all equipment is off", "Arm security system & lock doors"]
+            },
+            "Kitchen": {
+                "AM": ["Turn on grills, fryers & ovens", "Check cooler & freezer temps", "Complete morning prep list", "Set up line stations", "Date & label new deliveries"],
+                "PM": ["Turn off grills & ovens", "Wrap, date & label all open food", "Wipe down all stainless steel", "Sweep and mop kitchen floor", "Empty kitchen grease traps"]
+            },
+            "Bar Server": {
+                "AM": ["Cut fresh garnishes (limes, lemons)", "Stock ice wells", "Restock beer coolers & liquor", "Wipe down bar top & stools", "Test draft beer lines"],
+                "PM": ["Wipe down all liquor bottles", "Cap all draft beer taps", "Drain & clean bar sinks", "Restock glassware for tomorrow", "Wipe down bar mats & counters"]
+            },
+            "Back Server": {
+                "AM": ["Roll 50 sets of silverware", "Stock chips & salsa station", "Brew fresh tea & coffee", "Wipe down serving trays", "Check all to-go boxes & bags"],
+                "PM": ["Roll 50 sets of silverware", "Break down tea/coffee stations", "Restock server alley supplies", "Wipe down all POS screens", "Clear all dirty trays"]
+            },
+            "BussBoy": {
+                "AM": ["Set up trash bins with new bags", "Ensure all tables are sanitized", "Check & fill bathroom paper towels", "Sweep main dining room", "Wipe down high chairs/boosters"],
+                "PM": ["Sanitize all tables & chairs", "Empty all dining room trash cans", "Sweep & mop the entire dining floor", "Clean both restrooms thoroughly", "Take all trash bags to dumpster"]
+            }
+        };
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user && activeUser) { startApp(); } else { window.location.href = 'index.html'; }
+        });
+
+        function startApp() {
+            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('user-display').innerText = `👤 ${activeUser} | ${currentLocation.replace('_',' ')}`;
+            
+            let locSwitcher = document.getElementById('location-switcher');
+            locSwitcher.value = currentLocation;
+            if (activeRole !== 'Owner') { locSwitcher.style.display = 'none'; } 
+            else { locSwitcher.style.display = 'inline-block'; }
+
+            renderChecklist();
+            loadHistory();
+        }
+
+        function switchLocation(loc) {
+            localStorage.setItem('pericos_location', loc);
+            location.reload();
+        }
+
+        function switchView(view) {
+            document.getElementById('view-do-list').style.display = view === 'do-list' ? 'block' : 'none';
+            document.getElementById('view-history').style.display = view === 'history' ? 'block' : 'none';
+            document.getElementById('btn-do-list').classList.toggle('active', view === 'do-list');
+            document.getElementById('btn-history').classList.toggle('active', view === 'history');
+        }
+
+        function selectRole(role, btnElem) {
+            currentSelectedRole = role;
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            btnElem.classList.add('active');
+            renderChecklist();
+        }
+
+        function renderChecklist() {
+            const shift = document.querySelector('input[name="shiftType"]:checked').value;
+            const tasks = standardTasks[currentSelectedRole][shift];
+            const container = document.getElementById('dynamic-task-list');
+            
+            container.innerHTML = '';
+            
+            tasks.forEach((task, index) => {
+                let div = document.createElement('div');
+                div.className = 'task-item';
+                div.onclick = function() { toggleTask(this); };
+                
+                div.innerHTML = `
+                    <div class="checkbox"></div>
+                    <div class="task-text">${task}</div>
+                `;
+                container.appendChild(div);
+            });
+
+            checkSubmitStatus();
+        }
+
+        function toggleTask(elem) {
+            elem.classList.toggle('checked');
+            checkSubmitStatus();
+        }
+
+        function checkSubmitStatus() {
+            const totalTasks = document.querySelectorAll('.task-item').length;
+            const checkedTasks = document.querySelectorAll('.task-item.checked').length;
+            const btn = document.getElementById('submitBtn');
+            
+            if (totalTasks > 0 && totalTasks === checkedTasks) {
+                btn.disabled = false;
+                btn.innerText = "✅ Submit & Sign Off";
+            } else {
+                btn.disabled = true;
+                btn.innerText = `Complete Tasks (${checkedTasks}/${totalTasks})`;
+            }
+        }
+
+        function submitChecklist() {
+            const shift = document.querySelector('input[name="shiftType"]:checked').value;
+            const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            
+            const logData = {
+                role: currentSelectedRole,
+                shift: shift,
+                manager: activeUser,
+                time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            // Save under today's date for easy auditing
+            db.ref(`${currentLocation}/checklists_logs/${todayStr}`).push(logData).then(() => {
+                showToast();
+                
+                // Uncheck everything
+                document.querySelectorAll('.task-item').forEach(el => el.classList.remove('checked'));
+                checkSubmitStatus();
+                
+                // Switch to history to show proof of submission
+                setTimeout(() => switchView('history'), 1000);
+            });
+        }
+
+        function loadHistory() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            
+            // Only load today's checklists so it stays clean
+            db.ref(`${currentLocation}/checklists_logs/${todayStr}`).on('value', snap => {
+                let html = '';
+                let logs = [];
+                
+                snap.forEach(child => { logs.push(child.val()); });
+                
+                // Reverse to show newest at top
+                logs.reverse().forEach(log => {
+                    let icon = log.shift === 'AM' ? '☀️' : '🌙';
+                    
+                    html += `
+                        <div class="history-card">
+                            <div class="history-header">
+                                <div class="h-role">${log.role} Checklist</div>
+                                <div class="h-badge">${icon} ${log.shift}</div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div class="h-user">👤 Verified by: <strong>${log.manager.split(' ')[0]}</strong></div>
+                                <div class="h-time">${log.time}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('history-feed').innerHTML = html || '<p style="text-align:center; color:var(--text-muted); font-style:italic; padding:20px;">No checklists submitted yet today.</p>';
+            });
+        }
+
+        function showToast() {
+            let toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+    </script>
+</body>
+</html>
