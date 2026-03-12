@@ -34,7 +34,6 @@
             --food-grad: linear-gradient(135deg, #0056b3, #00a8ff);
             --bar-grad: linear-gradient(135deg, #662d91, #9b59b6);
             --event-grad: linear-gradient(135deg, #1e824c, #2ecc71);
-            --log-grad: linear-gradient(135deg, #d35400, #f39c12);
             --check-grad: linear-gradient(135deg, #059669, #34d399);
             --play-grad: linear-gradient(135deg, #7c3aed, #a78bfa);
             
@@ -61,7 +60,6 @@
             --food-grad: linear-gradient(135deg, #0f4c81, #2980b9);
             --bar-grad: linear-gradient(135deg, #4a235a, #8e44ad);
             --event-grad: linear-gradient(135deg, #145a32, #27ae60);
-            --log-grad: linear-gradient(135deg, #b9770e, #e67e22);
             --check-grad: linear-gradient(135deg, #065f46, #10b981);
             --play-grad: linear-gradient(135deg, #5b21b6, #8b5cf6);
             
@@ -90,6 +88,7 @@
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
+        /* LOGIN SCREEN */
         #login-screen { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; z-index: 10; padding: 20px; box-sizing: border-box; }
         .pin-box { background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 40px 30px; border-radius: 30px; box-shadow: var(--shadow-soft); border: 1px solid var(--container-border); width: 100%; max-width: 360px; text-align: center; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .logo-img { width: 110px; border-radius: 50%; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border: 4px solid rgba(255,255,255,0.3); }
@@ -104,6 +103,7 @@
         body.dark-mode .pin-btn { background: #fff; color: #000; }
         #pin-error { color: var(--logout-color); font-weight: bold; margin-top: 15px; display: none; font-size: 14px; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 10px; }
 
+        /* DASHBOARD SCREEN */
         #dashboard-screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; padding: 20px; padding-bottom: 50px; box-sizing: border-box; }
         
         .user-profile { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 25px; border-radius: 24px; width: 100%; box-sizing: border-box; border: 1px solid var(--container-border); box-shadow: var(--shadow-soft); animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -141,7 +141,7 @@
         .add-note-btn:active { transform: scale(0.95); }
         body.dark-mode .add-note-btn { background: #fff; color: #000; }
 
-        /* 3-ROW APP GRID */
+        /* 5-APP GRID */
         .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; }
         
         .app-btn { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 25px 20px; border-radius: 28px; text-decoration: none; color: white; box-shadow: var(--shadow-soft); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
@@ -150,7 +150,6 @@
         .app-btn:nth-child(3) { animation-delay: 0.25s; }
         .app-btn:nth-child(4) { animation-delay: 0.3s; }
         .app-btn:nth-child(5) { animation-delay: 0.35s; }
-        .app-btn:nth-child(6) { animation-delay: 0.4s; }
 
         .app-btn::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%); }
         .app-btn:hover { transform: translateY(-4px) scale(1.02); box-shadow: var(--shadow-hover); }
@@ -160,12 +159,15 @@
         .app-title { font-size: 16px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 2px; z-index: 2; position: relative;}
         .app-subtext { font-size: 12px; font-weight: 500; opacity: 0.85; z-index: 2; position: relative;}
 
+        /* Make Events span full width at bottom */
+        .btn-event { grid-column: span 2; flex-direction: row; justify-content: flex-start; padding: 30px 25px; }
+        .btn-event .app-icon { margin-bottom: 0; margin-right: 20px; width: 60px; height: 60px; font-size: 30px; border-radius: 50%; }
+        
         .btn-food { background: var(--food-grad); }
         .btn-bar { background: var(--bar-grad); }
-        .btn-event { background: var(--event-grad); }
-        .btn-log { background: var(--log-grad); }
         .btn-check { background: var(--check-grad); }
         .btn-play { background: var(--play-grad); }
+        .btn-event { background: var(--event-grad); }
 
         /* CONTROLS */
         .controls { margin-top: 35px; display: flex; gap: 15px; justify-content: center; width: 100%; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.45s; }
@@ -179,6 +181,7 @@
 
         @media (max-width: 400px) {
             .app-grid { grid-template-columns: 1fr; }
+            .btn-event { grid-column: span 1; }
             .app-btn { flex-direction: row; justify-content: flex-start; padding: 20px; }
             .app-icon { margin-bottom: 0; margin-right: 15px; }
             .controls { flex-direction: column; }
@@ -265,22 +268,6 @@
                 </div>
             </a>
 
-            <a href="events.html" class="app-btn btn-event">
-                <div class="app-icon">📅</div>
-                <div>
-                    <div class="app-title">Caterings</div>
-                    <div class="app-subtext">Schedule & Tickets</div>
-                </div>
-            </a>
-
-            <a href="manager-log.html" class="app-btn btn-log">
-                <div class="app-icon">📝</div>
-                <div>
-                    <div class="app-title">Shift Log</div>
-                    <div class="app-subtext">Manager Notes</div>
-                </div>
-            </a>
-
             <a href="checklists.html" class="app-btn btn-check">
                 <div class="app-icon">✅</div>
                 <div>
@@ -294,6 +281,14 @@
                 <div>
                     <div class="app-title">Playbook</div>
                     <div class="app-subtext">Recipes & Rules</div>
+                </div>
+            </a>
+
+            <a href="events.html" class="app-btn btn-event">
+                <div class="app-icon">📅</div>
+                <div>
+                    <div class="app-title">Events & Catering</div>
+                    <div class="app-subtext">Manage Schedule & Tickets</div>
                 </div>
             </a>
         </div>
