@@ -82,6 +82,7 @@
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
+        /* LOGIN SCREEN */
         #login-screen { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; z-index: 10; padding: 20px; box-sizing: border-box; }
         .pin-box { background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 40px 30px; border-radius: 30px; box-shadow: var(--shadow-soft); border: 1px solid var(--container-border); width: 100%; max-width: 360px; text-align: center; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .logo-img { width: 110px; border-radius: 50%; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border: 4px solid rgba(255,255,255,0.3); }
@@ -96,6 +97,7 @@
         body.dark-mode .pin-btn { background: #fff; color: #000; }
         #pin-error { color: var(--logout-color); font-weight: bold; margin-top: 15px; display: none; font-size: 14px; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 10px; }
 
+        /* DASHBOARD SCREEN */
         #dashboard-screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
         
         .user-profile { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 25px; border-radius: 24px; width: 100%; box-sizing: border-box; border: 1px solid var(--container-border); box-shadow: var(--shadow-soft); animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -107,6 +109,18 @@
         
         .dash-logo { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 6px 15px rgba(0,0,0,0.12); border: 2px solid var(--container-border);}
 
+        /* THE OWNER'S GOD MODE WIDGET */
+        .owner-widget { width: 100%; margin-bottom: 25px; background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 24px; box-shadow: var(--shadow-soft); border: 1px solid var(--container-border); overflow: hidden; display: none; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.05s; }
+        .owner-widget h3 { margin: 0; padding: 15px 20px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; background: linear-gradient(135deg, #1e3c72, #2a5298); display: flex; align-items: center; gap: 8px; }
+        .owner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+        .loc-card { padding: 20px; border-right: 1px solid var(--container-border); }
+        .loc-card:last-child { border-right: none; }
+        .loc-card h4 { margin: 0 0 15px 0; font-size: 18px; color: var(--text-main); display: flex; align-items: center; gap: 5px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: var(--text-sub); font-weight: 600; }
+        .stat-row:last-child { margin-bottom: 0; }
+        .stat-row strong { font-size: 16px; color: var(--text-main); background: rgba(128,128,128,0.1); padding: 2px 8px; border-radius: 6px; }
+
+        /* NOTIFICATION BOARD */
         .notification-board { width: 100%; margin-bottom: 25px; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.1s; }
         
         .alert-bubble { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 14px; margin-bottom: 10px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: all 0.3s; }
@@ -124,6 +138,7 @@
         .add-note-btn:active { transform: scale(0.95); }
         body.dark-mode .add-note-btn { background: #fff; color: #000; }
 
+        /* GRID LAYOUT */
         .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; }
         
         .app-btn { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 25px 20px; border-radius: 28px; text-decoration: none; color: white; box-shadow: var(--shadow-soft); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
@@ -161,6 +176,9 @@
             .app-btn { flex-direction: row; justify-content: flex-start; padding: 25px; }
             .app-icon { margin-bottom: 0; margin-right: 20px; }
             .controls { flex-direction: column; }
+            .owner-grid { grid-template-columns: 1fr; }
+            .loc-card { border-right: none; border-bottom: 1px solid var(--container-border); }
+            .loc-card:last-child { border-bottom: none; }
         }
     </style>
 </head>
@@ -195,6 +213,24 @@
                 </select>
             </div>
             <img src="image_0.png" alt="Logo" class="dash-logo">
+        </div>
+
+        <div id="owner-widget" class="owner-widget">
+            <h3>👑 Multi-Unit Overview</h3>
+            <div class="owner-grid">
+                <div class="loc-card">
+                    <h4>📍 Willis</h4>
+                    <div class="stat-row"><span>Events (Next 7 Days)</span><strong id="w-events">-</strong></div>
+                    <div class="stat-row"><span>Pending Deliveries</span><strong id="w-trucks">-</strong></div>
+                    <div class="stat-row"><span>Active Notes</span><strong id="w-notes">-</strong></div>
+                </div>
+                <div class="loc-card">
+                    <h4>📍 Huntsville</h4>
+                    <div class="stat-row"><span>Events (Next 7 Days)</span><strong id="h-events">-</strong></div>
+                    <div class="stat-row"><span>Pending Deliveries</span><strong id="h-trucks">-</strong></div>
+                    <div class="stat-row"><span>Active Notes</span><strong id="h-notes">-</strong></div>
+                </div>
+            </div>
         </div>
 
         <div class="notification-board">
@@ -329,15 +365,19 @@
             document.getElementById('display-name').innerText = `${timeGreeting}, ${activeUser.split(' ')[0]}`;
             
             let locSwitcher = document.getElementById('location-switcher');
+            let ownerWidget = document.getElementById('owner-widget');
             
             if (activeRole === 'Owner') {
                 document.getElementById('display-role').innerText = `${activeRole} Access`;
                 locSwitcher.style.display = 'inline-block';
                 locSwitcher.value = currentLocation;
+                ownerWidget.style.display = 'block'; // Show God Mode
+                loadOwnerStats(); // Fetch the stats
             } else {
                 let displayLoc = currentLocation ? currentLocation.replace('_', ' ') : '';
                 document.getElementById('display-role').innerText = `${activeRole} • ${displayLoc}`;
                 locSwitcher.style.display = 'none';
+                ownerWidget.style.display = 'none'; // Hide from Managers
             }
 
             loadDashboardAlerts();
@@ -350,6 +390,51 @@
         }
 
         // ==========================================
+        // OWNER'S MULTI-UNIT FETCH LOGIC
+        // ==========================================
+        function loadOwnerStats() {
+            ['LP_Willis', 'LP_Huntsville'].forEach(loc => {
+                let prefix = loc === 'LP_Willis' ? 'w' : 'h';
+                
+                // 1. Fetch Events (Next 7 Days)
+                db.ref(loc + '/events').on('value', snap => {
+                    let count = 0;
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    
+                    snap.forEach(child => {
+                        let ev = child.val();
+                        if(ev.date && typeof ev.date === 'string') {
+                            let parts = ev.date.split('-');
+                            if(parts.length === 3) {
+                                let evDate = new Date(parts[0], parts[1]-1, parts[2]);
+                                let diff = Math.round((evDate - today)/(1000*60*60*24));
+                                if(diff >= 0 && diff <= 7) count++;
+                            }
+                        }
+                    });
+                    document.getElementById(prefix + '-events').innerText = count;
+                });
+
+                // 2. Fetch Pending Delivery Trucks
+                db.ref(loc + '/pending_delivery').on('value', snap => {
+                    // Counts how many distributors have un-received invoices
+                    let count = snap.numChildren(); 
+                    document.getElementById(prefix + '-trucks').innerText = count;
+                });
+
+                // 3. Fetch Active Notes
+                db.ref(loc + '/quick_notes').on('value', snap => {
+                    let count = 0;
+                    snap.forEach(child => {
+                        if(child.val().status !== 'done') count++;
+                    });
+                    document.getElementById(prefix + '-notes').innerText = count;
+                });
+            });
+        }
+
+        // ==========================================
         // DUAL LIVE-LISTENERS FOR NOTIFICATION BOARD
         // ==========================================
         function loadDashboardAlerts() {
@@ -358,7 +443,6 @@
             let currentEvents = [];
             let currentNotes = [];
 
-            // Master render function called anytime Events OR Notes change
             function renderBoard() {
                 let html = '';
                 
@@ -369,7 +453,6 @@
                 let upcomingEvents = [];
 
                 currentEvents.forEach(ev => {
-                    // Safe parsing to prevent old blank test data from crashing the app
                     if (!ev.date || typeof ev.date !== 'string') return; 
                     
                     let parts = ev.date.split('-');
@@ -385,7 +468,6 @@
                     }
                 });
 
-                // Sort closest events to the top
                 upcomingEvents.sort((a, b) => a.dayDiff - b.dayDiff);
 
                 upcomingEvents.forEach(ev => {
@@ -402,14 +484,13 @@
                     </div>`;
                 });
 
-                // 2. Process Manual Sticky Notes (24-Hour Retention)
+                // 2. Process Manual Sticky Notes
                 let now = Date.now();
                 currentNotes.forEach(note => {
                     if (!note.timestamp) return;
 
                     let ageHours = (now - note.timestamp) / (1000 * 60 * 60);
 
-                    // Auto-delete crossed out notes that are older than 24 hours
                     if (note.status === 'done' && ageHours >= 24) {
                         db.ref(currentLocation + '/quick_notes/' + note.id).remove();
                         return; 
@@ -417,7 +498,6 @@
 
                     let isDone = note.status === 'done';
                     
-                    // Styling for crossed-out "Done" notes
                     let extraStyle = isDone 
                         ? 'opacity: 0.55; text-decoration: line-through; background: rgba(0,0,0,0.03); border-color: transparent; box-shadow: none;' 
                         : '';
@@ -438,14 +518,12 @@
                 container.innerHTML = html;
             }
 
-            // LIVE LISTENER 1: Events Calendar
             db.ref(currentLocation + '/events').on('value', snap => {
                 currentEvents = [];
                 snap.forEach(child => { currentEvents.push({ id: child.key, ...child.val() }); });
                 renderBoard();
             });
 
-            // LIVE LISTENER 2: Quick Notes
             db.ref(currentLocation + '/quick_notes').on('value', snap => {
                 currentNotes = [];
                 snap.forEach(child => { currentNotes.push({ id: child.key, ...child.val() }); });
@@ -468,7 +546,6 @@
             input.value = ''; 
         }
 
-        // Change status to "done" to trigger the 24-hour fade out instead of deleting immediately
         function markQuickNoteDone(noteId) {
             db.ref(currentLocation + '/quick_notes/' + noteId).update({ status: 'done' });
         }
