@@ -405,6 +405,11 @@
                 ownerWidget.style.display = 'none'; 
             }
 
+            // Ask for Notification permission so we can ping them about Sticky Notes
+            if ("Notification" in window && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            }
+
             loadDashboardAlerts();
         }
 
@@ -457,6 +462,7 @@
             
             let currentEvents = [];
             let currentNotes = [];
+            let isInitialLoad = true;
 
             function renderBoard() {
                 let html = '';
@@ -528,10 +534,31 @@
                 renderBoard();
             });
 
+            // Standard listener to build the board
             db.ref(currentLocation + '/quick_notes').on('value', snap => {
                 currentNotes = [];
                 snap.forEach(child => { currentNotes.push({ id: child.key, ...child.val() }); });
                 renderBoard();
+                isInitialLoad = false; // Flag that the first massive load is done
+            });
+
+            // --- BROWSER NOTIFICATION LISTENER ---
+            // This specifically listens for a brand new note being added *after* the page loads
+            db.ref(currentLocation + '/quick_notes').limitToLast(1).on('child_added', snap => {
+                if (isInitialLoad) return; // Skip if the page is just booting up
+
+                let note = snap.val();
+                let locName = currentLocation.replace('LP_', '');
+
+                // Only notify if it's an active note and YOU didn't write it
+                if (note.author !== activeUser.split(' ')[0] && note.status === 'active') {
+                    if ("Notification" in window && Notification.permission === "granted") {
+                        new Notification(`📌 Pericos ${locName} - Note from ${note.author}`, {
+                            body: note.message,
+                            icon: "image_0.png"
+                        });
+                    }
+                }
             });
         }
 
