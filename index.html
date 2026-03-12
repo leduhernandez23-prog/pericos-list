@@ -30,9 +30,13 @@
             --shadow-soft: 0 15px 35px rgba(0, 0, 0, 0.05);
             --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.12);
             
+            /* APP COLORS */
             --food-grad: linear-gradient(135deg, #0056b3, #00a8ff);
             --bar-grad: linear-gradient(135deg, #662d91, #9b59b6);
             --event-grad: linear-gradient(135deg, #1e824c, #2ecc71);
+            --log-grad: linear-gradient(135deg, #d35400, #f39c12);
+            --check-grad: linear-gradient(135deg, #059669, #34d399);
+            --play-grad: linear-gradient(135deg, #7c3aed, #a78bfa);
             
             --logout-color: #e74c3c;
             --date-color: #0056b3;
@@ -53,9 +57,13 @@
             --shadow-soft: 0 15px 35px rgba(0, 0, 0, 0.4);
             --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.6);
             
+            /* DARK MODE APP COLORS */
             --food-grad: linear-gradient(135deg, #0f4c81, #2980b9);
             --bar-grad: linear-gradient(135deg, #4a235a, #8e44ad);
             --event-grad: linear-gradient(135deg, #145a32, #27ae60);
+            --log-grad: linear-gradient(135deg, #b9770e, #e67e22);
+            --check-grad: linear-gradient(135deg, #065f46, #10b981);
+            --play-grad: linear-gradient(135deg, #5b21b6, #8b5cf6);
             
             --date-color: #4da3ff;
             --alert-bg: rgba(245, 158, 11, 0.15);
@@ -82,7 +90,6 @@
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* LOGIN SCREEN */
         #login-screen { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; z-index: 10; padding: 20px; box-sizing: border-box; }
         .pin-box { background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 40px 30px; border-radius: 30px; box-shadow: var(--shadow-soft); border: 1px solid var(--container-border); width: 100%; max-width: 360px; text-align: center; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .logo-img { width: 110px; border-radius: 50%; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border: 4px solid rgba(255,255,255,0.3); }
@@ -97,8 +104,7 @@
         body.dark-mode .pin-btn { background: #fff; color: #000; }
         #pin-error { color: var(--logout-color); font-weight: bold; margin-top: 15px; display: none; font-size: 14px; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 10px; }
 
-        /* DASHBOARD SCREEN */
-        #dashboard-screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
+        #dashboard-screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; padding: 20px; padding-bottom: 50px; box-sizing: border-box; }
         
         .user-profile { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 25px; border-radius: 24px; width: 100%; box-sizing: border-box; border: 1px solid var(--container-border); box-shadow: var(--shadow-soft); animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .profile-text h2 { margin: 0 0 5px 0; font-size: 26px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;}
@@ -109,7 +115,7 @@
         
         .dash-logo { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 6px 15px rgba(0,0,0,0.12); border: 2px solid var(--container-border);}
 
-        /* THE OWNER'S GOD MODE WIDGET */
+        /* OWNER GOD MODE WIDGET */
         .owner-widget { width: 100%; margin-bottom: 25px; background: var(--container-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 24px; box-shadow: var(--shadow-soft); border: 1px solid var(--container-border); overflow: hidden; display: none; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.05s; }
         .owner-widget h3 { margin: 0; padding: 15px 20px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; background: linear-gradient(135deg, #1e3c72, #2a5298); display: flex; align-items: center; gap: 8px; }
         .owner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
@@ -122,15 +128,12 @@
 
         /* NOTIFICATION BOARD */
         .notification-board { width: 100%; margin-bottom: 25px; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.1s; }
-        
         .alert-bubble { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 14px; margin-bottom: 10px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: all 0.3s; }
         .alert-auto { background: var(--alert-bg); color: var(--alert-text); border: 1px solid rgba(245, 158, 11, 0.3); }
         .alert-manual { background: var(--note-bg); color: var(--note-text); border: 1px solid rgba(16, 185, 129, 0.3); }
-        
         .alert-author { font-size: 11px; opacity: 0.7; margin-bottom: 2px; font-weight: 800; text-transform: uppercase; }
         .dismiss-btn { background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.6; transition: 0.2s; padding: 5px; }
         .dismiss-btn:hover { opacity: 1; transform: scale(1.1); }
-
         .add-note-container { display: flex; gap: 8px; margin-top: 10px; }
         .add-note-input { flex: 1; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--container-border); background: var(--container-bg); color: var(--text-main); font-size: 14px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
         .add-note-input:focus { border-color: var(--date-color); }
@@ -138,30 +141,34 @@
         .add-note-btn:active { transform: scale(0.95); }
         body.dark-mode .add-note-btn { background: #fff; color: #000; }
 
-        /* GRID LAYOUT */
-        .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; }
+        /* 3-ROW APP GRID */
+        .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; }
         
         .app-btn { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 25px 20px; border-radius: 28px; text-decoration: none; color: white; box-shadow: var(--shadow-soft); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
-        .app-btn:nth-child(1) { animation-delay: 0.2s; }
-        .app-btn:nth-child(2) { animation-delay: 0.25s; }
-        .app-btn:nth-child(3) { animation-delay: 0.3s; }
+        .app-btn:nth-child(1) { animation-delay: 0.15s; }
+        .app-btn:nth-child(2) { animation-delay: 0.2s; }
+        .app-btn:nth-child(3) { animation-delay: 0.25s; }
+        .app-btn:nth-child(4) { animation-delay: 0.3s; }
+        .app-btn:nth-child(5) { animation-delay: 0.35s; }
+        .app-btn:nth-child(6) { animation-delay: 0.4s; }
 
         .app-btn::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%); }
-        .app-btn:hover { transform: translateY(-6px) scale(1.02); box-shadow: var(--shadow-hover); }
+        .app-btn:hover { transform: translateY(-4px) scale(1.02); box-shadow: var(--shadow-hover); }
         .app-btn:active { transform: scale(0.95); }
 
-        .app-icon { font-size: 34px; margin-bottom: 20px; background: rgba(255,255,255,0.25); width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(10px); }
-        .app-title { font-size: 18px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 4px; z-index: 2; position: relative;}
-        .app-subtext { font-size: 13px; font-weight: 500; opacity: 0.85; z-index: 2; position: relative;}
+        .app-icon { font-size: 30px; margin-bottom: 15px; background: rgba(255,255,255,0.25); width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(10px); }
+        .app-title { font-size: 16px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 2px; z-index: 2; position: relative;}
+        .app-subtext { font-size: 12px; font-weight: 500; opacity: 0.85; z-index: 2; position: relative;}
 
-        .btn-event { grid-column: span 2; flex-direction: row; justify-content: flex-start; padding: 30px 25px; }
-        .btn-event .app-icon { margin-bottom: 0; margin-right: 20px; width: 60px; height: 60px; font-size: 30px; border-radius: 50%; }
-        
         .btn-food { background: var(--food-grad); }
         .btn-bar { background: var(--bar-grad); }
         .btn-event { background: var(--event-grad); }
+        .btn-log { background: var(--log-grad); }
+        .btn-check { background: var(--check-grad); }
+        .btn-play { background: var(--play-grad); }
 
-        .controls { margin-top: 35px; display: flex; gap: 15px; justify-content: center; width: 100%; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.4s; }
+        /* CONTROLS */
+        .controls { margin-top: 35px; display: flex; gap: 15px; justify-content: center; width: 100%; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.45s; }
         .control-btn { flex: 1; background: var(--container-bg); color: var(--text-main); border: 1px solid var(--container-border); padding: 16px 20px; border-radius: 18px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: var(--shadow-soft); transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; backdrop-filter: blur(10px); }
         .control-btn:active { transform: scale(0.95); }
         .control-btn.logout { color: var(--logout-color); }
@@ -172,9 +179,8 @@
 
         @media (max-width: 400px) {
             .app-grid { grid-template-columns: 1fr; }
-            .btn-event { grid-column: span 1; }
-            .app-btn { flex-direction: row; justify-content: flex-start; padding: 25px; }
-            .app-icon { margin-bottom: 0; margin-right: 20px; }
+            .app-btn { flex-direction: row; justify-content: flex-start; padding: 20px; }
+            .app-icon { margin-bottom: 0; margin-right: 15px; }
             .controls { flex-direction: column; }
             .owner-grid { grid-template-columns: 1fr; }
             .loc-card { border-right: none; border-bottom: 1px solid var(--container-border); }
@@ -262,8 +268,32 @@
             <a href="events.html" class="app-btn btn-event">
                 <div class="app-icon">📅</div>
                 <div>
-                    <div class="app-title">Events & Catering</div>
-                    <div class="app-subtext">Manage Schedule & Tickets</div>
+                    <div class="app-title">Caterings</div>
+                    <div class="app-subtext">Schedule & Tickets</div>
+                </div>
+            </a>
+
+            <a href="manager-log.html" class="app-btn btn-log">
+                <div class="app-icon">📝</div>
+                <div>
+                    <div class="app-title">Shift Log</div>
+                    <div class="app-subtext">Manager Notes</div>
+                </div>
+            </a>
+
+            <a href="checklists.html" class="app-btn btn-check">
+                <div class="app-icon">✅</div>
+                <div>
+                    <div class="app-title">Checklists</div>
+                    <div class="app-subtext">Opening & Closing</div>
+                </div>
+            </a>
+
+            <a href="playbook.html" class="app-btn btn-play">
+                <div class="app-icon">📖</div>
+                <div>
+                    <div class="app-title">Playbook</div>
+                    <div class="app-subtext">Recipes & Rules</div>
                 </div>
             </a>
         </div>
@@ -371,13 +401,13 @@
                 document.getElementById('display-role').innerText = `${activeRole} Access`;
                 locSwitcher.style.display = 'inline-block';
                 locSwitcher.value = currentLocation;
-                ownerWidget.style.display = 'block'; // Show God Mode
-                loadOwnerStats(); // Fetch the stats
+                ownerWidget.style.display = 'block'; 
+                loadOwnerStats(); 
             } else {
                 let displayLoc = currentLocation ? currentLocation.replace('_', ' ') : '';
                 document.getElementById('display-role').innerText = `${activeRole} • ${displayLoc}`;
                 locSwitcher.style.display = 'none';
-                ownerWidget.style.display = 'none'; // Hide from Managers
+                ownerWidget.style.display = 'none'; 
             }
 
             loadDashboardAlerts();
@@ -389,14 +419,10 @@
             location.reload(); 
         }
 
-        // ==========================================
-        // OWNER'S MULTI-UNIT FETCH LOGIC
-        // ==========================================
         function loadOwnerStats() {
             ['LP_Willis', 'LP_Huntsville'].forEach(loc => {
                 let prefix = loc === 'LP_Willis' ? 'w' : 'h';
                 
-                // 1. Fetch Events (Next 7 Days)
                 db.ref(loc + '/events').on('value', snap => {
                     let count = 0;
                     const today = new Date();
@@ -416,14 +442,11 @@
                     document.getElementById(prefix + '-events').innerText = count;
                 });
 
-                // 2. Fetch Pending Delivery Trucks
                 db.ref(loc + '/pending_delivery').on('value', snap => {
-                    // Counts how many distributors have un-received invoices
                     let count = snap.numChildren(); 
                     document.getElementById(prefix + '-trucks').innerText = count;
                 });
 
-                // 3. Fetch Active Notes
                 db.ref(loc + '/quick_notes').on('value', snap => {
                     let count = 0;
                     snap.forEach(child => {
@@ -434,9 +457,6 @@
             });
         }
 
-        // ==========================================
-        // DUAL LIVE-LISTENERS FOR NOTIFICATION BOARD
-        // ==========================================
         function loadDashboardAlerts() {
             const container = document.getElementById('alerts-container');
             
@@ -446,21 +466,17 @@
             function renderBoard() {
                 let html = '';
                 
-                // 1. Process Upcoming Events (7-Day Radar)
                 const today = new Date();
                 today.setHours(0,0,0,0);
-                
                 let upcomingEvents = [];
 
                 currentEvents.forEach(ev => {
                     if (!ev.date || typeof ev.date !== 'string') return; 
-                    
                     let parts = ev.date.split('-');
                     if (parts.length !== 3) return;
 
                     let [y, m, d] = parts;
                     let evDate = new Date(y, m - 1, d);
-                    
                     let dayDiff = Math.round((evDate - today) / (1000 * 60 * 60 * 24));
                     
                     if (dayDiff >= 0 && dayDiff <= 7) {
@@ -484,7 +500,6 @@
                     </div>`;
                 });
 
-                // 2. Process Manual Sticky Notes
                 let now = Date.now();
                 currentNotes.forEach(note => {
                     if (!note.timestamp) return;
@@ -497,14 +512,8 @@
                     }
 
                     let isDone = note.status === 'done';
-                    
-                    let extraStyle = isDone 
-                        ? 'opacity: 0.55; text-decoration: line-through; background: rgba(0,0,0,0.03); border-color: transparent; box-shadow: none;' 
-                        : '';
-                        
-                    let actionBtn = isDone 
-                        ? '<span style="font-size:12px; font-weight:800; opacity:0.6;">✔️ Done</span>' 
-                        : `<button class="dismiss-btn" onclick="markQuickNoteDone('${note.id}')" title="Mark Done">✅</button>`;
+                    let extraStyle = isDone ? 'opacity: 0.55; text-decoration: line-through; background: rgba(0,0,0,0.03); border-color: transparent; box-shadow: none;' : '';
+                    let actionBtn = isDone ? '<span style="font-size:12px; font-weight:800; opacity:0.6;">✔️ Done</span>' : `<button class="dismiss-btn" onclick="markQuickNoteDone('${note.id}')" title="Mark Done">✅</button>`;
 
                     html += `<div class="alert-bubble alert-manual" style="${extraStyle}">
                         <div>
