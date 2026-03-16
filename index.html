@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
     <style>
         :root {
@@ -326,6 +327,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const messaging = firebase.messaging();
 
         const TEAM_PINS = {
             "8096": { name: "Jorge", role: "Manager", location: "LP_Willis" },
@@ -382,6 +384,24 @@
             }
         });
 
+        async function setupPushNotifications() {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const token = await messaging.getToken({ vapidKey: 'BIMlErwSGg4lU5iyhlpSkw3hm3QGLq0Bqz_wihLr0CRfGz0EQyLaZfHthlORbtoUK12zquN0njp0_iTN4H_DE7w' });
+                    if (token) {
+                        db.ref(`${currentLocation}/fcmTokens/${activeUser}`).set(token);
+                    }
+                }
+            } catch (error) {
+                console.error('Error setting up push notifications', error);
+            }
+        }
+
+        messaging.onMessage((payload) => {
+            alert(`📣 New Update: ${payload.notification.body}`);
+        });
+
         function showDashboard() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard-screen').style.display = 'flex';
@@ -405,10 +425,7 @@
                 ownerWidget.style.display = 'none'; 
             }
 
-            // Ask for Notification permission so we can ping them about Sticky Notes
-            if ("Notification" in window && Notification.permission !== "denied") {
-                Notification.requestPermission();
-            }
+            setupPushNotifications();
 
             loadDashboardAlerts();
         }
@@ -534,15 +551,13 @@
                 renderBoard();
             });
 
-            // Standard listener to build the board
             db.ref(currentLocation + '/quick_notes').on('value', snap => {
                 currentNotes = [];
                 snap.forEach(child => { currentNotes.push({ id: child.key, ...child.val() }); });
                 renderBoard();
-                isInitialLoad = false; // Flag that the first massive load is done
+                isInitialLoad = false; 
             });
 
-            // --- BROWSER NOTIFICATION LISTENER ---
             db.ref(currentLocation + '/quick_notes').limitToLast(1).on('child_added', snap => {
                 if (isInitialLoad) return; 
 
