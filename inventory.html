@@ -128,12 +128,17 @@
         .table-container { display: flex; flex-direction: column; gap: 15px; }
         .item-card { background: var(--container-bg); border-radius: 16px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 2px solid transparent; transition: border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; }
         .item-card.has-order { border-color: var(--success-color); box-shadow: 0 6px 15px rgba(40, 167, 69, 0.15); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .item-name { font-size: 18px !important; font-weight: bold; flex: 1; min-width: 150px; border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; padding: 8px !important; color: var(--text-color) !important; }
+        .card-header { display: flex; flex-direction: column; margin-bottom: 15px; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        
+        .item-header-row { display: flex; width: 100%; gap: 10px; align-items: center;}
+        .item-name { font-size: 18px !important; font-weight: bold; flex: 1; min-width: 120px; border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; padding: 8px !important; color: var(--text-color) !important; margin-bottom: 0 !important;}
         .item-name:focus { border-color: var(--primary-color) !important; background: var(--input-bg) !important; }
         
+        /* CATEGORY DROPDOWN */
+        .item-category { width: auto; flex: 0 1 auto; padding: 6px 10px; font-size: 13px; font-weight: bold; border-radius: 8px; background: var(--supplier-group-bg); border: 1px solid var(--border-color); color: var(--text-main); margin-bottom: 0 !important;}
+
         /* "FAT-FINGER" INVENTORY CONTROLS */
-        .inventory-controls { display: flex; gap: 10px; padding: 8px 12px; border-radius: 16px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; flex-wrap: wrap; justify-content: center; width: 100%;}
+        .inventory-controls { display: flex; gap: 10px; padding: 8px 12px; border-radius: 16px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; flex-wrap: wrap; justify-content: center; width: 100%; box-sizing: border-box;}
         .inventory-controls.active { border-color: var(--success-color); background: var(--best-deal-bg); }
         .inv-group { display: flex; flex-direction: column; align-items: center; background: var(--supplier-group-bg); padding: 8px; border-radius: 12px; flex: 1; min-width: 80px;}
         .inv-group label { font-size: 11px; color: var(--result-text); font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;}
@@ -141,7 +146,7 @@
         .stepper { display: flex; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; width: 100%;}
         .stepper-btn { background: var(--stepper-btn-bg); color: var(--text-color); border: none; font-size: 20px; font-weight: bold; padding: 5px 15px; cursor: pointer; user-select: none; transition: 0.1s;}
         .stepper-btn:active { background: var(--stepper-btn-active); }
-        .stepper-input { flex: 1; text-align: center; border: none; font-size: 18px; font-weight: bold; padding: 5px 0; background: transparent; color: var(--text-color); width: 100%; -moz-appearance: textfield;}
+        .stepper-input { flex: 1; text-align: center; border: none; font-size: 18px; font-weight: bold; padding: 5px 0; background: transparent; color: var(--text-color); width: 100%; -moz-appearance: textfield; margin-bottom: 0 !important;}
         .stepper-input:focus { outline: none; background: rgba(0,0,0,0.05); }
         
         .order-group { background: var(--best-deal-bg); border: 1px solid var(--success-color); }
@@ -159,7 +164,7 @@
         input.s-name:focus { background: var(--input-bg); border: 1px solid var(--primary-color); padding: 4px; }
         
         .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-color); flex-wrap: wrap; gap: 10px; }
-        .card-actions { display: flex; gap: 5px; }
+        .card-actions { display: flex; gap: 5px; flex-wrap: wrap;}
         .icon-btn, .delete-btn { background: var(--supplier-group-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; transition: 0.2s; color: var(--text-color); font-weight: bold; }
         .icon-btn:hover { border-color: var(--primary-color); }
         .delete-btn { color: var(--danger-color); }
@@ -331,14 +336,15 @@
         <div class="cloud-status" id="conn-sysco">☁️ Connecting to Server...</div>
         
         <div class="sticky-search-zone">
-            <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Sysco item..." oninput="filterTable('sysco', this.value)">
+            <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type an item..." oninput="filterTable('sysco')">
             <div class="category-pills">
-                <button class="cat-pill active" onclick="activatePill(this, 'sysco')">All Items</button>
-                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Meat</button>
-                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Dairy</button>
-                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Dry Goods</button>
-                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Paper</button>
-                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Chemicals</button>
+                <button class="cat-pill active" data-cat="All" onclick="activatePill(this, 'sysco')">All Items</button>
+                <button class="cat-pill" data-cat="Meat" onclick="activatePill(this, 'sysco')">Meat</button>
+                <button class="cat-pill" data-cat="Dairy" onclick="activatePill(this, 'sysco')">Dairy</button>
+                <button class="cat-pill" data-cat="Dry Goods" onclick="activatePill(this, 'sysco')">Dry Goods</button>
+                <button class="cat-pill" data-cat="Paper" onclick="activatePill(this, 'sysco')">Paper</button>
+                <button class="cat-pill" data-cat="Chemicals" onclick="activatePill(this, 'sysco')">Chemicals</button>
+                <button class="cat-pill" data-cat="Uncategorized" onclick="activatePill(this, 'sysco')">Uncategorized</button>
             </div>
         </div>
         
@@ -352,17 +358,17 @@
 
         <div id="Weight_sysco" class="tab-content active">
             <div id="weightTable_sysco" class="table-container" data-has-units="true"></div>
-            <button class="add-row-btn" onclick="addRow('weightTable_sysco', 'sysco', 'Total $', 'Total oz', '', '', '', '', 'lb', ['Sysco','','','lb',0,'',''], ['Ben E Keith','','','lb',0,'',''], ['Gordon','','','lb',0,'',''])">+ Add New Item</button>
+            <button class="add-row-btn" onclick="addRow('weightTable_sysco', 'sysco', 'Total $', 'Total oz', '', 'Uncategorized', '', '', '', 'lb', ['Sysco','','','lb',0,'',''], ['Ben E Keith','','','lb',0,'',''], ['Gordon','','','lb',0,'',''])">+ Add New Item</button>
         </div>
 
         <div id="Unit_sysco" class="tab-content">
             <div id="unitTable_sysco" class="table-container" data-has-units="false" data-unit-label="/ item"></div>
-            <button class="add-row-btn" onclick="addRow('unitTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', '', '', 'oz', ['Sysco','','','oz',0,'',''], ['Ben E Keith','','','oz',0,'',''], ['Gordon','','','oz',0,'',''])">+ Add New Item</button>
+            <button class="add-row-btn" onclick="addRow('unitTable_sysco', 'sysco', 'Bulk $', 'Count', '', 'Uncategorized', '', '', '', 'oz', ['Sysco','','','oz',0,'',''], ['Ben E Keith','','','oz',0,'',''], ['Gordon','','','oz',0,'',''])">+ Add New Item</button>
         </div>
 
         <div id="MFE_sysco" class="tab-content">
             <div id="mfeTable_sysco" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ item"></div>
-            <button class="add-row-btn" onclick="addRow('mfeTable_sysco', 'sysco', 'Bulk $', 'Count', '', '', '', '', 'oz', ['MFE','','','oz',0,'',''])">+ Add New Item</button>
+            <button class="add-row-btn" onclick="addRow('mfeTable_sysco', 'sysco', 'Bulk $', 'Count', '', 'Uncategorized', '', '', '', 'oz', ['MFE','','','oz',0,'',''])">+ Add New Item</button>
         </div>
 
         <div class="shopping-list-panel">
@@ -384,13 +390,14 @@
         <div class="cloud-status" id="conn-verdura">☁️ Connecting to Server...</div>
         
         <div class="sticky-search-zone">
-            <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Produce item..." oninput="filterTable('verdura', this.value)">
+            <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type an item..." oninput="filterTable('verdura')">
             <div class="category-pills">
-                <button class="cat-pill active" onclick="activatePill(this, 'verdura')">All Items</button>
-                <button class="cat-pill" onclick="activatePill(this, 'verdura')">Chiles</button>
-                <button class="cat-pill" onclick="activatePill(this, 'verdura')">Veggies</button>
-                <button class="cat-pill" onclick="activatePill(this, 'verdura')">Fruit</button>
-                <button class="cat-pill" onclick="activatePill(this, 'verdura')">Tortillas</button>
+                <button class="cat-pill active" data-cat="All" onclick="activatePill(this, 'verdura')">All Items</button>
+                <button class="cat-pill" data-cat="Chiles" onclick="activatePill(this, 'verdura')">Chiles</button>
+                <button class="cat-pill" data-cat="Veggies" onclick="activatePill(this, 'verdura')">Veggies</button>
+                <button class="cat-pill" data-cat="Fruit" onclick="activatePill(this, 'verdura')">Fruit</button>
+                <button class="cat-pill" data-cat="Tortillas" onclick="activatePill(this, 'verdura')">Tortillas</button>
+                <button class="cat-pill" data-cat="Uncategorized" onclick="activatePill(this, 'verdura')">Uncategorized</button>
             </div>
         </div>
         
@@ -404,17 +411,17 @@
 
         <div id="Weight_verdura" class="tab-content active">
             <div id="weightTable_verdura" class="table-container" data-has-units="true"></div>
-            <button class="add-row-btn" onclick="addRow('weightTable_verdura', 'verdura', 'Price $', 'Total oz', '', '', '', '', 'lb', ['Mr. Pepper','','','lb',0,'',''], ['Cantu','','','lb',0,'',''], ['Produce 3','','','lb',0,'',''])">+ Add New Item</button>
+            <button class="add-row-btn" onclick="addRow('weightTable_verdura', 'verdura', 'Price $', 'Total oz', '', 'Uncategorized', '', '', '', 'lb', ['Mr. Pepper','','','lb',0,'',''], ['Cantu','','','lb',0,'',''], ['Produce 3','','','lb',0,'',''])">+ Add New Item</button>
         </div>
 
         <div id="Unit_verdura" class="tab-content">
             <div id="unitTable_verdura" class="table-container" data-has-units="false" data-unit-label="/ item"></div>
-            <button class="add-row-btn" onclick="addRow('unitTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', '', '', 'oz', ['Mr. Pepper','','','oz',0,'',''], ['Cantu','','','oz',0,'',''], ['Produce 3','','','oz',0,'',''])">+ Add New Item</button>
+            <button class="add-row-btn" onclick="addRow('unitTable_verdura', 'verdura', 'Bulk $', 'Count', '', 'Uncategorized', '', '', '', 'oz', ['Mr. Pepper','','','oz',0,'',''], ['Cantu','','','oz',0,'',''], ['Produce 3','','','oz',0,'',''])">+ Add New Item</button>
         </div>
 
         <div id="DelComal_verdura" class="tab-content">
             <div id="delComalTable_verdura" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ item"></div>
-            <button class="add-row-btn" onclick="addRow('delComalTable_verdura', 'verdura', 'Bulk $', 'Count', '', '', '', '', 'oz', ['Del Comal','','','oz',0,'',''])">+ Add New Item</button>
+            <button class="add-row-btn" onclick="addRow('delComalTable_verdura', 'verdura', 'Bulk $', 'Count', '', 'Uncategorized', '', '', '', 'oz', ['Del Comal','','','oz',0,'',''])">+ Add New Item</button>
         </div>
 
         <div class="shopping-list-panel">
@@ -577,21 +584,33 @@
         }
         
         function startHold(btn, amount) {
-            changeStepper(btn, amount); // Initial click
-            holdInterval = setInterval(() => { changeStepper(btn, amount); }, 150); // Hold down rapid fire
+            changeStepper(btn, amount); 
+            holdInterval = setInterval(() => { changeStepper(btn, amount); }, 150); 
         }
         function endHold() { clearInterval(holdInterval); }
 
-        // ====== PILL NAVIGATION LOGIC ======
+        // ====== PILL & SEARCH FILTERING LOGIC ======
         function activatePill(btn, appName) {
             let wrapper = document.getElementById(appName + '-wrapper');
             wrapper.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
+            filterTable(appName);
+        }
+
+        function filterTable(appName) {
+            let q = document.querySelector(`#${appName}-wrapper .search-bar`).value.toLowerCase();
+            let activePill = document.querySelector(`#${appName}-wrapper .cat-pill.active`).getAttribute('data-cat');
             
-            // Note: Since items are just one big list, filtering by category requires items to actually have tags. 
-            // For now, this acts as a visual UX anchor and filters the table by the pill name.
-            let filterTerm = btn.innerText === "All Items" ? "" : btn.innerText;
-            filterTable(appName, filterTerm);
+            let rows = document.querySelectorAll(`#${appName}-wrapper .item-card`);
+            rows.forEach(row => {
+                let name = row.querySelector('.item-name').value.toLowerCase();
+                let cat = row.querySelector('.item-category').value;
+                
+                let matchesSearch = name.includes(q);
+                let matchesCat = (activePill === "All" || cat === activePill);
+                
+                row.style.display = (matchesSearch && matchesCat) ? '' : 'none';
+            });
         }
 
 
@@ -730,15 +749,6 @@
             evt.currentTarget.classList.add("active");
         }
 
-        function filterTable(appName, query) {
-            let q = query.toLowerCase();
-            let rows = document.querySelectorAll(`#${appName}-wrapper .item-card`);
-            rows.forEach(row => {
-                let name = row.querySelector('.item-name').value.toLowerCase();
-                row.style.display = name.includes(q) ? '' : 'none';
-            });
-        }
-
         function forceSupplier(event, cell) {
             if(['INPUT', 'SELECT', 'OPTION'].includes(event.target.tagName)) return;
             let card = cell.closest('.item-card');
@@ -842,8 +852,8 @@
             return `<div class="supplier-cell" onclick="forceSupplier(event, this)" title="Tap to manual select"><input type="text" class="s-name" placeholder="Supplier Name" value="${supplierName}" oninput="processRowUpdate(this)"><div style="position:relative; display:flex; align-items:center;"><span style="position:absolute; left:10px; color:var(--result-text); font-weight:bold;">$</span><input type="number" class="s-price" style="padding-left:22px; width:100%; font-size:16px; font-weight:bold;" placeholder="Price" value="${priceVal}" data-baseline="${safeBaseline}" oninput="processRowUpdate(this)" onchange="logPriceChange(this)"></div>${qtyHtml} <div class="s-result" data-value="0">$0.00</div><div class="tie-split-ui"><span>Tie Qty:</span><input type="number" class="split-qty" min="0" step="0.5" value="${splitVal || 0}" oninput="handleManualSplitChange(this)"></div></div>`;
         }
 
-        // ====== FAT FINGER ROW ADDITION ======
-        function addRow(tableId, appName, pLabel, qLabel, itemName = "", parQty = "", shelfQty = "", orderQty = "", targetUnit = "oz", s1, s2, s3, forcedSupp = null) {
+        // ====== FAT FINGER ROW ADDITION & CATEGORY ASSIGNMENT ======
+        function addRow(tableId, appName, pLabel, qLabel, itemName = "", category = "Uncategorized", parQty = "", shelfQty = "", orderQty = "", targetUnit = "oz", s1, s2, s3, forcedSupp = null) {
             let container = document.getElementById(tableId);
             let hasUnits = container.getAttribute('data-has-units') === 'true';
             let isSingle = container.classList.contains('single-vendor-table');
@@ -854,8 +864,15 @@
             let targetUnitHtml = '';
             if (hasUnits) { targetUnitHtml = `<div style="display:flex; align-items:center; gap:5px;"><span class="qty-label">Compare Per:</span><select class="target-unit" onchange="processRowUpdate(this)" style="padding:4px; font-size:12px; margin:0; width:auto; border-radius:6px;"><option value="oz" ${targetUnit==='oz'?'selected':''}>oz</option><option value="lb" ${targetUnit==='lb'?'selected':''}>lb</option><option value="fl oz" ${targetUnit==='fl oz'?'selected':''}>fl oz</option><option value="ml" ${targetUnit==='ml'?'selected':''}>ml</option></select></div>`; }
 
+            let catOptions = appName === 'sysco'
+                ? `<option value="Uncategorized">❓ Uncategorized</option><option value="Meat">🥩 Meat</option><option value="Dairy">🥛 Dairy</option><option value="Dry Goods">📦 Dry Goods</option><option value="Paper">🧻 Paper</option><option value="Chemicals">🧼 Chemicals</option>`
+                : `<option value="Uncategorized">❓ Uncategorized</option><option value="Chiles">🌶️ Chiles</option><option value="Veggies">🥬 Veggies</option><option value="Fruit">🍋 Fruit</option><option value="Tortillas">🌮 Tortillas</option>`;
+
             let html = `<div class="card-header">
-                <input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)">
+                <div class="item-header-row">
+                    <input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)">
+                    <select class="item-category" onchange="processRowUpdate(this)">${catOptions}</select>
+                </div>
                 <div class="inventory-controls">
                     <div class="inv-group">
                         <label>Par</label>
@@ -892,21 +909,46 @@
             let s1Fallback = `['${s1[0]}','','','${s1[3]||'lb'}',0,'','']`;
             let s2Fallback = isSingle ? '' : `, ['${s2[0]}','','','${s2[3]||'lb'}',0,'','']`;
             let s3Fallback = isSingle ? '' : `, ['${s3[0]}','','','${s3[3]||'lb'}',0,'','']`;
-            html += `</div><div class="card-footer">${targetUnitHtml}<div class="card-actions"><button class="icon-btn" onclick="insertRowRelative(this, 'before', '${appName}', ${s1Fallback}${s2Fallback}${s3Fallback})">⬆️ Add</button><button class="icon-btn" onclick="insertRowRelative(this, 'after', '${appName}', ${s1Fallback}${s2Fallback}${s3Fallback})">⬇️ Add</button><button class="delete-btn" onclick="deleteRow(this)">🗑️ Remove</button></div></div>`;
+            
+            // Add Movement Buttons to Footer
+            html += `</div><div class="card-footer">${targetUnitHtml}<div class="card-actions"><button class="icon-btn" onclick="moveItemCard(this, -1)" title="Move Up">🔼</button><button class="icon-btn" onclick="moveItemCard(this, 1)" title="Move Down">🔽</button><button class="icon-btn" onclick="insertRowRelative(this, 'after', '${appName}', ${s1Fallback}${s2Fallback}${s3Fallback})" title="Insert Below">➕ Insert</button><button class="delete-btn" onclick="deleteRow(this)">🗑️ Remove</button></div></div>`;
             
             card.innerHTML = html;
+            card.querySelector('.item-category').value = category || "Uncategorized"; // Set the actual value
             container.appendChild(card);
             processRowUpdate(card.querySelector('.item-name'), true);
+        }
+
+        // ====== MOVE UP / DOWN LOGIC ======
+        function moveItemCard(btn, direction) {
+            let card = btn.closest('.item-card');
+            let container = card.parentElement;
+            let appName = card.closest('.app-section').id.split('-')[0];
+            
+            if (direction === -1 && card.previousElementSibling) {
+                container.insertBefore(card, card.previousElementSibling);
+            } else if (direction === 1 && card.nextElementSibling) {
+                container.insertBefore(card, card.nextElementSibling.nextElementSibling);
+            }
+            // Briefly highlight to show it moved
+            card.style.transform = 'scale(1.02)';
+            setTimeout(() => card.style.transform = 'scale(1)', 150);
+            
+            if(!isAppLoading) saveToDatabase(appName);
         }
 
         function insertRowRelative(btn, direction, appName, s1, s2, s3) {
             let currentCard = btn.closest('.item-card');
             let container = currentCard.closest('.table-container');
             let tUnit = container.getAttribute('data-has-units') === 'true' ? 'lb' : 'oz';
-            addRow(container.id, appName, 'Price $', 'Qty', '', '', '', '', tUnit, s1, s2, s3); 
+            let activeCategory = currentCard.querySelector('.item-category').value;
+            
+            addRow(container.id, appName, 'Price $', 'Qty', '', activeCategory, '', '', '', tUnit, s1, s2, s3); 
             let newCard = container.lastElementChild; 
+            
             if (direction === 'before') container.insertBefore(newCard, currentCard);
             else if (direction === 'after') container.insertBefore(newCard, currentCard.nextSibling);
+            
             newCard.querySelector('.item-name').focus();
             if(!isAppLoading) saveToDatabase(appName); 
         }
@@ -995,6 +1037,11 @@
                 cells.forEach(cell => { if (!cell.classList.contains('best-deal')) cell.querySelector('.tie-split-ui').style.display = 'none'; });
             } else {
                 cells.forEach(cell => { cell.querySelector('.tie-split-ui').style.display = 'none'; cell.querySelector('.split-qty').value = cell.classList.contains('best-deal') ? orderQty : 0; });
+            }
+
+            // Keep the filter updated if they changed the category dropdown while a pill is active
+            if(!isAppLoading) {
+                filterTable(appName);
             }
 
             if(!skipSave && !isAppLoading) {
@@ -1245,6 +1292,7 @@
             document.querySelectorAll(`#${tableId} .item-card`).forEach(card => {
                 let rowData = { 
                     item: card.querySelector('.item-name').value, 
+                    category: card.querySelector('.item-category').value,
                     par: card.querySelector('.par-qty').value, 
                     shelf: card.querySelector('.shelf-qty').value, 
                     qty: card.querySelector('.order-qty').value, 
@@ -1286,37 +1334,40 @@
 
         function rebuildTable(tableId, appName, rowDataArray, pLabel, qLabel, s1def, s2def, s3def) {
             document.getElementById(tableId).innerHTML = '';
-            if(!rowDataArray || rowDataArray.length === 0) { addRow(tableId, appName, pLabel, qLabel, '', '', '', '', 'oz', s1def, s2def, s3def); return; }
+            if(!rowDataArray || rowDataArray.length === 0) { addRow(tableId, appName, pLabel, qLabel, '', 'Uncategorized', '', '', '', 'oz', s1def, s2def, s3def); return; }
             rowDataArray.forEach(rd => { 
                 let s1 = rd.suppliers[0] || [s1def[0], "", "", "lb", 0, "", ""];
                 let s2 = rd.suppliers[1] || [s2def[0], "", "", "lb", 0, "", ""];
                 let s3 = rd.suppliers[2] || [s3def[0], "", "", "lb", 0, "", ""];
                 if (s1.length < 7) s1.push(s1[1] || ""); if (s2.length < 7) s2.push(s2[1] || ""); if (s3.length < 7) s3.push(s3[1] || ""); 
-                addRow(tableId, appName, pLabel, qLabel, rd.item, rd.par || "", rd.shelf || "", rd.qty || "", rd.targetUnit || "oz", s1, s2, s3, rd.forced); 
+                addRow(tableId, appName, pLabel, qLabel, rd.item, rd.category || "Uncategorized", rd.par || "", rd.shelf || "", rd.qty || "", rd.targetUnit || "oz", s1, s2, s3, rd.forced); 
             });
         }
 
         function getSyscoDefaults() {
-            const syscoWeightLb = ["QUESO MEXICAN", "PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "MONTERREY", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "CHICKEN THIGH"];
-            const syscoWeightFlOz = ["COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"];
-            const syscoUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "CREMA", "W. CREAM", "AJO PELADO", "EGGS", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "BACON #1", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "TRASH LINNER", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CUP HOLDERS", "CLAMATO", "GAMESA", "MEAL KIT", "TOGO BAG #70", "TOGO BAG #60", "ARGO", "GLOVES", "KOSHER SALT", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "#4 BAGS CHIPS", "T-SHIRTT BAGS", "LIME JUICE", "DINNER NAPKINS", "STRAWBERRY PUREE", "MANGO PUREE", "BLEACH", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", '6" TOGO BOXES', "PAPEL ROLLAR", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CONDENSED MILK", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "HAMBURGER PATTY", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "URINAL SCREEN", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"];
-            const syscoMfe = ["BASSA FISH", "CRAWFISH", "OVEN CLEANER", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"];
-            return {
-                weight: [...syscoWeightLb.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0,"",""], ["Ben E Keith","","","lb",0,"",""], ["Gordon","","","lb",0,"",""]] })), ...syscoWeightFlOz.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "fl oz", suppliers: [["Sysco","","","fl oz",0,"",""], ["Ben E Keith","","","fl oz",0,"",""], ["Gordon","","","fl oz",0,"",""]] }))],
-                unit: syscoUnit.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,"",""], ["Ben E Keith","","","oz",0,"",""], ["Gordon","","","oz",0,"",""]] })),
-                mfe: syscoMfe.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0,"",""]] }))
-            };
+            // Pre-Categorized for a perfect fresh start
+            const meat = ["PORKBUTT BONELESS", "SIRLOIN", "BEEF RIBS", "SPECIAL TRIM", "BEEF FAJITA", "OUTSIDE SKIRT", "CHICKEN BREAST", "MOLIDA", "CHORIZO", "CHICKEN THIGH", "BACON #1", "HAMBURGER PATTY"].map(item => ({ item: item, category: "Meat", par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0,"",""], ["Ben E Keith","","","lb",0,"",""], ["Gordon","","","lb",0,"",""]] }));
+            const dairy = ["QUESO MEXICAN", "MONTERREY", "CREMA", "W. CREAM", "EGGS", "AMERICAN YELLOW", "AMERICAN WHITE", "GOLDEN VELVETT", "BUTTER", "MARGARINE", "CONDENSED MILK"].map(item => ({ item: item, category: "Dairy", par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,"",""], ["Ben E Keith","","","oz",0,"",""], ["Gordon","","","oz",0,"",""]] }));
+            const paper = ["9X9 1 COMP", "9x7 1 COMP", '9" FOIL PANS', '9" LIDS', '7" FOIL PANS', '7" LIDS', "32oz CUPS", "16oz CUPS", "8oz CONT 8SJ20", "40z CONT 4J6", "2 oz CONT", "320z LIDS", "16SL", "8oz LIDS 20SL", "4oz LIDS 6JL", "2 oz LIDS", "PAPER TOWELS", "TOILET PAPER", "TRASH LINNER", "CUP HOLDERS", "TOGO BAG #70", "TOGO BAG #60", "WAX PAPER", "BAR NAPKINS", "ALUMIONIO TORT", "STRAWS", "NEON STRAWS", "T-SHIRTT BAGS", "DINNER NAPKINS", '6" TOGO BOXES', "PAPEL ROLLAR", "URINAL SCREEN"].map(item => ({ item: item, category: "Paper", par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,"",""], ["Ben E Keith","","","oz",0,"",""], ["Gordon","","","oz",0,"",""]] }));
+            const chems = ["OVEN CLEANER", "BLEACH"].map(item => ({ item: item, category: "Chemicals", par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0,"",""]] }));
+            
+            // Fallbacks for the rest
+            const otherWeight = ["MASECA", "RICE", "BEANS", "SUGAR", "SALT", "FLOUR", "CRACKER MEAL", "SOY SAUCE", "COCA-COLA", "DIET COKE", "PINK LEMONADE", "COKE ZERO", "SPRITE", "DR PEPPER", "ORANGE FANTA"].map(item => ({ item: item, category: "Dry Goods", par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Sysco","","","lb",0,"",""], ["Ben E Keith","","","lb",0,"",""], ["Gordon","","","lb",0,"",""]] }));
+            const otherUnit = ["RANCH", "MAYONESA", "TARTAR SAUCE", "AJO PELADO", "COCTAIL SHRIMP", "LARD", "CREAMER", "LABELS", "SHREDDED LETTUCE", "FRENCH FRIES", "PINEAPPLE CHUNK IN JUICE", "CAN TOMATILLO", "CAN TOMATOES", "KETCHUP", "JALAPENOS", "PACE MAT NINOS", "CRAYOLAS", "SERVING SPOONS", "SERVING TONGS", "PACKET PINK SUGAR", "PACKET SUGAR", "PACKET SPLENDA", "ALUMINUM WRAP", "FILM WRAP", "CLAMATO", "GAMESA", "MEAL KIT", "ARGO", "GLOVES", "KOSHER SALT", "#4 BAGS CHIPS", "LIME JUICE", "STRAWBERRY PUREE", "MANGO PUREE", "LASCO LIME", "LASCO LEMON", "VALENTINA", "LOUSIANNE TEA", "HONEY 5#", "HONEY OSITOS", "CRANBERRY JUICE", "ORANGE JUICE 6", "PINEAPPLE JUICE 46.oz", "COCO LOPEZ", "CHIPOTLE", "TOOTHPICKED UNWRAPPED", "TOOTHPICKED WRAPPED", "SCRUBBER STAINLESS STEAL", "TAMALES", "CHURROS", "STUFED JALAPEÑO", "TABASCO", "TOPOCHICO", "COCA MEXICANA", "BIG RED", "CHICKEN BASE", "TOMATE", "ONION", "GREEN BELL PEPPE", "CILANTRO", "GREEN LEAF", "MUSHROOM SLICED", "TENDERIZER", "SPINACH", "TORTILLAS 8'"].map(item => ({ item: item, category: "Dry Goods", par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Sysco","","","oz",0,"",""], ["Ben E Keith","","","oz",0,"",""], ["Gordon","","","oz",0,"",""]] }));
+            const otherMFE = ["BASSA FISH", "CRAWFISH", "ACEITE", "EZ-PEEL", "PELADO", "FRENCH FRIES", "TOILET PAPER"].map(item => ({ item: item, category: "Uncategorized", par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["MFE","","","oz",0,"",""]] }));
+            
+            return { weight: [...meat, ...otherWeight], unit: [...dairy, ...paper, ...otherUnit], mfe: [...chems, ...otherMFE] };
         }
 
         function getVerduraDefaults() {
-            const verdWeight = ["HABANERO", "SERRANO", "CHILE DE ARBOL", "BROCCOLI", "ZUCCHINI", "SQUASH", "GUAJILLO", "OREGANO", "PIMIENTA", "AJO MOLIDO", "PAPRIKA"];
-            const verdUnit = ["AJO PELADO", "TOMATE", "AGUACATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "POBLANO PEPPER", "JALAPENO PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "LIMES", "LEMONS", "CELERY", "CEBOLLA", "NARANJA", "RED CABAGE", "HONGOS", "POTATO #2", "PAN X TORTA", "COCA", "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "POT WHITE", "ACEITE", "HUEVOS", "JALAPENEO LATA"];
-            const verdDelComal = ["CHIPS", "VERDE", "ROJA", "BLANCA"];
-            return {
-                weight: verdWeight.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,"",""], ["Cantu","","","lb",0,"",""], ["Produce 3","","","lb",0,"",""]] })),
-                unit: verdUnit.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0,"",""], ["Cantu","","","oz",0,"",""], ["Produce 3","","","oz",0,"",""]] })),
-                delComal: verdDelComal.map(item => ({ item: item, par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0,"",""]] }))
-            };
+            const chiles = ["HABANERO", "SERRANO", "CHILE DE ARBOL", "GUAJILLO", "POBLANO PEPPER", "JALAPENO PEPPER", "JALAPENEO LATA"].map(item => ({ item: item, category: "Chiles", par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,"",""], ["Cantu","","","lb",0,"",""], ["Produce 3","","","lb",0,"",""]] }));
+            const veg = ["BROCCOLI", "ZUCCHINI", "SQUASH", "AJO PELADO", "TOMATE", "RED BELL PEPPER", "GREEN BELL PEPPER", "CILANTRO", "ZANAHORIA", "GREEN LEAF", "SPINACH", "CELERY", "CEBOLLA", "RED CABAGE", "HONGOS", "POTATO #2", "POT WHITE"].map(item => ({ item: item, category: "Veggies", par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,"",""], ["Cantu","","","lb",0,"",""], ["Produce 3","","","lb",0,"",""]] }));
+            const fruit = ["AGUACATE", "LIMES", "LEMONS", "NARANJA"].map(item => ({ item: item, category: "Fruit", par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0,"",""], ["Cantu","","","oz",0,"",""], ["Produce 3","","","oz",0,"",""]] }));
+            const torts = ["PAN X TORTA", "BURRO 8”", "BURRO 10”", "BURRO12”", "HARINA", "MAIZ", "AMARILLITA", "CHIPS", "VERDE", "ROJA", "BLANCA"].map(item => ({ item: item, category: "Tortillas", par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Del Comal","","","oz",0,"",""]] }));
+            const otherWeights = ["OREGANO", "PIMIENTA", "AJO MOLIDO", "PAPRIKA"].map(item => ({ item: item, category: "Uncategorized", par: "", shelf: "", qty: "", targetUnit: "lb", suppliers: [["Mr. Pepper","","","lb",0,"",""], ["Cantu","","","lb",0,"",""], ["Produce 3","","","lb",0,"",""]] }));
+            const otherUnits = ["COCA", "ACEITE", "HUEVOS"].map(item => ({ item: item, category: "Uncategorized", par: "", shelf: "", qty: "", targetUnit: "oz", suppliers: [["Mr. Pepper","","","oz",0,"",""], ["Cantu","","","oz",0,"",""], ["Produce 3","","","oz",0,"",""]] }));
+            
+            return { weight: [...chiles, ...veg, ...otherWeights], unit: [...fruit, ...otherUnits], delComal: [...torts] };
         }
 
         function loadFromDatabase() {
