@@ -45,6 +45,9 @@
             --supplier-group-bg: #f8f9fa;
             --result-text: #666;
             --header-color: #2c3e50;
+            
+            --stepper-btn-bg: #e9ecef;
+            --stepper-btn-active: #ced4da;
         }
 
         body.dark-mode {
@@ -65,6 +68,9 @@
             --supplier-group-bg: #252525;
             --result-text: #aaa;
             --header-color: #fff;
+            
+            --stepper-btn-bg: #333;
+            --stepper-btn-active: #444;
         }
 
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); max-width: 1200px; margin: 0 auto; padding: 0; padding-bottom: 120px; transition: background-color 0.3s, color 0.3s; }
@@ -91,10 +97,19 @@
         .app-section.active-app { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .search-bar { position: -webkit-sticky; position: sticky; top: calc(10px + env(safe-area-inset-top)); z-index: 100; width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; background-color: var(--input-bg); color: var(--input-text); box-sizing: border-box; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        /* STICKY SEARCH BAR */
+        .sticky-search-zone { position: -webkit-sticky; position: sticky; top: 0; z-index: 100; background: var(--bg-color); padding-top: calc(10px + env(safe-area-inset-top)); padding-bottom: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 15px; }
+        .search-bar { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border-color); border-radius: 12px; background-color: var(--input-bg); color: var(--input-text); box-sizing: border-box; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .sysco-wrapper .search-bar:focus { border-color: var(--primary-color); outline: none; }
         .verdura-wrapper .search-bar:focus { border-color: var(--verdura-color); outline: none; }
         
+        /* SWIPEABLE CATEGORY PILLS */
+        .category-pills { display: flex; overflow-x: auto; gap: 8px; margin-top: 10px; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .category-pills::-webkit-scrollbar { display: none; }
+        .cat-pill { white-space: nowrap; padding: 8px 16px; background: var(--supplier-group-bg); border: 1px solid var(--border-color); border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--text-color); cursor: pointer; transition: 0.2s; }
+        .sysco-wrapper .cat-pill.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .verdura-wrapper .cat-pill.active { background: var(--verdura-color); color: white; border-color: var(--verdura-color); }
+
         .cloud-status { display: inline-block; padding: 6px 12px; background: #e3f2fd; color: #0d47a1; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; text-align: center; }
         body.dark-mode .cloud-status { background: #0d47a1; color: #e3f2fd; }
         .cloud-status.offline { background: #fff3cd !important; color: #856404 !important; border: 2px solid #ffeeba; }
@@ -117,17 +132,23 @@
         .item-name { font-size: 18px !important; font-weight: bold; flex: 1; min-width: 150px; border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; padding: 8px !important; color: var(--text-color) !important; }
         .item-name:focus { border-color: var(--primary-color) !important; background: var(--input-bg) !important; }
         
-        .inventory-controls { display: flex; gap: 5px; background: var(--supplier-group-bg); padding: 6px 10px; border-radius: 12px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; }
+        /* "FAT-FINGER" INVENTORY CONTROLS */
+        .inventory-controls { display: flex; gap: 10px; padding: 8px 12px; border-radius: 16px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; flex-wrap: wrap; justify-content: center; width: 100%;}
         .inventory-controls.active { border-color: var(--success-color); background: var(--best-deal-bg); }
-        .inv-group { display: flex; flex-direction: column; align-items: center; }
-        .inv-group label { font-size: 11px; color: var(--result-text); font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
-        .inv-input { width: 55px !important; text-align: center; border: 1px solid var(--border-color) !important; font-size: 18px !important; font-weight: bold; padding: 4px 0 !important; border-radius: 6px !important; background: var(--input-bg); color: var(--text-color); margin:0 !important; }
-        .inv-input:focus { border-color: var(--primary-color) !important; outline:none; }
-        .order-group { border-left: 2px dashed var(--border-color); padding-left: 8px; margin-left: 3px; }
-        .order-qty { background: var(--best-deal-bg) !important; color: var(--best-deal-text) !important; border-color: var(--success-color) !important; }
+        .inv-group { display: flex; flex-direction: column; align-items: center; background: var(--supplier-group-bg); padding: 8px; border-radius: 12px; flex: 1; min-width: 80px;}
+        .inv-group label { font-size: 11px; color: var(--result-text); font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;}
+        
+        .stepper { display: flex; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; width: 100%;}
+        .stepper-btn { background: var(--stepper-btn-bg); color: var(--text-color); border: none; font-size: 20px; font-weight: bold; padding: 5px 15px; cursor: pointer; user-select: none; transition: 0.1s;}
+        .stepper-btn:active { background: var(--stepper-btn-active); }
+        .stepper-input { flex: 1; text-align: center; border: none; font-size: 18px; font-weight: bold; padding: 5px 0; background: transparent; color: var(--text-color); width: 100%; -moz-appearance: textfield;}
+        .stepper-input:focus { outline: none; background: rgba(0,0,0,0.05); }
+        
+        .order-group { background: var(--best-deal-bg); border: 1px solid var(--success-color); }
+        .order-group .stepper { border-color: var(--success-color); }
+        .order-group .stepper-btn { background: rgba(40, 167, 69, 0.2); color: var(--success-color); }
 
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
 
         .card-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
         .supplier-cell { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; background: var(--supplier-group-bg); position: relative; transition: 0.3s; cursor: pointer; }
@@ -252,7 +273,7 @@
         /* PRINT FIX */
         @media print {
             body, body.dark-mode { background-color: #fff !important; margin: 0; padding: 0; color: #000 !important; padding-bottom: 0; }
-            .bottom-nav, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, .header-utils, .add-row-btn, #nav-banner, .fab-btn { display: none !important; }
+            .bottom-nav, .tabs, .table-container, .action-btns, .sticky-search-zone, .timestamp, .cloud-status, #sync-toast, #splash-screen, .header-utils, .add-row-btn, #nav-banner { display: none !important; }
             .header-container { display: flex !important; justify-content: flex-start !important; align-items: center !important; margin-bottom: 10px !important; margin-top: 0 !important; padding: 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important;}
             .pericos-branding { display: flex !important; align-items: center !important; gap: 10px !important; }
             .header-logo { display: block !important; height: 50px !important; border-radius: 50% !important; border: 2px solid #000 !important; }
@@ -308,7 +329,19 @@
 
     <div id="sysco-wrapper" class="app-section sysco-wrapper active-app">
         <div class="cloud-status" id="conn-sysco">☁️ Connecting to Server...</div>
-        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Sysco item..." oninput="filterTable('sysco', this.value)">
+        
+        <div class="sticky-search-zone">
+            <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Sysco item..." oninput="filterTable('sysco', this.value)">
+            <div class="category-pills">
+                <button class="cat-pill active" onclick="activatePill(this, 'sysco')">All Items</button>
+                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Meat</button>
+                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Dairy</button>
+                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Dry Goods</button>
+                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Paper</button>
+                <button class="cat-pill" onclick="activatePill(this, 'sysco')">Chemicals</button>
+            </div>
+        </div>
+        
         <div class="timestamp" id="time-sysco">Last updated: Loading Cloud Data...</div>
 
         <div class="tabs">
@@ -349,7 +382,18 @@
 
     <div id="verdura-wrapper" class="app-section verdura-wrapper">
         <div class="cloud-status" id="conn-verdura">☁️ Connecting to Server...</div>
-        <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Produce item..." oninput="filterTable('verdura', this.value)">
+        
+        <div class="sticky-search-zone">
+            <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type a Produce item..." oninput="filterTable('verdura', this.value)">
+            <div class="category-pills">
+                <button class="cat-pill active" onclick="activatePill(this, 'verdura')">All Items</button>
+                <button class="cat-pill" onclick="activatePill(this, 'verdura')">Chiles</button>
+                <button class="cat-pill" onclick="activatePill(this, 'verdura')">Veggies</button>
+                <button class="cat-pill" onclick="activatePill(this, 'verdura')">Fruit</button>
+                <button class="cat-pill" onclick="activatePill(this, 'verdura')">Tortillas</button>
+            </div>
+        </div>
+        
         <div class="timestamp" id="time-verdura">Last updated: Loading Cloud Data...</div>
 
         <div class="tabs">
@@ -517,6 +561,40 @@
         let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis'; 
 
+        // ====== FAT FINGER STEPPER LOGIC ======
+        let holdInterval;
+        function changeStepper(btn, amount) {
+            let input = btn.parentElement.querySelector('.stepper-input');
+            let currentVal = parseFloat(input.value) || 0;
+            let newVal = Math.max(0, currentVal + amount);
+            input.value = newVal;
+            
+            if(input.classList.contains('order-qty')){
+                processRowUpdate(input);
+            } else {
+                calcOrder(input);
+            }
+        }
+        
+        function startHold(btn, amount) {
+            changeStepper(btn, amount); // Initial click
+            holdInterval = setInterval(() => { changeStepper(btn, amount); }, 150); // Hold down rapid fire
+        }
+        function endHold() { clearInterval(holdInterval); }
+
+        // ====== PILL NAVIGATION LOGIC ======
+        function activatePill(btn, appName) {
+            let wrapper = document.getElementById(appName + '-wrapper');
+            wrapper.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Note: Since items are just one big list, filtering by category requires items to actually have tags. 
+            // For now, this acts as a visual UX anchor and filters the table by the pill name.
+            let filterTerm = btn.innerText === "All Items" ? "" : btn.innerText;
+            filterTable(appName, filterTerm);
+        }
+
+
         function updateLoginUI() {
             let badge = document.getElementById('user-badge');
             let locSwitcher = document.getElementById('location-switcher');
@@ -552,7 +630,6 @@
             loadFromDatabase(); 
         }
 
-        // ====== BUG FIX: KICKS USER OUT IF THEY DON'T COME FROM INDEX.HTML ======
         firebase.auth().onAuthStateChanged((user) => {
             if (user && activeUser) {
                 updateLoginUI();
@@ -765,6 +842,7 @@
             return `<div class="supplier-cell" onclick="forceSupplier(event, this)" title="Tap to manual select"><input type="text" class="s-name" placeholder="Supplier Name" value="${supplierName}" oninput="processRowUpdate(this)"><div style="position:relative; display:flex; align-items:center;"><span style="position:absolute; left:10px; color:var(--result-text); font-weight:bold;">$</span><input type="number" class="s-price" style="padding-left:22px; width:100%; font-size:16px; font-weight:bold;" placeholder="Price" value="${priceVal}" data-baseline="${safeBaseline}" oninput="processRowUpdate(this)" onchange="logPriceChange(this)"></div>${qtyHtml} <div class="s-result" data-value="0">$0.00</div><div class="tie-split-ui"><span>Tie Qty:</span><input type="number" class="split-qty" min="0" step="0.5" value="${splitVal || 0}" oninput="handleManualSplitChange(this)"></div></div>`;
         }
 
+        // ====== FAT FINGER ROW ADDITION ======
         function addRow(tableId, appName, pLabel, qLabel, itemName = "", parQty = "", shelfQty = "", orderQty = "", targetUnit = "oz", s1, s2, s3, forcedSupp = null) {
             let container = document.getElementById(tableId);
             let hasUnits = container.getAttribute('data-has-units') === 'true';
@@ -776,7 +854,36 @@
             let targetUnitHtml = '';
             if (hasUnits) { targetUnitHtml = `<div style="display:flex; align-items:center; gap:5px;"><span class="qty-label">Compare Per:</span><select class="target-unit" onchange="processRowUpdate(this)" style="padding:4px; font-size:12px; margin:0; width:auto; border-radius:6px;"><option value="oz" ${targetUnit==='oz'?'selected':''}>oz</option><option value="lb" ${targetUnit==='lb'?'selected':''}>lb</option><option value="fl oz" ${targetUnit==='fl oz'?'selected':''}>fl oz</option><option value="ml" ${targetUnit==='ml'?'selected':''}>ml</option></select></div>`; }
 
-            let html = `<div class="card-header"><input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)"><div class="inventory-controls"><div class="inv-group"><label>Par</label><input type="number" class="inv-input par-qty" value="${parQty}" min="0" oninput="calcOrder(this)"></div><div class="inv-group"><label>Shelf</label><input type="number" class="inv-input shelf-qty" value="${shelfQty}" min="0" oninput="calcOrder(this)"></div><div class="inv-group order-group"><label>Order</label><input type="number" class="inv-input order-qty" value="${orderQty}" min="0" oninput="processRowUpdate(this)"></div></div></div><div class="card-body">`;
+            let html = `<div class="card-header">
+                <input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)">
+                <div class="inventory-controls">
+                    <div class="inv-group">
+                        <label>Par</label>
+                        <div class="stepper">
+                            <button class="stepper-btn" onmousedown="startHold(this, -1)" onmouseup="endHold()" onmouseleave="endHold()" ontouchstart="startHold(this, -1)" ontouchend="endHold()">-</button>
+                            <input type="number" class="stepper-input par-qty" value="${parQty}" min="0" oninput="calcOrder(this)">
+                            <button class="stepper-btn" onmousedown="startHold(this, 1)" onmouseup="endHold()" onmouseleave="endHold()" ontouchstart="startHold(this, 1)" ontouchend="endHold()">+</button>
+                        </div>
+                    </div>
+                    <div class="inv-group">
+                        <label>Shelf</label>
+                        <div class="stepper">
+                            <button class="stepper-btn" onmousedown="startHold(this, -1)" onmouseup="endHold()" onmouseleave="endHold()" ontouchstart="startHold(this, -1)" ontouchend="endHold()">-</button>
+                            <input type="number" class="stepper-input shelf-qty" value="${shelfQty}" min="0" oninput="calcOrder(this)">
+                            <button class="stepper-btn" onmousedown="startHold(this, 1)" onmouseup="endHold()" onmouseleave="endHold()" ontouchstart="startHold(this, 1)" ontouchend="endHold()">+</button>
+                        </div>
+                    </div>
+                    <div class="inv-group order-group">
+                        <label>Order</label>
+                        <div class="stepper">
+                            <button class="stepper-btn" onmousedown="startHold(this, -1)" onmouseup="endHold()" onmouseleave="endHold()" ontouchstart="startHold(this, -1)" ontouchend="endHold()">-</button>
+                            <input type="number" class="stepper-input order-qty" value="${orderQty}" min="0" oninput="processRowUpdate(this)">
+                            <button class="stepper-btn" onmousedown="startHold(this, 1)" onmouseup="endHold()" onmouseleave="endHold()" ontouchstart="startHold(this, 1)" ontouchend="endHold()">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div><div class="card-body">`;
+            
             html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0, s1[5] || '', s1[6]);
             if (!isSingle) {
                 html += createSupplierCellHTML(s2[0], s2[1], s2[2], s2[3] || (hasUnits?'lb':'oz'), hasUnits, s2[4] || 0, s2[5] || '', s2[6]);
