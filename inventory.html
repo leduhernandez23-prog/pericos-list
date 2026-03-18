@@ -146,16 +146,16 @@
         .item-name:focus { border-color: var(--primary-color) !important; background: var(--input-bg) !important; }
         .item-category { width: auto; flex: 0 1 auto; padding: 6px 10px; font-size: 13px; font-weight: bold; border-radius: 8px; background: var(--supplier-group-bg); border: 1px solid var(--border-color); color: var(--text-main); margin-bottom: 0 !important;}
 
-        /* JUMBO "FAT-FINGER" STEPPER CONTROLS */
-        .inventory-controls { display: flex; gap: 10px; padding: 8px; border-radius: 16px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; flex-wrap: wrap; justify-content: center; width: 100%; box-sizing: border-box;}
+        /* JUMBO "FAT-FINGER" STEPPER CONTROLS - RECALIBRATED FOR VISIBILITY */
+        .inventory-controls { display: flex; gap: 8px; padding: 10px; border-radius: 16px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; flex-wrap: wrap; justify-content: center; width: 100%; box-sizing: border-box;}
         .inventory-controls.active { border-color: var(--success-color); background: var(--best-deal-bg); }
-        .inv-group { display: flex; flex-direction: column; align-items: center; background: var(--supplier-group-bg); padding: 8px; border-radius: 12px; flex: 1; min-width: 90px;}
-        .inv-group label { font-size: 12px; color: var(--result-text); font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;}
+        .inv-group { display: flex; flex-direction: column; align-items: center; background: var(--supplier-group-bg); padding: 8px 5px; border-radius: 12px; flex: 1; min-width: 85px;}
+        .inv-group label { font-size: 11px; color: var(--result-text); font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;}
         
-        .stepper { display: flex; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; width: 100%;}
-        .stepper-btn { background: var(--stepper-btn-bg); color: var(--text-color); border: none; font-size: 26px; font-weight: bold; padding: 12px 18px; cursor: pointer; user-select: none; transition: 0.1s; display: flex; justify-content: center; align-items: center;}
+        .stepper { display: flex; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; width: 100%; justify-content: space-between;}
+        .stepper-btn { background: var(--stepper-btn-bg); color: var(--text-color); border: none; font-size: 24px; font-weight: bold; padding: 8px 12px; cursor: pointer; user-select: none; transition: 0.1s; display: flex; justify-content: center; align-items: center; flex-shrink: 0;}
         .stepper-btn:active { background: var(--stepper-btn-active); }
-        .stepper-input { flex: 1; text-align: center; border: none; font-size: 20px; font-weight: bold; padding: 10px 0; background: transparent; color: var(--text-color); width: 100%; -moz-appearance: textfield; margin-bottom: 0 !important;}
+        .stepper-input { flex: 1; text-align: center; border: none; font-size: 18px; font-weight: 900; padding: 8px 0; background: transparent; color: var(--text-color) !important; width: 100%; min-width: 25px; -moz-appearance: textfield; margin-bottom: 0 !important;}
         .stepper-input:focus { outline: none; background: rgba(0,0,0,0.05); }
         
         .order-group { background: var(--best-deal-bg); border: 1px solid var(--success-color); }
@@ -179,7 +179,7 @@
         .delete-btn { color: var(--danger-color); }
         .delete-btn:hover { border-color: var(--danger-color); background: rgba(220, 53, 69, 0.1); }
 
-        input[type="text"], select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--input-text); border-radius: 8px; font-size: 14px; margin-bottom: 6px; }
+        input[type="text"], select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); border-radius: 8px; font-size: 14px; margin-bottom: 6px; }
         input.s-price, input.s-qty { padding: 10px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); margin-bottom: 0; }
         input:focus, select:focus { outline: none; border-color: var(--primary-color); }
         
@@ -298,7 +298,7 @@
         /* PRINT FIX */
         @media print {
             body, body.dark-mode { background-color: #fff !important; margin: 0; padding: 0; color: #000 !important; padding-bottom: 0; }
-            .bottom-nav, .tabs, .table-container, .action-btns, .sticky-search-zone, .timestamp, .cloud-status, #sync-toast, #splash-screen, .header-utils, .add-row-btn, #nav-banner { display: none !important; }
+            .bottom-nav, .tabs, .table-container, .action-btns, .sticky-search-zone, .timestamp, .cloud-status, #sync-toast, #splash-screen, .header-utils, .add-row-btn, #nav-banner, .fab-btn { display: none !important; }
             .header-container { display: flex !important; justify-content: flex-start !important; align-items: center !important; margin-bottom: 10px !important; margin-top: 0 !important; padding: 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important;}
             .pericos-branding { display: flex !important; align-items: center !important; gap: 10px !important; }
             .header-logo { display: block !important; height: 50px !important; border-radius: 50% !important; border: 2px solid #000 !important; }
@@ -359,7 +359,8 @@
         
         <div class="sticky-search-zone">
             <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type an item..." oninput="filterTable('sysco')">
-            <div class="category-pills" id="sysco-pills-container"></div>
+            <div class="category-pills" id="sysco-pills-container">
+                </div>
         </div>
         
         <div class="timestamp" id="time-sysco">Last updated: Loading Cloud Data...</div>
@@ -405,7 +406,8 @@
         
         <div class="sticky-search-zone">
             <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type an item..." oninput="filterTable('verdura')">
-            <div class="category-pills" id="verdura-pills-container"></div>
+            <div class="category-pills" id="verdura-pills-container">
+                 </div>
         </div>
         
         <div class="timestamp" id="time-verdura">Last updated: Loading Cloud Data...</div>
@@ -556,7 +558,7 @@
             <p style="font-size:13px; color:var(--text-muted);">Adding or removing a category here updates all item drop-downs and accordion groups.</p>
             
             <ul id="modal-cat-list" class="cat-list">
-            </ul>
+                </ul>
 
             <div class="cat-input-group">
                 <input type="text" id="newCategoryInput" placeholder="New Category Name (e.g. Spices)">
@@ -591,7 +593,7 @@
         let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis'; 
 
-        // ====== CATEGORY MANAGEMENT & ACCORDION LOGIC ======
+        // ====== CATEGORY MANAGEMENT LOGIC ======
         window.appCategories = { sysco: [], verdura: [] };
         let activeModalApp = '';
 
@@ -605,6 +607,7 @@
             pillsHtml += `<button class="cat-pill cat-pill-edit" onclick="openCategoryModal('${appName}')">⚙️ Edit</button>`;
             pillsContainer.innerHTML = pillsHtml;
 
+            // Rebuild selects in existing cards
             let catOptions = `<option value="Uncategorized">❓ Uncategorized</option>`;
             cats.forEach(c => { catOptions += `<option value="${c}">${c}</option>`; });
             
@@ -612,7 +615,7 @@
                 let currentVal = sel.value;
                 sel.innerHTML = catOptions;
                 if(cats.includes(currentVal) || currentVal === "Uncategorized") { sel.value = currentVal; } 
-                else { sel.value = "Uncategorized"; } 
+                else { sel.value = "Uncategorized"; } // If deleted, fallback
             });
         }
 
@@ -675,8 +678,8 @@
                 window.appCategories[activeModalApp].push(newCat);
                 input.value = '';
                 saveCategoriesToDB();
-                openCategoryModal(activeModalApp); 
-                renderCategoryUI(activeModalApp); 
+                openCategoryModal(activeModalApp); // refresh list
+                renderCategoryUI(activeModalApp); // refresh UI
             }
         }
 
@@ -756,6 +759,7 @@
             let activeAppElem = document.querySelector('.active-app');
             let currentApp = activeAppElem ? activeAppElem.id.split('-')[0] : null;
             
+            // Double Tap Logic
             let now = new Date().getTime();
             if (currentApp === appTarget && (now - lastTapTime) < 300) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -765,6 +769,7 @@
 
             if (currentApp === appTarget) return;
 
+            // Save scroll position of the app we are leaving
             if (currentApp) scrollPositions[currentApp] = window.scrollY;
 
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active-app'));
@@ -777,6 +782,7 @@
             if (appTarget === 'analytics') { generateAnalyticsDashboard(); } 
             else if (appTarget !== 'receiving') { generateShoppingList(appTarget); }
             
+            // Restore scroll position
             setTimeout(() => { window.scrollTo({ top: scrollPositions[appTarget] || 0, behavior: 'auto' }); }, 10);
         }
 
@@ -1022,6 +1028,7 @@
             let targetUnitHtml = '';
             if (hasUnits) { targetUnitHtml = `<div style="display:flex; align-items:center; gap:5px;"><span class="qty-label">Compare Per:</span><select class="target-unit" onchange="processRowUpdate(this)" style="padding:4px; font-size:12px; margin:0; width:auto; border-radius:6px;"><option value="oz" ${targetUnit==='oz'?'selected':''}>oz</option><option value="lb" ${targetUnit==='lb'?'selected':''}>lb</option><option value="fl oz" ${targetUnit==='fl oz'?'selected':''}>fl oz</option><option value="ml" ${targetUnit==='ml'?'selected':''}>ml</option></select></div>`; }
 
+            // Build dynamic options based on current categories
             let catList = window.appCategories[appName] || [];
             let catOptions = `<option value="Uncategorized">❓ Uncategorized</option>`;
             catList.forEach(c => { catOptions += `<option value="${c}">${c}</option>`; });
@@ -1068,26 +1075,30 @@
             let s2Fallback = isSingle ? '' : `, ['${s2[0]}','','','${s2[3]||'lb'}',0,'','']`;
             let s3Fallback = isSingle ? '' : `, ['${s3[0]}','','','${s3[3]||'lb'}',0,'','']`;
             
+            // Add Movement Buttons to Footer
             html += `</div><div class="card-footer">${targetUnitHtml}<div class="card-actions"><button class="icon-btn" onclick="moveItemCard(this, -1)" title="Move Up">🔼</button><button class="icon-btn" onclick="moveItemCard(this, 1)" title="Move Down">🔽</button><button class="icon-btn" onclick="insertRowRelative(this, 'after', '${appName}', ${s1Fallback}${s2Fallback}${s3Fallback})" title="Insert Below">➕ Insert</button><button class="delete-btn" onclick="deleteRow(this)">🗑️ Remove</button></div></div>`;
             
             card.innerHTML = html;
-            card.querySelector('.item-category').value = category || "Uncategorized";
+            card.querySelector('.item-category').value = category || "Uncategorized"; // Set the actual value
             container.appendChild(card);
-            
-            updateAccordionCount(accordion);
             processRowUpdate(card.querySelector('.item-name'), true);
         }
 
+        // ====== MOVE UP / DOWN LOGIC ======
         function moveItemCard(btn, direction) {
             let card = btn.closest('.item-card');
             let container = card.parentElement;
             let appName = card.closest('.app-section').id.split('-')[0];
             
-            if (direction === -1 && card.previousElementSibling) { container.insertBefore(card, card.previousElementSibling); } 
-            else if (direction === 1 && card.nextElementSibling) { container.insertBefore(card, card.nextElementSibling.nextElementSibling); }
-            
+            if (direction === -1 && card.previousElementSibling) {
+                container.insertBefore(card, card.previousElementSibling);
+            } else if (direction === 1 && card.nextElementSibling) {
+                container.insertBefore(card, card.nextElementSibling.nextElementSibling);
+            }
+            // Briefly highlight to show it moved
             card.style.transform = 'scale(1.02)';
             setTimeout(() => card.style.transform = 'scale(1)', 150);
+            
             if(!isAppLoading) saveToDatabase(appName);
         }
 
@@ -1210,6 +1221,11 @@
                 cells.forEach(cell => { if (!cell.classList.contains('best-deal')) cell.querySelector('.tie-split-ui').style.display = 'none'; });
             } else {
                 cells.forEach(cell => { cell.querySelector('.tie-split-ui').style.display = 'none'; cell.querySelector('.split-qty').value = cell.classList.contains('best-deal') ? orderQty : 0; });
+            }
+
+            // Keep the filter updated if they changed the category dropdown while a pill is active
+            if(!isAppLoading) {
+                filterTable(appName);
             }
 
             if(!skipSave && !isAppLoading) {
@@ -1549,17 +1565,20 @@
                 let dbData = snapshot.val();
                 if (!dbData || !dbData.inventory) { let payload = { inventory: { sysco: getSyscoDefaults(), verdura: getVerduraDefaults() }, metadata: { sysco: "New Store", verdura: "New Store" } }; db.ref(currentLocation).set(payload); return; }
                 
+                // Load Custom Categories
                 window.appCategories.sysco = dbData.metadata.syscoCategories || ['Meat', 'Dairy', 'Dry Goods', 'Paper', 'Chemicals'];
                 window.appCategories.verdura = dbData.metadata.verduraCategories || ['Chiles', 'Veggies', 'Fruit', 'Tortillas'];
                 renderCategoryUI('sysco');
                 renderCategoryUI('verdura');
 
+                // Standard listener for live updates
                 db.ref(currentLocation).on('value', (liveSnap) => {
                     let liveData = liveSnap.val();
                     if (!liveData) return;
                     if (liveData.metadata && liveData.metadata.lastEditor === mySyncId && !isAppLoading) { return; }
                     if (!isAppLoading) showSyncToast();
                     
+                    // Live update Categories just in case another manager added one
                     window.appCategories.sysco = liveData.metadata.syscoCategories || window.appCategories.sysco;
                     window.appCategories.verdura = liveData.metadata.verduraCategories || window.appCategories.verdura;
                     renderCategoryUI('sysco');
