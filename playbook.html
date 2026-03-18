@@ -11,6 +11,9 @@
     <meta name="apple-mobile-web-app-title" content="Playbook">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <link rel="apple-touch-icon" href="image_0.png">
+    <link rel="icon" type="image/png" href="image_0.png">
+
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -18,8 +21,8 @@
 
     <style>
         :root {
-            --primary: #8b5cf6;
-            --primary-hover: #7c3aed;
+            --primary: #ea580c; 
+            --primary-hover: #c2410c;
             --bg: #f8fafc;
             --surface: #ffffff;
             --text-main: #0f172a;
@@ -41,6 +44,8 @@
             --input-bg: #0f172a;
             --toggle-bg: #111827;
             --toggle-active: #334155;
+            --primary: #fb923c;
+            --primary-hover: #fdba74;
         }
 
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 20px; display: flex; flex-direction: column; align-items: center; transition: var(--theme-transition); }
@@ -52,30 +57,38 @@
 
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .logo-group { display: flex; align-items: center; gap: 15px; }
-        .logo { width: 44px; height: 44px; border-radius: 10px; background-color: var(--primary); display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 22px;}
+        .logo { width: 44px; height: 44px; border-radius: 10px; background-color: rgba(234, 88, 12, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 22px;}
         .header-text h2 { margin: 0; font-size: 18px; font-weight: 700; color: var(--text-main); }
         .header-text p { margin: 2px 0 0 0; color: var(--text-muted); font-size: 13px; }
         
-        .global-badge { background: rgba(139, 92, 246, 0.15); color: var(--primary); font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .global-badge { background: rgba(234, 88, 12, 0.15); color: var(--primary); font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(234, 88, 12, 0.3); }
 
-        .search-bar { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border); border-radius: 12px; margin-bottom: 15px; background-color: var(--input-bg); color: var(--text-main); box-sizing: border-box; transition: 0.3s; outline: none; }
+        .search-container { position: sticky; top: 10px; z-index: 50; background: var(--surface); padding-bottom: 5px; margin-bottom: 15px;}
+        .search-bar { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border); border-radius: 12px; margin-bottom: 10px; background-color: var(--input-bg); color: var(--text-main); box-sizing: border-box; transition: 0.3s; outline: none; }
         .search-bar:focus { border-color: var(--primary); }
 
-        .tab-nav { display: flex; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 20px; transition: var(--theme-transition); }
+        .tab-nav { display: flex; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 15px; transition: var(--theme-transition); }
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 14px; transition: all 0.3s ease; }
         .tab-btn.active { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+
+        /* SUB-CATEGORY PILLS */
+        .category-pills { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 10px; margin-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .category-pills::-webkit-scrollbar { display: none; }
+        .cat-pill { white-space: nowrap; padding: 6px 14px; background: var(--toggle-bg); border: 1px solid var(--border); border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .cat-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .playbook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         @media (max-width: 450px) { .playbook-grid { grid-template-columns: 1fr; } }
         
-        .recipe-card { background: var(--toggle-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .recipe-card { background: var(--toggle-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); display: flex; flex-direction: column;}
         .recipe-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
         .recipe-img { width: 100%; height: 140px; background-color: var(--border); object-fit: cover; }
-        .recipe-info { padding: 12px; }
-        .recipe-title { font-weight: 800; font-size: 15px; color: var(--text-main); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .recipe-author { font-size: 11px; color: var(--text-muted); }
+        .recipe-info { padding: 12px; flex: 1; display: flex; flex-direction: column;}
+        .recipe-title { font-weight: 800; font-size: 15px; color: var(--text-main); margin-bottom: 4px; line-height: 1.2;}
+        .recipe-subcat { font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px;}
+        .recipe-author { font-size: 11px; color: var(--text-muted); margin-top: auto;}
 
-        .fab-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4); cursor: pointer; transition: 0.2s; border: none; z-index: 100; }
+        .fab-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 10px 20px rgba(234, 88, 12, 0.4); cursor: pointer; transition: 0.2s; border: none; z-index: 100; }
         .fab-btn:active { transform: scale(0.9); }
 
         /* MODALS */
@@ -86,23 +99,32 @@
 
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--text-main); font-size: 13px; }
-        input[type="text"], select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text-main); font-size: 14px; box-sizing: border-box; }
+        input[type="text"], select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text-main); font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s;}
+        input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--primary); }
         
-        .file-upload-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: var(--input-bg); color: var(--primary); padding: 15px; border-radius: 8px; border: 2px dashed var(--primary); cursor: pointer; font-weight: 600; }
+        .file-upload-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: var(--input-bg); color: var(--primary); padding: 15px; border-radius: 8px; border: 2px dashed var(--primary); cursor: pointer; font-weight: 600; transition: 0.2s;}
+        .file-upload-btn:hover { background-color: rgba(234, 88, 12, 0.05); }
         input[type="file"] { display: none; }
-        #imagePreview { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px; display: none; }
+        #imagePreview { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px; display: none; object-fit: contain; }
 
-        .submit-btn { width: 100%; background: var(--primary); color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .submit-btn { width: 100%; background: var(--primary); color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s;}
+        .submit-btn:active { transform: scale(0.98); }
 
         /* VIEW RECIPE MODAL */
-        #viewImage { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; background: var(--border); margin-bottom: 15px; }
+        #viewImage { width: 100%; max-height: 300px; object-fit: contain; border-radius: 12px; background: var(--input-bg); margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;}
+        
+        .retro-upload-container { display: none; margin-bottom: 20px; }
+        .retro-upload-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: rgba(234, 88, 12, 0.05); color: var(--primary); padding: 25px; border-radius: 12px; border: 2px dashed var(--primary); cursor: pointer; font-weight: 800; font-size: 16px; transition: 0.2s; text-align: center; }
+        .retro-upload-btn:active { transform: scale(0.98); }
+
         #viewTitle { font-size: 24px; font-weight: 800; margin: 0 0 5px 0; color: var(--text-main); }
+        #viewSubcat { font-size: 12px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;}
         #viewMeta { font-size: 12px; color: var(--text-muted); margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-        #viewSpecs { font-size: 15px; color: var(--text-main); white-space: pre-wrap; line-height: 1.6; }
+        #viewSpecs { font-size: 15px; color: var(--text-main); white-space: pre-wrap; line-height: 1.6; padding: 10px; background: var(--toggle-bg); border-radius: 12px; border: 1px solid var(--border);}
 
         #upload-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg); z-index: 9999999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; opacity: 0; transition: opacity 0.3s ease; }
         .upload-logo { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 1.5s infinite; margin-bottom: 25px; }
-        @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(139, 92, 246, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); } }
+        @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(234, 88, 12, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0); } }
 
     </style>
 </head>
@@ -118,7 +140,7 @@
 
     <div id="upload-overlay">
         <img src="image_0.png" class="upload-logo">
-        <div style="font-size:18px; font-weight:bold; color:var(--text-main);">Uploading to Playbook...</div>
+        <div id="upload-status-text" style="font-size:18px; font-weight:bold; color:var(--text-main);">Syncing to Playbook...</div>
     </div>
 
     <div class="card" id="app-container" style="display:none;">
@@ -134,12 +156,17 @@
             <div class="global-badge">🌐 Global Sync</div>
         </div>
 
-        <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search recipes, plating, or rules..." oninput="filterPlaybook()">
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search recipes, plating, or rules..." oninput="filterPlaybook()">
+            
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchCategory('Bar', this)">🍸 Bar</button>
+                <button class="tab-btn" onclick="switchCategory('Kitchen', this)">🥩 Kitchen</button>
+                <button class="tab-btn" onclick="switchCategory('FOH', this)">📋 FOH Rules</button>
+            </div>
 
-        <div class="tab-nav">
-            <button class="tab-btn active" onclick="switchCategory('Bar', this)">🍸 Bar</button>
-            <button class="tab-btn" onclick="switchCategory('Kitchen', this)">🥩 Kitchen</button>
-            <button class="tab-btn" onclick="switchCategory('FOH', this)">📋 FOH Rules</button>
+            <div id="subcat-pills" class="category-pills">
+                </div>
         </div>
 
         <div id="playbook-feed" class="playbook-grid">
@@ -158,19 +185,28 @@
                 <label>Title (e.g. House Margarita)</label>
                 <input type="text" id="itemTitle" required>
             </div>
-            <div class="form-group">
-                <label>Category</label>
-                <select id="itemCategory">
-                    <option value="Bar">🍸 Bar Recipe</option>
-                    <option value="Kitchen">🥩 Kitchen Plating</option>
-                    <option value="FOH">📋 Front of House Rules</option>
-                </select>
+            
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;">
+                    <label>Main Category</label>
+                    <select id="itemCategory">
+                        <option value="Bar">🍸 Bar</option>
+                        <option value="Kitchen">🥩 Kitchen</option>
+                        <option value="FOH">📋 FOH Rules</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>Sub-Category (Optional)</label>
+                    <input type="text" id="itemSubcat" placeholder="e.g. Christmas Menu">
+                </div>
             </div>
+
             <div class="form-group">
                 <label class="file-upload-btn" for="itemImage">📷 Upload Reference Photo</label>
                 <input type="file" id="itemImage" accept="image/*">
                 <img id="imagePreview">
             </div>
+            
             <div class="form-group">
                 <label>Ingredients & Specs</label>
                 <textarea id="itemSpecs" rows="6" placeholder="List exact measurements, instructions, or rules here..."></textarea>
@@ -182,10 +218,24 @@
     <div id="viewModal" class="modal-overlay">
         <div class="modal-box">
             <button class="close-btn" onclick="closeModals()">✖</button>
+            
             <img id="viewImage" src="" alt="Reference Image" style="display:none;">
+            
+            <div id="retroUploadUI" class="retro-upload-container">
+                <label class="retro-upload-btn" for="retroImageInput">
+                    <div>
+                        <div style="font-size: 24px; margin-bottom: 5px;">📷</div>
+                        <div>Tap to add a photo</div>
+                    </div>
+                </label>
+                <input type="file" id="retroImageInput" accept="image/*">
+            </div>
+
             <h2 id="viewTitle">Title</h2>
+            <div id="viewSubcat">Subcategory</div>
             <div id="viewMeta">Uploaded by...</div>
             <div id="viewSpecs">Specs here...</div>
+            
             <button id="deleteBtn" class="submit-btn admin-only" style="background:var(--danger); display:none; margin-top:20px;" onclick="deleteCurrentItem()">🗑️ Delete Item</button>
         </div>
     </div>
@@ -209,6 +259,7 @@
         
         let allPlaybookItems = [];
         let currentCategory = 'Bar';
+        let currentSubcat = 'All';
         let currentlyViewingId = null;
 
         firebase.auth().onAuthStateChanged((user) => {
@@ -219,7 +270,6 @@
             document.getElementById('app-container').style.display = 'block';
             document.getElementById('user-display').innerText = `👤 ${activeUser}`;
             
-            // Show + Button and Delete buttons only to Owners and Managers
             if (activeRole === 'Owner' || activeRole === 'Manager') {
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
             }
@@ -227,19 +277,52 @@
             loadPlaybookData();
         }
 
-        // GLOBAL SYNC: Always reads from 'global_playbook'
         function loadPlaybookData() {
             db.ref('global_playbook').on('value', snap => {
                 allPlaybookItems = [];
                 snap.forEach(child => { allPlaybookItems.push({ id: child.key, ...child.val() }); });
+                renderSubcategories();
                 renderPlaybook();
             });
         }
 
+        // --- DYNAMIC SUBCATEGORY PILLS ---
+        function renderSubcategories() {
+            const container = document.getElementById('subcat-pills');
+            let subcats = new Set();
+            
+            allPlaybookItems.forEach(item => {
+                if(item.category === currentCategory && item.subcategory && item.subcategory.trim() !== "") {
+                    subcats.add(item.subcategory.trim());
+                }
+            });
+
+            let html = `<button class="cat-pill ${currentSubcat === 'All' ? 'active' : ''}" onclick="switchSubcat('All')">All</button>`;
+            
+            Array.from(subcats).sort().forEach(sub => {
+                html += `<button class="cat-pill ${currentSubcat === sub ? 'active' : ''}" onclick="switchSubcat('${sub}')">${sub}</button>`;
+            });
+
+            container.innerHTML = html;
+            
+            // If the current subcat was deleted or switched away from, fallback to All
+            if(currentSubcat !== 'All' && !subcats.has(currentSubcat)) {
+                switchSubcat('All');
+            }
+        }
+
         function switchCategory(cat, btnElem) {
             currentCategory = cat;
+            currentSubcat = 'All'; // Reset subcat when changing main tab
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             btnElem.classList.add('active');
+            renderSubcategories();
+            renderPlaybook();
+        }
+
+        function switchSubcat(sub) {
+            currentSubcat = sub;
+            renderSubcategories();
             renderPlaybook();
         }
 
@@ -252,17 +335,23 @@
 
             let filtered = allPlaybookItems.filter(item => item.category === currentCategory);
             
+            if (currentSubcat !== 'All') {
+                filtered = filtered.filter(item => item.subcategory === currentSubcat);
+            }
+            
             if (searchQ) {
                 filtered = filtered.filter(item => item.title.toLowerCase().includes(searchQ) || item.specs.toLowerCase().includes(searchQ));
             }
 
             filtered.forEach(item => {
                 let imgHtml = item.photo ? `<img src="${item.photo}" class="recipe-img">` : `<div class="recipe-img" style="display:flex;align-items:center;justify-content:center;font-size:40px;">${item.category==='Bar'?'🍸':item.category==='Kitchen'?'🥩':'📋'}</div>`;
-                
+                let subcatHtml = item.subcategory ? `<div class="recipe-subcat">${item.subcategory}</div>` : '';
+
                 html += `
                     <div class="recipe-card" onclick="openViewModal('${item.id}')">
                         ${imgHtml}
                         <div class="recipe-info">
+                            ${subcatHtml}
                             <div class="recipe-title">${item.title}</div>
                             <div class="recipe-author">By ${item.author.split(' ')[0]}</div>
                         </div>
@@ -270,10 +359,40 @@
                 `;
             });
 
-            container.innerHTML = html || '<p style="grid-column: span 2; text-align:center; color:var(--text-muted); padding: 20px;">No items found in this category.</p>';
+            container.innerHTML = html || '<p style="grid-column: span 2; text-align:center; color:var(--text-muted); padding: 20px; font-weight:bold;">No items found. Tap the + to create one!</p>';
         }
 
-        // IMAGE PREVIEW
+        // --- IMAGE COMPRESSION FUNCTION ---
+        function compressImage(file, maxWidth, maxHeight, quality) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
+                        } else {
+                            if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => { resolve(blob); }, 'image/jpeg', quality);
+                    };
+                };
+            });
+        }
+
+        // ADD NEW ITEM IMAGE PREVIEW
         document.getElementById('itemImage').onchange = (e) => {
             const reader = new FileReader();
             reader.onload = (ev) => {
@@ -287,6 +406,10 @@
         function openAddModal() {
             document.getElementById('addModal').style.display = 'flex';
             setTimeout(() => document.getElementById('addModal').style.opacity = '1', 10);
+            
+            // Auto-select the category you are currently viewing
+            document.getElementById('itemCategory').value = currentCategory;
+            document.getElementById('itemSubcat').value = currentSubcat === 'All' ? '' : currentSubcat;
         }
 
         function closeModals() {
@@ -295,48 +418,104 @@
                 setTimeout(() => m.style.display = 'none', 300);
             });
             currentlyViewingId = null;
+            document.getElementById('retroImageInput').value = ''; // Clear file input
         }
 
         async function savePlaybookItem() {
             const title = document.getElementById('itemTitle').value.trim();
             const cat = document.getElementById('itemCategory').value;
+            const subcat = document.getElementById('itemSubcat').value.trim();
             const specs = document.getElementById('itemSpecs').value.trim();
             const file = document.getElementById('itemImage').files[0];
 
             if(!title || !specs) { alert("Title and Specs are required!"); return; }
 
             const overlay = document.getElementById('upload-overlay');
+            const statusText = document.getElementById('upload-status-text');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.style.opacity = '1', 10);
+            
+            let photoUrl = null;
+
+            try {
+                if (file) {
+                    statusText.innerText = "Optimizing Photo...";
+                    const compressedBlob = await compressImage(file, 1000, 1000, 0.6);
+                    
+                    statusText.innerText = "Uploading to Cloud...";
+                    const storageRef = storage.ref(`playbook_images/${Date.now()}.jpg`);
+                    await storageRef.put(compressedBlob);
+                    photoUrl = await storageRef.getDownloadURL();
+                }
+
+                statusText.innerText = "Saving Recipe...";
+                const ref = db.ref('global_playbook').push();
+                await ref.set({
+                    title: title,
+                    category: cat,
+                    subcategory: subcat,
+                    specs: specs,
+                    photo: photoUrl,
+                    author: activeUser,
+                    date: new Date().toLocaleDateString('en-US')
+                });
+
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
+                
+                // Reset form
+                document.getElementById('itemTitle').value = '';
+                document.getElementById('itemSubcat').value = '';
+                document.getElementById('itemSpecs').value = '';
+                document.getElementById('itemImage').value = '';
+                document.getElementById('imagePreview').style.display = 'none';
+                closeModals();
+                
+            } catch(err) {
+                console.error(err);
+                alert("Upload failed. Please check your connection.");
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
+            }
+        }
+
+        // --- RETROACTIVE PHOTO UPLOAD LOGIC ---
+        document.getElementById('retroImageInput').onchange = async (e) => {
+            const file = e.target.files[0];
+            if(!file || !currentlyViewingId) return;
+
+            const overlay = document.getElementById('upload-overlay');
+            const statusText = document.getElementById('upload-status-text');
             overlay.style.display = 'flex';
             setTimeout(() => overlay.style.opacity = '1', 10);
 
-            const ref = db.ref('global_playbook').push();
-            let photoUrl = null;
-
-            if (file) {
+            try {
+                statusText.innerText = "Optimizing Photo...";
+                const compressedBlob = await compressImage(file, 1000, 1000, 0.6);
+                
+                statusText.innerText = "Attaching to Recipe...";
                 const storageRef = storage.ref(`playbook_images/${Date.now()}.jpg`);
-                await storageRef.put(file);
-                photoUrl = await storageRef.getDownloadURL();
+                await storageRef.put(compressedBlob);
+                const photoUrl = await storageRef.getDownloadURL();
+                
+                await db.ref(`global_playbook/${currentlyViewingId}`).update({ photo: photoUrl });
+                
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
+                
+                // Instantly update the View Modal UI
+                document.getElementById('retroUploadUI').style.display = 'none';
+                const img = document.getElementById('viewImage');
+                img.src = photoUrl;
+                img.style.display = 'block';
+
+            } catch(err) {
+                console.error(err);
+                alert("Failed to attach photo.");
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
             }
-
-            await ref.set({
-                title: title,
-                category: cat,
-                specs: specs,
-                photo: photoUrl,
-                author: activeUser,
-                date: new Date().toLocaleDateString('en-US')
-            });
-
-            overlay.style.opacity = '0';
-            setTimeout(() => overlay.style.display = 'none', 300);
-            
-            // Reset form
-            document.getElementById('itemTitle').value = '';
-            document.getElementById('itemSpecs').value = '';
-            document.getElementById('itemImage').value = '';
-            document.getElementById('imagePreview').style.display = 'none';
-            closeModals();
-        }
+        };
 
         function openViewModal(id) {
             const item = allPlaybookItems.find(i => i.id === id);
@@ -345,10 +524,24 @@
             currentlyViewingId = id;
             
             const img = document.getElementById('viewImage');
-            if (item.photo) { img.src = item.photo; img.style.display = 'block'; } 
-            else { img.style.display = 'none'; }
+            const retroUI = document.getElementById('retroUploadUI');
+            
+            if (item.photo) { 
+                img.src = item.photo; 
+                img.style.display = 'block'; 
+                retroUI.style.display = 'none';
+            } else { 
+                img.style.display = 'none'; 
+                // Only show upload button to Managers/Owners
+                if(activeRole === 'Owner' || activeRole === 'Manager') {
+                    retroUI.style.display = 'block';
+                } else {
+                    retroUI.style.display = 'none';
+                }
+            }
 
             document.getElementById('viewTitle').innerText = item.title;
+            document.getElementById('viewSubcat').innerText = item.subcategory || item.category;
             document.getElementById('viewMeta').innerText = `Uploaded by ${item.author} on ${item.date}`;
             document.getElementById('viewSpecs').innerText = item.specs;
 
