@@ -31,7 +31,6 @@
             --input-border: #ccc;
             --input-bg: #fff;
             --input-text: #333;
-            --th-bg: #f8f9fa;
             
             --premier-color: #8e44ad; 
             --se-color: #2980b9;      
@@ -62,7 +61,6 @@
             --input-border: #555;
             --input-bg: #2c2c2c;
             --input-text: #fff;
-            --th-bg: #2a2a2a;
             
             --premier-color: #af7ac5;
             --se-color: #5dade2;
@@ -106,20 +104,12 @@
         .app-section.active-app { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* STICKY SEARCH & CATEGORIES */
+        /* STICKY SEARCH */
         .sticky-search-zone { position: -webkit-sticky; position: sticky; top: 0; z-index: 100; background: var(--bg-color); padding-top: calc(10px + env(safe-area-inset-top)); padding-bottom: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 15px; }
         .search-bar { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border-color); border-radius: 12px; background-color: var(--input-bg); color: var(--input-text); box-sizing: border-box; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .premier-wrapper .search-bar:focus { border-color: var(--premier-color); outline: none; }
         .silvereagle-wrapper .search-bar:focus { border-color: var(--se-color); outline: none; }
         .faust-wrapper .search-bar:focus { border-color: var(--faust-color); outline: none; }
-        
-        .category-pills { display: flex; overflow-x: auto; gap: 8px; margin-top: 10px; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-        .category-pills::-webkit-scrollbar { display: none; }
-        .cat-pill { white-space: nowrap; padding: 8px 16px; background: var(--supplier-group-bg); border: 1px solid var(--border-color); border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--text-color); cursor: pointer; transition: 0.2s; }
-        .premier-wrapper .cat-pill.active { background: var(--premier-color); color: white; border-color: var(--premier-color); }
-        .silvereagle-wrapper .cat-pill.active { background: var(--se-color); color: white; border-color: var(--se-color); }
-        .faust-wrapper .cat-pill.active { background: var(--faust-color); color: white; border-color: var(--faust-color); }
-        .cat-pill-edit { background: var(--warning-color); color: #000; border-color: #d39e00; }
 
         .cloud-status { display: inline-block; padding: 6px 12px; background: #e3f2fd; color: #0d47a1; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; text-align: center; }
         body.dark-mode .cloud-status { background: #0d47a1; color: #e3f2fd; }
@@ -127,41 +117,28 @@
         body.dark-mode .cloud-status.offline { background: #856404 !important; color: #fff3cd !important; }
         .timestamp { font-size: 12px; color: var(--result-text); font-style: italic; margin-bottom: 15px; text-align: right; font-weight: bold; }
 
+        /* TABS (Only used for Analytics/Receiving now) */
         .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
         .tab-btn { background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 16px; font-weight: bold; color: var(--result-text); transition: color 0.2s; }
-        .premier-wrapper .tab-btn.active { color: var(--premier-color); border-bottom: 3px solid var(--premier-color); margin-bottom: -2px; }
-        .silvereagle-wrapper .tab-btn.active { color: var(--se-color); border-bottom: 3px solid var(--se-color); margin-bottom: -2px; }
-        .faust-wrapper .tab-btn.active { color: var(--faust-color); border-bottom: 3px solid var(--faust-color); margin-bottom: -2px; }
         .analytics-wrapper .tab-btn.active { color: var(--analytics-color); border-bottom: 3px solid var(--analytics-color); margin-bottom: -2px; }
         .receiving-wrapper .tab-btn.active { color: var(--receiving-color); border-bottom: 3px solid var(--receiving-color); margin-bottom: -2px; }
         
         .tab-content { display: none; padding-bottom: 15px; }
         .tab-content.active { display: block; }
 
-        /* ACCORDION STYLES */
-        .category-accordion { margin-bottom: 15px; background: transparent; border-radius: 0; }
-        .accordion-header { padding: 15px 20px; font-size: 16px; font-weight: 800; background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); box-shadow: var(--shadow-soft); transition: 0.2s; user-select: none; margin-bottom: 10px;}
-        .accordion-header:active { transform: scale(0.98); }
-        .category-accordion.open .accordion-header { border-bottom-color: var(--border-color); border-radius: 16px; }
-        .accordion-content { display: none; flex-direction: column; gap: 15px; padding: 0; margin-bottom: 25px;}
-        .category-accordion.open .accordion-content { display: flex; }
-        .accordion-icon { transition: transform 0.3s; font-size: 12px; opacity: 0.6; }
-        .category-accordion.open .accordion-icon { transform: rotate(180deg); opacity: 1;}
-
+        .table-container { display: flex; flex-direction: column; gap: 15px; }
         .item-card { background: var(--container-bg); border-radius: 16px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 2px solid transparent; transition: border-color 0.3s, box-shadow 0.3s, transform 0.15s; position: relative; overflow: hidden; }
         .item-card.has-order { border-color: var(--success-color); box-shadow: 0 6px 15px rgba(40, 167, 69, 0.15); }
         .card-header { display: flex; flex-direction: column; margin-bottom: 15px; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
         
         .item-header-row { display: flex; width: 100%; gap: 10px; align-items: center;}
-        .item-name { font-size: 18px !important; font-weight: bold; flex: 1; min-width: 120px; border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; padding: 8px !important; color: var(--text-color) !important; margin-bottom: 0 !important;}
+        .item-name { font-size: 18px !important; font-weight: bold; flex: 1; width: 100%; border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; padding: 8px !important; color: var(--text-color) !important; margin-bottom: 0 !important;}
         
         .premier-wrapper .item-name:focus { border-color: var(--premier-color) !important; background: var(--input-bg) !important; }
         .silvereagle-wrapper .item-name:focus { border-color: var(--se-color) !important; background: var(--input-bg) !important; }
         .faust-wrapper .item-name:focus { border-color: var(--faust-color) !important; background: var(--input-bg) !important; }
         
-        .item-category { width: auto; flex: 0 1 auto; padding: 6px 10px; font-size: 13px; font-weight: bold; border-radius: 8px; background: var(--supplier-group-bg); border: 1px solid var(--border-color); color: var(--text-main); margin-bottom: 0 !important;}
-
-        /* JUMBO "FAT-FINGER" STEPPER CONTROLS - RECALIBRATED FOR VISIBILITY */
+        /* JUMBO "FAT-FINGER" STEPPER CONTROLS */
         .inventory-controls { display: flex; gap: 8px; padding: 10px; border-radius: 16px; border: 2px solid var(--border-color); align-items: center; transition: 0.3s; flex-wrap: wrap; justify-content: center; width: 100%; box-sizing: border-box;}
         .inventory-controls.active { border-color: var(--success-color); background: var(--best-deal-bg); }
         .inv-group { display: flex; flex-direction: column; align-items: center; background: var(--supplier-group-bg); padding: 8px 5px; border-radius: 12px; flex: 1; min-width: 85px;}
@@ -195,7 +172,7 @@
         .delete-btn { color: var(--danger-color); }
         .delete-btn:hover { border-color: var(--danger-color); background: rgba(220, 53, 69, 0.1); }
 
-        input[type="text"], select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--input-text); border-radius: 8px; font-size: 14px; margin-bottom: 6px; }
+        input[type="text"], select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); border-radius: 8px; font-size: 14px; margin-bottom: 6px; }
         input.s-price, input.s-qty { padding: 10px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); margin-bottom: 0; }
         
         .premier-wrapper input:focus, .premier-wrapper select:focus { outline: none; border-color: var(--premier-color); }
@@ -203,7 +180,6 @@
         .faust-wrapper input:focus, .faust-wrapper select:focus { outline: none; border-color: var(--faust-color); }
         
         .input-group { display: flex; gap: 6px; }
-        .qty-label { font-size: 12px; color: var(--result-text); font-weight: bold; white-space: nowrap; }
 
         .s-result { font-weight: bold; font-size: 15px; text-align: right; color: var(--result-text); margin-top: 6px; }
 
@@ -293,17 +269,6 @@
 
         .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; font-size: 11px; font-weight: bold; width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-color); box-shadow: 0 2px 4px rgba(0,0,0,0.2); pointer-events: none;}
 
-        /* MODAL STYLES FOR CATEGORY EDITOR */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999999; display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; padding: 20px; box-sizing: border-box; backdrop-filter: blur(3px);}
-        .modal-box { background: var(--container-bg); width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; border: 1px solid var(--border-color); }
-        .close-btn { position: absolute; top: 15px; right: 15px; background: var(--supplier-group-bg); border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; color: var(--result-text); cursor: pointer; }
-        .cat-list { margin: 15px 0; padding: 0; list-style: none; max-height: 250px; overflow-y: auto;}
-        .cat-list li { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color); font-weight: bold;}
-        .cat-list button { background: none; border: none; color: var(--danger-color); font-weight: bold; cursor: pointer;}
-        .cat-input-group { display: flex; gap: 10px; margin-top: 15px;}
-        .cat-input-group input { flex: 1; margin: 0; }
-        .cat-input-group button { background: var(--success-color); color: white; border: none; border-radius: 8px; padding: 0 15px; font-weight: bold;}
-
         #sync-toast { visibility: hidden; min-width: 250px; background-color: var(--success-color); color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 9999; bottom: 100px; left: 50%; transform: translateX(-50%); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: visibility 0s, opacity 0.5s linear; opacity: 0; }
         #sync-toast.show { visibility: visible; opacity: 1; }
 
@@ -317,7 +282,7 @@
         /* PRINT FIX */
         @media print {
             body, body.dark-mode { background-color: #fff !important; margin: 0; padding: 0; color: #000 !important; padding-bottom: 0; }
-            .bottom-nav, .tabs, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, .header-utils, .add-row-btn, #nav-banner, .fab-btn, .sticky-search-zone { display: none !important; }
+            .bottom-nav, .table-container, .action-btns, .search-bar, .timestamp, .cloud-status, #sync-toast, #splash-screen, .header-utils, .add-row-btn, #nav-banner, .sticky-search-zone, .tabs { display: none !important; }
             .header-container { display: flex !important; justify-content: flex-start !important; align-items: center !important; margin-bottom: 10px !important; margin-top: 0 !important; padding: 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important;}
             .pericos-branding { display: flex !important; align-items: center !important; gap: 10px !important; }
             .header-logo { display: block !important; height: 50px !important; border-radius: 50% !important; border: 2px solid #000 !important; }
@@ -334,8 +299,6 @@
             .app-section:not(.active-app) { display: none !important; }
             body::before { content: "BAR & LIQUOR INVOICE"; display: block; font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 15px; color: #000; }
             @page { margin: 0.3in; }
-            .category-accordion.open .accordion-content { display: block !important; }
-            .accordion-header { display: none !important; }
         }
     </style>
 </head>
@@ -378,49 +341,12 @@
         
         <div class="sticky-search-zone">
             <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type an item..." oninput="filterTable('premier')">
-            <div class="category-pills" id="premier-pills-container"></div>
         </div>
         
         <div class="timestamp" id="time-premier">Last updated: Loading Cloud Data...</div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="openTab(event, 'premier', 'Tequila_premier')">Tequila & Mezcal</button>
-            <button class="tab-btn" onclick="openTab(event, 'premier', 'Vodka_premier')">Vodka & Gin</button>
-            <button class="tab-btn" onclick="openTab(event, 'premier', 'Whiskey_premier')">Whiskey & Rum</button>
-            <button class="tab-btn" onclick="openTab(event, 'premier', 'Wine_premier')">Wine</button>
-            <button class="tab-btn" onclick="openTab(event, 'premier', 'Flavor_premier')">Flavors & Liqueurs</button>
-            <button class="tab-btn" onclick="openTab(event, 'premier', 'Margarita_premier')">Margarita</button>
-        </div>
-
-        <div id="Tequila_premier" class="tab-content active">
-            <div id="tequilaTable_premier" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ btl"></div>
-            <button class="add-row-btn" onclick="addRow('tequilaTable_premier', 'premier', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'btl', ['Premier Beverage','','','btl',0,'',''])">+ Add Tequila/Mezcal</button>
-        </div>
-
-        <div id="Vodka_premier" class="tab-content">
-            <div id="vodkaTable_premier" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ btl"></div>
-            <button class="add-row-btn" onclick="addRow('vodkaTable_premier', 'premier', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'btl', ['Premier Beverage','','','btl',0,'',''])">+ Add Vodka/Gin</button>
-        </div>
-
-        <div id="Whiskey_premier" class="tab-content">
-            <div id="whiskeyTable_premier" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ btl"></div>
-            <button class="add-row-btn" onclick="addRow('whiskeyTable_premier', 'premier', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'btl', ['Premier Beverage','','','btl',0,'',''])">+ Add Whiskey/Rum</button>
-        </div>
-        
-        <div id="Wine_premier" class="tab-content">
-            <div id="wineTable_premier" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ btl"></div>
-            <button class="add-row-btn" onclick="addRow('wineTable_premier', 'premier', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'btl', ['Premier Beverage','','','btl',0,'',''])">+ Add Wine</button>
-        </div>
-        
-        <div id="Flavor_premier" class="tab-content">
-            <div id="flavorTable_premier" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ btl"></div>
-            <button class="add-row-btn" onclick="addRow('flavorTable_premier', 'premier', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'btl', ['Premier Beverage','','','btl',0,'',''])">+ Add Flavor/Liqueur</button>
-        </div>
-
-        <div id="Margarita_premier" class="tab-content">
-            <div id="margaritaTable_premier" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ btl"></div>
-            <button class="add-row-btn" onclick="addRow('margaritaTable_premier', 'premier', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'btl', ['Premier Beverage','','','btl',0,'',''])">+ Add Margarita Mix/Well</button>
-        </div>
+        <div id="table_premier" class="table-container single-vendor-table"></div>
+        <button class="add-row-btn" onclick="addRow('table_premier', 'premier', 'Price $', 'Count', '', '', '', '', ['Premier Beverage','','','item',0,'',''])">+ Add Liquor/Wine</button>
 
         <div class="shopping-list-panel">
             <div class="action-btns">
@@ -442,25 +368,12 @@
         
         <div class="sticky-search-zone">
             <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type an item..." oninput="filterTable('silvereagle')">
-            <div class="category-pills" id="silvereagle-pills-container"></div>
         </div>
         
         <div class="timestamp" id="time-silvereagle">Last updated: Loading Cloud Data...</div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="openTab(event, 'silvereagle', 'Bottles_se')">Bottles & Cans</button>
-            <button class="tab-btn" onclick="openTab(event, 'silvereagle', 'Draft_se')">Draft (Kegs)</button>
-        </div>
-
-        <div id="Bottles_se" class="tab-content active">
-            <div id="bottlesTable_se" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ case"></div>
-            <button class="add-row-btn" onclick="addRow('bottlesTable_se', 'silvereagle', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'case', ['Silver Eagle','','','case',0,'',''])">+ Add Bottled Beer</button>
-        </div>
-        
-        <div id="Draft_se" class="tab-content">
-            <div id="draftTable_se" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ keg"></div>
-            <button class="add-row-btn" onclick="addRow('draftTable_se', 'silvereagle', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'keg', ['Silver Eagle','','','keg',0,'',''])">+ Add Keg</button>
-        </div>
+        <div id="table_silvereagle" class="table-container single-vendor-table"></div>
+        <button class="add-row-btn" onclick="addRow('table_silvereagle', 'silvereagle', 'Price $', 'Count', '', '', '', '', ['Silver Eagle','','','item',0,'',''])">+ Add Beer/Keg</button>
 
         <div class="shopping-list-panel">
             <div class="action-btns">
@@ -482,25 +395,12 @@
         
         <div class="sticky-search-zone">
             <input type="text" class="search-bar" placeholder="🔍 Quick Find: Type an item..." oninput="filterTable('faust')">
-            <div class="category-pills" id="faust-pills-container"></div>
         </div>
         
         <div class="timestamp" id="time-faust">Last updated: Loading Cloud Data...</div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="openTab(event, 'faust', 'Bottles_faust')">Bottles & Cans</button>
-            <button class="tab-btn" onclick="openTab(event, 'faust', 'Draft_faust')">Draft (Kegs)</button>
-        </div>
-
-        <div id="Bottles_faust" class="tab-content active">
-            <div id="bottlesTable_faust" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ case"></div>
-            <button class="add-row-btn" onclick="addRow('bottlesTable_faust', 'faust', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'case', ['Faust Distributions','','','case',0,'',''])">+ Add Bottled Beer</button>
-        </div>
-        
-        <div id="Draft_faust" class="tab-content">
-            <div id="draftTable_faust" class="table-container single-vendor-table" data-has-units="false" data-unit-label="/ keg"></div>
-            <button class="add-row-btn" onclick="addRow('draftTable_faust', 'faust', 'Price $', 'Count', '', 'Uncategorized', '', '', '', 'keg', ['Faust Distributions','','','keg',0,'',''])">+ Add Keg</button>
-        </div>
+        <div id="table_faust" class="table-container single-vendor-table"></div>
+        <button class="add-row-btn" onclick="addRow('table_faust', 'faust', 'Price $', 'Count', '', '', '', '', ['Faust Distributions','','','item',0,'',''])">+ Add Beer/Keg</button>
 
         <div class="shopping-list-panel">
             <div class="action-btns">
@@ -630,22 +530,6 @@
         </button>
     </div>
 
-    <div id="categoryModal" class="modal-overlay">
-        <div class="modal-box">
-            <button class="close-btn" onclick="closeCategoryModal()">✖</button>
-            <h2 style="margin-top:0; color:var(--text-main);">Manage Categories</h2>
-            <p style="font-size:13px; color:var(--text-muted);">Adding or removing a category here updates all item drop-downs and accordion groups.</p>
-            
-            <ul id="modal-cat-list" class="cat-list">
-            </ul>
-
-            <div class="cat-input-group">
-                <input type="text" id="newCategoryInput" placeholder="New Category Name (e.g. Well Liquor)">
-                <button onclick="addCategory()">+ Add</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         if (localStorage.getItem('pericos_dark') === 'true') { document.getElementById('darkModeBtn').innerText = '☀️ Light Mode'; }
 
@@ -672,114 +556,6 @@
         let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis'; 
 
-        // ====== CATEGORY MANAGEMENT & ACCORDION LOGIC ======
-        window.appCategories = { premier: [], silvereagle: [], faust: [] };
-        let activeModalApp = '';
-
-        function renderCategoryUI(appName) {
-            let pillsContainer = document.getElementById(appName + '-pills-container');
-            let cats = window.appCategories[appName] || [];
-            
-            let pillsHtml = `<button class="cat-pill active" data-cat="All" onclick="activatePill(this, '${appName}')">All Items</button>`;
-            cats.forEach(c => { pillsHtml += `<button class="cat-pill" data-cat="${c}" onclick="activatePill(this, '${appName}')">${c}</button>`; });
-            pillsHtml += `<button class="cat-pill" data-cat="Uncategorized" onclick="activatePill(this, '${appName}')">Uncategorized</button>`;
-            pillsHtml += `<button class="cat-pill cat-pill-edit" onclick="openCategoryModal('${appName}')">⚙️ Edit</button>`;
-            pillsContainer.innerHTML = pillsHtml;
-
-            let catOptions = `<option value="Uncategorized">❓ Uncategorized</option>`;
-            cats.forEach(c => { catOptions += `<option value="${c}">${c}</option>`; });
-            
-            document.querySelectorAll(`#${appName}-wrapper .item-category`).forEach(sel => {
-                let currentVal = sel.value;
-                sel.innerHTML = catOptions;
-                if(cats.includes(currentVal) || currentVal === "Uncategorized") { sel.value = currentVal; } 
-                else { sel.value = "Uncategorized"; } 
-            });
-        }
-
-        function createAccordion(outerContainer, category, appName) {
-            let safeCat = category ? category.replace(/[^a-zA-Z0-9]/g, '-') : "Uncategorized";
-            let accId = `${outerContainer.id}-cat-${safeCat}`;
-            let accordion = document.createElement('div');
-            accordion.className = 'category-accordion open';
-            accordion.id = accId;
-            accordion.setAttribute('data-cat', category || "Uncategorized");
-            
-            let themeColor = 'var(--primary-color)';
-            if(appName === 'premier') themeColor = 'var(--premier-color)';
-            if(appName === 'silvereagle') themeColor = 'var(--se-color)';
-            if(appName === 'faust') themeColor = 'var(--faust-color)';
-            
-            accordion.innerHTML = `
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span style="display:flex; align-items:center; gap:10px;">
-                        <div style="width:5px; height:20px; background:${themeColor}; border-radius:4px;"></div>
-                        ${category || "Uncategorized"} <span class="item-count" style="font-size:13px; color:var(--result-text); font-weight:700;">(0)</span>
-                    </span>
-                    <span class="accordion-icon">▼</span>
-                </div>
-                <div class="accordion-content table-container-inner"></div>
-            `;
-            outerContainer.appendChild(accordion);
-            return accordion;
-        }
-
-        function toggleAccordion(header) {
-            header.parentElement.classList.toggle('open');
-        }
-
-        function updateAccordionCount(accordion) {
-            if(!accordion) return;
-            let count = accordion.querySelectorAll('.item-card').length;
-            let countSpan = accordion.querySelector('.item-count');
-            if(countSpan) countSpan.innerText = `(${count})`;
-            if(count === 0) accordion.style.display = 'none';
-            else accordion.style.display = 'block';
-        }
-
-        function openCategoryModal(appName) {
-            activeModalApp = appName;
-            let listHTML = '';
-            window.appCategories[appName].forEach(c => {
-                listHTML += `<li><span>${c}</span> <button onclick="deleteCategory('${c}')">Remove</button></li>`;
-            });
-            document.getElementById('modal-cat-list').innerHTML = listHTML || "<li style='color:var(--text-muted);'>No custom categories.</li>";
-            document.getElementById('categoryModal').style.display = 'flex';
-            setTimeout(() => document.getElementById('categoryModal').style.opacity = '1', 10);
-        }
-
-        function closeCategoryModal() {
-            document.getElementById('categoryModal').style.opacity = '0';
-            setTimeout(() => document.getElementById('categoryModal').style.display = 'none', 300);
-        }
-
-        function addCategory() {
-            let input = document.getElementById('newCategoryInput');
-            let newCat = input.value.trim();
-            if(newCat && !window.appCategories[activeModalApp].includes(newCat) && newCat !== "Uncategorized" && newCat !== "All") {
-                window.appCategories[activeModalApp].push(newCat);
-                input.value = '';
-                saveCategoriesToDB();
-                openCategoryModal(activeModalApp); 
-                renderCategoryUI(activeModalApp); 
-            }
-        }
-
-        function deleteCategory(catName) {
-            if(confirm(`Are you sure? Any items tagged as "${catName}" will become Uncategorized.`)) {
-                window.appCategories[activeModalApp] = window.appCategories[activeModalApp].filter(c => c !== catName);
-                saveCategoriesToDB();
-                openCategoryModal(activeModalApp); 
-                renderCategoryUI(activeModalApp); 
-            }
-        }
-
-        function saveCategoriesToDB() {
-            db.ref(currentLocation + '/metadata/premierCategories').set(window.appCategories.premier);
-            db.ref(currentLocation + '/metadata/silvereagleCategories').set(window.appCategories.silvereagle);
-            db.ref(currentLocation + '/metadata/faustCategories').set(window.appCategories.faust);
-        }
-
         // ====== FAT FINGER STEPPER LOGIC ======
         let holdInterval;
         function changeStepper(btn, amount) {
@@ -797,40 +573,15 @@
         function startHold(btn, amount) { changeStepper(btn, amount); holdInterval = setInterval(() => { changeStepper(btn, amount); }, 150); }
         function endHold() { clearInterval(holdInterval); }
 
-        // ====== PILL & SEARCH FILTERING LOGIC ======
-        function activatePill(btn, appName) {
-            let wrapper = document.getElementById(appName + '-wrapper');
-            wrapper.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-            filterTable(appName);
-        }
-
         function filterTable(appName) {
             let searchInput = document.querySelector(`#${appName}-wrapper .search-bar`);
             let q = searchInput ? searchInput.value.toLowerCase() : "";
-            let activePillBtn = document.querySelector(`#${appName}-wrapper .cat-pill.active`);
-            let activePill = activePillBtn ? activePillBtn.getAttribute('data-cat') : "All";
             
-            let accordions = document.querySelectorAll(`#${appName}-wrapper .category-accordion`);
-            accordions.forEach(acc => {
-                let accCat = acc.getAttribute('data-cat');
-                let matchesCat = (activePill === "All" || accCat === activePill);
-                
-                let visibleCount = 0;
-                let rows = acc.querySelectorAll('.item-card');
-                rows.forEach(row => {
-                    let name = row.querySelector('.item-name').value.toLowerCase();
-                    let matchesSearch = name.includes(q);
-                    
-                    if (matchesSearch && matchesCat) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-                
-                acc.style.display = visibleCount > 0 ? 'block' : 'none';
+            let rows = document.querySelectorAll(`#${appName}-wrapper .item-card`);
+            rows.forEach(row => {
+                let name = row.querySelector('.item-name').value.toLowerCase();
+                let matchesSearch = name.includes(q);
+                row.style.display = matchesSearch ? '' : 'none';
             });
         }
 
@@ -1005,11 +756,10 @@
                 if (itemName && winningCells.length > 0) {
                     winningCells.forEach(wc => {
                         let sName = wc.querySelector('.s-name').value.trim() || "Unknown";
-                        let aQty = parseFloat(wc.querySelector('.s-qty').value) || 0; 
-                        let mainQty = parseFloat(row.querySelector('.order-qty').value) || 0;
-                        if (mainQty > 0) {
+                        let aQty = parseFloat(row.querySelector('.order-qty').value) || 0;
+                        if (aQty > 0) {
                             if (!listBySupplier[sName]) listBySupplier[sName] = [];
-                            listBySupplier[sName].push(`${mainQty}x ${itemName}`);
+                            listBySupplier[sName].push(`${aQty}x ${itemName}`);
                         }
                     });
                 }
@@ -1078,41 +828,19 @@
         }
 
         function createSupplierCellHTML(supplierName, priceVal, qtyVal, unitVal, hasUnits, splitVal, oldTrend, baselineVal) {
-            let qtyHtml = '';
-            if (hasUnits) {
-                qtyHtml = `<div style="display:none; width:100%; gap:4px; margin-top:8px;"><input type="number" class="s-qty" placeholder="Qty" value="${qtyVal}" style="width:60%;" oninput="processRowUpdate(this)"><select class="s-unit" style="width:40%; padding:4px; font-size:12px;" onchange="processRowUpdate(this)"><option value="oz" ${unitVal==='oz'?'selected':''}>oz</option><option value="lb" ${unitVal==='lb'?'selected':''}>lb</option><option value="fl oz" ${unitVal==='fl oz'?'selected':''}>fl oz</option><option value="ml" ${unitVal==='ml'?'selected':''}>ml</option></select></div>`;
-            } else {
-                qtyHtml = `<input type="number" class="s-qty" placeholder="Pack Size" value="${qtyVal}" style="display:none; width:100%; margin-top:8px;" oninput="processRowUpdate(this)">`;
-            }
             let safeBaseline = baselineVal !== undefined && baselineVal !== "" ? baselineVal : priceVal;
-            return `<div class="supplier-cell" style="cursor: default;"><input type="text" class="s-name" placeholder="Supplier Name" value="${supplierName}" oninput="processRowUpdate(this)"><div style="position:relative; display:flex; align-items:center;"><span style="position:absolute; left:10px; color:var(--result-text); font-weight:bold;">$</span><input type="number" class="s-price" style="padding-left:22px; width:100%; font-size:16px; font-weight:bold;" placeholder="Price" value="${priceVal}" data-baseline="${safeBaseline}" oninput="processRowUpdate(this)" onchange="logPriceChange(this)"></div>${qtyHtml} <div class="s-result" data-value="0" style="display:none;">$0.00</div></div>`;
+            return `<div class="supplier-cell" style="cursor: default;"><input type="text" class="s-name" placeholder="Supplier Name" value="${supplierName}" oninput="processRowUpdate(this)"><div style="position:relative; display:flex; align-items:center;"><span style="position:absolute; left:10px; color:var(--result-text); font-weight:bold;">$</span><input type="number" class="s-price" style="padding-left:22px; width:100%; font-size:16px; font-weight:bold;" placeholder="Price" value="${priceVal}" data-baseline="${safeBaseline}" oninput="processRowUpdate(this)" onchange="logPriceChange(this)"></div><div class="s-result" data-value="${priceVal || 0}" style="display:none;">$0.00</div></div>`;
         }
 
-        // ====== FAT FINGER ROW ADDITION & CATEGORY ACCORDION ======
-        function addRow(tableId, appName, pLabel, qLabel, itemName = "", category = "Uncategorized", parQty = "", shelfQty = "", orderQty = "", targetUnit = "oz", s1, s2, s3, forcedSupp = null) {
-            let outerContainer = document.getElementById(tableId);
-            let hasUnits = outerContainer.getAttribute('data-has-units') === 'true';
+        function addRow(tableId, appName, pLabel, qLabel, itemName = "", parQty = "", shelfQty = "", orderQty = "", s1) {
+            let container = document.getElementById(tableId);
             
-            let safeCat = category ? category.replace(/[^a-zA-Z0-9]/g, '-') : "Uncategorized";
-            let accId = `${tableId}-cat-${safeCat}`;
-            let accordion = document.getElementById(accId);
-            
-            if(!accordion) { accordion = createAccordion(outerContainer, category, appName); }
-            
-            let container = accordion.querySelector('.accordion-content');
-
             let card = document.createElement('div');
             card.className = 'item-card';
-            if(forcedSupp) { card.setAttribute('data-forced-supplier', forcedSupp); }
-
-            let catList = window.appCategories[appName] || [];
-            let catOptions = `<option value="Uncategorized">❓ Uncategorized</option>`;
-            catList.forEach(c => { catOptions += `<option value="${c}">${c}</option>`; });
 
             let html = `<div class="card-header">
                 <div class="item-header-row">
                     <input type="text" class="item-name" placeholder="Item Name" value="${itemName}" oninput="processRowUpdate(this)">
-                    <select class="item-category" onchange="processRowUpdate(this)">${catOptions}</select>
                 </div>
                 <div class="inventory-controls">
                     <div class="inv-group">
@@ -1142,16 +870,13 @@
                 </div>
             </div><div class="card-body">`;
             
-            html += createSupplierCellHTML(s1[0], s1[1], s1[2], s1[3] || (hasUnits?'lb':'oz'), hasUnits, s1[4] || 0, s1[5] || '', s1[6]);
-            let s1Fallback = `['${s1[0]}','','','${s1[3]||'lb'}',0,'','']`;
+            html += createSupplierCellHTML(s1[0], s1[1], s1[2], 'item', false, 0, '', s1[6]);
+            let s1Fallback = `['${s1[0]}','','','item',0,'','']`;
             
             html += `</div><div class="card-footer"><div class="card-actions"><button class="icon-btn" onclick="moveItemCard(this, -1)" title="Move Up">🔼</button><button class="icon-btn" onclick="moveItemCard(this, 1)" title="Move Down">🔽</button><button class="icon-btn" onclick="insertRowRelative(this, 'after', '${appName}', ${s1Fallback})" title="Insert Below">➕ Insert</button><button class="delete-btn" onclick="deleteRow(this)">🗑️ Remove</button></div></div>`;
             
             card.innerHTML = html;
-            card.querySelector('.item-category').value = category || "Uncategorized";
             container.appendChild(card);
-            
-            updateAccordionCount(accordion);
             processRowUpdate(card.querySelector('.item-name'), true);
         }
 
@@ -1170,13 +895,9 @@
 
         function insertRowRelative(btn, direction, appName, s1) {
             let currentCard = btn.closest('.item-card');
-            let accordion = currentCard.closest('.category-accordion');
-            let container = accordion.querySelector('.accordion-content');
-            let tableContainer = accordion.parentElement;
-            let tUnit = tableContainer.getAttribute('data-has-units') === 'true' ? 'lb' : 'oz';
-            let activeCategory = currentCard.querySelector('.item-category').value;
+            let container = currentCard.closest('.table-container');
             
-            addRow(tableContainer.id, appName, 'Price $', 'Qty', '', activeCategory, '', '', '', tUnit, s1); 
+            addRow(container.id, appName, 'Price $', 'Count', '', '', '', '', s1); 
             
             let newCard = container.lastElementChild; 
             if (direction === 'before') container.insertBefore(newCard, currentCard);
@@ -1189,23 +910,7 @@
         function processRowUpdate(inputElem, skipSave = false) {
             if(!inputElem) return;
             let card = inputElem.closest('.item-card');
-            let currentAccordion = card.closest('.category-accordion');
-            let tableContainer = currentAccordion.parentElement;
             let appName = card.closest('.app-section').id.split('-')[0];
-            
-            let newCategory = card.querySelector('.item-category').value;
-            if (currentAccordion.getAttribute('data-cat') !== newCategory) {
-                let safeCat = newCategory.replace(/[^a-zA-Z0-9]/g, '-');
-                let targetAccId = `${tableContainer.id}-cat-${safeCat}`;
-                let targetAccordion = document.getElementById(targetAccId);
-                if (!targetAccordion) { targetAccordion = createAccordion(tableContainer, newCategory, appName); }
-                
-                targetAccordion.querySelector('.accordion-content').appendChild(card);
-                updateAccordionCount(currentAccordion);
-                updateAccordionCount(targetAccordion);
-                
-                if(!isAppLoading) filterTable(appName);
-            }
 
             let cells = card.querySelectorAll('.supplier-cell');
 
@@ -1234,11 +939,9 @@
 
         function deleteRow(btn) {
             let card = btn.closest('.item-card');
-            let accordion = card.closest('.category-accordion');
             let appName = card.closest('.app-section').id.split('-')[0];
             let iName = card.querySelector('.item-name').value || "an item";
             card.remove();
-            updateAccordionCount(accordion);
             logAction(`🗑️ Deleted ${iName} from the list`);
             generateShoppingList(appName);
             if(!isAppLoading) saveToDatabase(appName);
@@ -1467,18 +1170,15 @@
             document.querySelectorAll(`#${tableId} .item-card`).forEach(card => {
                 let rowData = { 
                     item: card.querySelector('.item-name').value, 
-                    category: card.querySelector('.item-category').value,
                     par: card.querySelector('.par-qty').value, 
                     shelf: card.querySelector('.shelf-qty').value, 
                     qty: card.querySelector('.order-qty').value, 
-                    targetUnit: card.querySelector('.target-unit') ? card.querySelector('.target-unit').value : null, 
-                    forced: card.getAttribute('data-forced-supplier') || null, suppliers: [] 
+                    suppliers: [] 
                 };
                 card.querySelectorAll('.supplier-cell').forEach(cell => {
                     let priceInput = cell.querySelector('.s-price');
-                    let sUnit = cell.querySelector('.s-unit');
                     let baseline = priceInput.getAttribute('data-baseline') || 0;
-                    rowData.suppliers.push([cell.querySelector('.s-name').value, priceInput.value, cell.querySelector('.s-qty') ? cell.querySelector('.s-qty').value : '', sUnit ? sUnit.value : 'oz', 0, '', baseline ]);
+                    rowData.suppliers.push([cell.querySelector('.s-name').value, priceInput.value, '', 'item', 0, '', baseline ]);
                 });
                 targetArray.push(rowData);
             });
@@ -1493,56 +1193,52 @@
 
             let data = {};
             if(appName === 'premier') {
-                data = { tequila: [], vodka: [], whiskey: [], wine: [], flavor: [], margarita: [] };
-                extractTableData('tequilaTable_premier', data.tequila);
-                extractTableData('vodkaTable_premier', data.vodka);
-                extractTableData('whiskeyTable_premier', data.whiskey);
-                extractTableData('wineTable_premier', data.wine);
-                extractTableData('flavorTable_premier', data.flavor);
-                extractTableData('margaritaTable_premier', data.margarita);
+                data = { items: [] };
+                extractTableData('table_premier', data.items);
             } else if (appName === 'silvereagle') {
-                data = { bottles: [], draft: [] };
-                extractTableData('bottlesTable_se', data.bottles);
-                extractTableData('draftTable_se', data.draft);
+                data = { items: [] };
+                extractTableData('table_silvereagle', data.items);
             } else if (appName === 'faust') {
-                data = { bottles: [], draft: [] };
-                extractTableData('bottlesTable_faust', data.bottles);
-                extractTableData('draftTable_faust', data.draft);
+                data = { items: [] };
+                extractTableData('table_faust', data.items);
             }
             db.ref(currentLocation + '/inventory/' + appName).set(data);
         }
 
         function rebuildTable(tableId, appName, rowDataArray, pLabel, qLabel, s1def) {
             document.getElementById(tableId).innerHTML = '';
-            if(!rowDataArray || rowDataArray.length === 0) { addRow(tableId, appName, pLabel, qLabel, '', 'Uncategorized', '', '', '', 'btl', s1def); return; }
+            if(!rowDataArray || rowDataArray.length === 0) { addRow(tableId, appName, pLabel, qLabel, '', '', '', '', s1def); return; }
             rowDataArray.forEach(rd => { 
-                let s1 = rd.suppliers[0] || [s1def[0], "", "", "btl", 0, "", ""];
+                let s1 = rd.suppliers[0] || [s1def[0], "", "", "item", 0, "", ""];
                 if (s1.length < 7) s1.push(s1[1] || ""); 
-                addRow(tableId, appName, pLabel, qLabel, rd.item, rd.category || "Uncategorized", rd.par || "", rd.shelf || "", rd.qty || "", rd.targetUnit || "btl", s1); 
+                addRow(tableId, appName, pLabel, qLabel, rd.item, rd.par || "", rd.shelf || "", rd.qty || "", s1); 
             });
         }
 
+        // Auto-migration helper to flatten old category-based data into a single array
+        function migrateOldData(dataObj) {
+            if (!dataObj) return [];
+            if (dataObj.items) return dataObj.items;
+            let arr = [];
+            Object.values(dataObj).forEach(list => {
+                if(Array.isArray(list)) arr = arr.concat(list);
+            });
+            return arr;
+        }
+
         function getPremierDefaults() {
-            const tequila = ["Patron Silver", "Don Julio Blanco", "Hornitos Reposado", "Casamigos Blanco", "Espolon Reposado"].map(item => ({ item: item, category: "Tequila & Mezcal", par: "", shelf: "", qty: "", targetUnit: "btl", suppliers: [["Premier Beverage","","","btl",0,"",""]] }));
-            const vodka = ["Tito's", "Grey Goose", "Ketel One", "Bombay Sapphire", "Hendrick's"].map(item => ({ item: item, category: "Vodka & Gin", par: "", shelf: "", qty: "", targetUnit: "btl", suppliers: [["Premier Beverage","","","btl",0,"",""]] }));
-            const whiskey = ["Crown Royal", "Jack Daniels", "Jameson", "Makers Mark", "Bacardi Superior", "Malibu"].map(item => ({ item: item, category: "Whiskey & Rum", par: "", shelf: "", qty: "", targetUnit: "btl", suppliers: [["Premier Beverage","","","btl",0,"",""]] }));
-            const wine = ["House Cabernet", "House Chardonnay", "House Pinot Grigio"].map(item => ({ item: item, category: "Wine", par: "", shelf: "", qty: "", targetUnit: "btl", suppliers: [["Premier Beverage","","","btl",0,"",""]] }));
-            const flavor = ["Peach Schnapps", "Blue Curacao", "Melon Liqueur", "Baileys", "Kahlua", "Amaretto"].map(item => ({ item: item, category: "Flavors & Liqueurs", par: "", shelf: "", qty: "", targetUnit: "btl", suppliers: [["Premier Beverage","","","btl",0,"",""]] }));
-            const margarita = ["Tortilla Tequila", "Triple Sec", "Grand Marnier", "Cointreau", "Agave Nectar"].map(item => ({ item: item, category: "Margarita", par: "", shelf: "", qty: "", targetUnit: "btl", suppliers: [["Premier Beverage","","","btl",0,"",""]] }));
-            
-            return { tequila: tequila, vodka: vodka, whiskey: whiskey, wine: wine, flavor: flavor, margarita: margarita };
+            const allItems = ["Patron Silver", "Don Julio Blanco", "Hornitos Reposado", "Casamigos Blanco", "Espolon Reposado", "Tito's", "Grey Goose", "Ketel One", "Bombay Sapphire", "Hendrick's", "Crown Royal", "Jack Daniels", "Jameson", "Makers Mark", "Bacardi Superior", "Malibu", "House Cabernet", "House Chardonnay", "House Pinot Grigio", "Peach Schnapps", "Blue Curacao", "Melon Liqueur", "Baileys", "Kahlua", "Amaretto", "Tortilla Tequila", "Triple Sec", "Grand Marnier", "Cointreau", "Agave Nectar"];
+            return { items: allItems.map(item => ({ item: item, par: "", shelf: "", qty: "", suppliers: [["Premier Beverage","","","item",0,"",""]] })) };
         }
 
         function getSilverEagleDefaults() {
-            const bottles = ["Corona Extra 24pk", "Modelo Especial 24pk", "Victoria 24pk", "Michelob Ultra 24pk"].map(item => ({ item: item, category: "Bottles & Cans", par: "", shelf: "", qty: "", targetUnit: "case", suppliers: [["Silver Eagle","","","case",0,"",""]] }));
-            const draft = ["Modelo Especial 1/2 BBL", "Michelob Ultra 1/2 BBL", "Dos Equis Ambar 1/2 BBL"].map(item => ({ item: item, category: "Draft (Kegs)", par: "", shelf: "", qty: "", targetUnit: "keg", suppliers: [["Silver Eagle","","","keg",0,"",""]] }));
-            return { bottles: bottles, draft: draft };
+            const allItems = ["Corona Extra 24pk", "Modelo Especial 24pk", "Victoria 24pk", "Michelob Ultra 24pk", "Modelo Especial 1/2 BBL", "Michelob Ultra 1/2 BBL", "Dos Equis Ambar 1/2 BBL"];
+            return { items: allItems.map(item => ({ item: item, par: "", shelf: "", qty: "", suppliers: [["Silver Eagle","","","item",0,"",""]] })) };
         }
 
         function getFaustDefaults() {
-            const bottles = ["Coors Light 24pk", "Miller Lite 24pk", "Shiner Bock 24pk"].map(item => ({ item: item, category: "Bottles & Cans", par: "", shelf: "", qty: "", targetUnit: "case", suppliers: [["Faust Distributions","","","case",0,"",""]] }));
-            const draft = ["Coors Light 1/2 BBL", "Shiner Bock 1/2 BBL"].map(item => ({ item: item, category: "Draft (Kegs)", par: "", shelf: "", qty: "", targetUnit: "keg", suppliers: [["Faust Distributions","","","keg",0,"",""]] }));
-            return { bottles: bottles, draft: draft };
+            const allItems = ["Coors Light 24pk", "Miller Lite 24pk", "Shiner Bock 24pk", "Coors Light 1/2 BBL", "Shiner Bock 1/2 BBL"];
+            return { items: allItems.map(item => ({ item: item, par: "", shelf: "", qty: "", suppliers: [["Faust Distributions","","","item",0,"",""]] })) };
         }
 
         function loadFromDatabase() {
@@ -1556,47 +1252,28 @@
                 let dbData = snapshot.val();
                 if (!dbData || !dbData.inventory) { let payload = { inventory: { premier: getPremierDefaults(), silvereagle: getSilverEagleDefaults(), faust: getFaustDefaults() }, metadata: { premier: "New Bar", silvereagle: "New Bar", faust: "New Bar" } }; db.ref(currentLocation).set(payload); return; }
                 
-                // Load Custom Categories
-                window.appCategories.premier = dbData.metadata.premierCategories || ['Tequila & Mezcal', 'Vodka & Gin', 'Whiskey & Rum', 'Wine', 'Flavors & Liqueurs', 'Margarita'];
-                window.appCategories.silvereagle = dbData.metadata.silvereagleCategories || ['Bottles & Cans', 'Draft (Kegs)'];
-                window.appCategories.faust = dbData.metadata.faustCategories || ['Bottles & Cans', 'Draft (Kegs)'];
-                renderCategoryUI('premier');
-                renderCategoryUI('silvereagle');
-                renderCategoryUI('faust');
-
                 db.ref(currentLocation).on('value', (liveSnap) => {
                     let liveData = liveSnap.val();
                     if (!liveData) return;
                     if (liveData.metadata && liveData.metadata.lastEditor === mySyncId && !isAppLoading) { return; }
                     if (!isAppLoading) showSyncToast();
                     
-                    window.appCategories.premier = liveData.metadata.premierCategories || window.appCategories.premier;
-                    window.appCategories.silvereagle = liveData.metadata.silvereagleCategories || window.appCategories.silvereagle;
-                    window.appCategories.faust = liveData.metadata.faustCategories || window.appCategories.faust;
-                    renderCategoryUI('premier');
-                    renderCategoryUI('silvereagle');
-                    renderCategoryUI('faust');
-                    
                     let premierData = liveData.inventory ? liveData.inventory.premier : null;
                     if (!premierData) { premierData = getPremierDefaults(); db.ref(currentLocation + '/inventory/premier').set(premierData); }
-                    rebuildTable('tequilaTable_premier', 'premier', premierData.tequila, 'Price $', 'Count', ['Premier Beverage','','','btl',0,'','']);
-                    rebuildTable('vodkaTable_premier', 'premier', premierData.vodka, 'Price $', 'Count', ['Premier Beverage','','','btl',0,'','']);
-                    rebuildTable('whiskeyTable_premier', 'premier', premierData.whiskey, 'Price $', 'Count', ['Premier Beverage','','','btl',0,'','']);
-                    rebuildTable('wineTable_premier', 'premier', premierData.wine, 'Price $', 'Count', ['Premier Beverage','','','btl',0,'','']);
-                    rebuildTable('flavorTable_premier', 'premier', premierData.flavor, 'Price $', 'Count', ['Premier Beverage','','','btl',0,'','']);
-                    rebuildTable('margaritaTable_premier', 'premier', premierData.margarita, 'Price $', 'Count', ['Premier Beverage','','','btl',0,'','']);
+                    let pItems = migrateOldData(premierData);
+                    rebuildTable('table_premier', 'premier', pItems, 'Price $', 'Count', ['Premier Beverage','','','item',0,'','']);
                     generateShoppingList('premier');
 
                     let seData = liveData.inventory ? liveData.inventory.silvereagle : null;
                     if (!seData) { seData = getSilverEagleDefaults(); db.ref(currentLocation + '/inventory/silvereagle').set(seData); }
-                    rebuildTable('bottlesTable_se', 'silvereagle', seData.bottles, 'Price $', 'Count', ['Silver Eagle','','','case',0,'','']);
-                    rebuildTable('draftTable_se', 'silvereagle', seData.draft, 'Price $', 'Count', ['Silver Eagle','','','keg',0,'','']);
+                    let seItems = migrateOldData(seData);
+                    rebuildTable('table_silvereagle', 'silvereagle', seItems, 'Price $', 'Count', ['Silver Eagle','','','item',0,'','']);
                     generateShoppingList('silvereagle');
 
                     let faustData = liveData.inventory ? liveData.inventory.faust : null;
                     if (!faustData) { faustData = getFaustDefaults(); db.ref(currentLocation + '/inventory/faust').set(faustData); }
-                    rebuildTable('bottlesTable_faust', 'faust', faustData.bottles, 'Price $', 'Count', ['Faust Distributions','','','case',0,'','']);
-                    rebuildTable('draftTable_faust', 'faust', faustData.draft, 'Price $', 'Count', ['Faust Distributions','','','keg',0,'','']);
+                    let fItems = migrateOldData(faustData);
+                    rebuildTable('table_faust', 'faust', fItems, 'Price $', 'Count', ['Faust Distributions','','','item',0,'','']);
                     generateShoppingList('faust');
 
                     let pendingPremier = liveData.pending_delivery ? liveData.pending_delivery.premier : null;
@@ -1614,7 +1291,6 @@
 
                     if (isAppLoading) { setTimeout(() => { let splash = document.getElementById('splash-screen'); if(splash) { splash.style.opacity = '0'; setTimeout(() => splash.remove(), 600); } }, 500); }
                     isAppLoading = false; 
-                    
                 });
             });
         }
