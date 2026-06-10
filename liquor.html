@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Los Pericos | Premium Bar OS</title>
+  <title>Los Pericos | Bar Vault</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
   <style>
     /* --- CSS VARIABLES & THEMING --- */
     :root {
@@ -23,12 +27,7 @@
       --font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: var(--font-family);
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-family); }
 
     body {
       background-color: var(--bg-dark);
@@ -37,414 +36,132 @@
         radial-gradient(circle at 85% 30%, rgba(0, 230, 118, 0.03), transparent 25%);
       color: var(--text-main);
       min-height: 100vh;
-      padding: 2rem;
+      padding: 0 2rem 2rem 2rem;
       line-height: 1.5;
     }
+
+    /* --- SYSTEM BAR --- */
+    .sys-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .sys-bar a { color: var(--neon-blue); text-decoration: none; font-weight: bold; transition: 0.2s; }
+    .sys-bar a:hover { text-shadow: var(--neon-blue-glow); }
+    .sync-status { display: flex; align-items: center; gap: 8px; }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: var(--neon-glow); }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      font-size: 1.8rem;
-      font-weight: 300;
-      letter-spacing: 2px;
-    }
-
-    .parrot-logo {
-      width: 40px;
-      height: 40px;
-      fill: none;
-      stroke: var(--neon-green);
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      filter: drop-shadow(0 0 5px rgba(0,230,118,0.5));
-    }
-
-    .portal-tag {
-      color: var(--neon-green);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      padding: 6px 12px;
-      background: rgba(0, 230, 118, 0.1);
-      border-radius: 20px;
-      border: 1px solid rgba(0, 230, 118, 0.2);
-    }
-
-    .tabs {
-      display: flex;
-      gap: 15px;
       margin-bottom: 2rem;
     }
 
-    .tab-btn {
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      color: var(--text-muted);
-      padding: 12px 24px;
-      border-radius: 30px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .tab-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-main);
-    }
-
-    .tab-btn.active {
-      background: rgba(0, 230, 118, 0.1);
-      border-color: var(--neon-green);
-      color: var(--neon-green);
-      box-shadow: var(--neon-glow);
-    }
-
-    .tab-content {
-      display: none;
-      animation: slideFade 0.4s ease forwards;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    @keyframes slideFade {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .glass-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .glass-card h3 {
-      font-weight: 400;
-      margin-bottom: 1.5rem;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .glass-card h3::before {
-      content: '';
-      display: block;
-      width: 8px;
-      height: 8px;
-      background: var(--neon-green);
-      border-radius: 50%;
-      box-shadow: var(--neon-glow);
-    }
-
-    /* --- MODALS --- */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(8px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      animation: fadeIn 0.2s ease forwards;
-    }
+    .brand { display: flex; align-items: center; gap: 15px; font-size: 1.8rem; font-weight: 300; letter-spacing: 2px; }
+    .parrot-logo { width: 40px; height: 40px; fill: none; stroke: var(--neon-green); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 5px rgba(0,230,118,0.5)); }
     
-    .modal-content {
-      background: var(--glass-bg);
-      border: 1px solid var(--neon-blue);
-      box-shadow: 0 10px 40px rgba(0, 176, 255, 0.2);
-      padding: 2.5rem;
-      border-radius: 16px;
-      width: 550px;
-      max-width: 95%;
-      max-height: 85vh;
-      overflow-y: auto;
+    .meta-info {
+        text-align: right;
+        font-size: 0.8rem;
+        color: var(--text-muted);
     }
+    .meta-info span { color: var(--text-main); font-weight: bold; }
 
-    /* Green variant for the Week Summary Modal */
-    #summary-modal .modal-content {
-      border-color: var(--neon-green);
-      box-shadow: 0 10px 40px rgba(0, 230, 118, 0.1);
-    }
+    .tabs { display: flex; gap: 15px; margin-bottom: 2rem; }
+    .tab-btn { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 12px 24px; border-radius: 30px; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s; }
+    .tab-btn:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+    .tab-btn.active { background: rgba(0, 230, 118, 0.1); border-color: var(--neon-green); color: var(--neon-green); box-shadow: var(--neon-glow); }
 
+    .tab-content { display: none; animation: slideFade 0.4s ease forwards; }
+    .tab-content.active { display: block; }
+    @keyframes slideFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+    .glass-card h3 { font-weight: 400; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+    .glass-card h3::before { content: ''; display: block; width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: var(--neon-glow); }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: var(--glass-bg); border: 1px solid var(--neon-blue); box-shadow: 0 10px 40px rgba(0, 176, 255, 0.2); padding: 2.5rem; border-radius: 16px; width: 550px; max-width: 95%; max-height: 85vh; overflow-y: auto; }
+    #summary-modal .modal-content { border-color: var(--neon-green); box-shadow: 0 10px 40px rgba(0, 230, 118, 0.1); }
     .modal-content::-webkit-scrollbar { width: 8px; }
     .modal-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .delivery-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
 
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-group label {
-      display: block;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    .delivery-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      align-items: center;
-      animation: slideFade 0.2s ease forwards;
-    }
-
-    ul::-webkit-scrollbar { width: 6px; }
-    ul::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-    }
-
-    .metric-box {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      padding: 20px;
-      transition: transform 0.3s ease;
-    }
-
-    .metric-box:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .metric-box h4 {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 10px;
-    }
-
-    .metric-box .value {
-      font-size: 2rem;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-    }
-
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .metric-box { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px; transition: transform 0.3s ease; }
+    .metric-box:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.15); }
+    .metric-box h4 { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+    .metric-box .value { font-size: 2rem; font-weight: 600; }
     .status-good { color: var(--neon-green); text-shadow: var(--neon-glow); }
     .status-warn { color: var(--danger); text-shadow: var(--danger-glow); }
 
-    .table-container {
-      overflow-x: auto;
-      margin-top: 1rem;
-      margin-bottom: 1rem;
-    }
-
+    .table-container { overflow-x: auto; margin-top: 1rem; margin-bottom: 1rem; }
     .table-container::-webkit-scrollbar { height: 8px; }
     .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 1400px; /* Adjusted since we removed columns */
-    }
-
-    th {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: left;
-      padding: 1rem 0.5rem;
-      border-bottom: 1px solid var(--glass-border);
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 1rem 0.5rem;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
-      vertical-align: middle;
-      white-space: nowrap;
-    }
-
+    table { width: 100%; border-collapse: collapse; min-width: 1400px; }
+    th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; text-align: left; padding: 1rem 0.5rem; border-bottom: 1px solid var(--glass-border); white-space: nowrap; }
+    td { padding: 1rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; white-space: nowrap; }
     tr:hover td { background: rgba(255, 255, 255, 0.02); }
 
-    input[type="number"], input[type="text"], select {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 10px 12px;
-      border-radius: 8px;
-      width: 100%;
-      font-size: 0.9rem;
-      transition: all 0.2s ease;
-      outline: none;
-    }
-    
-    select {
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-    
-    select option {
-      background: var(--bg-dark);
-      color: var(--text-main);
-    }
-
-    input:focus, select:focus {
-      border-color: var(--neon-green);
-      background: rgba(0, 0, 0, 0.5);
-      box-shadow: 0 0 0 2px rgba(0, 230, 118, 0.1);
-    }
+    input[type="number"], input[type="text"], select { background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px 12px; border-radius: 8px; width: 100%; font-size: 0.9rem; transition: all 0.2s ease; outline: none; }
+    select { cursor: pointer; appearance: none; -webkit-appearance: none; }
+    select option { background: var(--bg-dark); color: var(--text-main); }
+    input:focus, select:focus { border-color: var(--neon-green); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 0 2px rgba(0, 230, 118, 0.1); }
 
     .col-small { width: 75px; }
     .col-med { width: 140px; }
     .col-large { width: 180px; }
 
-    .action-row {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      margin-top: 15px;
-      flex-wrap: wrap;
-    }
+    .action-row { display: flex; gap: 15px; align-items: center; margin-top: 15px; flex-wrap: wrap; }
+    .btn-glow { background: transparent; color: var(--neon-green); border: 1px solid var(--neon-green); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s ease; }
+    .btn-glow:hover { background: var(--neon-green); color: #000; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-glow); }
+    .btn-receive { background: transparent; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s ease; }
+    .btn-receive:hover { background: var(--neon-blue); color: #000; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-blue-glow); }
+    .btn-export { background: transparent; color: #fff; border: 1px solid var(--glass-border); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s; }
+    .btn-export:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+    .btn-undo { background: transparent; color: var(--neon-orange); border: 1px solid var(--neon-orange); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; display: none; transition: 0.3s;}
+    .btn-undo:hover { background: var(--neon-orange); color: #000; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-orange-glow); }
+    .btn-remove { background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border); padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
+    .btn-remove:hover { background: rgba(255, 71, 87, 0.1); color: var(--danger); border-color: var(--danger); }
 
-    .btn-glow {
-      background: transparent;
-      color: var(--neon-green);
-      border: 1px solid var(--neon-green);
-      padding: 12px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      transition: all 0.3s ease;
-      box-shadow: inset 0 0 0 rgba(0, 230, 118, 0), 0 0 0 rgba(0, 230, 118, 0);
-    }
-    .btn-glow:hover {
-      background: var(--neon-green);
-      color: #000;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-glow);
-    }
-
-    .btn-receive {
-      background: transparent;
-      color: var(--neon-blue);
-      border: 1px solid var(--neon-blue);
-      padding: 12px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      transition: all 0.3s ease;
-    }
-    .btn-receive:hover {
-      background: var(--neon-blue);
-      color: #000;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-blue-glow);
-    }
-
-    .btn-export {
-      background: transparent;
-      color: #fff;
-      border: 1px solid var(--glass-border);
-      padding: 12px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      transition: all 0.3s ease;
-    }
-    .btn-export:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: #fff;
-    }
-
-    .btn-undo {
-      background: transparent;
-      color: var(--neon-orange);
-      border: 1px solid var(--neon-orange);
-      padding: 12px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      transition: all 0.3s ease;
-      display: none;
-    }
-    .btn-undo:hover {
-      background: var(--neon-orange);
-      color: #000;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-orange-glow);
-    }
-
-    .btn-remove {
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid var(--glass-border);
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .btn-remove:hover {
-      background: rgba(255, 71, 87, 0.1);
-      color: var(--danger);
-      border-color: var(--danger);
-    }
-
-    .builder-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 2fr 1fr 1fr auto;
-      gap: 15px;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .builder-header {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .data-highlight {
-      font-family: monospace;
-      font-size: 1.1rem;
-      color: var(--text-main);
-    }
+    .builder-grid { display: grid; grid-template-columns: 2fr 1fr 2fr 1fr 1fr auto; gap: 15px; align-items: center; margin-bottom: 15px; }
+    .builder-header { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
+    .data-highlight { font-family: monospace; font-size: 1.1rem; color: var(--text-main); }
   </style>
 </head>
 <body>
+
+  <script>
+    if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
+    const activeUser = localStorage.getItem('pericos_active_user');
+    const currentLocation = localStorage.getItem('pericos_location');
+    const activeRole = localStorage.getItem('pericos_active_role');
+    
+    if (!activeUser || !currentLocation || (activeRole !== 'Manager' && activeRole !== 'Owner')) {
+        window.location.href = 'index.html'; // Kick out unauthorized users
+    }
+  </script>
+
+  <div class="sys-bar">
+      <div>
+          <a href="index.html">⬅ Master Hub</a>
+      </div>
+      <div class="sync-status">
+          <div class="sync-dot" id="sync-indicator"></div>
+          <span id="sync-text">Cloud Synced</span>
+          &nbsp;|&nbsp; 📍 <span id="loc-display"></span> &nbsp;|&nbsp; 👤 <span id="user-display"></span>
+      </div>
+  </div>
 
   <header>
     <div class="brand">
@@ -453,9 +170,11 @@
         <circle cx="10" cy="8" r="1.5" fill="var(--neon-green)" />
         <path d="M6 9c-2 2-3 5-1 7" />
       </svg>
-      Los Pericos OS
+      Los Pericos Bar Vault
     </div>
-    <div class="portal-tag">Ops Portal</div>
+    <div class="meta-info">
+        Last edited by: <br><span id="last-edited-by">Loading...</span>
+    </div>
   </header>
 
   <div class="tabs">
@@ -467,19 +186,15 @@
     <div class="modal-content">
       <h3 style="color: var(--neon-blue); margin-top: 0;">Receive Delivery Order</h3>
       <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
-        Add multiple items to this delivery batch. Received bottles are automatically added to your tracking metrics in the background.
+        Add multiple items to this delivery batch. Cloud sync is automatic.
       </p>
-      
       <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 10px;">
         <label style="flex: 2; margin-bottom: 0;">Spirit Brand</label>
         <label style="flex: 1; margin-bottom: 0;">Qty Received</label>
         <div style="width: 38px;"></div>
       </div>
-
       <div id="delivery-batch-list"></div>
-      
       <button class="btn-glow" style="margin-bottom: 20px; font-size: 0.7rem; padding: 8px 16px; border-color: var(--neon-blue); color: var(--neon-blue);" onclick="addDeliveryRow()">+ Add Row</button>
-
       <div style="display: flex; gap: 15px; margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 20px;">
         <button class="btn-receive" style="flex: 1;" onclick="confirmBatchReceive()">Confirm Delivery</button>
         <button class="btn-remove" style="flex: 1; padding: 12px;" onclick="closeReceiveModal()">Cancel</button>
@@ -491,19 +206,15 @@
     <div class="modal-content" style="max-width: 500px;">
       <h3 style="color: var(--neon-green); margin-top: 0;">Weekly Usage Summary</h3>
       <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
-        Here is what you poured this week. Confirming will roll your ending counts over to become your new starting counts, and reset your deliveries to zero.
+        Confirming will roll your ending counts to starting counts and reset deliveries.
       </p>
-      
-      <ul id="weekly-summary-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 35vh; overflow-y: auto;">
-        </ul>
-
+      <ul id="weekly-summary-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 35vh; overflow-y: auto;"></ul>
       <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 15px; margin-bottom: 25px;">
         <strong style="color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem;">Total Usage Cost</strong>
         <strong id="weekly-summary-total" style="font-size: 1.5rem; color: var(--neon-green);">$0.00</strong>
       </div>
-
       <div style="display: flex; gap: 15px;">
-        <button class="btn-glow" style="flex: 1;" onclick="confirmResetWeek()">Confirm & Reset</button>
+        <button class="btn-glow" style="flex: 1;" onclick="confirmResetWeek()">Confirm & Sync</button>
         <button class="btn-remove" style="flex: 1; padding: 12px;" onclick="closeSummaryModal()">Cancel</button>
       </div>
     </div>
@@ -516,7 +227,7 @@
       <div class="dashboard-grid">
         <div class="metric-box">
           <h4>Total POS Sales ($)</h4>
-          <input type="number" id="pos-sales" placeholder="Enter Sales..." oninput="calculateGlobalMetrics()" style="font-size: 1.5rem; padding: 10px;">
+          <input type="number" id="pos-sales" placeholder="Enter Sales..." oninput="calculateGlobalMetrics(); autoSaveMeta()" style="font-size: 1.5rem; padding: 10px;">
         </div>
         <div class="metric-box">
           <h4>Total Usage Cost</h4>
@@ -550,69 +261,7 @@
             </tr>
           </thead>
           <tbody id="inventory-body">
-            <tr class="inv-row" data-received="0">
-              <td>
-                <select class="i-category col-med">
-                  <option value="Tequila" selected>Tequila</option>
-                  <option value="Vodka">Vodka</option>
-                  <option value="Whiskey">Whiskey</option>
-                  <option value="Rum">Rum</option>
-                  <option value="Gin">Gin</option>
-                  <option value="Liqueur">Liqueur</option>
-                </select>
-              </td>
-              <td><input type="text" value="Patron Silver" class="col-large i-brand"></td>
-              <td style="display: flex; gap: 5px; align-items: center;">
-                <input type="number" class="i-size col-small" value="750" oninput="calcInvRow(this)">
-                <select class="i-unit" onchange="calcInvRow(this)" style="width: 60px; padding: 10px 5px;">
-                  <option value="ml" selected>ml</option>
-                  <option value="oz">oz</option>
-                  <option value="L">L</option>
-                </select>
-              </td>
-              <td><input type="number" class="i-start col-small" value="2.5" step="0.1" oninput="calcInvRow(this)"></td>
-              <td><input type="number" class="i-end col-small" value="1.2" step="0.1" oninput="calcInvRow(this)"></td>
-              <td><input type="number" class="i-cost col-small" value="45.00" oninput="calcInvRow(this)"></td>
-              <td><input type="number" class="i-shot-sell col-small" value="12.00" oninput="calcInvRow(this)"></td>
-              
-              <td class="data-highlight calc-usage-cost">$0.00</td>
-              <td class="data-highlight calc-shot-cost">$0.00</td>
-              <td class="data-highlight calc-shot-profit status-good">$0.00</td>
-              <td class="data-highlight calc-shot-pour status-good">0.00%</td>
-              <td><button class="btn-remove" onclick="removeEl(this)">×</button></td>
-            </tr>
-            <tr class="inv-row" data-received="0">
-              <td>
-                <select class="i-category col-med">
-                  <option value="Tequila">Tequila</option>
-                  <option value="Vodka">Vodka</option>
-                  <option value="Whiskey" selected>Whiskey</option>
-                  <option value="Rum">Rum</option>
-                  <option value="Gin">Gin</option>
-                  <option value="Liqueur">Liqueur</option>
-                </select>
-              </td>
-              <td><input type="text" value="Crown Royal" class="col-large i-brand"></td>
-              <td style="display: flex; gap: 5px; align-items: center;">
-                <input type="number" class="i-size col-small" value="1" oninput="calcInvRow(this)">
-                <select class="i-unit" onchange="calcInvRow(this)" style="width: 60px; padding: 10px 5px;">
-                  <option value="ml">ml</option>
-                  <option value="oz">oz</option>
-                  <option value="L" selected>L</option>
-                </select>
-              </td>
-              <td><input type="number" class="i-start col-small" value="1.0" step="0.1" oninput="calcInvRow(this)"></td>
-              <td><input type="number" class="i-end col-small" value="1.1" step="0.1" oninput="calcInvRow(this)"></td>
-              <td><input type="number" class="i-cost col-small" value="32.50" oninput="calcInvRow(this)"></td>
-              <td><input type="number" class="i-shot-sell col-small" value="9.00" oninput="calcInvRow(this)"></td>
-              
-              <td class="data-highlight calc-usage-cost">$0.00</td>
-              <td class="data-highlight calc-shot-cost">$0.00</td>
-              <td class="data-highlight calc-shot-profit status-good">$0.00</td>
-              <td class="data-highlight calc-shot-pour status-good">0.00%</td>
-              <td><button class="btn-remove" onclick="removeEl(this)">×</button></td>
-            </tr>
-          </tbody>
+            </tbody>
         </table>
       </div>
       
@@ -627,17 +276,16 @@
   </div>
 
   <div id="builder" class="tab-content">
-    
     <div class="glass-card">
       <h3>Recipe Architect</h3>
       <div style="display: flex; gap: 30px; margin-bottom: 30px;">
         <div style="flex: 2;">
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Cocktail Name</label>
-          <input type="text" placeholder="e.g., Los Pericos Margarita" style="font-size: 1.5rem; background: transparent; border: none; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;">
+          <input type="text" id="cocktail-name" placeholder="e.g., Los Pericos Margarita" style="font-size: 1.5rem; background: transparent; border: none; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;" onchange="autoSaveCocktail()">
         </div>
         <div style="flex: 1;">
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Menu Price ($)</label>
-          <input type="number" id="menu-price" placeholder="0.00" style="font-size: 1.5rem; background: transparent; border: none; border-bottom: 2px solid var(--neon-green); border-radius: 0; padding-left: 0;" oninput="calculateCocktail()">
+          <input type="number" id="menu-price" placeholder="0.00" style="font-size: 1.5rem; background: transparent; border: none; border-bottom: 2px solid var(--neon-green); border-radius: 0; padding-left: 0;" oninput="calculateCocktail(); autoSaveCocktail()">
         </div>
       </div>
 
@@ -651,22 +299,7 @@
       </div>
       
       <div id="ingredients-container">
-        <div class="builder-grid ingredient-row">
-          <input type="text" placeholder="Tequila Blanco">
-          <input type="number" class="c-pour" value="2.0" step="0.25" oninput="calculateCocktail()">
-          <div style="display: flex; gap: 5px;">
-            <input type="number" class="c-size" value="750" oninput="calculateCocktail()">
-            <select class="c-unit" onchange="calculateCocktail()" style="width: 70px; padding: 10px 5px;">
-              <option value="ml" selected>ml</option>
-              <option value="oz">oz</option>
-              <option value="L">L</option>
-            </select>
-          </div>
-          <input type="number" class="c-cost" value="22.00" oninput="calculateCocktail()">
-          <div class="data-highlight c-line-cost">$0.00</div>
-          <button class="btn-remove" onclick="removeEl(this)">×</button>
         </div>
-      </div>
       
       <div class="action-row">
         <button class="btn-glow" onclick="addIngredientRow()">+ Add Ingredient</button>
@@ -698,7 +331,198 @@
   </div>
 
   <script>
-    // --- STACK FOR UNDO ---
+    document.getElementById('loc-display').innerText = currentLocation.replace('LP_', '');
+    document.getElementById('user-display').innerText = activeUser;
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
+        authDomain: "los-pericos-46378.firebaseapp.com",
+        databaseURL: "https://los-pericos-46378-default-rtdb.firebaseio.com",
+        projectId: "los-pericos-46378",
+        storageBucket: "los-pericos-46378.firebasestorage.app",
+        messagingSenderId: "463221124647",
+        appId: "1:463221124647:web:5e54ad293b174992096802"
+    };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const db = firebase.database();
+    
+    let isInitialLoad = false;
+
+    // Load Data Once
+    db.ref(currentLocation + '/liquor_inventory').once('value', snap => {
+        const data = snap.val();
+        const tbody = document.getElementById('inventory-body');
+        tbody.innerHTML = '';
+        if(data) {
+            data.forEach(item => { if(item) injectInventoryRow(item); });
+        } else {
+            addInventoryRow(); // Add empty row if database is empty
+        }
+        document.querySelectorAll('.i-start').forEach(el => calcInvRow(el));
+        
+        db.ref(currentLocation + '/liquor_cocktail').once('value', snap2 => {
+            const cData = snap2.val();
+            const cbody = document.getElementById('ingredients-container');
+            cbody.innerHTML = '';
+            if(cData && cData.ingredients) {
+                document.getElementById('cocktail-name').value = cData.name || '';
+                document.getElementById('menu-price').value = cData.price || '';
+                cData.ingredients.forEach(ing => { if(ing) injectIngredientRow(ing); });
+            } else {
+                addIngredientRow();
+            }
+            calculateCocktail();
+            isInitialLoad = true;
+        });
+    });
+
+    // Realtime listen to meta changes (Who edited last)
+    db.ref(currentLocation + '/liquor_meta').on('value', snap => {
+        const meta = snap.val();
+        if(meta && meta.lastEditedBy) {
+            const time = new Date(meta.lastEditedAt).toLocaleTimeString();
+            document.getElementById('last-edited-by').innerText = `${meta.lastEditedBy} at ${time}`;
+            if(meta.posSales !== undefined && document.getElementById('pos-sales').value === '') {
+                document.getElementById('pos-sales').value = meta.posSales;
+                calculateGlobalMetrics();
+            }
+        }
+    });
+
+    // Flash sync indicator
+    function flashSync() {
+        const dot = document.getElementById('sync-indicator');
+        const text = document.getElementById('sync-text');
+        text.innerText = "Syncing...";
+        dot.style.background = "var(--neon-orange)";
+        dot.style.boxShadow = "var(--neon-orange-glow)";
+        setTimeout(() => {
+            text.innerText = "Cloud Synced";
+            dot.style.background = "var(--neon-green)";
+            dot.style.boxShadow = "var(--neon-glow)";
+        }, 800);
+    }
+
+    // Auto-Save Functions
+    function autoSaveInv() {
+        if(!isInitialLoad) return;
+        const data = [];
+        document.querySelectorAll('.inv-row').forEach(row => {
+             data.push({
+                 category: row.querySelector('.i-category').value,
+                 brand: row.querySelector('.i-brand').value,
+                 size: parseFloat(row.querySelector('.i-size').value) || 0,
+                 unit: row.querySelector('.i-unit').value,
+                 start: parseFloat(row.querySelector('.i-start').value) || 0,
+                 received: parseFloat(row.getAttribute('data-received')) || 0,
+                 end: parseFloat(row.querySelector('.i-end').value) || 0,
+                 cost: parseFloat(row.querySelector('.i-cost').value) || 0,
+                 shotSell: parseFloat(row.querySelector('.i-shot-sell').value) || 0
+             });
+        });
+        db.ref(currentLocation + '/liquor_inventory').set(data);
+        updateMeta();
+    }
+
+    function autoSaveCocktail() {
+        if(!isInitialLoad) return;
+        const data = {
+            name: document.getElementById('cocktail-name').value,
+            price: parseFloat(document.getElementById('menu-price').value) || 0,
+            ingredients: []
+        };
+        document.querySelectorAll('.ingredient-row').forEach(row => {
+            data.ingredients.push({
+                name: row.querySelector('.c-name').value,
+                pour: parseFloat(row.querySelector('.c-pour').value) || 0,
+                size: parseFloat(row.querySelector('.c-size').value) || 0,
+                unit: row.querySelector('.c-unit').value,
+                cost: parseFloat(row.querySelector('.c-cost').value) || 0
+            });
+        });
+        db.ref(currentLocation + '/liquor_cocktail').set(data);
+        updateMeta();
+    }
+
+    function autoSaveMeta() {
+        if(!isInitialLoad) return;
+        updateMeta();
+    }
+
+    function updateMeta() {
+        db.ref(currentLocation + '/liquor_meta').update({
+             lastEditedBy: activeUser,
+             lastEditedAt: firebase.database.ServerValue.TIMESTAMP,
+             posSales: parseFloat(document.getElementById('pos-sales').value) || 0
+        });
+        flashSync();
+    }
+
+    // Builder Injectors
+    const catOptions = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer'];
+    const unitOptions = ['ml', 'oz', 'L'];
+
+    function injectInventoryRow(item) {
+        const tbody = document.getElementById('inventory-body');
+        const tr = document.createElement('tr');
+        tr.className = 'inv-row';
+        tr.setAttribute('data-received', item.received || 0);
+        
+        let catHtml = catOptions.map(c => `<option value="${c}" ${c === item.category ? 'selected' : ''}>${c}</option>`).join('');
+        let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
+
+        tr.innerHTML = `
+          <td><select class="i-category col-med" onchange="autoSaveInv()">${catHtml}</select></td>
+          <td><input type="text" placeholder="Brand" class="col-large i-brand" value="${item.brand || ''}" onchange="autoSaveInv()"></td>
+          <td style="display: flex; gap: 5px; align-items: center;">
+            <input type="number" class="i-size col-small" value="${item.size || 750}" onchange="calcInvRow(this); autoSaveInv()">
+            <select class="i-unit" onchange="calcInvRow(this); autoSaveInv()" style="width: 60px; padding: 10px 5px;">${unitHtml}</select>
+          </td>
+          <td><input type="number" class="i-start col-small" value="${item.start || 0}" step="0.1" onchange="calcInvRow(this); autoSaveInv()"></td>
+          <td><input type="number" class="i-end col-small" value="${item.end || 0}" step="0.1" onchange="calcInvRow(this); autoSaveInv()"></td>
+          <td><input type="number" class="i-cost col-small" value="${item.cost || 0}" step="0.01" onchange="calcInvRow(this); autoSaveInv()"></td>
+          <td><input type="number" class="i-shot-sell col-small" value="${item.shotSell || 0}" step="0.01" onchange="calcInvRow(this); autoSaveInv()"></td>
+          <td class="data-highlight calc-usage-cost">$0.00</td>
+          <td class="data-highlight calc-shot-cost">$0.00</td>
+          <td class="data-highlight calc-shot-profit">$0.00</td>
+          <td class="data-highlight calc-shot-pour">0.00%</td>
+          <td><button class="btn-remove" onclick="removeEl(this)">×</button></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function addInventoryRow() {
+        injectInventoryRow({ category: 'Tequila', unit: 'ml', size: 750, start: 0, received: 0, end: 0, cost: 0, shotSell: 0 });
+        autoSaveInv();
+    }
+
+    function injectIngredientRow(ing) {
+        const container = document.getElementById('ingredients-container');
+        const div = document.createElement('div');
+        div.className = 'builder-grid ingredient-row';
+        let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === ing.unit ? 'selected' : ''}>${u}</option>`).join('');
+        
+        div.innerHTML = `
+          <input type="text" placeholder="Ingredient" class="c-name" value="${ing.name || ''}" onchange="autoSaveCocktail()">
+          <input type="number" class="c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveCocktail()">
+          <div style="display: flex; gap: 5px;">
+            <input type="number" class="c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveCocktail()">
+            <select class="c-unit" onchange="calculateCocktail(); autoSaveCocktail()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
+          </div>
+          <input type="number" class="c-cost" value="${ing.cost || 15}" step="0.01" oninput="calculateCocktail(); autoSaveCocktail()">
+          <div class="data-highlight c-line-cost">$0.00</div>
+          <button class="btn-remove" onclick="removeEl(this)">×</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function addIngredientRow() {
+        injectIngredientRow({ unit: 'ml', size: 750, pour: 1, cost: 15 });
+        calculateCocktail();
+        autoSaveCocktail();
+    }
+
+    // --- STANDARD APP LOGIC ---
     let deletedStack = [];
 
     function convertToOz(size, unit) {
@@ -711,20 +535,16 @@
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
-      if(event && event.currentTarget) {
-          event.currentTarget.classList.add('active');
-      }
+      if(event && event.currentTarget) event.currentTarget.classList.add('active');
     }
 
-    // --- RECEIVE MODAL BATCH LOGIC ---
+    // --- MODALS ---
     function getInventoryOptionsHTML() {
       let optionsHTML = '';
       document.querySelectorAll('.inv-row').forEach((row, index) => {
-        const brandInput = row.querySelector('.i-brand');
-        const catSelect = row.querySelector('.i-category');
-        const brandName = brandInput.value.trim() || 'Unnamed Spirit';
-        const category = catSelect.options[catSelect.selectedIndex].text;
-        optionsHTML += `<option value="${index}">${brandName} (${category})</option>`;
+        const brand = row.querySelector('.i-brand').value.trim() || 'Unnamed Spirit';
+        const cat = row.querySelector('.i-category').value;
+        optionsHTML += `<option value="${index}">${brand} (${cat})</option>`;
       });
       return optionsHTML;
     }
@@ -733,25 +553,16 @@
       const list = document.getElementById('delivery-batch-list');
       const div = document.createElement('div');
       div.className = 'delivery-row';
-      const options = getInventoryOptionsHTML();
-      div.innerHTML = `
-        <select style="flex: 2;">${options}</select>
-        <input type="number" placeholder="Qty" min="0" step="1" style="flex: 1;">
-        <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
-      `;
+      div.innerHTML = `<select style="flex: 2;">${getInventoryOptionsHTML()}</select><input type="number" placeholder="Qty" min="0" step="1" style="flex: 1;"><button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
       list.appendChild(div);
     }
 
     function openReceiveModal() {
-      const list = document.getElementById('delivery-batch-list');
-      list.innerHTML = ''; 
+      document.getElementById('delivery-batch-list').innerHTML = ''; 
       addDeliveryRow();    
       document.getElementById('receive-modal').style.display = 'flex';
     }
-
-    function closeReceiveModal() {
-      document.getElementById('receive-modal').style.display = 'none';
-    }
+    function closeReceiveModal() { document.getElementById('receive-modal').style.display = 'none'; }
 
     function confirmBatchReceive() {
       const rows = document.querySelectorAll('.delivery-row');
@@ -760,11 +571,9 @@
       rows.forEach(dRow => {
         const select = dRow.querySelector('select');
         const input = dRow.querySelector('input');
-        
         if (select && input) {
           const rowIndex = select.value;
           const amount = parseFloat(input.value) || 0;
-          
           if (amount > 0 && invRows[rowIndex]) {
             const targetRow = invRows[rowIndex];
             const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0;
@@ -773,10 +582,10 @@
           }
         }
       });
+      autoSaveInv();
       closeReceiveModal();
     }
 
-    // --- WEEKLY SUMMARY & ROLLOVER LOGIC ---
     function openSummaryModal() {
       const list = document.getElementById('weekly-summary-list');
       list.innerHTML = '';
@@ -797,84 +606,52 @@
           const li = document.createElement('li');
           li.style.padding = '10px 0';
           li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
-          li.innerHTML = `
-            <span style="color: var(--neon-blue); font-weight: 500;">${brand}:</span> 
-            Used ${usageBtls.toFixed(1)} btls 
-            <span style="float: right; color: var(--neon-green);">+$${lineCost.toFixed(2)}</span>
-          `;
+          li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${brand}:</span> Used ${usageBtls.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${lineCost.toFixed(2)}</span>`;
           list.appendChild(li);
         }
       });
-      
-      if (list.innerHTML === '') {
-        list.innerHTML = `<li style="color: var(--text-muted); padding: 10px 0;">No usage recorded for this week yet.</li>`;
-      }
-      
+      if (list.innerHTML === '') list.innerHTML = `<li style="color: var(--text-muted); padding: 10px 0;">No usage recorded for this week yet.</li>`;
       document.getElementById('weekly-summary-total').innerText = `$${totalUsageCost.toFixed(2)}`;
       document.getElementById('summary-modal').style.display = 'flex';
     }
 
-    function closeSummaryModal() {
-      document.getElementById('summary-modal').style.display = 'none';
-    }
+    function closeSummaryModal() { document.getElementById('summary-modal').style.display = 'none'; }
 
     function confirmResetWeek() {
       document.querySelectorAll('.inv-row').forEach(row => {
-        const end = parseFloat(row.querySelector('.i-end').value) || 0;
-        // Roll over end count to start count
-        row.querySelector('.i-start').value = end;
-        // Clear deliveries
+        row.querySelector('.i-start').value = parseFloat(row.querySelector('.i-end').value) || 0;
         row.setAttribute('data-received', '0');
-        // Re-calculate math based on the new zeros
         calcInvRow(row.querySelector('.i-start'));
       });
+      autoSaveInv();
       closeSummaryModal();
     }
 
-    // --- DELETE / UNDO ---
     function removeEl(btn) {
       const row = btn.closest('.inv-row, .ingredient-row');
-      const parent = row.parentElement;
-      const nextSibling = row.nextElementSibling;
-      
-      deletedStack.push({ row: row, parent: parent, nextSibling: nextSibling });
+      deletedStack.push({ row: row, parent: row.parentElement, nextSibling: row.nextElementSibling });
       row.remove();
-      
       document.getElementById('undo-btn-inv').style.display = 'inline-block';
       document.getElementById('undo-btn-build').style.display = 'inline-block';
-
-      if(row.classList.contains('inv-row')) calculateGlobalMetrics();
-      else calculateCocktail();
+      if(row.classList.contains('inv-row')) { calculateGlobalMetrics(); autoSaveInv(); }
+      else { calculateCocktail(); autoSaveCocktail(); }
     }
 
     function undoDelete() {
       if (deletedStack.length > 0) {
         const last = deletedStack.pop();
-        if (last.nextSibling && last.nextSibling.parentNode === last.parent) {
-          last.parent.insertBefore(last.row, last.nextSibling);
-        } else {
-          last.parent.appendChild(last.row);
-        }
+        if (last.nextSibling && last.nextSibling.parentNode === last.parent) last.parent.insertBefore(last.row, last.nextSibling);
+        else last.parent.appendChild(last.row);
 
-        if(last.row.classList.contains('inv-row')) {
-          const firstInput = last.row.querySelector('input');
-          if (firstInput) calcInvRow(firstInput);
-          calculateGlobalMetrics();
-        } else {
-          calculateCocktail();
-        }
+        if(last.row.classList.contains('inv-row')) { calcInvRow(last.row.querySelector('.i-start')); calculateGlobalMetrics(); autoSaveInv(); } 
+        else { calculateCocktail(); autoSaveCocktail(); }
       }
-      
-      if (deletedStack.length === 0) {
-        document.getElementById('undo-btn-inv').style.display = 'none';
-        document.getElementById('undo-btn-build').style.display = 'none';
-      }
+      if (deletedStack.length === 0) { document.getElementById('undo-btn-inv').style.display = 'none'; document.getElementById('undo-btn-build').style.display = 'none'; }
     }
 
-    // --- MAIN MATH LOGIC ---
+    // --- MATH ---
     function calcInvRow(inputElement) {
       const row = inputElement.closest('.inv-row');
-      
       const rawSize = parseFloat(row.querySelector('.i-size').value) || 1;
       const unit = row.querySelector('.i-unit').value;
       const sizeOz = convertToOz(rawSize, unit);
@@ -885,15 +662,10 @@
       const btlCost = parseFloat(row.querySelector('.i-cost').value) || 0;
       const shotSell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
 
-      const usageBtls = (start + received) - end;
-      const usageCost = usageBtls * btlCost;
-      
+      const usageCost = ((start + received) - end) * btlCost;
       row.querySelector('.calc-usage-cost').innerText = `$${Math.max(0, usageCost).toFixed(2)}`;
 
-      const costPerOz = btlCost / sizeOz;
-      const shotCost = costPerOz * 1.5;
-      const shotProfit = shotSell - shotCost;
-      
+      const shotCost = (btlCost / sizeOz) * 1.5;
       row.querySelector('.calc-shot-cost').innerText = `$${shotCost.toFixed(2)}`;
       
       const profitEl = row.querySelector('.calc-shot-profit');
@@ -901,32 +673,24 @@
       
       if(shotSell > 0) {
         const pourCostPct = (shotCost / shotSell) * 100;
-        profitEl.innerText = `$${shotProfit.toFixed(2)}`;
+        profitEl.innerText = `$${(shotSell - shotCost).toFixed(2)}`;
         pourEl.innerText = `${pourCostPct.toFixed(2)}%`;
-
-        if(pourCostPct <= 20) {
-          pourEl.className = 'data-highlight calc-shot-pour status-good';
-          profitEl.className = 'data-highlight calc-shot-profit status-good';
-        } else {
-          pourEl.className = 'data-highlight calc-shot-pour status-warn';
-          profitEl.className = 'data-highlight calc-shot-profit status-warn';
-        }
+        const state = pourCostPct <= 20 ? 'status-good' : 'status-warn';
+        pourEl.className = `data-highlight calc-shot-pour ${state}`;
+        profitEl.className = `data-highlight calc-shot-profit ${state}`;
       } else {
         profitEl.innerText = `$0.00`;
         pourEl.innerText = `0.00%`;
         pourEl.className = 'data-highlight calc-shot-pour';
       }
-
       calculateGlobalMetrics();
     }
 
     function calculateGlobalMetrics() {
       let totalUsageCost = 0;
       document.querySelectorAll('.inv-row').forEach(row => {
-        const costStr = row.querySelector('.calc-usage-cost').innerText.replace('$', '');
-        totalUsageCost += parseFloat(costStr) || 0;
+        totalUsageCost += parseFloat(row.querySelector('.calc-usage-cost').innerText.replace('$', '')) || 0;
       });
-
       document.getElementById('global-usage-cost').innerText = `$${totalUsageCost.toFixed(2)}`;
 
       const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
@@ -936,14 +700,8 @@
       if (posSales > 0) {
         const globalPourPct = (totalUsageCost / posSales) * 100;
         pourDisplay.innerText = `${globalPourPct.toFixed(2)}%`;
-
-        if (globalPourPct <= 20) {
-          pourDisplay.className = 'value status-good';
-          pourBox.style.borderLeftColor = 'var(--neon-green)';
-        } else {
-          pourDisplay.className = 'value status-warn';
-          pourBox.style.borderLeftColor = 'var(--danger)';
-        }
+        pourDisplay.className = globalPourPct <= 20 ? 'value status-good' : 'value status-warn';
+        pourBox.style.borderLeftColor = globalPourPct <= 20 ? 'var(--neon-green)' : 'var(--danger)';
       } else {
         pourDisplay.innerText = '0.00%';
         pourDisplay.className = 'value';
@@ -951,108 +709,51 @@
       }
     }
 
-    function addInventoryRow() {
-      const tbody = document.getElementById('inventory-body');
-      const tr = document.createElement('tr');
-      tr.className = 'inv-row';
-      tr.setAttribute('data-received', '0');
-      tr.innerHTML = `
-        <td>
-          <select class="i-category col-med">
-            <option value="Tequila">Tequila</option>
-            <option value="Vodka">Vodka</option>
-            <option value="Whiskey">Whiskey</option>
-            <option value="Rum">Rum</option>
-            <option value="Gin">Gin</option>
-            <option value="Liqueur">Liqueur</option>
-          </select>
-        </td>
-        <td><input type="text" placeholder="Brand" class="col-large i-brand"></td>
-        <td style="display: flex; gap: 5px; align-items: center;">
-          <input type="number" class="i-size col-small" value="750" oninput="calcInvRow(this)">
-          <select class="i-unit" onchange="calcInvRow(this)" style="width: 60px; padding: 10px 5px;">
-            <option value="ml" selected>ml</option>
-            <option value="oz">oz</option>
-            <option value="L">L</option>
-          </select>
-        </td>
-        <td><input type="number" class="i-start col-small" value="0" step="0.1" oninput="calcInvRow(this)"></td>
-        <td><input type="number" class="i-end col-small" value="0" step="0.1" oninput="calcInvRow(this)"></td>
-        <td><input type="number" class="i-cost col-small" value="0.00" oninput="calcInvRow(this)"></td>
-        <td><input type="number" class="i-shot-sell col-small" value="0.00" oninput="calcInvRow(this)"></td>
-        <td class="data-highlight calc-usage-cost">$0.00</td>
-        <td class="data-highlight calc-shot-cost">$0.00</td>
-        <td class="data-highlight calc-shot-profit">$0.00</td>
-        <td class="data-highlight calc-shot-pour">0.00%</td>
-        <td><button class="btn-remove" onclick="removeEl(this)">×</button></td>
-      `;
-      tbody.appendChild(tr);
-    }
-
-    // --- CSV EXPORT FUNCTION ---
     function exportToCSV() {
       let csvContent = "data:text/csv;charset=utf-8,";
-      
-      // Inject headers (including hidden ones)
       csvContent += '"Category","Brand","Size","Start Count","Received (Hidden)","End Count","Btls Used (Hidden)","Cost/Btl","Shot Sell","Usage Cost","Shot Cost","Shot Profit","Shot Pour %"\r\n';
 
-      document.querySelectorAll('.inv-row').forEach((row) => {
+      document.querySelectorAll('.inv-row').forEach(row => {
         const cat = row.querySelector('.i-category').value;
         const brand = row.querySelector('.i-brand').value;
         const size = row.querySelector('.i-size').value;
         const unit = row.querySelector('.i-unit').value;
-        
         const start = parseFloat(row.querySelector('.i-start').value) || 0;
         const received = parseFloat(row.getAttribute('data-received')) || 0;
         const end = parseFloat(row.querySelector('.i-end').value) || 0;
         const btlsUsed = (start + received) - end;
-        
         const cost = row.querySelector('.i-cost').value;
         const sell = row.querySelector('.i-shot-sell').value;
-        
         const usageCost = row.querySelector('.calc-usage-cost').innerText;
         const shotCost = row.querySelector('.calc-shot-cost').innerText;
         const shotProfit = row.querySelector('.calc-shot-profit').innerText;
         const shotPour = row.querySelector('.calc-shot-pour').innerText;
         
-        let rowData = [
-          `"${cat}"`, `"${brand}"`, `"${size} ${unit}"`, `"${start}"`, `"${received}"`, 
-          `"${end}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost}"`, `"${sell}"`, `"${usageCost}"`, 
-          `"${shotCost}"`, `"${shotProfit}"`, `"${shotPour}"`
-        ];
-        
+        let rowData = [ `"${cat}"`, `"${brand}"`, `"${size} ${unit}"`, `"${start}"`, `"${received}"`, `"${end}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost}"`, `"${sell}"`, `"${usageCost}"`, `"${shotCost}"`, `"${shotProfit}"`, `"${shotPour}"` ];
         csvContent += rowData.join(",") + "\r\n";
       });
 
-      const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      const date = new Date().toISOString().split('T')[0];
-      link.setAttribute("download", `Los_Pericos_Inventory_${date}.csv`);
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `Los_Pericos_Inventory_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    // --- COCKTAIL TAB MATH ---
     function calculateCocktail() {
       let totalCost = 0;
-      const rows = document.querySelectorAll('.ingredient-row');
-
-      rows.forEach(row => {
+      document.querySelectorAll('.ingredient-row').forEach(row => {
         const pourOz = parseFloat(row.querySelector('.c-pour').value) || 0;
         const rawSize = parseFloat(row.querySelector('.c-size').value) || 1; 
         const unit = row.querySelector('.c-unit').value;
-        const btlSizeOz = convertToOz(rawSize, unit);
         const btlCost = parseFloat(row.querySelector('.c-cost').value) || 0;
-
-        const lineCost = pourOz * (btlCost / btlSizeOz);
+        const lineCost = pourOz * (btlCost / convertToOz(rawSize, unit));
         row.querySelector('.c-line-cost').innerText = `$${lineCost.toFixed(2)}`;
         totalCost += lineCost;
       });
 
       document.getElementById('cocktail-cost').innerText = `$${totalCost.toFixed(2)}`;
-
       const menuPrice = parseFloat(document.getElementById('menu-price').value) || 0;
       const profitDisplay = document.getElementById('cocktail-profit');
       const pourDisplay = document.getElementById('cocktail-pour-cost');
@@ -1060,69 +761,28 @@
       const pourBox = document.getElementById('cocktail-pour-box');
 
       if (menuPrice > 0) {
-        const profit = menuPrice - totalCost;
         const pourCostPct = (totalCost / menuPrice) * 100;
-
-        profitDisplay.innerText = `$${profit.toFixed(2)}`;
+        profitDisplay.innerText = `$${(menuPrice - totalCost).toFixed(2)}`;
         pourDisplay.innerText = `${pourCostPct.toFixed(2)}%`;
 
         if (pourCostPct <= 15) {
-          classDisplay.innerText = '🌟 STAR';
-          classDisplay.style.color = 'var(--neon-green)';
-          pourDisplay.className = 'value status-good';
-          profitDisplay.className = 'value status-good';
+          classDisplay.innerText = '🌟 STAR'; classDisplay.style.color = 'var(--neon-green)';
+          pourDisplay.className = 'value status-good'; profitDisplay.className = 'value status-good';
           pourBox.style.borderLeftColor = 'var(--neon-green)';
         } else if (pourCostPct <= 20) {
-          classDisplay.innerText = '🐴 PLOWHORSE';
-          classDisplay.style.color = 'var(--text-main)';
-          pourDisplay.className = 'value';
-          profitDisplay.className = 'value';
+          classDisplay.innerText = '🐴 PLOWHORSE'; classDisplay.style.color = 'var(--text-main)';
+          pourDisplay.className = 'value'; profitDisplay.className = 'value';
           pourBox.style.borderLeftColor = 'var(--text-muted)';
         } else {
-          classDisplay.innerText = '🐕 DOG';
-          classDisplay.style.color = 'var(--danger)';
-          pourDisplay.className = 'value status-warn';
-          profitDisplay.className = 'value status-warn';
+          classDisplay.innerText = '🐕 DOG'; classDisplay.style.color = 'var(--danger)';
+          pourDisplay.className = 'value status-warn'; profitDisplay.className = 'value status-warn';
           pourBox.style.borderLeftColor = 'var(--danger)';
         }
       } else {
-        profitDisplay.innerText = `$0.00`;
-        pourDisplay.innerText = `0.00%`;
-        classDisplay.innerText = '--';
-        pourDisplay.className = 'value';
-        profitDisplay.className = 'value';
-        pourBox.style.borderLeftColor = 'var(--neon-green)';
+        profitDisplay.innerText = `$0.00`; pourDisplay.innerText = `0.00%`; classDisplay.innerText = '--';
+        pourDisplay.className = 'value'; profitDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)';
       }
     }
-
-    function addIngredientRow() {
-      const container = document.getElementById('ingredients-container');
-      const div = document.createElement('div');
-      div.className = 'builder-grid ingredient-row';
-      div.innerHTML = `
-        <input type="text" placeholder="Ingredient">
-        <input type="number" class="c-pour" value="1.0" step="0.25" oninput="calculateCocktail()">
-        <div style="display: flex; gap: 5px;">
-          <input type="number" class="c-size" value="750" oninput="calculateCocktail()">
-          <select class="c-unit" onchange="calculateCocktail()" style="width: 70px; padding: 10px 5px;">
-            <option value="ml" selected>ml</option>
-            <option value="oz">oz</option>
-            <option value="L">L</option>
-          </select>
-        </div>
-        <input type="number" class="c-cost" value="15.00" oninput="calculateCocktail()">
-        <div class="data-highlight c-line-cost">$0.00</div>
-        <button class="btn-remove" onclick="removeEl(this)">×</button>
-      `;
-      container.appendChild(div);
-      calculateCocktail();
-    }
-
-    // Initialize all math on load
-    window.onload = function() {
-      document.querySelectorAll('.i-start').forEach(el => calcInvRow(el));
-      calculateCocktail();
-    };
   </script>
 </body>
 </html>
