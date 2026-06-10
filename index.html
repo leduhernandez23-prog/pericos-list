@@ -261,11 +261,11 @@
                 </div>
             </a>
             
-            <a href="liquor.html" class="app-btn">
+            <a href="liquor.html" class="app-btn" id="bar-vault-btn" style="display: none;">
                 <div class="app-icon icon-bar">🍸</div>
                 <div>
                     <div class="app-title">Bar Vault</div>
-                    <div class="app-subtext">Liquor, Beer & Wine</div>
+                    <div class="app-subtext">Costing & Margins</div>
                 </div>
             </a>
 
@@ -423,6 +423,13 @@
                 document.getElementById('display-role').innerText = `${activeRole} • ${displayLoc}`;
                 locSwitcher.style.display = 'none';
                 ownerWidget.style.display = 'none'; 
+            }
+
+            // Show Bar Vault only for Managers or Owners
+            if (activeRole === 'Manager' || activeRole === 'Owner') {
+                document.getElementById('bar-vault-btn').style.display = 'flex';
+            } else {
+                document.getElementById('bar-vault-btn').style.display = 'none';
             }
 
             setupPushNotifications();
