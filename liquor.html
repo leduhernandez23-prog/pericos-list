@@ -6,6 +6,7 @@
   <title>Los Pericos | Bar Vault</title>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <style>
@@ -49,7 +50,7 @@
     .sys-bar a { color: var(--neon-blue); text-decoration: none; font-weight: bold; transition: 0.2s; }
     .sys-bar a:hover { text-shadow: var(--neon-blue-glow); }
     .sync-status { display: flex; align-items: center; gap: 8px; }
-    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: var(--neon-glow); }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); box-shadow: var(--danger-glow); transition: 0.3s; }
 
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
     .brand { display: flex; align-items: center; gap: 15px; font-size: 1.8rem; font-weight: 300; letter-spacing: 2px; }
@@ -143,7 +144,7 @@
       <div><a href="index.html">⬅ Master Hub</a></div>
       <div class="sync-status">
           <div class="sync-dot" id="sync-indicator"></div>
-          <span id="sync-text">Cloud Synced</span>
+          <span id="sync-text">Connecting...</span>
           &nbsp;|&nbsp; 📍 <span id="loc-display"></span> &nbsp;|&nbsp; 👤 <span id="user-display"></span>
       </div>
   </div>
@@ -354,50 +355,67 @@
     let isInitialLoad = false;
     let deletedStack = [];
 
-    // --- 1. FIREBASE LOAD DATA ---
-    db.ref(currentLocation + '/liquor_inventory').once('value', snap => {
-        const data = snap.val();
-        const tbody = document.getElementById('inventory-body');
-        tbody.innerHTML = '';
-        if(data) {
-            data.forEach(item => { if(item) injectInventoryRow(item); });
+    // --- 1. FIREBASE AUTH CHECK & LOAD DATA ---
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user && activeUser) {
+            // User is authenticated securely, safe to load & save data
+            const dot = document.getElementById('sync-indicator');
+            const text = document.getElementById('sync-text');
+            text.innerText = "Connected";
+            dot.style.background = "var(--neon-green)";
+            dot.style.boxShadow = "var(--neon-glow)";
+            loadFirebaseData();
         } else {
-            addInventoryRow(); // If DB is empty, start with 1 row
+            // Not authenticated, kick them to login
+            window.location.href = 'index.html';
         }
-        
-        db.ref(currentLocation + '/liquor_cocktail').once('value', snap2 => {
-            const cData = snap2.val();
-            const cbody = document.getElementById('ingredients-container');
-            cbody.innerHTML = '';
-            if(cData && cData.ingredients) {
-                document.getElementById('cocktail-name').value = cData.name || '';
-                document.getElementById('menu-price').value = cData.price || '';
-                cData.ingredients.forEach(ing => { if(ing) injectIngredientRow(ing); });
-            } else {
-                addIngredientRow();
-            }
-            calculateCocktail();
-            
-            // Finalize Initial Load
-            isInitialLoad = true;
-            renderMarginDashboard(); // Build Tab 2
-        });
     });
 
-    // Listen for Meta updates (Last edited by, POS Sales)
-    db.ref(currentLocation + '/liquor_meta').on('value', snap => {
-        const meta = snap.val();
-        if(meta && meta.lastEditedBy) {
-            const time = new Date(meta.lastEditedAt).toLocaleTimeString();
-            document.getElementById('last-edited-by').innerText = `${meta.lastEditedBy} at ${time}`;
-            
-            // Only update POS Sales if it's empty, so we don't overwrite the user typing
-            if(meta.posSales !== undefined && document.getElementById('pos-sales').value === '') {
-                document.getElementById('pos-sales').value = meta.posSales;
-                calculateGlobalMetrics(); // Update Tab 2 header
+    function loadFirebaseData() {
+        db.ref(currentLocation + '/liquor_inventory').once('value', snap => {
+            const data = snap.val();
+            const tbody = document.getElementById('inventory-body');
+            tbody.innerHTML = '';
+            if(data) {
+                data.forEach(item => { if(item) injectInventoryRow(item); });
+            } else {
+                addInventoryRow(); // If DB is empty, start with 1 row
             }
-        }
-    });
+            
+            db.ref(currentLocation + '/liquor_cocktail').once('value', snap2 => {
+                const cData = snap2.val();
+                const cbody = document.getElementById('ingredients-container');
+                cbody.innerHTML = '';
+                if(cData && cData.ingredients) {
+                    document.getElementById('cocktail-name').value = cData.name || '';
+                    document.getElementById('menu-price').value = cData.price || '';
+                    cData.ingredients.forEach(ing => { if(ing) injectIngredientRow(ing); });
+                } else {
+                    addIngredientRow();
+                }
+                calculateCocktail();
+                
+                // Finalize Initial Load
+                isInitialLoad = true;
+                renderMarginDashboard(); // Build Tab 2
+            });
+        });
+
+        // Listen for Meta updates (Last edited by, POS Sales)
+        db.ref(currentLocation + '/liquor_meta').on('value', snap => {
+            const meta = snap.val();
+            if(meta && meta.lastEditedBy) {
+                const time = new Date(meta.lastEditedAt).toLocaleTimeString();
+                document.getElementById('last-edited-by').innerHTML = `${meta.lastEditedBy} <br><span style="font-weight:normal; font-size:0.7rem;">${time}</span>`;
+                
+                // Only update POS Sales if it's empty, so we don't overwrite the user typing
+                if(meta.posSales !== undefined && document.getElementById('pos-sales').value === '') {
+                    document.getElementById('pos-sales').value = meta.posSales;
+                    calculateGlobalMetrics(); // Update Tab 2 header
+                }
+            }
+        });
+    }
 
     // --- 2. FIREBASE SAVE FUNCTIONS ---
     function flashSync() {
@@ -430,11 +448,10 @@
              });
         });
         
-        // PUSH TO DATABASE
-        db.ref(currentLocation + '/liquor_inventory').set(data);
-        
-        updateMeta();
-        renderMarginDashboard(); // Instantly update Tab 2
+        // SECURE PUSH TO DATABASE
+        db.ref(currentLocation + '/liquor_inventory').set(data)
+          .then(() => { updateMeta(); renderMarginDashboard(); })
+          .catch(error => console.error("Firebase Save Error: ", error));
     }
 
     function autoSaveCocktail() {
@@ -454,10 +471,10 @@
             });
         });
 
-        // PUSH TO DATABASE
-        db.ref(currentLocation + '/liquor_cocktail').set(data);
-        
-        updateMeta();
+        // SECURE PUSH TO DATABASE
+        db.ref(currentLocation + '/liquor_cocktail').set(data)
+          .then(() => updateMeta())
+          .catch(error => console.error("Firebase Save Error: ", error));
     }
 
     function autoSaveMeta() {
