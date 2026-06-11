@@ -42,40 +42,22 @@
 
     /* --- SYSTEM BAR --- */
     .sys-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--glass-border);
-      margin-bottom: 1.5rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      display: flex; justify-content: space-between; align-items: center; padding: 10px 0;
+      font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px;
     }
     .sys-bar a { color: var(--neon-blue); text-decoration: none; font-weight: bold; transition: 0.2s; }
     .sys-bar a:hover { text-shadow: var(--neon-blue-glow); }
     .sync-status { display: flex; align-items: center; gap: 8px; }
     .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: var(--neon-glow); }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
     .brand { display: flex; align-items: center; gap: 15px; font-size: 1.8rem; font-weight: 300; letter-spacing: 2px; }
     .parrot-logo { width: 40px; height: 40px; fill: none; stroke: var(--neon-green); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 5px rgba(0,230,118,0.5)); }
-    
-    .meta-info {
-        text-align: right;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }
+    .meta-info { text-align: right; font-size: 0.8rem; color: var(--text-muted); }
     .meta-info span { color: var(--text-main); font-weight: bold; }
 
-    .tabs { display: flex; gap: 15px; margin-bottom: 2rem; }
+    .tabs { display: flex; gap: 15px; margin-bottom: 2rem; flex-wrap: wrap; }
     .tab-btn { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 12px 24px; border-radius: 30px; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s; }
     .tab-btn:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
     .tab-btn.active { background: rgba(0, 230, 118, 0.1); border-color: var(--neon-green); color: var(--neon-green); box-shadow: var(--neon-glow); }
@@ -84,31 +66,35 @@
     .tab-content.active { display: block; }
     @keyframes slideFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+    .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); position: relative; }
     .glass-card h3 { font-weight: 400; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
     .glass-card h3::before { content: ''; display: block; width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: var(--neon-glow); }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    /* --- MODALS --- */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal-content { background: var(--glass-bg); border: 1px solid var(--neon-blue); box-shadow: 0 10px 40px rgba(0, 176, 255, 0.2); padding: 2.5rem; border-radius: 16px; width: 550px; max-width: 95%; max-height: 85vh; overflow-y: auto; }
     #summary-modal .modal-content { border-color: var(--neon-green); box-shadow: 0 10px 40px rgba(0, 230, 118, 0.1); }
     .modal-content::-webkit-scrollbar { width: 8px; }
     .modal-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
     .form-group { margin-bottom: 20px; }
     .form-group label { display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .delivery-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+    .delivery-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; animation: slideFade 0.2s ease forwards; }
 
+    /* --- DASHBOARD & METRICS --- */
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
     .metric-box { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px; transition: transform 0.3s ease; }
     .metric-box:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.15); }
     .metric-box h4 { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
     .metric-box .value { font-size: 2rem; font-weight: 600; }
-    .status-good { color: var(--neon-green); text-shadow: var(--neon-glow); }
-    .status-warn { color: var(--danger); text-shadow: var(--danger-glow); }
+    .status-good { color: var(--neon-green) !important; text-shadow: var(--neon-glow); }
+    .status-warn { color: var(--danger) !important; text-shadow: var(--danger-glow); }
 
+    /* --- TABLES & INPUTS --- */
     .table-container { overflow-x: auto; margin-top: 1rem; margin-bottom: 1rem; }
     .table-container::-webkit-scrollbar { height: 8px; }
     .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-    table { width: 100%; border-collapse: collapse; min-width: 1400px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1000px; }
     th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; text-align: left; padding: 1rem 0.5rem; border-bottom: 1px solid var(--glass-border); white-space: nowrap; }
     td { padding: 1rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; white-space: nowrap; }
     tr:hover td { background: rgba(255, 255, 255, 0.02); }
@@ -122,20 +108,21 @@
     .col-med { width: 140px; }
     .col-large { width: 180px; }
 
+    /* --- BUTTONS --- */
     .action-row { display: flex; gap: 15px; align-items: center; margin-top: 15px; flex-wrap: wrap; }
-    .btn-glow { background: transparent; color: var(--neon-green); border: 1px solid var(--neon-green); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s ease; }
+    .btn-glow { background: transparent; color: var(--neon-green); border: 1px solid var(--neon-green); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s ease; }
     .btn-glow:hover { background: var(--neon-green); color: #000; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-glow); }
-    .btn-receive { background: transparent; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s ease; }
+    .btn-receive { background: transparent; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s ease; }
     .btn-receive:hover { background: var(--neon-blue); color: #000; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-blue-glow); }
-    .btn-export { background: transparent; color: #fff; border: 1px solid var(--glass-border); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s; }
+    .btn-export { background: transparent; color: #fff; border: 1px solid var(--glass-border); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s ease; }
     .btn-export:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
-    .btn-undo { background: transparent; color: var(--neon-orange); border: 1px solid var(--neon-orange); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; display: none; transition: 0.3s;}
+    .btn-undo { background: transparent; color: var(--neon-orange); border: 1px solid var(--neon-orange); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 0.8rem; display: none; transition: all 0.3s; }
     .btn-undo:hover { background: var(--neon-orange); color: #000; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-orange-glow); }
     .btn-remove { background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border); padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
     .btn-remove:hover { background: rgba(255, 71, 87, 0.1); color: var(--danger); border-color: var(--danger); }
 
     .builder-grid { display: grid; grid-template-columns: 2fr 1fr 2fr 1fr 1fr auto; gap: 15px; align-items: center; margin-bottom: 15px; }
-    .builder-header { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
+    .builder-header { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); }
     .data-highlight { font-family: monospace; font-size: 1.1rem; color: var(--text-main); }
   </style>
 </head>
@@ -148,14 +135,12 @@
     const activeRole = localStorage.getItem('pericos_active_role');
     
     if (!activeUser || !currentLocation || (activeRole !== 'Manager' && activeRole !== 'Owner')) {
-        window.location.href = 'index.html'; // Kick out unauthorized users
+        window.location.href = 'index.html'; 
     }
   </script>
 
   <div class="sys-bar">
-      <div>
-          <a href="index.html">⬅ Master Hub</a>
-      </div>
+      <div><a href="index.html">⬅ Master Hub</a></div>
       <div class="sync-status">
           <div class="sync-dot" id="sync-indicator"></div>
           <span id="sync-text">Cloud Synced</span>
@@ -178,8 +163,9 @@
   </header>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="openTab(event, 'inventory')">Master Inventory</button>
-    <button class="tab-btn" onclick="openTab(event, 'builder')">Cocktail Engineering</button>
+    <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
+    <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
+    <button class="tab-btn" onclick="openTab(event, 'builder')">3. Cocktail Builder</button>
   </div>
 
   <div id="receive-modal" class="modal-overlay">
@@ -221,27 +207,10 @@
   </div>
 
   <div id="inventory" class="tab-content active">
-    
     <div class="glass-card">
-      <h3>Global Shift Metrics</h3>
-      <div class="dashboard-grid">
-        <div class="metric-box">
-          <h4>Total POS Sales ($)</h4>
-          <input type="number" id="pos-sales" placeholder="Enter Sales..." oninput="calculateGlobalMetrics(); autoSaveMeta()" style="font-size: 1.5rem; padding: 10px;">
-        </div>
-        <div class="metric-box">
-          <h4>Total Usage Cost</h4>
-          <div class="value" id="global-usage-cost">$0.00</div>
-        </div>
-        <div class="metric-box" id="global-pour-box" style="border-left: 4px solid var(--neon-green);">
-          <h4>Gross Pour Cost %</h4>
-          <div class="value" id="global-pour-cost">0.00%</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="glass-card">
-      <h3>Cost & Margin Master List</h3>
+      <h3>Live Inventory Count</h3>
+      <input type="text" id="inventory-search" placeholder="🔍 Search spirits by brand or category..." onkeyup="filterInventory()" style="margin-bottom: 20px;">
+      
       <div class="table-container">
         <table id="inventory-table">
           <thead>
@@ -250,13 +219,10 @@
               <th>Brand</th>
               <th>Size</th>
               <th>Start</th>
+              <th style="color: var(--neon-blue);">Rec'd</th>
               <th>End</th>
               <th>Cost ($)</th>
               <th>Shot Sell ($)</th>
-              <th>Usage ($)</th>
-              <th>Shot Cost</th>
-              <th>Shot Profit</th>
-              <th>Shot Pour %</th>
               <th></th>
             </tr>
           </thead>
@@ -275,15 +241,55 @@
     </div>
   </div>
 
+  <div id="dashboard" class="tab-content">
+    <div class="glass-card">
+      <h3>Global Shift Metrics</h3>
+      <div class="dashboard-grid">
+        <div class="metric-box">
+          <h4>Total POS Sales ($)</h4>
+          <input type="number" id="pos-sales" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px; background: rgba(0,0,0,0.5);">
+        </div>
+        <div class="metric-box">
+          <h4>Total Usage Cost</h4>
+          <div class="value" id="global-usage-cost">$0.00</div>
+        </div>
+        <div class="metric-box" id="global-pour-box" style="border-left: 4px solid var(--neon-green);">
+          <h4>Gross Pour Cost %</h4>
+          <div class="value" id="global-pour-cost">0.00%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <h3>Margin Analysis (Auto-Calculated)</h3>
+      <div class="table-container">
+        <table id="dashboard-table">
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th style="color: var(--neon-orange);">Btls Used</th>
+              <th>Usage ($)</th>
+              <th>Shot Cost</th>
+              <th>Shot Profit</th>
+              <th>Shot Pour %</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-body">
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div id="builder" class="tab-content">
     <div class="glass-card">
       <h3>Recipe Architect</h3>
-      <div style="display: flex; gap: 30px; margin-bottom: 30px;">
-        <div style="flex: 2;">
+      <div style="display: flex; gap: 30px; margin-bottom: 30px; flex-wrap: wrap;">
+        <div style="flex: 2; min-width: 200px;">
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Cocktail Name</label>
-          <input type="text" id="cocktail-name" placeholder="e.g., Los Pericos Margarita" style="font-size: 1.5rem; background: transparent; border: none; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;" onchange="autoSaveCocktail()">
+          <input type="text" id="cocktail-name" placeholder="e.g., Los Pericos Margarita" style="font-size: 1.5rem; background: transparent; border: none; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;" oninput="autoSaveCocktail()">
         </div>
-        <div style="flex: 1;">
+        <div style="flex: 1; min-width: 150px;">
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Menu Price ($)</label>
           <input type="number" id="menu-price" placeholder="0.00" style="font-size: 1.5rem; background: transparent; border: none; border-bottom: 2px solid var(--neon-green); border-radius: 0; padding-left: 0;" oninput="calculateCocktail(); autoSaveCocktail()">
         </div>
@@ -298,8 +304,7 @@
         <div></div>
       </div>
       
-      <div id="ingredients-container">
-        </div>
+      <div id="ingredients-container"></div>
       
       <div class="action-row">
         <button class="btn-glow" onclick="addIngredientRow()">+ Add Ingredient</button>
@@ -347,8 +352,9 @@
     const db = firebase.database();
     
     let isInitialLoad = false;
+    let deletedStack = [];
 
-    // Load Data Once
+    // --- 1. FIREBASE LOAD DATA ---
     db.ref(currentLocation + '/liquor_inventory').once('value', snap => {
         const data = snap.val();
         const tbody = document.getElementById('inventory-body');
@@ -356,9 +362,8 @@
         if(data) {
             data.forEach(item => { if(item) injectInventoryRow(item); });
         } else {
-            addInventoryRow(); // Add empty row if database is empty
+            addInventoryRow(); // If DB is empty, start with 1 row
         }
-        document.querySelectorAll('.i-start').forEach(el => calcInvRow(el));
         
         db.ref(currentLocation + '/liquor_cocktail').once('value', snap2 => {
             const cData = snap2.val();
@@ -372,24 +377,29 @@
                 addIngredientRow();
             }
             calculateCocktail();
+            
+            // Finalize Initial Load
             isInitialLoad = true;
+            renderMarginDashboard(); // Build Tab 2
         });
     });
 
-    // Realtime listen to meta changes (Who edited last)
+    // Listen for Meta updates (Last edited by, POS Sales)
     db.ref(currentLocation + '/liquor_meta').on('value', snap => {
         const meta = snap.val();
         if(meta && meta.lastEditedBy) {
             const time = new Date(meta.lastEditedAt).toLocaleTimeString();
             document.getElementById('last-edited-by').innerText = `${meta.lastEditedBy} at ${time}`;
+            
+            // Only update POS Sales if it's empty, so we don't overwrite the user typing
             if(meta.posSales !== undefined && document.getElementById('pos-sales').value === '') {
                 document.getElementById('pos-sales').value = meta.posSales;
-                calculateGlobalMetrics();
+                calculateGlobalMetrics(); // Update Tab 2 header
             }
         }
     });
 
-    // Flash sync indicator
+    // --- 2. FIREBASE SAVE FUNCTIONS ---
     function flashSync() {
         const dot = document.getElementById('sync-indicator');
         const text = document.getElementById('sync-text');
@@ -403,11 +413,10 @@
         }, 800);
     }
 
-    // Auto-Save Functions
     function autoSaveInv() {
         if(!isInitialLoad) return;
         const data = [];
-        document.querySelectorAll('.inv-row').forEach(row => {
+        document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
              data.push({
                  category: row.querySelector('.i-category').value,
                  brand: row.querySelector('.i-brand').value,
@@ -420,8 +429,12 @@
                  shotSell: parseFloat(row.querySelector('.i-shot-sell').value) || 0
              });
         });
+        
+        // PUSH TO DATABASE
         db.ref(currentLocation + '/liquor_inventory').set(data);
+        
         updateMeta();
+        renderMarginDashboard(); // Instantly update Tab 2
     }
 
     function autoSaveCocktail() {
@@ -440,13 +453,17 @@
                 cost: parseFloat(row.querySelector('.c-cost').value) || 0
             });
         });
+
+        // PUSH TO DATABASE
         db.ref(currentLocation + '/liquor_cocktail').set(data);
+        
         updateMeta();
     }
 
     function autoSaveMeta() {
         if(!isInitialLoad) return;
         updateMeta();
+        calculateGlobalMetrics(); // Update Tab 2 percentages
     }
 
     function updateMeta() {
@@ -458,9 +475,24 @@
         flashSync();
     }
 
-    // Builder Injectors
-    const catOptions = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer'];
+    // --- 3. TAB 1: INVENTORY COUNTING UI ---
+    const catOptions = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
     const unitOptions = ['ml', 'oz', 'L'];
+
+    function filterInventory() {
+      const filter = document.getElementById('inventory-search').value.toUpperCase();
+      document.querySelectorAll('.inv-row').forEach(row => {
+        const brand = row.querySelector('.i-brand').value.toUpperCase();
+        const cat = row.querySelector('.i-category').value.toUpperCase();
+        row.style.display = (brand.includes(filter) || cat.includes(filter)) ? "" : "none";
+      });
+    }
+
+    function convertToOz(size, unit) {
+      if (unit === 'ml') return size / 29.5735;
+      if (unit === 'L') return (size * 1000) / 29.5735;
+      return size; // assumes 'oz'
+    }
 
     function injectInventoryRow(item) {
         const tbody = document.getElementById('inventory-body');
@@ -473,19 +505,16 @@
 
         tr.innerHTML = `
           <td><select class="i-category col-med" onchange="autoSaveInv()">${catHtml}</select></td>
-          <td><input type="text" placeholder="Brand" class="col-large i-brand" value="${item.brand || ''}" onchange="autoSaveInv()"></td>
+          <td><input type="text" placeholder="Brand" class="col-large i-brand" value="${item.brand || ''}" oninput="autoSaveInv()"></td>
           <td style="display: flex; gap: 5px; align-items: center;">
-            <input type="number" class="i-size col-small" value="${item.size || 750}" onchange="calcInvRow(this); autoSaveInv()">
-            <select class="i-unit" onchange="calcInvRow(this); autoSaveInv()" style="width: 60px; padding: 10px 5px;">${unitHtml}</select>
+            <input type="number" class="i-size col-small" value="${item.size || 750}" oninput="autoSaveInv()">
+            <select class="i-unit" onchange="autoSaveInv()" style="width: 60px; padding: 10px 5px;">${unitHtml}</select>
           </td>
-          <td><input type="number" class="i-start col-small" value="${item.start || 0}" step="0.1" onchange="calcInvRow(this); autoSaveInv()"></td>
-          <td><input type="number" class="i-end col-small" value="${item.end || 0}" step="0.1" onchange="calcInvRow(this); autoSaveInv()"></td>
-          <td><input type="number" class="i-cost col-small" value="${item.cost || 0}" step="0.01" onchange="calcInvRow(this); autoSaveInv()"></td>
-          <td><input type="number" class="i-shot-sell col-small" value="${item.shotSell || 0}" step="0.01" onchange="calcInvRow(this); autoSaveInv()"></td>
-          <td class="data-highlight calc-usage-cost">$0.00</td>
-          <td class="data-highlight calc-shot-cost">$0.00</td>
-          <td class="data-highlight calc-shot-profit">$0.00</td>
-          <td class="data-highlight calc-shot-pour">0.00%</td>
+          <td><input type="number" class="i-start col-small" value="${item.start || 0}" step="0.1" oninput="autoSaveInv()"></td>
+          <td class="data-highlight" style="color: var(--neon-blue);">${item.received || 0}</td>
+          <td><input type="number" class="i-end col-small" value="${item.end || 0}" step="0.1" oninput="autoSaveInv()"></td>
+          <td><input type="number" class="i-cost col-small" value="${item.cost || 0}" step="0.01" oninput="autoSaveInv()"></td>
+          <td><input type="number" class="i-shot-sell col-small" value="${item.shotSell || 0}" step="0.01" oninput="autoSaveInv()"></td>
           <td><button class="btn-remove" onclick="removeEl(this)">×</button></td>
         `;
         tbody.appendChild(tr);
@@ -496,41 +525,87 @@
         autoSaveInv();
     }
 
-    function injectIngredientRow(ing) {
-        const container = document.getElementById('ingredients-container');
-        const div = document.createElement('div');
-        div.className = 'builder-grid ingredient-row';
-        let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === ing.unit ? 'selected' : ''}>${u}</option>`).join('');
+    // --- 4. TAB 2: MARGIN DASHBOARD LOGIC ---
+    function renderMarginDashboard() {
+        const tbody = document.getElementById('dashboard-body');
+        tbody.innerHTML = '';
+        let totalUsageCost = 0;
+
+        document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
+            const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit';
+            const rawSize = parseFloat(row.querySelector('.i-size').value) || 1;
+            const unit = row.querySelector('.i-unit').value;
+            const sizeOz = convertToOz(rawSize, unit);
+            
+            const start = parseFloat(row.querySelector('.i-start').value) || 0;
+            const received = parseFloat(row.getAttribute('data-received')) || 0;
+            const end = parseFloat(row.querySelector('.i-end').value) || 0;
+            const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
+            const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
+
+            const usageBtls = (start + received) - end;
+            const usageCost = usageBtls * cost;
+            if (usageCost > 0) totalUsageCost += usageCost;
+
+            const shotCost = (cost / sizeOz) * 1.5;
+            const shotProfit = sell - shotCost;
+            let pourCostPct = 0;
+            let pourClass = '';
+            let profitClass = '';
+
+            if (sell > 0) {
+                pourCostPct = (shotCost / sell) * 100;
+                if (pourCostPct <= 20) {
+                    pourClass = 'status-good'; profitClass = 'status-good';
+                } else {
+                    pourClass = 'status-warn'; profitClass = 'status-warn';
+                }
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight: bold; color: var(--text-main);">${brand}</td>
+                <td style="color: var(--neon-orange); font-family: monospace; font-size: 1.1rem;">${Math.max(0, usageBtls).toFixed(1)}</td>
+                <td style="font-family: monospace; font-size: 1.1rem;">$${Math.max(0, usageCost).toFixed(2)}</td>
+                <td style="font-family: monospace; font-size: 1.1rem;">$${shotCost.toFixed(2)}</td>
+                <td class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">$${shotProfit.toFixed(2)}</td>
+                <td class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${sell > 0 ? pourCostPct.toFixed(2) + '%' : '0.00%'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('global-usage-cost').innerText = `$${totalUsageCost.toFixed(2)}`;
+        calculateGlobalMetrics(totalUsageCost);
+    }
+
+    function calculateGlobalMetrics(totalUsageCost) {
+      if (totalUsageCost === undefined) {
+          totalUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
+      }
+      
+      const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
+      const pourDisplay = document.getElementById('global-pour-cost');
+      const pourBox = document.getElementById('global-pour-box');
+
+      if (posSales > 0) {
+        const globalPourPct = (totalUsageCost / posSales) * 100;
+        pourDisplay.innerText = `${globalPourPct.toFixed(2)}%`;
         
-        div.innerHTML = `
-          <input type="text" placeholder="Ingredient" class="c-name" value="${ing.name || ''}" onchange="autoSaveCocktail()">
-          <input type="number" class="c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveCocktail()">
-          <div style="display: flex; gap: 5px;">
-            <input type="number" class="c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveCocktail()">
-            <select class="c-unit" onchange="calculateCocktail(); autoSaveCocktail()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
-          </div>
-          <input type="number" class="c-cost" value="${ing.cost || 15}" step="0.01" oninput="calculateCocktail(); autoSaveCocktail()">
-          <div class="data-highlight c-line-cost">$0.00</div>
-          <button class="btn-remove" onclick="removeEl(this)">×</button>
-        `;
-        container.appendChild(div);
+        if (globalPourPct <= 20) {
+            pourDisplay.className = 'value status-good';
+            pourBox.style.borderLeftColor = 'var(--neon-green)';
+        } else {
+            pourDisplay.className = 'value status-warn';
+            pourBox.style.borderLeftColor = 'var(--danger)';
+        }
+      } else {
+        pourDisplay.innerText = '0.00%';
+        pourDisplay.className = 'value';
+        pourBox.style.borderLeftColor = 'var(--neon-green)';
+      }
     }
 
-    function addIngredientRow() {
-        injectIngredientRow({ unit: 'ml', size: 750, pour: 1, cost: 15 });
-        calculateCocktail();
-        autoSaveCocktail();
-    }
-
-    // --- STANDARD APP LOGIC ---
-    let deletedStack = [];
-
-    function convertToOz(size, unit) {
-      if (unit === 'ml') return size / 29.5735;
-      if (unit === 'L') return (size * 1000) / 29.5735;
-      return size; 
-    }
-
+    // --- 5. MODALS & WORKFLOWS ---
     function openTab(event, tabId) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -538,7 +613,6 @@
       if(event && event.currentTarget) event.currentTarget.classList.add('active');
     }
 
-    // --- MODALS ---
     function getInventoryOptionsHTML() {
       let optionsHTML = '';
       document.querySelectorAll('.inv-row').forEach((row, index) => {
@@ -578,7 +652,8 @@
             const targetRow = invRows[rowIndex];
             const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0;
             targetRow.setAttribute('data-received', currentRec + amount);
-            calcInvRow(targetRow.querySelector('.i-start'));
+            // Update the read-only received cell visually
+            targetRow.querySelectorAll('td')[4].innerText = currentRec + amount;
           }
         }
       });
@@ -619,22 +694,27 @@
 
     function confirmResetWeek() {
       document.querySelectorAll('.inv-row').forEach(row => {
+        // End count becomes Start count
         row.querySelector('.i-start').value = parseFloat(row.querySelector('.i-end').value) || 0;
+        // Reset deliveries
         row.setAttribute('data-received', '0');
-        calcInvRow(row.querySelector('.i-start'));
+        row.querySelectorAll('td')[4].innerText = '0';
       });
       autoSaveInv();
       closeSummaryModal();
     }
 
+    // --- 6. GENERAL UTILS & COCKTAIL BUILDER ---
     function removeEl(btn) {
-      const row = btn.closest('.inv-row, .ingredient-row');
+      const row = btn.closest('tr, .ingredient-row');
       deletedStack.push({ row: row, parent: row.parentElement, nextSibling: row.nextElementSibling });
       row.remove();
+      
       document.getElementById('undo-btn-inv').style.display = 'inline-block';
       document.getElementById('undo-btn-build').style.display = 'inline-block';
-      if(row.classList.contains('inv-row')) { calculateGlobalMetrics(); autoSaveInv(); }
-      else { calculateCocktail(); autoSaveCocktail(); }
+      
+      if(row.classList.contains('inv-row')) { autoSaveInv(); }
+      else { autoSaveCocktail(); calculateCocktail(); }
     }
 
     function undoDelete() {
@@ -643,93 +723,39 @@
         if (last.nextSibling && last.nextSibling.parentNode === last.parent) last.parent.insertBefore(last.row, last.nextSibling);
         else last.parent.appendChild(last.row);
 
-        if(last.row.classList.contains('inv-row')) { calcInvRow(last.row.querySelector('.i-start')); calculateGlobalMetrics(); autoSaveInv(); } 
-        else { calculateCocktail(); autoSaveCocktail(); }
+        if(last.row.classList.contains('inv-row')) { autoSaveInv(); } 
+        else { autoSaveCocktail(); calculateCocktail(); }
       }
-      if (deletedStack.length === 0) { document.getElementById('undo-btn-inv').style.display = 'none'; document.getElementById('undo-btn-build').style.display = 'none'; }
-    }
-
-    // --- MATH ---
-    function calcInvRow(inputElement) {
-      const row = inputElement.closest('.inv-row');
-      const rawSize = parseFloat(row.querySelector('.i-size').value) || 1;
-      const unit = row.querySelector('.i-unit').value;
-      const sizeOz = convertToOz(rawSize, unit);
-      
-      const start = parseFloat(row.querySelector('.i-start').value) || 0;
-      const received = parseFloat(row.getAttribute('data-received')) || 0;
-      const end = parseFloat(row.querySelector('.i-end').value) || 0;
-      const btlCost = parseFloat(row.querySelector('.i-cost').value) || 0;
-      const shotSell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
-
-      const usageCost = ((start + received) - end) * btlCost;
-      row.querySelector('.calc-usage-cost').innerText = `$${Math.max(0, usageCost).toFixed(2)}`;
-
-      const shotCost = (btlCost / sizeOz) * 1.5;
-      row.querySelector('.calc-shot-cost').innerText = `$${shotCost.toFixed(2)}`;
-      
-      const profitEl = row.querySelector('.calc-shot-profit');
-      const pourEl = row.querySelector('.calc-shot-pour');
-      
-      if(shotSell > 0) {
-        const pourCostPct = (shotCost / shotSell) * 100;
-        profitEl.innerText = `$${(shotSell - shotCost).toFixed(2)}`;
-        pourEl.innerText = `${pourCostPct.toFixed(2)}%`;
-        const state = pourCostPct <= 20 ? 'status-good' : 'status-warn';
-        pourEl.className = `data-highlight calc-shot-pour ${state}`;
-        profitEl.className = `data-highlight calc-shot-profit ${state}`;
-      } else {
-        profitEl.innerText = `$0.00`;
-        pourEl.innerText = `0.00%`;
-        pourEl.className = 'data-highlight calc-shot-pour';
-      }
-      calculateGlobalMetrics();
-    }
-
-    function calculateGlobalMetrics() {
-      let totalUsageCost = 0;
-      document.querySelectorAll('.inv-row').forEach(row => {
-        totalUsageCost += parseFloat(row.querySelector('.calc-usage-cost').innerText.replace('$', '')) || 0;
-      });
-      document.getElementById('global-usage-cost').innerText = `$${totalUsageCost.toFixed(2)}`;
-
-      const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
-      const pourDisplay = document.getElementById('global-pour-cost');
-      const pourBox = document.getElementById('global-pour-box');
-
-      if (posSales > 0) {
-        const globalPourPct = (totalUsageCost / posSales) * 100;
-        pourDisplay.innerText = `${globalPourPct.toFixed(2)}%`;
-        pourDisplay.className = globalPourPct <= 20 ? 'value status-good' : 'value status-warn';
-        pourBox.style.borderLeftColor = globalPourPct <= 20 ? 'var(--neon-green)' : 'var(--danger)';
-      } else {
-        pourDisplay.innerText = '0.00%';
-        pourDisplay.className = 'value';
-        pourBox.style.borderLeftColor = 'var(--neon-green)';
+      if (deletedStack.length === 0) { 
+          document.getElementById('undo-btn-inv').style.display = 'none'; 
+          document.getElementById('undo-btn-build').style.display = 'none'; 
       }
     }
 
     function exportToCSV() {
       let csvContent = "data:text/csv;charset=utf-8,";
-      csvContent += '"Category","Brand","Size","Start Count","Received (Hidden)","End Count","Btls Used (Hidden)","Cost/Btl","Shot Sell","Usage Cost","Shot Cost","Shot Profit","Shot Pour %"\r\n';
+      csvContent += '"Category","Brand","Size","Start Count","Received","End Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost","Shot Cost","Shot Profit","Shot Pour %"\r\n';
 
       document.querySelectorAll('.inv-row').forEach(row => {
         const cat = row.querySelector('.i-category').value;
         const brand = row.querySelector('.i-brand').value;
-        const size = row.querySelector('.i-size').value;
+        const rawSize = row.querySelector('.i-size').value;
         const unit = row.querySelector('.i-unit').value;
+        
         const start = parseFloat(row.querySelector('.i-start').value) || 0;
         const received = parseFloat(row.getAttribute('data-received')) || 0;
         const end = parseFloat(row.querySelector('.i-end').value) || 0;
-        const btlsUsed = (start + received) - end;
-        const cost = row.querySelector('.i-cost').value;
-        const sell = row.querySelector('.i-shot-sell').value;
-        const usageCost = row.querySelector('.calc-usage-cost').innerText;
-        const shotCost = row.querySelector('.calc-shot-cost').innerText;
-        const shotProfit = row.querySelector('.calc-shot-profit').innerText;
-        const shotPour = row.querySelector('.calc-shot-pour').innerText;
+        const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
+        const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
         
-        let rowData = [ `"${cat}"`, `"${brand}"`, `"${size} ${unit}"`, `"${start}"`, `"${received}"`, `"${end}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost}"`, `"${sell}"`, `"${usageCost}"`, `"${shotCost}"`, `"${shotProfit}"`, `"${shotPour}"` ];
+        const btlsUsed = (start + received) - end;
+        const usageCost = btlsUsed * cost;
+        const sizeOz = convertToOz(rawSize, unit);
+        const shotCost = (cost / sizeOz) * 1.5;
+        const shotProfit = sell - shotCost;
+        const pourCostPct = sell > 0 ? (shotCost / sell) * 100 : 0;
+        
+        let rowData = [ `"${cat}"`, `"${brand}"`, `"${rawSize} ${unit}"`, `"${start}"`, `"${received}"`, `"${end}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, `"${usageCost.toFixed(2)}"`, `"${shotCost.toFixed(2)}"`, `"${shotProfit.toFixed(2)}"`, `"${pourCostPct.toFixed(2)}%"` ];
         csvContent += rowData.join(",") + "\r\n";
       });
 
@@ -739,6 +765,32 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+
+    function injectIngredientRow(ing) {
+        const container = document.getElementById('ingredients-container');
+        const div = document.createElement('div');
+        div.className = 'builder-grid ingredient-row';
+        let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === ing.unit ? 'selected' : ''}>${u}</option>`).join('');
+        
+        div.innerHTML = `
+          <input type="text" placeholder="Ingredient" class="c-name" value="${ing.name || ''}" oninput="autoSaveCocktail()">
+          <input type="number" class="c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveCocktail()">
+          <div style="display: flex; gap: 5px;">
+            <input type="number" class="c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveCocktail()">
+            <select class="c-unit" onchange="calculateCocktail(); autoSaveCocktail()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
+          </div>
+          <input type="number" class="c-cost" value="${ing.cost || 15}" step="0.01" oninput="calculateCocktail(); autoSaveCocktail()">
+          <div class="data-highlight c-line-cost">$0.00</div>
+          <button class="btn-remove" onclick="removeEl(this)">×</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function addIngredientRow() {
+        injectIngredientRow({ unit: 'ml', size: 750, pour: 1, cost: 15 });
+        calculateCocktail();
+        autoSaveCocktail();
     }
 
     function calculateCocktail() {
