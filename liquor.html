@@ -55,7 +55,6 @@
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
     .brand { display: flex; align-items: center; gap: 15px; font-size: 1.8rem; font-weight: 300; letter-spacing: 2px; }
     
-    /* Image Logo Styling */
     .parrot-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-green); box-shadow: var(--neon-glow); }
     
     .meta-info { text-align: right; font-size: 0.8rem; color: var(--text-muted); }
@@ -94,19 +93,40 @@
     .status-good { color: var(--neon-green) !important; text-shadow: var(--neon-glow); }
     .status-warn { color: var(--danger) !important; text-shadow: var(--danger-glow); }
 
-    /* --- TABLES & INPUTS --- */
+    /* --- DE-CLUNKED TABLES & INPUTS --- */
     .table-container { overflow-x: auto; margin-top: 1rem; margin-bottom: 1rem; }
     .table-container::-webkit-scrollbar { height: 8px; }
     .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
     table { width: 100%; border-collapse: collapse; min-width: 900px; }
-    th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; text-align: left; padding: 1rem 0.5rem; border-bottom: 1px solid var(--glass-border); white-space: nowrap; }
-    td { padding: 1rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; white-space: nowrap; }
+    th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; text-align: left; padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--glass-border); white-space: nowrap; }
+    td { padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; white-space: nowrap; transition: background 0.3s; }
     tr:hover td { background: rgba(255, 255, 255, 0.02); }
 
-    input[type="number"], input[type="text"], select { background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px 12px; border-radius: 8px; width: 100%; font-size: 0.9rem; transition: all 0.2s ease; outline: none; }
-    select { cursor: pointer; appearance: none; -webkit-appearance: none; }
-    select option { background: var(--bg-dark); color: var(--text-main); }
-    input:focus, select:focus { border-color: var(--neon-green); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 0 2px rgba(0, 230, 118, 0.1); }
+    /* Seamless Borderless Inputs */
+    .clean-input {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-main);
+        padding: 8px;
+        border-radius: 6px;
+        width: 100%;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        outline: none;
+    }
+    .clean-input:hover {
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px 6px 0 0;
+    }
+    .clean-input:focus {
+        background: rgba(0, 0, 0, 0.4);
+        border-bottom: 1px solid var(--neon-green);
+        border-radius: 6px 6px 0 0;
+    }
+    
+    select.clean-input { cursor: pointer; appearance: none; -webkit-appearance: none; }
+    select.clean-input option { background: var(--bg-dark); color: var(--text-main); }
 
     .col-small { width: 75px; }
     .col-med { width: 140px; }
@@ -122,7 +142,7 @@
     .btn-export:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
     .btn-undo { background: transparent; color: var(--neon-orange); border: 1px solid var(--neon-orange); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 0.8rem; display: none; transition: all 0.3s; }
     .btn-undo:hover { background: var(--neon-orange); color: #000; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--neon-orange-glow); }
-    .btn-remove { background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border); padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
+    .btn-remove { background: transparent; color: var(--text-muted); border: 1px solid transparent; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
     .btn-remove:hover { background: rgba(255, 71, 87, 0.1); color: var(--danger); border-color: var(--danger); }
 
     .builder-grid { display: grid; grid-template-columns: 2fr 1fr 2fr 1fr 1fr auto; gap: 15px; align-items: center; margin-bottom: 15px; }
@@ -209,7 +229,7 @@
   <div id="inventory" class="tab-content active">
     <div class="glass-card">
       <h3>Live Inventory Count</h3>
-      <input type="text" id="inventory-search" placeholder="🔍 Search spirits by brand or category..." onkeyup="filterInventory()" style="margin-bottom: 20px;">
+      <input type="text" id="inventory-search" class="clean-input" placeholder="🔍 Search spirits by brand or category..." onkeyup="filterInventory()" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
       
       <div class="table-container">
         <table id="inventory-table">
@@ -246,7 +266,7 @@
       <div class="dashboard-grid">
         <div class="metric-box">
           <h4>Total POS Sales ($)</h4>
-          <input type="number" id="pos-sales" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px; background: rgba(0,0,0,0.5);">
+          <input type="number" id="pos-sales" class="clean-input" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px;">
         </div>
         <div class="metric-box">
           <h4>Total Usage Cost</h4>
@@ -286,19 +306,19 @@
       <div style="display: flex; gap: 30px; margin-bottom: 30px; flex-wrap: wrap;">
         <div style="flex: 2; min-width: 200px;">
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Cocktail Name</label>
-          <input type="text" id="cocktail-name" placeholder="e.g., Los Pericos Margarita" style="font-size: 1.5rem; background: transparent; border: none; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;" oninput="autoSaveCocktail()">
+          <input type="text" id="cocktail-name" class="clean-input" placeholder="e.g., Los Pericos Margarita" style="font-size: 1.5rem; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;" oninput="autoSaveCocktail()">
         </div>
         <div style="flex: 1; min-width: 150px;">
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Menu Price ($)</label>
-          <input type="number" id="menu-price" placeholder="0.00" style="font-size: 1.5rem; background: transparent; border: none; border-bottom: 2px solid var(--neon-green); border-radius: 0; padding-left: 0;" oninput="calculateCocktail(); autoSaveCocktail()">
+          <input type="number" id="menu-price" class="clean-input" placeholder="0.00" style="font-size: 1.5rem; border-bottom: 2px solid var(--neon-green); border-radius: 0; padding-left: 0;" oninput="calculateCocktail(); autoSaveCocktail()">
         </div>
       </div>
 
       <div class="builder-grid builder-header">
         <div>Ingredient Name</div>
-        <div>Pour (oz)</div>
+        <div>Pour</div>
         <div>Btl Size & Unit</div>
-        <div>Btl Cost ($)</div>
+        <div>Cost ($)</div>
         <div>Line Cost</div>
         <div></div>
       </div>
@@ -374,8 +394,9 @@
             tbody.innerHTML = '';
             if(data) {
                 data.forEach(item => { if(item) injectInventoryRow(item); });
+                sortInventory();
             } else {
-                addInventoryRow(); // If DB is empty
+                addInventoryRow();
             }
             
             db.ref(currentLocation + '/liquor_cocktail').once('value', snap2 => {
@@ -391,28 +412,25 @@
                 }
                 calculateCocktail();
                 
-                // Finalize Initial Load
                 isInitialLoad = true;
-                renderMarginDashboard(); // Build Tab 2
+                renderMarginDashboard();
             });
         });
 
-        // Listen for Meta updates (Last edited by, POS Sales)
         db.ref(currentLocation + '/liquor_meta').on('value', snap => {
             const meta = snap.val();
             if(meta && meta.lastEditedBy) {
                 const time = new Date(meta.lastEditedAt).toLocaleTimeString();
                 document.getElementById('last-edited-by').innerHTML = `${meta.lastEditedBy} <br><span style="font-weight:normal; font-size:0.7rem;">${time}</span>`;
-                
                 if(meta.posSales !== undefined && document.getElementById('pos-sales').value === '') {
                     document.getElementById('pos-sales').value = meta.posSales;
-                    calculateGlobalMetrics(); // Update Tab 2 header
+                    calculateGlobalMetrics();
                 }
             }
         });
     }
 
-    // --- 2. FIREBASE SAVE FUNCTIONS ---
+    // --- 2. FIREBASE SAVE FUNCTIONS & DUPLICATE CHECK ---
     function flashSync() {
         const dot = document.getElementById('sync-indicator');
         const text = document.getElementById('sync-text');
@@ -429,13 +447,26 @@
     function autoSaveInv() {
         if(!isInitialLoad) return;
         const data = [];
+        let seen = new Set();
+
         document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
+             const cat = row.querySelector('.i-category').value;
+             const brand = row.querySelector('.i-brand').value;
+             const size = parseFloat(row.querySelector('.i-size').value) || 0;
+             const unit = row.querySelector('.i-unit').value;
+             
+             // Check for duplicates (Brand + Size)
+             const checkKey = `${brand.trim().toLowerCase()}|${size}|${unit}`;
+             if(brand.trim() !== '' && seen.has(checkKey)) {
+                 row.style.background = 'rgba(255, 71, 87, 0.15)'; // Highlight Red
+             } else {
+                 row.style.background = 'transparent';
+                 seen.add(checkKey);
+             }
+
              data.push({
-                 category: row.querySelector('.i-category').value,
-                 brand: row.querySelector('.i-brand').value,
-                 size: parseFloat(row.querySelector('.i-size').value) || 0,
-                 unit: row.querySelector('.i-unit').value,
-                 start: parseFloat(row.getAttribute('data-start')) || 0, // Hidden start value
+                 category: cat, brand: brand, size: size, unit: unit,
+                 start: parseFloat(row.getAttribute('data-start')) || 0,
                  received: parseFloat(row.getAttribute('data-received')) || 0,
                  count: parseFloat(row.querySelector('.i-count').value) || 0,
                  cost: parseFloat(row.querySelector('.i-cost').value) || 0,
@@ -443,7 +474,6 @@
              });
         });
         
-        // SECURE PUSH TO DATABASE
         db.ref(currentLocation + '/liquor_inventory').set(data)
           .then(() => { updateMeta(); renderMarginDashboard(); })
           .catch(error => console.error("Firebase Save Error: ", error));
@@ -486,9 +516,29 @@
         flashSync();
     }
 
-    // --- 3. TAB 1: INVENTORY COUNTING UI ---
+    // --- 3. INVENTORY SORTING & UI ---
     const catOptions = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
     const unitOptions = ['ml', 'oz', 'L'];
+    const builderUnitOptions = ['ml', 'oz', 'L', 'dash', 'ea']; // Added 'dash' and 'ea'
+
+    function sortInventory() {
+        const tbody = document.getElementById('inventory-body');
+        const rows = Array.from(tbody.querySelectorAll('.inv-row'));
+
+        rows.sort((a, b) => {
+            const catA = catOptions.indexOf(a.querySelector('.i-category').value);
+            const catB = catOptions.indexOf(b.querySelector('.i-category').value);
+            const brandA = a.querySelector('.i-brand').value.toLowerCase();
+            const brandB = b.querySelector('.i-brand').value.toLowerCase();
+
+            if (catA !== catB) return catA - catB;
+            if (brandA < brandB) return -1;
+            if (brandA > brandB) return 1;
+            return 0;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
 
     function filterInventory() {
       const filter = document.getElementById('inventory-search').value.toUpperCase();
@@ -502,6 +552,8 @@
     function convertToOz(size, unit) {
       if (unit === 'ml') return size / 29.5735;
       if (unit === 'L') return (size * 1000) / 29.5735;
+      if (unit === 'dash') return size * 0.03125; // 1 dash = approx 1/32 oz
+      if (unit === 'ea') return size; // 1 to 1 direct scaling
       return size; // assumes 'oz'
     }
 
@@ -510,22 +562,22 @@
         const tr = document.createElement('tr');
         tr.className = 'inv-row';
         tr.setAttribute('data-received', item.received || 0);
-        tr.setAttribute('data-start', item.start || 0); // Hide Start count in dataset
+        tr.setAttribute('data-start', item.start || 0);
         
         let catHtml = catOptions.map(c => `<option value="${c}" ${c === item.category ? 'selected' : ''}>${c}</option>`).join('');
         let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
 
         tr.innerHTML = `
-          <td><select class="i-category col-med" onchange="autoSaveInv()">${catHtml}</select></td>
-          <td><input type="text" placeholder="Brand" class="col-large i-brand" value="${item.brand || ''}" oninput="autoSaveInv()"></td>
+          <td><select class="i-category clean-input col-med" onchange="autoSaveInv(); sortInventory()">${catHtml}</select></td>
+          <td><input type="text" placeholder="Brand" class="clean-input col-large i-brand" value="${item.brand || ''}" oninput="autoSaveInv()" onchange="sortInventory()"></td>
           <td style="display: flex; gap: 5px; align-items: center;">
-            <input type="number" class="i-size col-small" value="${item.size || 750}" oninput="autoSaveInv()">
-            <select class="i-unit" onchange="autoSaveInv()" style="width: 60px; padding: 10px 5px;">${unitHtml}</select>
+            <input type="number" class="clean-input i-size col-small" value="${item.size || 750}" oninput="autoSaveInv()">
+            <select class="clean-input i-unit" onchange="autoSaveInv()" style="width: 60px; padding: 10px 5px;">${unitHtml}</select>
           </td>
-          <td><input type="number" class="i-count col-small" value="${item.count || 0}" step="0.1" oninput="autoSaveInv()"></td>
-          <td class="data-highlight calc-received" style="color: var(--neon-blue);">${item.received || 0}</td>
-          <td><input type="number" class="i-cost col-small" value="${item.cost || 0}" step="0.01" oninput="autoSaveInv()"></td>
-          <td><input type="number" class="i-shot-sell col-small" value="${item.shotSell || 0}" step="0.01" oninput="autoSaveInv()"></td>
+          <td><input type="number" class="clean-input i-count col-small" value="${item.count || 0}" step="0.1" oninput="autoSaveInv()"></td>
+          <td class="data-highlight calc-received" style="color: var(--neon-blue); padding-left:15px;">${item.received || 0}</td>
+          <td><input type="number" class="clean-input i-cost col-small" value="${item.cost || 0}" step="0.01" oninput="autoSaveInv()"></td>
+          <td><input type="number" class="clean-input i-shot-sell col-small" value="${item.shotSell || 0}" step="0.01" oninput="autoSaveInv()"></td>
           <td><button class="btn-remove" onclick="removeEl(this)">×</button></td>
         `;
         tbody.appendChild(tr);
@@ -533,10 +585,11 @@
 
     function addInventoryRow() {
         injectInventoryRow({ category: 'Tequila', unit: 'ml', size: 750, start: 0, received: 0, count: 0, cost: 0, shotSell: 0 });
+        sortInventory();
         autoSaveInv();
     }
 
-    // --- 4. TAB 2: MARGIN DASHBOARD LOGIC ---
+    // --- 4. MARGIN DASHBOARD ---
     function renderMarginDashboard() {
         const tbody = document.getElementById('dashboard-body');
         tbody.innerHTML = '';
@@ -548,7 +601,7 @@
             const unit = row.querySelector('.i-unit').value;
             const sizeOz = convertToOz(rawSize, unit);
             
-            const start = parseFloat(row.getAttribute('data-start')) || 0; // Get hidden start
+            const start = parseFloat(row.getAttribute('data-start')) || 0;
             const received = parseFloat(row.getAttribute('data-received')) || 0;
             const count = parseFloat(row.querySelector('.i-count').value) || 0;
             const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
@@ -566,11 +619,8 @@
 
             if (sell > 0) {
                 pourCostPct = (shotCost / sell) * 100;
-                if (pourCostPct <= 20) {
-                    pourClass = 'status-good'; profitClass = 'status-good';
-                } else {
-                    pourClass = 'status-warn'; profitClass = 'status-warn';
-                }
+                if (pourCostPct <= 20) { pourClass = 'status-good'; profitClass = 'status-good'; } 
+                else { pourClass = 'status-warn'; profitClass = 'status-warn'; }
             }
 
             const tr = document.createElement('tr');
@@ -590,9 +640,7 @@
     }
 
     function calculateGlobalMetrics(totalUsageCost) {
-      if (totalUsageCost === undefined) {
-          totalUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
-      }
+      if (totalUsageCost === undefined) totalUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
       
       const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
       const pourDisplay = document.getElementById('global-pour-cost');
@@ -601,22 +649,14 @@
       if (posSales > 0) {
         const globalPourPct = (totalUsageCost / posSales) * 100;
         pourDisplay.innerText = `${globalPourPct.toFixed(2)}%`;
-        
-        if (globalPourPct <= 20) {
-            pourDisplay.className = 'value status-good';
-            pourBox.style.borderLeftColor = 'var(--neon-green)';
-        } else {
-            pourDisplay.className = 'value status-warn';
-            pourBox.style.borderLeftColor = 'var(--danger)';
-        }
+        if (globalPourPct <= 20) { pourDisplay.className = 'value status-good'; pourBox.style.borderLeftColor = 'var(--neon-green)'; } 
+        else { pourDisplay.className = 'value status-warn'; pourBox.style.borderLeftColor = 'var(--danger)'; }
       } else {
-        pourDisplay.innerText = '0.00%';
-        pourDisplay.className = 'value';
-        pourBox.style.borderLeftColor = 'var(--neon-green)';
+        pourDisplay.innerText = '0.00%'; pourDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)';
       }
     }
 
-    // --- 5. MODALS & WORKFLOWS ---
+    // --- 5. MODALS ---
     function openTab(event, tabId) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -638,7 +678,7 @@
       const list = document.getElementById('delivery-batch-list');
       const div = document.createElement('div');
       div.className = 'delivery-row';
-      div.innerHTML = `<select style="flex: 2;">${getInventoryOptionsHTML()}</select><input type="number" placeholder="Qty" min="0" step="1" style="flex: 1;"><button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
+      div.innerHTML = `<select class="clean-input" style="flex: 2; background:rgba(0,0,0,0.5);">${getInventoryOptionsHTML()}</select><input class="clean-input" type="number" placeholder="Qty" min="0" step="1" style="flex: 1; background:rgba(0,0,0,0.5);"><button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
       list.appendChild(div);
     }
 
@@ -663,7 +703,6 @@
             const targetRow = invRows[rowIndex];
             const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0;
             targetRow.setAttribute('data-received', currentRec + amount);
-            // Update the read-only received cell visually
             targetRow.querySelector('.calc-received').innerText = currentRec + amount;
           }
         }
@@ -705,10 +744,8 @@
 
     function confirmResetWeek() {
       document.querySelectorAll('.inv-row').forEach(row => {
-        // Set new start count to the current physically counted amount
         const currentCount = parseFloat(row.querySelector('.i-count').value) || 0;
         row.setAttribute('data-start', currentCount);
-        // Reset deliveries
         row.setAttribute('data-received', '0');
         row.querySelector('.calc-received').innerText = '0';
       });
@@ -716,7 +753,7 @@
       closeSummaryModal();
     }
 
-    // --- 6. GENERAL UTILS & COCKTAIL BUILDER ---
+    // --- 6. UTILS & COCKTAIL BUILDER ---
     function removeEl(btn) {
       const row = btn.closest('tr, .ingredient-row');
       deletedStack.push({ row: row, parent: row.parentElement, nextSibling: row.nextElementSibling });
@@ -735,7 +772,7 @@
         if (last.nextSibling && last.nextSibling.parentNode === last.parent) last.parent.insertBefore(last.row, last.nextSibling);
         else last.parent.appendChild(last.row);
 
-        if(last.row.classList.contains('inv-row')) { autoSaveInv(); } 
+        if(last.row.classList.contains('inv-row')) { sortInventory(); autoSaveInv(); } 
         else { autoSaveCocktail(); calculateCocktail(); }
       }
       if (deletedStack.length === 0) { 
@@ -783,16 +820,16 @@
         const container = document.getElementById('ingredients-container');
         const div = document.createElement('div');
         div.className = 'builder-grid ingredient-row';
-        let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === ing.unit ? 'selected' : ''}>${u}</option>`).join('');
+        let unitHtml = builderUnitOptions.map(u => `<option value="${u}" ${u === ing.unit ? 'selected' : ''}>${u}</option>`).join('');
         
         div.innerHTML = `
-          <input type="text" placeholder="Ingredient" class="c-name" value="${ing.name || ''}" oninput="autoSaveCocktail()">
-          <input type="number" class="c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveCocktail()">
+          <input type="text" placeholder="Ingredient" class="clean-input c-name" value="${ing.name || ''}" oninput="autoSaveCocktail()">
+          <input type="number" class="clean-input c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveCocktail()">
           <div style="display: flex; gap: 5px;">
-            <input type="number" class="c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveCocktail()">
-            <select class="c-unit" onchange="calculateCocktail(); autoSaveCocktail()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
+            <input type="number" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveCocktail()">
+            <select class="clean-input c-unit" onchange="calculateCocktail(); autoSaveCocktail()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
           </div>
-          <input type="number" class="c-cost" value="${ing.cost || 15}" step="0.01" oninput="calculateCocktail(); autoSaveCocktail()">
+          <input type="number" class="clean-input c-cost" value="${ing.cost || 15}" step="0.01" oninput="calculateCocktail(); autoSaveCocktail()">
           <div class="data-highlight c-line-cost">$0.00</div>
           <button class="btn-remove" onclick="removeEl(this)">×</button>
         `;
@@ -812,6 +849,8 @@
         const rawSize = parseFloat(row.querySelector('.c-size').value) || 1; 
         const unit = row.querySelector('.c-unit').value;
         const btlCost = parseFloat(row.querySelector('.c-cost').value) || 0;
+        
+        // Cost formula automatically handles dashes and whole items via convertToOz sizing
         const lineCost = pourOz * (btlCost / convertToOz(rawSize, unit));
         row.querySelector('.c-line-cost').innerText = `$${lineCost.toFixed(2)}`;
         totalCost += lineCost;
