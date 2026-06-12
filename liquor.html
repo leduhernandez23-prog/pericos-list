@@ -277,7 +277,7 @@
     </div>
   </div>
 
-  <div id="dashboard" class="tab-content">
+ <div id="dashboard" class="tab-content">
     <div class="glass-card">
       <h3>Global Shift Metrics</h3>
       <div class="dashboard-grid">
@@ -297,7 +297,9 @@
     </div>
 
     <div class="glass-card">
-      <h3>Margin Analysis (Auto-Calculated)</h3>
+      <h3>Margin Analysis</h3>
+      <input type="text" id="dashboard-search" class="clean-input" placeholder="🔍 Search margins by brand..." onkeyup="filterDashboard()" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
+      
       <div class="table-container">
         <table id="dashboard-table">
           <thead>
@@ -955,6 +957,16 @@
       } else {
         profitDisplay.innerText = `$0.00`; pourDisplay.innerText = `0.00%`; classDisplay.innerText = '--';
         pourDisplay.className = 'value'; profitDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)';
+      }
+    }
+    function filterDashboard() {
+      const filter = document.getElementById('dashboard-search').value.toUpperCase();
+      const tbody = document.getElementById('dashboard-body');
+      const rows = tbody.getElementsByTagName('tr');
+      
+      for (let i = 0; i < rows.length; i++) {
+        const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase();
+        rows[i].style.display = brand.includes(filter) ? "" : "none";
       }
     }
   </script>
