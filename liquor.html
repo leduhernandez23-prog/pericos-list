@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Los Pericos | Bar Vault</title>
 
+  <!-- Firebase Integration -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -54,10 +55,7 @@
 
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
     .brand { display: flex; align-items: center; gap: 15px; font-size: 1.8rem; font-weight: 300; letter-spacing: 2px; }
-    
-    /* Image Logo Styling */
     .parrot-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-green); box-shadow: var(--neon-glow); }
-    
     .meta-info { text-align: right; font-size: 0.8rem; color: var(--text-muted); }
     .meta-info span { color: var(--text-main); font-weight: bold; }
 
@@ -94,7 +92,7 @@
     .status-good { color: var(--neon-green) !important; text-shadow: var(--neon-glow); }
     .status-warn { color: var(--danger) !important; text-shadow: var(--danger-glow); }
 
-    /* --- DE-CLUNKED TABLES & INPUTS --- */
+    /* --- TABLES & INPUTS --- */
     .table-container { overflow-x: auto; margin-top: 1rem; margin-bottom: 1rem; }
     .table-container::-webkit-scrollbar { height: 8px; }
     .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
@@ -103,29 +101,9 @@
     td { padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; white-space: nowrap; transition: background 0.3s; }
     tr:hover td { background: rgba(255, 255, 255, 0.02); }
 
-    /* Seamless Borderless Inputs */
-    .clean-input {
-        background: transparent;
-        border: 1px solid transparent;
-        color: var(--text-main);
-        padding: 8px;
-        border-radius: 6px;
-        width: 100%;
-        font-size: 0.9rem;
-        transition: all 0.2s;
-        outline: none;
-    }
-    .clean-input:hover {
-        background: rgba(255, 255, 255, 0.03);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 6px 6px 0 0;
-    }
-    .clean-input:focus {
-        background: rgba(0, 0, 0, 0.4);
-        border-bottom: 1px solid var(--neon-green);
-        border-radius: 6px 6px 0 0;
-    }
-    
+    .clean-input { background: transparent; border: 1px solid transparent; color: var(--text-main); padding: 8px; border-radius: 6px; width: 100%; font-size: 0.9rem; transition: all 0.2s; outline: none; }
+    .clean-input:hover { background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px 6px 0 0; }
+    .clean-input:focus { background: rgba(0, 0, 0, 0.4); border-bottom: 1px solid var(--neon-green); border-radius: 6px 6px 0 0; }
     select.clean-input { cursor: pointer; appearance: none; -webkit-appearance: none; }
     select.clean-input option { background: var(--bg-dark); color: var(--text-main); }
 
@@ -149,10 +127,93 @@
     .builder-grid { display: grid; grid-template-columns: 2fr 1fr 2fr 1fr 1fr auto; gap: 15px; align-items: center; margin-bottom: 15px; }
     .builder-header { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); }
     .data-highlight { font-family: monospace; font-size: 1.1rem; color: var(--text-main); }
+
+    /* ==========================================
+       📱 MOBILE RESPONSIVE UPGRADES 📱
+       ========================================== */
+    @media (max-width: 768px) {
+      body { padding: 0 1rem 1rem 1rem; }
+      
+      /* Fix header & System bar */
+      .sys-bar { flex-direction: column; gap: 10px; text-align: center; }
+      .brand { font-size: 1.4rem; flex-wrap: wrap; justify-content: center; text-align: center; }
+      header { flex-direction: column; gap: 15px; }
+      .meta-info { text-align: center; }
+
+      /* Stack buttons and tabs */
+      .action-row { flex-direction: column; width: 100%; gap: 10px; }
+      .action-row button { width: 100%; margin-left: 0 !important; }
+      .tabs { flex-direction: column; gap: 10px; }
+      .tab-btn { width: 100%; text-align: center; }
+
+      /* Modals */
+      .modal-content { padding: 1.5rem; width: 100%; }
+      .delivery-row { flex-direction: column; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; }
+      .delivery-row select, .delivery-row input { width: 100%; margin-bottom: 10px; }
+      
+      /* Search Filters */
+      #inventory-search, #category-filter, #dashboard-search { width: 100%; flex: none; margin-bottom: 10px; }
+
+      /* 🃏 TURN TABLES INTO VERTICAL CARDS 🃏 */
+      table, thead, tbody, th, td, tr { display: block; width: 100%; min-width: unset; }
+      thead tr { display: none; } /* Hide the top header row */
+      
+      tr { 
+        border: 1px solid var(--glass-border); 
+        border-radius: 12px; 
+        margin-bottom: 1.5rem; 
+        padding: 1rem; 
+        background: rgba(0, 0, 0, 0.4); 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      }
+      
+      td { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        border: none; 
+        padding: 10px 0; 
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+      }
+      td:last-child { border-bottom: none; justify-content: flex-end; }
+      
+      /* Create the mobile labels automatically using data-label attribute */
+      td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: bold;
+        flex: 1;
+        text-align: left;
+        padding-right: 15px;
+      }
+      
+      td > * { flex: 2; text-align: right; }
+      .clean-input { text-align: right; background: rgba(255,255,255,0.05); }
+      .col-small, .col-med, .col-large { width: 100%; }
+      td > div { justify-content: flex-end; } /* Fix for side-by-side inputs like Size & Unit */
+
+      /* 🍹 COCKTAIL BUILDER FIXES 🍹 */
+      .builder-header { display: none; }
+      .builder-grid { 
+        display: flex; 
+        flex-direction: column; 
+        background: rgba(0, 0, 0, 0.4); 
+        padding: 1.5rem; 
+        border-radius: 12px; 
+        margin-bottom: 1.5rem; 
+        border: 1px solid var(--glass-border); 
+      }
+      .builder-grid > * { margin-bottom: 10px; width: 100%; }
+      .builder-grid .data-highlight { text-align: right; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+      .builder-grid button { align-self: flex-end; width: auto; background: rgba(255, 71, 87, 0.1); border: 1px solid var(--danger); color: var(--danger); margin-top: 10px; }
+    }
   </style>
 </head>
 <body>
 
+  <!-- AUTHENTICATION CHECK -->
   <script>
     if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
     const activeUser = localStorage.getItem('pericos_active_user');
@@ -183,12 +244,14 @@
     </div>
   </header>
 
+  <!-- 3-TAB SYSTEM -->
   <div class="tabs">
     <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
     <button class="tab-btn" onclick="openTab(event, 'builder')">3. Cocktail Builder</button>
   </div>
 
+  <!-- MODAL: RECEIVE DELIVERY -->
   <div id="receive-modal" class="modal-overlay">
     <div class="modal-content">
       <h3 style="color: var(--neon-blue); margin-top: 0;">Receive Delivery Order</h3>
@@ -209,6 +272,7 @@
     </div>
   </div>
 
+  <!-- MODAL: WEEKLY SUMMARY & ROLLOVER -->
   <div id="summary-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
       <h3 style="color: var(--neon-green); margin-top: 0;">Weekly Usage Summary</h3>
@@ -227,13 +291,13 @@
     </div>
   </div>
 
+  <!-- TAB 1: MASTER INVENTORY (Purely for Counting) -->
   <div id="inventory" class="tab-content active">
     <div class="glass-card">
       <h3>Live Inventory Count</h3>
       
       <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
         <input type="text" id="inventory-search" class="clean-input" placeholder="🔍 Search spirits by brand..." onkeyup="filterInventory()" style="flex: 2; border-bottom: 1px solid var(--glass-border); border-radius: 0; min-width: 200px;">
-        
         <select id="category-filter" class="clean-input" onchange="filterInventory()" style="flex: 1; border-bottom: 1px solid var(--glass-border); border-radius: 0; cursor: pointer; min-width: 150px;">
           <option value="ALL">Show All Categories</option>
           <option value="TEQUILA">Tequila</option>
@@ -263,21 +327,23 @@
             </tr>
           </thead>
           <tbody id="inventory-body">
-            </tbody>
+            <!-- Data loaded from Firebase -->
+          </tbody>
         </table>
       </div>
       
       <div class="action-row">
         <button class="btn-glow" onclick="addInventoryRow()">+ Add Spirit</button>
         <button class="btn-receive" onclick="openReceiveModal()">🚚 Receive Order</button>
-        <button class="btn-export" onclick="exportToCSV()">↓ Export to CSV</button>
+        <button class="btn-export" onclick="exportToCSV()">↓ Export CSV</button>
         <button class="btn-glow" style="margin-left: auto;" onclick="openSummaryModal()">🔄 Start New Week</button>
-        <button id="undo-btn-inv" class="btn-undo" onclick="undoDelete()">↩ Undo Delete</button>
+        <button id="undo-btn-inv" class="btn-undo" onclick="undoDelete()">↩ Undo</button>
       </div>
     </div>
   </div>
 
- <div id="dashboard" class="tab-content">
+  <!-- TAB 2: MARGIN DASHBOARD (Read-Only Financials) -->
+  <div id="dashboard" class="tab-content">
     <div class="glass-card">
       <h3>Global Shift Metrics</h3>
       <div class="dashboard-grid">
@@ -313,12 +379,14 @@
             </tr>
           </thead>
           <tbody id="dashboard-body">
-            </tbody>
+            <!-- Automatically populated -->
+          </tbody>
         </table>
       </div>
     </div>
   </div>
 
+  <!-- TAB 3: COCKTAIL BUILDER -->
   <div id="builder" class="tab-content">
     <div class="glass-card">
       <h3>Recipe Architect</h3>
@@ -375,6 +443,9 @@
     </div>
   </div>
 
+  <!-- ==========================================
+       JAVASCRIPT & FIREBASE LOGIC
+       ========================================== -->
   <script>
     document.getElementById('loc-display').innerText = currentLocation.replace('LP_', '');
     document.getElementById('user-display').innerText = activeUser;
@@ -393,7 +464,7 @@
     
     let isInitialLoad = false;
     let deletedStack = [];
-    let inventoryLookup = {}; // Stores DB inventory for Cocktail Auto-Fill
+    let inventoryLookup = {}; 
 
     // --- 1. FIREBASE AUTH CHECK & LOAD DATA ---
     firebase.auth().onAuthStateChanged((user) => {
@@ -417,7 +488,7 @@
             if(data) {
                 data.forEach(item => { if(item) injectInventoryRow(item); });
                 sortInventory();
-                updateInventoryDatalist(); // Populate Cocktail Auto-fill
+                updateInventoryDatalist(); 
             } else {
                 addInventoryRow();
             }
@@ -434,7 +505,6 @@
                     addIngredientRow();
                 }
                 calculateCocktail();
-                
                 isInitialLoad = true;
                 renderMarginDashboard();
             });
@@ -482,7 +552,7 @@
              if(brand.trim() !== '' && seen.has(checkKey)) {
                  row.style.background = 'rgba(255, 71, 87, 0.15)'; 
              } else {
-                 row.style.background = 'transparent';
+                 row.style.background = 'rgba(0,0,0,0.4)';
                  seen.add(checkKey);
              }
 
@@ -500,7 +570,7 @@
           .then(() => { 
               updateMeta(); 
               renderMarginDashboard(); 
-              updateInventoryDatalist(); // Ensure new items hit the dropdown
+              updateInventoryDatalist(); 
           })
           .catch(error => console.error("Firebase Save Error: ", error));
     }
@@ -577,12 +647,18 @@
         const matchesText = brand.includes(textFilter) || cat.includes(textFilter);
         const matchesCat = (catFilter === 'ALL' || cat === catFilter);
         
-        if (matchesText && matchesCat) {
-          row.style.display = "";
-        } else {
-          row.style.display = "none";
-        }
+        row.style.display = (matchesText && matchesCat) ? "" : "none";
       });
+    }
+
+    function filterDashboard() {
+      const filter = document.getElementById('dashboard-search').value.toUpperCase();
+      const rows = document.getElementById('dashboard-body').getElementsByTagName('tr');
+      
+      for (let i = 0; i < rows.length; i++) {
+        const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase();
+        rows[i].style.display = brand.includes(filter) ? "" : "none";
+      }
     }
 
     function convertToOz(size, unit) {
@@ -603,18 +679,19 @@
         let catHtml = catOptions.map(c => `<option value="${c}" ${c === item.category ? 'selected' : ''}>${c}</option>`).join('');
         let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
 
+        // Added data-label attributes so CSS knows what to name them on mobile
         tr.innerHTML = `
-          <td><select class="i-category clean-input col-med" onchange="autoSaveInv(); sortInventory()">${catHtml}</select></td>
-          <td><input type="text" placeholder="Brand" class="clean-input col-large i-brand" value="${item.brand || ''}" oninput="autoSaveInv()" onchange="sortInventory()"></td>
-          <td style="display: flex; gap: 5px; align-items: center;">
+          <td data-label="Category"><select class="i-category clean-input col-med" onchange="autoSaveInv(); sortInventory()">${catHtml}</select></td>
+          <td data-label="Brand"><input type="text" placeholder="Brand Name" class="clean-input col-large i-brand" value="${item.brand || ''}" oninput="autoSaveInv()" onchange="sortInventory()"></td>
+          <td data-label="Size & Unit" style="display: flex; gap: 5px; align-items: center;">
             <input type="number" class="clean-input i-size col-small" value="${item.size || 750}" oninput="autoSaveInv()">
-            <select class="clean-input i-unit" onchange="autoSaveInv()" style="width: 60px; padding: 10px 5px;">${unitHtml}</select>
+            <select class="clean-input i-unit" onchange="autoSaveInv()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
           </td>
-          <td><input type="number" class="clean-input i-count col-small" value="${item.count || 0}" step="0.1" oninput="autoSaveInv()"></td>
-          <td class="data-highlight calc-received" style="color: var(--neon-blue); padding-left:15px;">${item.received || 0}</td>
-          <td><input type="number" class="clean-input i-cost col-small" value="${item.cost || 0}" step="0.01" oninput="autoSaveInv()"></td>
-          <td><input type="number" class="clean-input i-shot-sell col-small" value="${item.shotSell || 0}" step="0.01" oninput="autoSaveInv()"></td>
-          <td><button class="btn-remove" onclick="removeEl(this)">×</button></td>
+          <td data-label="Current Count"><input type="number" class="clean-input i-count col-small" value="${item.count || 0}" step="0.1" oninput="autoSaveInv()"></td>
+          <td data-label="Received Btls" class="data-highlight calc-received" style="color: var(--neon-blue); padding-left:15px;">${item.received || 0}</td>
+          <td data-label="Btl Cost ($)"><input type="number" class="clean-input i-cost col-small" value="${item.cost || 0}" step="0.01" oninput="autoSaveInv()"></td>
+          <td data-label="Shot Sell ($)"><input type="number" class="clean-input i-shot-sell col-small" value="${item.shotSell || 0}" step="0.01" oninput="autoSaveInv()"></td>
+          <td data-label=""><button class="btn-remove" onclick="removeEl(this)">×</button></td>
         `;
         tbody.appendChild(tr);
         filterInventory(); 
@@ -662,12 +739,12 @@
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="font-weight: bold; color: var(--text-main);">${brand}</td>
-                <td style="color: var(--neon-orange); font-family: monospace; font-size: 1.1rem;">${Math.max(0, usageBtls).toFixed(1)}</td>
-                <td style="font-family: monospace; font-size: 1.1rem;">$${Math.max(0, usageCost).toFixed(2)}</td>
-                <td style="font-family: monospace; font-size: 1.1rem;">$${shotCost.toFixed(2)}</td>
-                <td class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">$${shotProfit.toFixed(2)}</td>
-                <td class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${sell > 0 ? pourCostPct.toFixed(2) + '%' : '0.00%'}</td>
+                <td data-label="Brand" style="font-weight: bold; color: var(--text-main);">${brand}</td>
+                <td data-label="Btls Used" style="color: var(--neon-orange); font-family: monospace; font-size: 1.1rem;">${Math.max(0, usageBtls).toFixed(1)}</td>
+                <td data-label="Usage Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${Math.max(0, usageCost).toFixed(2)}</td>
+                <td data-label="Shot Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${shotCost.toFixed(2)}</td>
+                <td data-label="Shot Profit ($)" class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">$${shotProfit.toFixed(2)}</td>
+                <td data-label="Pour Cost %" class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${sell > 0 ? pourCostPct.toFixed(2) + '%' : '0.00%'}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -795,7 +872,7 @@
         const datalist = document.getElementById('inventory-datalist');
         if(!datalist) return;
         datalist.innerHTML = '';
-        inventoryLookup = {}; // Reset lookup object
+        inventoryLookup = {}; 
         
         document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
             const brand = row.querySelector('.i-brand').value.trim();
@@ -807,17 +884,14 @@
                 const option = document.createElement('option');
                 option.value = brand;
                 datalist.appendChild(option);
-                // Save specific data to map for instant retrieval
                 inventoryLookup[brand.toLowerCase()] = { size, unit, cost };
             }
         });
     }
 
-    // Handles the auto-fill logic when user types in the builder
     function handleIngredientChange(input) {
         const val = input.value.trim().toLowerCase();
         if (inventoryLookup[val]) {
-            // A match was found in the database! Auto-fill the row.
             const row = input.closest('.ingredient-row');
             const data = inventoryLookup[val];
             row.querySelector('.c-size').value = data.size;
@@ -897,15 +971,15 @@
         let unitHtml = builderUnitOptions.map(u => `<option value="${u}" ${u === ing.unit ? 'selected' : ''}>${u}</option>`).join('');
         
         div.innerHTML = `
-          <input type="text" placeholder="Ingredient or select from DB" class="clean-input c-name" value="${ing.name || ''}" list="inventory-datalist" oninput="handleIngredientChange(this)">
-          <input type="number" class="clean-input c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveCocktail()">
+          <input type="text" placeholder="Ingredient / Auto-fill" class="clean-input c-name" value="${ing.name || ''}" list="inventory-datalist" oninput="handleIngredientChange(this)">
+          <input type="number" placeholder="Pour Oz" class="clean-input c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveCocktail()">
           <div style="display: flex; gap: 5px;">
-            <input type="number" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveCocktail()">
+            <input type="number" placeholder="Btl Size" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveCocktail()">
             <select class="clean-input c-unit" onchange="calculateCocktail(); autoSaveCocktail()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
           </div>
-          <input type="number" class="clean-input c-cost" value="${ing.cost || 15}" step="0.01" oninput="calculateCocktail(); autoSaveCocktail()">
+          <input type="number" placeholder="Btl Cost" class="clean-input c-cost" value="${ing.cost || 15}" step="0.01" oninput="calculateCocktail(); autoSaveCocktail()">
           <div class="data-highlight c-line-cost">$0.00</div>
-          <button class="btn-remove" onclick="removeEl(this)">×</button>
+          <button class="btn-remove" onclick="removeEl(this)">Remove</button>
         `;
         container.appendChild(div);
     }
@@ -957,16 +1031,6 @@
       } else {
         profitDisplay.innerText = `$0.00`; pourDisplay.innerText = `0.00%`; classDisplay.innerText = '--';
         pourDisplay.className = 'value'; profitDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)';
-      }
-    }
-    function filterDashboard() {
-      const filter = document.getElementById('dashboard-search').value.toUpperCase();
-      const tbody = document.getElementById('dashboard-body');
-      const rows = tbody.getElementsByTagName('tr');
-      
-      for (let i = 0; i < rows.length; i++) {
-        const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase();
-        rows[i].style.display = brand.includes(filter) ? "" : "none";
       }
     }
   </script>
