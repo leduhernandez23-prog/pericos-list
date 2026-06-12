@@ -55,6 +55,7 @@
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
     .brand { display: flex; align-items: center; gap: 15px; font-size: 1.8rem; font-weight: 300; letter-spacing: 2px; }
     
+    /* Image Logo Styling */
     .parrot-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-green); box-shadow: var(--neon-glow); }
     
     .meta-info { text-align: right; font-size: 0.8rem; color: var(--text-muted); }
@@ -229,7 +230,23 @@
   <div id="inventory" class="tab-content active">
     <div class="glass-card">
       <h3>Live Inventory Count</h3>
-      <input type="text" id="inventory-search" class="clean-input" placeholder="🔍 Search spirits by brand or category..." onkeyup="filterInventory()" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
+      
+      <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+        <input type="text" id="inventory-search" class="clean-input" placeholder="🔍 Search spirits by brand..." onkeyup="filterInventory()" style="flex: 2; border-bottom: 1px solid var(--glass-border); border-radius: 0; min-width: 200px;">
+        
+        <select id="category-filter" class="clean-input" onchange="filterInventory()" style="flex: 1; border-bottom: 1px solid var(--glass-border); border-radius: 0; cursor: pointer; min-width: 150px;">
+          <option value="ALL">Show All Categories</option>
+          <option value="TEQUILA">Tequila</option>
+          <option value="VODKA">Vodka</option>
+          <option value="WHISKEY">Whiskey</option>
+          <option value="RUM">Rum</option>
+          <option value="GIN">Gin</option>
+          <option value="LIQUEUR">Liqueur</option>
+          <option value="MIXER">Mixer</option>
+          <option value="BEER">Beer</option>
+          <option value="WINE">Wine</option>
+        </select>
+      </div>
       
       <div class="table-container">
         <table id="inventory-table">
@@ -266,7 +283,7 @@
       <div class="dashboard-grid">
         <div class="metric-box">
           <h4>Total POS Sales ($)</h4>
-          <input type="number" id="pos-sales" class="clean-input" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px;">
+          <input type="number" id="pos-sales" class="clean-input" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px; background: rgba(0,0,0,0.5);">
         </div>
         <div class="metric-box">
           <h4>Total Usage Cost</h4>
@@ -516,10 +533,10 @@
         flashSync();
     }
 
-    // --- 3. INVENTORY SORTING & UI ---
+    // --- 3. INVENTORY SORTING & FILTERING UI ---
     const catOptions = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
     const unitOptions = ['ml', 'oz', 'L'];
-    const builderUnitOptions = ['ml', 'oz', 'L', 'dash', 'ea']; // Added 'dash' and 'ea'
+    const builderUnitOptions = ['ml', 'oz', 'L', 'dash', 'ea']; 
 
     function sortInventory() {
         const tbody = document.getElementById('inventory-body');
@@ -540,21 +557,32 @@
         rows.forEach(row => tbody.appendChild(row));
     }
 
+    // NEW COMBINED FILTER LOGIC
     function filterInventory() {
-      const filter = document.getElementById('inventory-search').value.toUpperCase();
+      const textFilter = document.getElementById('inventory-search').value.toUpperCase();
+      const catFilter = document.getElementById('category-filter').value.toUpperCase();
+      
       document.querySelectorAll('.inv-row').forEach(row => {
         const brand = row.querySelector('.i-brand').value.toUpperCase();
         const cat = row.querySelector('.i-category').value.toUpperCase();
-        row.style.display = (brand.includes(filter) || cat.includes(filter)) ? "" : "none";
+        
+        const matchesText = brand.includes(textFilter) || cat.includes(textFilter);
+        const matchesCat = (catFilter === 'ALL' || cat === catFilter);
+        
+        if (matchesText && matchesCat) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
       });
     }
 
     function convertToOz(size, unit) {
       if (unit === 'ml') return size / 29.5735;
       if (unit === 'L') return (size * 1000) / 29.5735;
-      if (unit === 'dash') return size * 0.03125; // 1 dash = approx 1/32 oz
-      if (unit === 'ea') return size; // 1 to 1 direct scaling
-      return size; // assumes 'oz'
+      if (unit === 'dash') return size * 0.03125; 
+      if (unit === 'ea') return size; 
+      return size; 
     }
 
     function injectInventoryRow(item) {
@@ -581,6 +609,7 @@
           <td><button class="btn-remove" onclick="removeEl(this)">×</button></td>
         `;
         tbody.appendChild(tr);
+        filterInventory(); // Ensure it respects current filters when added
     }
 
     function addInventoryRow() {
@@ -850,7 +879,6 @@
         const unit = row.querySelector('.c-unit').value;
         const btlCost = parseFloat(row.querySelector('.c-cost').value) || 0;
         
-        // Cost formula automatically handles dashes and whole items via convertToOz sizing
         const lineCost = pourOz * (btlCost / convertToOz(rawSize, unit));
         row.querySelector('.c-line-cost').innerText = `$${lineCost.toFixed(2)}`;
         totalCost += lineCost;
