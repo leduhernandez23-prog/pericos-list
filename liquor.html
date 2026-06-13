@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Los Pericos | Bar Vault</title>
 
-  <!-- Firebase Integration -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -72,6 +71,14 @@
     .glass-card h3 { font-weight: 400; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
     .glass-card h3::before { content: ''; display: block; width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: var(--neon-glow); }
 
+    /* --- FLOATING ACTION BUTTONS (FAB) --- */
+    .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 15px; z-index: 999; }
+    .fab { background: var(--neon-green); color: #000; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 2rem; font-weight: 300; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.4); cursor: pointer; transition: 0.3s; }
+    .fab:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0, 230, 118, 0.6); }
+    .fab-top { background: var(--glass-bg); color: var(--text-main); border: 1px solid var(--glass-border); width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; align-self: flex-end; opacity: 0; pointer-events: none; }
+    .fab-top.visible { opacity: 1; pointer-events: auto; }
+    .fab-top:hover { background: rgba(255,255,255,0.1); }
+
     /* --- MODALS --- */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -100,12 +107,22 @@
     th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; text-align: left; padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--glass-border); white-space: nowrap; }
     td { padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; white-space: nowrap; transition: background 0.3s; }
     tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    
+    .cat-header td { background: rgba(0, 0, 0, 0.6); padding: 15px; cursor: pointer; transition: 0.3s; }
+    .cat-header:hover td { background: rgba(255, 255, 255, 0.05); }
 
     .clean-input { background: transparent; border: 1px solid transparent; color: var(--text-main); padding: 8px; border-radius: 6px; width: 100%; font-size: 0.9rem; transition: all 0.2s; outline: none; }
     .clean-input:hover { background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px 6px 0 0; }
     .clean-input:focus { background: rgba(0, 0, 0, 0.4); border-bottom: 1px solid var(--neon-green); border-radius: 6px 6px 0 0; }
     select.clean-input { cursor: pointer; appearance: none; -webkit-appearance: none; }
     select.clean-input option { background: var(--bg-dark); color: var(--text-main); }
+
+    .stepper { display: flex; align-items: center; background: rgba(0,0,0,0.4); border-radius: 6px; border: 1px solid var(--glass-border); overflow: hidden; width: 100px; }
+    .stepper-btn { background: transparent; border: none; color: var(--neon-blue); font-size: 1.2rem; padding: 0 10px; cursor: pointer; font-weight: bold; transition: 0.2s; height: 100%; }
+    .stepper-btn:hover { background: rgba(0, 176, 255, 0.1); }
+    .stepper input { border: none !important; border-radius: 0 !important; text-align: center; padding: 8px 0; background: transparent; width: 45px; }
+
+    .price-warning { box-shadow: inset 0 0 0 1px var(--danger), inset 0 0 15px rgba(255, 71, 87, 0.2) !important; border-radius: 8px; }
 
     .col-small { width: 75px; }
     .col-med { width: 140px; }
@@ -134,29 +151,25 @@
     @media (max-width: 768px) {
       body { padding: 0 1rem 1rem 1rem; }
       
-      /* Fix header & System bar */
       .sys-bar { flex-direction: column; gap: 10px; text-align: center; }
       .brand { font-size: 1.4rem; flex-wrap: wrap; justify-content: center; text-align: center; }
       header { flex-direction: column; gap: 15px; }
       .meta-info { text-align: center; }
 
-      /* Stack buttons and tabs */
       .action-row { flex-direction: column; width: 100%; gap: 10px; }
       .action-row button { width: 100%; margin-left: 0 !important; }
       .tabs { flex-direction: column; gap: 10px; }
       .tab-btn { width: 100%; text-align: center; }
 
-      /* Modals */
       .modal-content { padding: 1.5rem; width: 100%; }
       .delivery-row { flex-direction: column; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; }
       .delivery-row select, .delivery-row input { width: 100%; margin-bottom: 10px; }
       
-      /* Search Filters */
       #inventory-search, #category-filter, #dashboard-search { width: 100%; flex: none; margin-bottom: 10px; }
 
       /* 🃏 TURN TABLES INTO VERTICAL CARDS 🃏 */
       table, thead, tbody, th, td, tr { display: block; width: 100%; min-width: unset; }
-      thead tr { display: none; } /* Hide the top header row */
+      thead tr { display: none; } 
       
       tr { 
         border: 1px solid var(--glass-border); 
@@ -166,6 +179,9 @@
         background: rgba(0, 0, 0, 0.4); 
         box-shadow: 0 4px 15px rgba(0,0,0,0.2);
       }
+      
+      .cat-header { padding: 0; background: transparent; border: none; box-shadow: none; margin-bottom: 0.5rem; }
+      .cat-header td { padding: 15px; border-radius: 8px; }
       
       td { 
         display: flex; 
@@ -177,7 +193,6 @@
       }
       td:last-child { border-bottom: none; justify-content: flex-end; }
       
-      /* Create the mobile labels automatically using data-label attribute */
       td::before {
         content: attr(data-label);
         color: var(--text-muted);
@@ -192,7 +207,8 @@
       td > * { flex: 2; text-align: right; }
       .clean-input { text-align: right; background: rgba(255,255,255,0.05); }
       .col-small, .col-med, .col-large { width: 100%; }
-      td > div { justify-content: flex-end; } /* Fix for side-by-side inputs like Size & Unit */
+      td > div { justify-content: flex-end; } 
+      .stepper { margin-left: auto; }
 
       /* 🍹 COCKTAIL BUILDER FIXES 🍹 */
       .builder-header { display: none; }
@@ -213,7 +229,6 @@
 </head>
 <body>
 
-  <!-- AUTHENTICATION CHECK -->
   <script>
     if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
     const activeUser = localStorage.getItem('pericos_active_user');
@@ -244,14 +259,17 @@
     </div>
   </header>
 
-  <!-- 3-TAB SYSTEM -->
   <div class="tabs">
     <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
     <button class="tab-btn" onclick="openTab(event, 'builder')">3. Cocktail Builder</button>
   </div>
 
-  <!-- MODAL: RECEIVE DELIVERY -->
+  <div class="fab-container">
+    <button id="fab-top" class="fab-top" onclick="scrollToTop()" title="Scroll to Top">↑</button>
+    <button id="fab-add" class="fab" onclick="addInventoryRow(); scrollToBottom()" title="Add Spirit">+</button>
+  </div>
+
   <div id="receive-modal" class="modal-overlay">
     <div class="modal-content">
       <h3 style="color: var(--neon-blue); margin-top: 0;">Receive Delivery Order</h3>
@@ -272,7 +290,6 @@
     </div>
   </div>
 
-  <!-- MODAL: WEEKLY SUMMARY & ROLLOVER -->
   <div id="summary-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
       <h3 style="color: var(--neon-green); margin-top: 0;">Weekly Usage Summary</h3>
@@ -291,7 +308,6 @@
     </div>
   </div>
 
-  <!-- TAB 1: MASTER INVENTORY (Purely for Counting) -->
   <div id="inventory" class="tab-content active">
     <div class="glass-card">
       <h3>Live Inventory Count</h3>
@@ -327,13 +343,11 @@
             </tr>
           </thead>
           <tbody id="inventory-body">
-            <!-- Data loaded from Firebase -->
-          </tbody>
+            </tbody>
         </table>
       </div>
       
       <div class="action-row">
-        <button class="btn-glow" onclick="addInventoryRow()">+ Add Spirit</button>
         <button class="btn-receive" onclick="openReceiveModal()">🚚 Receive Order</button>
         <button class="btn-export" onclick="exportToCSV()">↓ Export CSV</button>
         <button class="btn-glow" style="margin-left: auto;" onclick="openSummaryModal()">🔄 Start New Week</button>
@@ -342,7 +356,6 @@
     </div>
   </div>
 
-  <!-- TAB 2: MARGIN DASHBOARD (Read-Only Financials) -->
   <div id="dashboard" class="tab-content">
     <div class="glass-card">
       <h3>Global Shift Metrics</h3>
@@ -379,14 +392,12 @@
             </tr>
           </thead>
           <tbody id="dashboard-body">
-            <!-- Automatically populated -->
-          </tbody>
+            </tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- TAB 3: COCKTAIL BUILDER -->
   <div id="builder" class="tab-content">
     <div class="glass-card">
       <h3>Recipe Architect</h3>
@@ -443,9 +454,6 @@
     </div>
   </div>
 
-  <!-- ==========================================
-       JAVASCRIPT & FIREBASE LOGIC
-       ========================================== -->
   <script>
     document.getElementById('loc-display').innerText = currentLocation.replace('LP_', '');
     document.getElementById('user-display').innerText = activeUser;
@@ -465,6 +473,23 @@
     let isInitialLoad = false;
     let deletedStack = [];
     let inventoryLookup = {}; 
+    let collapsedCats = {}; // Tracks which categories are hidden
+
+    // Category Color Anchors
+    const catColors = {
+        'Tequila': '#00E676', 'Vodka': '#00b0ff', 'Whiskey': '#ff9f43',
+        'Rum': '#ff4757', 'Gin': '#00e5ff', 'Liqueur': '#d500f9',
+        'Mixer': '#ffea00', 'Beer': '#ffd600', 'Wine': '#880e4f'
+    };
+
+    // Scroll To Top Logic
+    window.addEventListener('scroll', () => {
+      const btn = document.getElementById('fab-top');
+      if(window.scrollY > 300) btn.classList.add('visible');
+      else btn.classList.remove('visible');
+    });
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
 
     // --- 1. FIREBASE AUTH CHECK & LOAD DATA ---
     firebase.auth().onAuthStateChanged((user) => {
@@ -523,7 +548,7 @@
         });
     }
 
-    // --- 2. FIREBASE SAVE FUNCTIONS & DUPLICATE CHECK ---
+    // --- 2. FIREBASE SAVE FUNCTIONS & MISSING PRICE CHECK ---
     function flashSync() {
         const dot = document.getElementById('sync-indicator');
         const text = document.getElementById('sync-text');
@@ -547,12 +572,22 @@
              const brand = row.querySelector('.i-brand').value;
              const size = parseFloat(row.querySelector('.i-size').value) || 0;
              const unit = row.querySelector('.i-unit').value;
+             const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
+             const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
              
+             // Check for Missing Pricing
+             if(cost === 0 || sell === 0) {
+                 row.classList.add('price-warning');
+             } else {
+                 row.classList.remove('price-warning');
+             }
+
+             // Duplicate Check
              const checkKey = `${brand.trim().toLowerCase()}|${size}|${unit}`;
              if(brand.trim() !== '' && seen.has(checkKey)) {
                  row.style.background = 'rgba(255, 71, 87, 0.15)'; 
              } else {
-                 row.style.background = 'rgba(0,0,0,0.4)';
+                 row.style.background = 'transparent';
                  seen.add(checkKey);
              }
 
@@ -561,8 +596,8 @@
                  start: parseFloat(row.getAttribute('data-start')) || 0,
                  received: parseFloat(row.getAttribute('data-received')) || 0,
                  count: parseFloat(row.querySelector('.i-count').value) || 0,
-                 cost: parseFloat(row.querySelector('.i-cost').value) || 0,
-                 shotSell: parseFloat(row.querySelector('.i-shot-sell').value) || 0
+                 cost: cost,
+                 shotSell: sell
              });
         });
         
@@ -612,28 +647,61 @@
         flashSync();
     }
 
-    // --- 3. INVENTORY SORTING & FILTERING UI ---
+    // --- 3. INVENTORY SORTING, FOLDERS & UI ---
     const catOptions = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
     const unitOptions = ['ml', 'oz', 'L'];
     const builderUnitOptions = ['ml', 'oz', 'L', 'dash', 'ea']; 
+
+    function toggleCategory(cat) {
+        collapsedCats[cat] = !collapsedCats[cat];
+        filterInventory(); // Re-run filter to apply the collapse correctly
+        
+        const headerIcon = document.querySelector(`.cat-header[data-target-cat="${cat}"] .cat-icon`);
+        if(headerIcon) headerIcon.innerText = collapsedCats[cat] ? '▶' : '▼';
+    }
 
     function sortInventory() {
         const tbody = document.getElementById('inventory-body');
         const rows = Array.from(tbody.querySelectorAll('.inv-row'));
 
         rows.sort((a, b) => {
-            const catA = catOptions.indexOf(a.querySelector('.i-category').value);
-            const catB = catOptions.indexOf(b.querySelector('.i-category').value);
+            const catA = a.querySelector('.i-category').value;
+            const catB = b.querySelector('.i-category').value;
+            const idxA = catOptions.indexOf(catA);
+            const idxB = catOptions.indexOf(catB);
             const brandA = a.querySelector('.i-brand').value.toLowerCase();
             const brandB = b.querySelector('.i-brand').value.toLowerCase();
 
-            if (catA !== catB) return catA - catB;
+            if (idxA !== idxB) return idxA - idxB;
             if (brandA < brandB) return -1;
             if (brandA > brandB) return 1;
             return 0;
         });
 
-        rows.forEach(row => tbody.appendChild(row));
+        tbody.innerHTML = '';
+        let currentCat = '';
+        
+        rows.forEach(row => {
+            const cat = row.querySelector('.i-category').value;
+            row.style.borderLeft = `4px solid ${catColors[cat] || '#fff'}`;
+            
+            if (cat !== currentCat) {
+                currentCat = cat;
+                const header = document.createElement('tr');
+                header.className = 'cat-header';
+                header.setAttribute('data-target-cat', cat);
+                header.innerHTML = `<td colspan="8" onclick="toggleCategory('${cat}')">
+                    <div style="display:flex; justify-content:space-between; color:${catColors[cat] || '#fff'}; font-weight:bold; letter-spacing:2px; text-transform:uppercase;">
+                        <span>${cat}</span>
+                        <span class="cat-icon">${collapsedCats[cat] ? '▶' : '▼'}</span>
+                    </div>
+                </td>`;
+                tbody.appendChild(header);
+            }
+            tbody.appendChild(row);
+        });
+        
+        filterInventory();
     }
 
     function filterInventory() {
@@ -646,8 +714,19 @@
         
         const matchesText = brand.includes(textFilter) || cat.includes(textFilter);
         const matchesCat = (catFilter === 'ALL' || cat === catFilter);
+        const isCollapsed = collapsedCats[row.querySelector('.i-category').value];
         
-        row.style.display = (matchesText && matchesCat) ? "" : "none";
+        if (matchesText && matchesCat && !isCollapsed) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+      
+      // Hide category headers if they don't match the dropdown
+      document.querySelectorAll('.cat-header').forEach(header => {
+          const targetCat = header.getAttribute('data-target-cat').toUpperCase();
+          header.style.display = (catFilter === 'ALL' || targetCat === catFilter) ? "" : "none";
       });
     }
 
@@ -659,6 +738,14 @@
         const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase();
         rows[i].style.display = brand.includes(filter) ? "" : "none";
       }
+    }
+
+    function adjustCount(btn, amount) {
+        const input = btn.parentElement.querySelector('.i-count');
+        let val = parseFloat(input.value) || 0;
+        val = Math.max(0, val + amount);
+        input.value = val.toFixed(1);
+        autoSaveInv();
     }
 
     function convertToOz(size, unit) {
@@ -679,7 +766,9 @@
         let catHtml = catOptions.map(c => `<option value="${c}" ${c === item.category ? 'selected' : ''}>${c}</option>`).join('');
         let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
 
-        // Added data-label attributes so CSS knows what to name them on mobile
+        // Pre-check for warning styling on load
+        if(isInitialLoad && (item.cost === 0 || item.shotSell === 0)) { tr.classList.add('price-warning'); }
+
         tr.innerHTML = `
           <td data-label="Category"><select class="i-category clean-input col-med" onchange="autoSaveInv(); sortInventory()">${catHtml}</select></td>
           <td data-label="Brand"><input type="text" placeholder="Brand Name" class="clean-input col-large i-brand" value="${item.brand || ''}" oninput="autoSaveInv()" onchange="sortInventory()"></td>
@@ -687,7 +776,13 @@
             <input type="number" class="clean-input i-size col-small" value="${item.size || 750}" oninput="autoSaveInv()">
             <select class="clean-input i-unit" onchange="autoSaveInv()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
           </td>
-          <td data-label="Current Count"><input type="number" class="clean-input i-count col-small" value="${item.count || 0}" step="0.1" oninput="autoSaveInv()"></td>
+          <td data-label="Current Count">
+            <div class="stepper">
+              <button type="button" class="stepper-btn" onclick="adjustCount(this, -0.1)">-</button>
+              <input type="number" class="clean-input i-count col-small" value="${item.count || 0}" step="0.1" oninput="autoSaveInv()">
+              <button type="button" class="stepper-btn" onclick="adjustCount(this, 0.1)">+</button>
+            </div>
+          </td>
           <td data-label="Received Btls" class="data-highlight calc-received" style="color: var(--neon-blue); padding-left:15px;">${item.received || 0}</td>
           <td data-label="Btl Cost ($)"><input type="number" class="clean-input i-cost col-small" value="${item.cost || 0}" step="0.01" oninput="autoSaveInv()"></td>
           <td data-label="Shot Sell ($)"><input type="number" class="clean-input i-shot-sell col-small" value="${item.shotSell || 0}" step="0.01" oninput="autoSaveInv()"></td>
@@ -776,6 +871,14 @@
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       if(event && event.currentTarget) event.currentTarget.classList.add('active');
+      
+      // Manage sticky button visibility based on tab
+      const addBtn = document.getElementById('fab-add');
+      if(tabId === 'dashboard') addBtn.style.display = 'none';
+      else { 
+        addBtn.style.display = 'flex'; 
+        addBtn.onclick = tabId === 'builder' ? () => { addIngredientRow(); scrollToBottom(); } : () => { addInventoryRow(); scrollToBottom(); };
+      }
     }
 
     function getInventoryOptionsHTML() {
