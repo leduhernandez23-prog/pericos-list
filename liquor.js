@@ -129,10 +129,12 @@ function openTab(event, tabId) {
 /* ==========================================
    BUILDER MODAL CONFIG & CASE PACK MATH
    ========================================== */
-function showBuilder(type, id = null) {
+function showBuilder(type, id = null, isDuplicate = false) {
     currentBuilderType = type;
-    currentBuilderId = id;
     const isCocktail = (type === 'cocktail');
+    
+    // If we are duplicating, clear the ID so Firebase generates a brand new record instead of overriding the original one
+    currentBuilderId = isDuplicate ? null : id;
     
     document.getElementById('builder-title').innerText = isCocktail ? "Build Cocktail" : "Build Batch";
     document.getElementById('b-price-container').style.display = isCocktail ? "block" : "none";
@@ -147,7 +149,8 @@ function showBuilder(type, id = null) {
     if (id) { dataToLoad = isCocktail ? globalCocktails[id] : globalBatches[id]; }
 
     if (dataToLoad) {
-        document.getElementById('b-name').value = dataToLoad.name || '';
+        // Append " (Copy)" if the duplicate process pulled this data
+        document.getElementById('b-name').value = isDuplicate ? `${dataToLoad.name || ''} (Copy)` : (dataToLoad.name || '');
         if (isCocktail) document.getElementById('b-price').value = dataToLoad.price || '';
         else document.getElementById('b-yield').value = dataToLoad.yield || 1;
         if (dataToLoad.ingredients) { dataToLoad.ingredients.forEach(ing => addBuilderRow(ing)); } 
@@ -318,7 +321,7 @@ function deleteMenuRecipe(type, id) {
 }
 
 /* ==========================================
-   RENDER VAULTS (UNCHANGED)
+   RENDER VAULTS (WITH DUPLICATE BUTTONS)
    ========================================== */
 function renderCocktailVault() {
     const container = document.getElementById('cocktail-vault-container');
@@ -334,9 +337,10 @@ function renderCocktailVault() {
             <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Menu Price: $${(drink.price || 0).toFixed(2)}</div>
             <div class="menu-stats"><span>Cost:</span><span>$${(drink.totalCost || 0).toFixed(2)}</span></div>
             <div class="menu-stats"><span>Pour %:</span><span class="${colorClass}">${(drink.pourCostPct || 0).toFixed(2)}%</span></div>
-            <div class="menu-actions">
-                <button class="btn-glow" style="flex:1; padding:8px;" onclick="showBuilder('cocktail', '${key}')">✎ Edit</button>
-                <button class="btn-remove" style="padding:8px;" onclick="deleteMenuRecipe('cocktail', '${key}')">Delete</button>
+            <div class="menu-actions" style="flex-wrap: wrap; gap: 5px;">
+                <button class="btn-glow" style="flex:1; padding:8px; font-size:0.75rem;" onclick="showBuilder('cocktail', '${key}')">✎ Edit</button>
+                <button class="btn-receive" style="flex:1; padding:8px; font-size:0.75rem;" onclick="showBuilder('cocktail', '${key}', true)">📋 Copy</button>
+                <button class="btn-remove" style="padding:8px; font-size:0.75rem;" onclick="deleteMenuRecipe('cocktail', '${key}')">Del</button>
             </div>
         `;
         container.appendChild(div);
@@ -355,11 +359,12 @@ function renderBatchVault() {
         div.innerHTML = `
             <h4>${batch.name}</h4>
             <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Yield: ${batch.yield || 1}</div>
-            <div class="menu-stats"><span>Total Batch Cost:</span><span>$${(batch.totalCost || 0).toFixed(2)}</span></div>
-            <div class="menu-stats"><span>Cost Per Yield:</span><span>$${costPer.toFixed(2)}</span></div>
-            <div class="menu-actions">
-                <button class="btn-glow" style="flex:1; padding:8px;" onclick="showBuilder('batch', '${key}')">✎ Edit</button>
-                <button class="btn-remove" style="padding:8px;" onclick="deleteMenuRecipe('batch', '${key}')">Delete</button>
+            <div class="menu-stats"><span>Total Cost:</span><span>$${(batch.totalCost || 0).toFixed(2)}</span></div>
+            <div class="menu-stats"><span>Per Yield:</span><span>$${costPer.toFixed(2)}</span></div>
+            <div class="menu-actions" style="flex-wrap: wrap; gap: 5px;">
+                <button class="btn-glow" style="flex:1; padding:8px; font-size:0.75rem;" onclick="showBuilder('batch', '${key}')">✎ Edit</button>
+                <button class="btn-receive" style="flex:1; padding:8px; font-size:0.75rem;" onclick="showBuilder('batch', '${key}', true)">📋 Copy</button>
+                <button class="btn-remove" style="padding:8px; font-size:0.75rem;" onclick="deleteMenuRecipe('batch', '${key}')">Del</button>
             </div>
         `;
         container.appendChild(div);
