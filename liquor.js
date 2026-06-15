@@ -530,14 +530,35 @@ function addDeliveryRow() {
 function openReceiveModal() { document.getElementById('delivery-batch-list').innerHTML = ''; addDeliveryRow(); document.getElementById('receive-modal').style.display = 'flex'; }
 function closeReceiveModal() { document.getElementById('receive-modal').style.display = 'none'; }
 function confirmBatchReceive() {
-  const rows = document.querySelectorAll('.delivery-row'); const invRows = document.querySelectorAll('.inv-row');
+  const rows = document.querySelectorAll('.delivery-row'); 
+  const invRows = document.querySelectorAll('.inv-row');
+  
   rows.forEach(dRow => {
-    const select = dRow.querySelector('select'); const input = dRow.querySelector('input');
+    const select = dRow.querySelector('select'); 
+    const input = dRow.querySelector('input');
+    
     if (select && input) {
-      const rowIndex = select.value; const amount = parseFloat(input.value) || 0;
-      if (amount > 0 && invRows[rowIndex]) { const targetRow = invRows[rowIndex]; const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0; targetRow.setAttribute('data-received', currentRec + amount); targetRow.querySelector('.calc-received').innerText = currentRec + amount; }
+      const rowIndex = select.value; 
+      const amount = parseFloat(input.value) || 0;
+      
+      if (amount > 0 && invRows[rowIndex]) { 
+        const targetRow = invRows[rowIndex]; 
+        
+        // 1. Log the delivery
+        const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0; 
+        targetRow.setAttribute('data-received', currentRec + amount); 
+        targetRow.querySelector('.calc-received').innerText = currentRec + amount; 
+        
+        // 2. Automatically add the new bottles to the physical shelf count
+        const countInput = targetRow.querySelector('.i-count');
+        const currentCount = parseFloat(countInput.value) || 0;
+        countInput.value = (currentCount + amount).toFixed(1);
+      }
     }
-  }); autoSaveInv(); closeReceiveModal();
+  }); 
+  
+  autoSaveInv(); 
+  closeReceiveModal();
 }
 
 function openSummaryModal() {
