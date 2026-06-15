@@ -145,6 +145,14 @@
     .builder-header { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); }
     .data-highlight { font-family: monospace; font-size: 1.1rem; color: var(--text-main); }
 
+    /* MENU VAULT CARDS */
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+    .menu-card { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px; transition: 0.3s; }
+    .menu-card:hover { border-color: rgba(255,255,255,0.2); }
+    .menu-card h4 { margin-bottom: 5px; font-size: 1.2rem; color: var(--text-main); }
+    .menu-card .menu-stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-family: monospace; font-size: 1.1rem; }
+    .menu-card .menu-actions { display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
+
     /* ==========================================
        📱 MOBILE RESPONSIVE UPGRADES 📱
        ========================================== */
@@ -262,7 +270,7 @@
   <div class="tabs">
     <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
-    <button class="tab-btn" onclick="openTab(event, 'builder')">3. Cocktail Builder</button>
+    <button class="tab-btn" onclick="openTab(event, 'builder')">3. Recipe Library</button>
   </div>
 
   <div class="fab-container">
@@ -400,15 +408,15 @@
 
   <div id="builder" class="tab-content">
     <div class="glass-card">
-      <h3>Recipe Architect</h3>
+      <h3>Cocktail Builder</h3>
       <div style="display: flex; gap: 30px; margin-bottom: 30px; flex-wrap: wrap;">
         <div style="flex: 2; min-width: 200px;">
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Cocktail Name</label>
-          <input type="text" id="cocktail-name" class="clean-input" placeholder="e.g., Los Pericos Margarita" style="font-size: 1.5rem; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;" oninput="autoSaveCocktail()">
+          <input type="text" id="cocktail-name" class="clean-input" placeholder="e.g., Los Pericos Margarita" style="font-size: 1.5rem; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;" oninput="autoSaveDraft()">
         </div>
         <div style="flex: 1; min-width: 150px;">
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Menu Price ($)</label>
-          <input type="number" id="menu-price" class="clean-input" placeholder="0.00" style="font-size: 1.5rem; border-bottom: 2px solid var(--neon-green); border-radius: 0; padding-left: 0;" oninput="calculateCocktail(); autoSaveCocktail()">
+          <input type="number" id="menu-price" class="clean-input" placeholder="0.00" style="font-size: 1.5rem; border-bottom: 2px solid var(--neon-green); border-radius: 0; padding-left: 0;" oninput="calculateCocktail(); autoSaveDraft()">
         </div>
       </div>
 
@@ -425,9 +433,11 @@
 
       <div id="ingredients-container"></div>
       
-      <div class="action-row">
-        <button class="btn-glow" onclick="addIngredientRow()">+ Add Ingredient</button>
-        <button id="undo-btn-build" class="btn-undo" onclick="undoDelete()">↩ Undo Delete</button>
+      <div class="action-row" style="border-top: 1px solid var(--glass-border); padding-top: 20px; margin-top: 20px;">
+        <button class="btn-glow" style="border-color: var(--neon-blue); color: var(--neon-blue);" onclick="addIngredientRow()">+ Add Ingredient</button>
+        <button class="btn-glow" onclick="saveCocktailToMenu()">💾 Save to Menu</button>
+        <button class="btn-remove" onclick="clearBuilder()">Clear Builder</button>
+        <button id="undo-btn-build" class="btn-undo" onclick="undoDelete()">↩ Undo</button>
       </div>
     </div>
 
@@ -452,6 +462,12 @@
         </div>
       </div>
     </div>
+
+    <div class="glass-card">
+        <h3>Saved Menu Vault</h3>
+        <div class="menu-grid" id="menu-vault-container">
+            </div>
+    </div>
   </div>
 
   <script>
@@ -473,16 +489,17 @@
     let isInitialLoad = false;
     let deletedStack = [];
     let inventoryLookup = {}; 
-    let collapsedCats = {}; // Tracks which categories are hidden
+    let collapsedCats = {}; 
+    
+    // Cocktail Builder state
+    let editingCocktailId = null; // Tracks if we are editing an existing recipe
 
-    // Category Color Anchors
     const catColors = {
         'Tequila': '#00E676', 'Vodka': '#00b0ff', 'Whiskey': '#ff9f43',
         'Rum': '#ff4757', 'Gin': '#00e5ff', 'Liqueur': '#d500f9',
         'Mixer': '#ffea00', 'Beer': '#ffd600', 'Wine': '#880e4f'
     };
 
-    // Scroll To Top Logic
     window.addEventListener('scroll', () => {
       const btn = document.getElementById('fab-top');
       if(window.scrollY > 300) btn.classList.add('visible');
@@ -506,6 +523,7 @@
     });
 
     function loadFirebaseData() {
+        // Load Inventory
         db.ref(currentLocation + '/liquor_inventory').once('value', snap => {
             const data = snap.val();
             const tbody = document.getElementById('inventory-body');
@@ -514,15 +532,15 @@
                 data.forEach(item => { if(item) injectInventoryRow(item); });
                 sortInventory();
                 updateInventoryDatalist(); 
-            } else {
-                addInventoryRow();
-            }
+            } else { addInventoryRow(); }
             
-            db.ref(currentLocation + '/liquor_cocktail').once('value', snap2 => {
+            // Load Cocktail Draft
+            db.ref(currentLocation + '/liquor_builder_draft').once('value', snap2 => {
                 const cData = snap2.val();
                 const cbody = document.getElementById('ingredients-container');
                 cbody.innerHTML = '';
                 if(cData && cData.ingredients) {
+                    editingCocktailId = cData.editingId || null;
                     document.getElementById('cocktail-name').value = cData.name || '';
                     document.getElementById('menu-price').value = cData.price || '';
                     cData.ingredients.forEach(ing => { if(ing) injectIngredientRow(ing); });
@@ -535,6 +553,12 @@
             });
         });
 
+        // Live Load Menu Vault
+        db.ref(currentLocation + '/liquor_menu').on('value', snap => {
+            renderMenuVault(snap.val());
+        });
+
+        // Live Load Meta
         db.ref(currentLocation + '/liquor_meta').on('value', snap => {
             const meta = snap.val();
             if(meta && meta.lastEditedBy) {
@@ -548,7 +572,6 @@
         });
     }
 
-    // --- 2. FIREBASE SAVE FUNCTIONS & MISSING PRICE CHECK ---
     function flashSync() {
         const dot = document.getElementById('sync-indicator');
         const text = document.getElementById('sync-text');
@@ -562,6 +585,7 @@
         }, 800);
     }
 
+    // --- 2. FIREBASE SAVE LOGIC ---
     function autoSaveInv() {
         if(!isInitialLoad) return;
         const data = [];
@@ -575,61 +599,33 @@
              const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
              const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
              
-             // Check for Missing Pricing
-             if(cost === 0 || sell === 0) {
-                 row.classList.add('price-warning');
-             } else {
-                 row.classList.remove('price-warning');
-             }
+             if(cost === 0 || sell === 0) { row.classList.add('price-warning'); } 
+             else { row.classList.remove('price-warning'); }
 
-             // Duplicate Check
              const checkKey = `${brand.trim().toLowerCase()}|${size}|${unit}`;
-             if(brand.trim() !== '' && seen.has(checkKey)) {
-                 row.style.background = 'rgba(255, 71, 87, 0.15)'; 
-             } else {
-                 row.style.background = 'transparent';
-                 seen.add(checkKey);
-             }
+             if(brand.trim() !== '' && seen.has(checkKey)) { row.style.background = 'rgba(255, 71, 87, 0.15)'; } 
+             else { row.style.background = 'rgba(0,0,0,0.4)'; seen.add(checkKey); }
 
              data.push({
                  category: cat, brand: brand, size: size, unit: unit,
                  start: parseFloat(row.getAttribute('data-start')) || 0,
                  received: parseFloat(row.getAttribute('data-received')) || 0,
                  count: parseFloat(row.querySelector('.i-count').value) || 0,
-                 cost: cost,
-                 shotSell: sell
+                 cost: cost, shotSell: sell
              });
         });
         
         db.ref(currentLocation + '/liquor_inventory').set(data)
-          .then(() => { 
-              updateMeta(); 
-              renderMarginDashboard(); 
-              updateInventoryDatalist(); 
-          })
+          .then(() => { updateMeta(); renderMarginDashboard(); updateInventoryDatalist(); })
           .catch(error => console.error("Firebase Save Error: ", error));
     }
 
-    function autoSaveCocktail() {
+    // Automatically saves the builder progress so you don't lose work if you refresh
+    function autoSaveDraft() {
         if(!isInitialLoad) return;
-        const data = {
-            name: document.getElementById('cocktail-name').value,
-            price: parseFloat(document.getElementById('menu-price').value) || 0,
-            ingredients: []
-        };
-        document.querySelectorAll('.ingredient-row').forEach(row => {
-            data.ingredients.push({
-                name: row.querySelector('.c-name').value,
-                pour: parseFloat(row.querySelector('.c-pour').value) || 0,
-                size: parseFloat(row.querySelector('.c-size').value) || 0,
-                unit: row.querySelector('.c-unit').value,
-                cost: parseFloat(row.querySelector('.c-cost').value) || 0
-            });
-        });
-
-        db.ref(currentLocation + '/liquor_cocktail').set(data)
-          .then(() => updateMeta())
-          .catch(error => console.error("Firebase Save Error: ", error));
+        const data = getCocktailDataFromBuilder();
+        data.editingId = editingCocktailId; // Remember if this draft belongs to a saved menu item
+        db.ref(currentLocation + '/liquor_builder_draft').set(data);
     }
 
     function autoSaveMeta() {
@@ -647,15 +643,14 @@
         flashSync();
     }
 
-    // --- 3. INVENTORY SORTING, FOLDERS & UI ---
+    // --- 3. INVENTORY UI ---
     const catOptions = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
     const unitOptions = ['ml', 'oz', 'L'];
     const builderUnitOptions = ['ml', 'oz', 'L', 'dash', 'ea']; 
 
     function toggleCategory(cat) {
         collapsedCats[cat] = !collapsedCats[cat];
-        filterInventory(); // Re-run filter to apply the collapse correctly
-        
+        filterInventory(); 
         const headerIcon = document.querySelector(`.cat-header[data-target-cat="${cat}"] .cat-icon`);
         if(headerIcon) headerIcon.innerText = collapsedCats[cat] ? '▶' : '▼';
     }
@@ -700,7 +695,6 @@
             }
             tbody.appendChild(row);
         });
-        
         filterInventory();
     }
 
@@ -716,28 +710,13 @@
         const matchesCat = (catFilter === 'ALL' || cat === catFilter);
         const isCollapsed = collapsedCats[row.querySelector('.i-category').value];
         
-        if (matchesText && matchesCat && !isCollapsed) {
-          row.style.display = "";
-        } else {
-          row.style.display = "none";
-        }
+        row.style.display = (matchesText && matchesCat && !isCollapsed) ? "" : "none";
       });
       
-      // Hide category headers if they don't match the dropdown
       document.querySelectorAll('.cat-header').forEach(header => {
           const targetCat = header.getAttribute('data-target-cat').toUpperCase();
           header.style.display = (catFilter === 'ALL' || targetCat === catFilter) ? "" : "none";
       });
-    }
-
-    function filterDashboard() {
-      const filter = document.getElementById('dashboard-search').value.toUpperCase();
-      const rows = document.getElementById('dashboard-body').getElementsByTagName('tr');
-      
-      for (let i = 0; i < rows.length; i++) {
-        const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase();
-        rows[i].style.display = brand.includes(filter) ? "" : "none";
-      }
     }
 
     function adjustCount(btn, amount) {
@@ -766,7 +745,6 @@
         let catHtml = catOptions.map(c => `<option value="${c}" ${c === item.category ? 'selected' : ''}>${c}</option>`).join('');
         let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
 
-        // Pre-check for warning styling on load
         if(isInitialLoad && (item.cost === 0 || item.shotSell === 0)) { tr.classList.add('price-warning'); }
 
         tr.innerHTML = `
@@ -798,7 +776,16 @@
         autoSaveInv();
     }
 
-    // --- 4. MARGIN DASHBOARD ---
+    // --- 4. DASHBOARD ---
+    function filterDashboard() {
+      const filter = document.getElementById('dashboard-search').value.toUpperCase();
+      const rows = document.getElementById('dashboard-body').getElementsByTagName('tr');
+      for (let i = 0; i < rows.length; i++) {
+        const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase();
+        rows[i].style.display = brand.includes(filter) ? "" : "none";
+      }
+    }
+
     function renderMarginDashboard() {
         const tbody = document.getElementById('dashboard-body');
         tbody.innerHTML = '';
@@ -822,9 +809,7 @@
 
             const shotCost = (cost / sizeOz) * 1.5;
             const shotProfit = sell - shotCost;
-            let pourCostPct = 0;
-            let pourClass = '';
-            let profitClass = '';
+            let pourCostPct = 0; let pourClass = ''; let profitClass = '';
 
             if (sell > 0) {
                 pourCostPct = (shotCost / sell) * 100;
@@ -850,7 +835,6 @@
 
     function calculateGlobalMetrics(totalUsageCost) {
       if (totalUsageCost === undefined) totalUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
-      
       const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
       const pourDisplay = document.getElementById('global-pour-cost');
       const pourBox = document.getElementById('global-pour-box');
@@ -865,14 +849,13 @@
       }
     }
 
-    // --- 5. MODALS ---
+    // --- 5. MODALS & TABS ---
     function openTab(event, tabId) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       if(event && event.currentTarget) event.currentTarget.classList.add('active');
       
-      // Manage sticky button visibility based on tab
       const addBtn = document.getElementById('fab-add');
       if(tabId === 'dashboard') addBtn.style.display = 'none';
       else { 
@@ -881,6 +864,7 @@
       }
     }
 
+    // Receive modal logic...
     function getInventoryOptionsHTML() {
       let optionsHTML = '';
       document.querySelectorAll('.inv-row').forEach((row, index) => {
@@ -890,7 +874,6 @@
       });
       return optionsHTML;
     }
-
     function addDeliveryRow() {
       const list = document.getElementById('delivery-batch-list');
       const div = document.createElement('div');
@@ -898,18 +881,11 @@
       div.innerHTML = `<select class="clean-input" style="flex: 2; background:rgba(0,0,0,0.5);">${getInventoryOptionsHTML()}</select><input class="clean-input" type="number" placeholder="Qty" min="0" step="1" style="flex: 1; background:rgba(0,0,0,0.5);"><button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
       list.appendChild(div);
     }
-
-    function openReceiveModal() {
-      document.getElementById('delivery-batch-list').innerHTML = ''; 
-      addDeliveryRow();    
-      document.getElementById('receive-modal').style.display = 'flex';
-    }
+    function openReceiveModal() { document.getElementById('delivery-batch-list').innerHTML = ''; addDeliveryRow(); document.getElementById('receive-modal').style.display = 'flex'; }
     function closeReceiveModal() { document.getElementById('receive-modal').style.display = 'none'; }
-
     function confirmBatchReceive() {
       const rows = document.querySelectorAll('.delivery-row');
       const invRows = document.querySelectorAll('.inv-row');
-      
       rows.forEach(dRow => {
         const select = dRow.querySelector('select');
         const input = dRow.querySelector('input');
@@ -924,30 +900,25 @@
           }
         }
       });
-      autoSaveInv();
-      closeReceiveModal();
+      autoSaveInv(); closeReceiveModal();
     }
 
+    // Weekly Summary logic...
     function openSummaryModal() {
       const list = document.getElementById('weekly-summary-list');
-      list.innerHTML = '';
-      let totalUsageCost = 0;
-      
+      list.innerHTML = ''; let totalUsageCost = 0;
       document.querySelectorAll('.inv-row').forEach(row => {
         const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit';
         const start = parseFloat(row.getAttribute('data-start')) || 0;
         const received = parseFloat(row.getAttribute('data-received')) || 0;
         const count = parseFloat(row.querySelector('.i-count').value) || 0;
         const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
-        
         const usageBtls = (start + received) - count;
         const lineCost = usageBtls * cost;
-        
         if (usageBtls > 0) {
           totalUsageCost += lineCost;
           const li = document.createElement('li');
-          li.style.padding = '10px 0';
-          li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+          li.style.padding = '10px 0'; li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
           li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${brand}:</span> Used ${usageBtls.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${lineCost.toFixed(2)}</span>`;
           list.appendChild(li);
         }
@@ -956,9 +927,7 @@
       document.getElementById('weekly-summary-total').innerText = `$${totalUsageCost.toFixed(2)}`;
       document.getElementById('summary-modal').style.display = 'flex';
     }
-
     function closeSummaryModal() { document.getElementById('summary-modal').style.display = 'none'; }
-
     function confirmResetWeek() {
       document.querySelectorAll('.inv-row').forEach(row => {
         const currentCount = parseFloat(row.querySelector('.i-count').value) || 0;
@@ -966,27 +935,22 @@
         row.setAttribute('data-received', '0');
         row.querySelector('.calc-received').innerText = '0';
       });
-      autoSaveInv();
-      closeSummaryModal();
+      autoSaveInv(); closeSummaryModal();
     }
 
-    // --- 6. UTILS & COCKTAIL BUILDER WITH DATABASE AUTO-FILL ---
+    // --- 6. RECIPE LIBRARY & BUILDER LOGIC ---
     function updateInventoryDatalist() {
         const datalist = document.getElementById('inventory-datalist');
         if(!datalist) return;
-        datalist.innerHTML = '';
-        inventoryLookup = {}; 
-        
+        datalist.innerHTML = ''; inventoryLookup = {}; 
         document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
             const brand = row.querySelector('.i-brand').value.trim();
             const size = row.querySelector('.i-size').value;
             const unit = row.querySelector('.i-unit').value;
             const cost = row.querySelector('.i-cost').value;
-            
             if(brand) {
                 const option = document.createElement('option');
-                option.value = brand;
-                datalist.appendChild(option);
+                option.value = brand; datalist.appendChild(option);
                 inventoryLookup[brand.toLowerCase()] = { size, unit, cost };
             }
         });
@@ -1002,19 +966,16 @@
             row.querySelector('.c-cost').value = data.cost;
             calculateCocktail();
         }
-        autoSaveCocktail();
+        autoSaveDraft();
     }
 
     function removeEl(btn) {
       const row = btn.closest('tr, .ingredient-row');
       deletedStack.push({ row: row, parent: row.parentElement, nextSibling: row.nextElementSibling });
       row.remove();
-      
       document.getElementById('undo-btn-inv').style.display = 'inline-block';
       document.getElementById('undo-btn-build').style.display = 'inline-block';
-      
-      if(row.classList.contains('inv-row')) { autoSaveInv(); }
-      else { autoSaveCocktail(); calculateCocktail(); }
+      if(row.classList.contains('inv-row')) { autoSaveInv(); } else { autoSaveDraft(); calculateCocktail(); }
     }
 
     function undoDelete() {
@@ -1022,14 +983,208 @@
         const last = deletedStack.pop();
         if (last.nextSibling && last.nextSibling.parentNode === last.parent) last.parent.insertBefore(last.row, last.nextSibling);
         else last.parent.appendChild(last.row);
-
         if(last.row.classList.contains('inv-row')) { sortInventory(); autoSaveInv(); } 
-        else { autoSaveCocktail(); calculateCocktail(); }
+        else { autoSaveDraft(); calculateCocktail(); }
       }
       if (deletedStack.length === 0) { 
           document.getElementById('undo-btn-inv').style.display = 'none'; 
           document.getElementById('undo-btn-build').style.display = 'none'; 
       }
+    }
+
+    function injectIngredientRow(ing) {
+        const container = document.getElementById('ingredients-container');
+        const div = document.createElement('div');
+        div.className = 'builder-grid ingredient-row';
+        let unitHtml = builderUnitOptions.map(u => `<option value="${u}" ${u === ing.unit ? 'selected' : ''}>${u}</option>`).join('');
+        
+        div.innerHTML = `
+          <input type="text" placeholder="Ingredient / Auto-fill" class="clean-input c-name" value="${ing.name || ''}" list="inventory-datalist" oninput="handleIngredientChange(this)">
+          <input type="number" placeholder="Pour Oz" class="clean-input c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveDraft()">
+          <div style="display: flex; gap: 5px;">
+            <input type="number" placeholder="Btl Size" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveDraft()">
+            <select class="clean-input c-unit" onchange="calculateCocktail(); autoSaveDraft()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
+          </div>
+          <input type="number" placeholder="Btl Cost" class="clean-input c-cost" value="${ing.cost || 15}" step="0.01" oninput="calculateCocktail(); autoSaveDraft()">
+          <div class="data-highlight c-line-cost">$0.00</div>
+          <button class="btn-remove" onclick="removeEl(this)">Remove</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function addIngredientRow() {
+        injectIngredientRow({ unit: 'ml', size: 750, pour: 1, cost: 15 });
+        calculateCocktail(); autoSaveDraft();
+    }
+
+    function getCocktailDataFromBuilder() {
+        const data = {
+            name: document.getElementById('cocktail-name').value,
+            price: parseFloat(document.getElementById('menu-price').value) || 0,
+            ingredients: [],
+            totalCost: 0,
+            pourCostPct: 0
+        };
+        document.querySelectorAll('.ingredient-row').forEach(row => {
+            const pourOz = parseFloat(row.querySelector('.c-pour').value) || 0;
+            const rawSize = parseFloat(row.querySelector('.c-size').value) || 1; 
+            const unit = row.querySelector('.c-unit').value;
+            const btlCost = parseFloat(row.querySelector('.c-cost').value) || 0;
+            const lineCost = pourOz * (btlCost / convertToOz(rawSize, unit));
+            
+            data.ingredients.push({
+                name: row.querySelector('.c-name').value,
+                pour: pourOz, size: rawSize, unit: unit, cost: btlCost
+            });
+            data.totalCost += lineCost;
+        });
+        if(data.price > 0) { data.pourCostPct = (data.totalCost / data.price) * 100; }
+        return data;
+    }
+
+    function calculateCocktail() {
+      const data = getCocktailDataFromBuilder();
+      
+      document.querySelectorAll('.ingredient-row').forEach((row, index) => {
+          const ing = data.ingredients[index];
+          const lineCost = ing.pour * (ing.cost / convertToOz(ing.size, ing.unit));
+          row.querySelector('.c-line-cost').innerText = `$${lineCost.toFixed(2)}`;
+      });
+
+      document.getElementById('cocktail-cost').innerText = `$${data.totalCost.toFixed(2)}`;
+      const profitDisplay = document.getElementById('cocktail-profit');
+      const pourDisplay = document.getElementById('cocktail-pour-cost');
+      const classDisplay = document.getElementById('cocktail-class');
+      const pourBox = document.getElementById('cocktail-pour-box');
+
+      if (data.price > 0) {
+        profitDisplay.innerText = `$${(data.price - data.totalCost).toFixed(2)}`;
+        pourDisplay.innerText = `${data.pourCostPct.toFixed(2)}%`;
+
+        if (data.pourCostPct <= 15) {
+          classDisplay.innerText = '🌟 STAR'; classDisplay.style.color = 'var(--neon-green)';
+          pourDisplay.className = 'value status-good'; profitDisplay.className = 'value status-good';
+          pourBox.style.borderLeftColor = 'var(--neon-green)';
+        } else if (data.pourCostPct <= 20) {
+          classDisplay.innerText = '🐴 PLOWHORSE'; classDisplay.style.color = 'var(--text-main)';
+          pourDisplay.className = 'value'; profitDisplay.className = 'value';
+          pourBox.style.borderLeftColor = 'var(--text-muted)';
+        } else {
+          classDisplay.innerText = '🐕 DOG'; classDisplay.style.color = 'var(--danger)';
+          pourDisplay.className = 'value status-warn'; profitDisplay.className = 'value status-warn';
+          pourBox.style.borderLeftColor = 'var(--danger)';
+        }
+      } else {
+        profitDisplay.innerText = `$0.00`; pourDisplay.innerText = `0.00%`; classDisplay.innerText = '--';
+        pourDisplay.className = 'value'; profitDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)';
+      }
+    }
+
+    // --- NEW: MENU VAULT FUNCTIONS ---
+    function saveCocktailToMenu() {
+        const data = getCocktailDataFromBuilder();
+        if(data.name.trim() === '') {
+            alert("Please give the cocktail a name before saving.");
+            return;
+        }
+
+        // Save over the existing ID, or push a new one if it's new
+        let ref = editingCocktailId ? db.ref(currentLocation + '/liquor_menu/' + editingCocktailId) : db.ref(currentLocation + '/liquor_menu').push();
+        
+        ref.set(data).then(() => {
+            editingCocktailId = ref.key; 
+            autoSaveDraft(); // Save the fact that it's now officially linked to the menu
+            flashSync();
+            
+            // Visual feedback on the button
+            const btn = document.querySelector('button[onclick="saveCocktailToMenu()"]');
+            btn.innerHTML = '✅ Saved';
+            btn.style.background = 'var(--neon-green)';
+            btn.style.color = '#000';
+            setTimeout(() => {
+                btn.innerHTML = '💾 Save to Menu';
+                btn.style.background = 'transparent';
+                btn.style.color = 'var(--neon-blue)';
+            }, 2000);
+        });
+    }
+
+    function clearBuilder() {
+        editingCocktailId = null;
+        document.getElementById('cocktail-name').value = '';
+        document.getElementById('menu-price').value = '';
+        document.getElementById('ingredients-container').innerHTML = '';
+        addIngredientRow(); // Add one blank row to start
+        calculateCocktail();
+        autoSaveDraft();
+        scrollToTop();
+    }
+
+    function loadCocktailToBuilder(id, cocktailData) {
+        editingCocktailId = id;
+        document.getElementById('cocktail-name').value = cocktailData.name || '';
+        document.getElementById('menu-price').value = cocktailData.price || '';
+        
+        const container = document.getElementById('ingredients-container');
+        container.innerHTML = '';
+        if(cocktailData.ingredients) {
+            cocktailData.ingredients.forEach(ing => injectIngredientRow(ing));
+        } else {
+            addIngredientRow();
+        }
+        
+        calculateCocktail();
+        autoSaveDraft();
+        scrollToTop();
+    }
+
+    function deleteFromMenu(id) {
+        if(confirm("Are you sure you want to delete this cocktail from the menu?")) {
+            db.ref(currentLocation + '/liquor_menu/' + id).remove();
+            if(editingCocktailId === id) { clearBuilder(); }
+        }
+    }
+
+    function renderMenuVault(menuData) {
+        const container = document.getElementById('menu-vault-container');
+        container.innerHTML = '';
+        
+        if(!menuData) {
+            container.innerHTML = '<p style="color:var(--text-muted);">No cocktails saved to menu yet. Build one above and click "Save to Menu".</p>';
+            return;
+        }
+
+        Object.keys(menuData).forEach(key => {
+            const drink = menuData[key];
+            const div = document.createElement('div');
+            div.className = 'menu-card';
+            
+            let classEmoji = '🐕'; let colorClass = 'status-warn';
+            if(drink.pourCostPct <= 15) { classEmoji = '🌟'; colorClass = 'status-good'; }
+            else if (drink.pourCostPct <= 20) { classEmoji = '🐴'; colorClass = ''; }
+            
+            div.innerHTML = `
+                <h4 style="display:flex; justify-content:space-between;">
+                    ${drink.name} <span>${classEmoji}</span>
+                </h4>
+                <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Price: $${drink.price.toFixed(2)}</div>
+                
+                <div class="menu-stats">
+                    <span>Cost:</span>
+                    <span>$${drink.totalCost.toFixed(2)}</span>
+                </div>
+                <div class="menu-stats">
+                    <span>Pour %:</span>
+                    <span class="${colorClass}">${drink.pourCostPct.toFixed(2)}%</span>
+                </div>
+                
+                <div class="menu-actions">
+                    <button class="btn-glow" style="flex:1; padding:8px;" onclick='loadCocktailToBuilder("${key}", ${JSON.stringify(drink).replace(/'/g, "&#39;")})'>✎ Edit</button>
+                    <button class="btn-remove" style="padding:8px;" onclick='deleteFromMenu("${key}")'>Delete</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
     }
 
     function exportToCSV() {
@@ -1041,7 +1196,6 @@
         const brand = row.querySelector('.i-brand').value;
         const rawSize = row.querySelector('.i-size').value;
         const unit = row.querySelector('.i-unit').value;
-        
         const start = parseFloat(row.getAttribute('data-start')) || 0;
         const received = parseFloat(row.getAttribute('data-received')) || 0;
         const count = parseFloat(row.querySelector('.i-count').value) || 0;
@@ -1062,79 +1216,7 @@
       const link = document.createElement("a");
       link.setAttribute("href", encodeURI(csvContent));
       link.setAttribute("download", `Los_Pericos_Inventory_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    function injectIngredientRow(ing) {
-        const container = document.getElementById('ingredients-container');
-        const div = document.createElement('div');
-        div.className = 'builder-grid ingredient-row';
-        let unitHtml = builderUnitOptions.map(u => `<option value="${u}" ${u === ing.unit ? 'selected' : ''}>${u}</option>`).join('');
-        
-        div.innerHTML = `
-          <input type="text" placeholder="Ingredient / Auto-fill" class="clean-input c-name" value="${ing.name || ''}" list="inventory-datalist" oninput="handleIngredientChange(this)">
-          <input type="number" placeholder="Pour Oz" class="clean-input c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveCocktail()">
-          <div style="display: flex; gap: 5px;">
-            <input type="number" placeholder="Btl Size" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveCocktail()">
-            <select class="clean-input c-unit" onchange="calculateCocktail(); autoSaveCocktail()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
-          </div>
-          <input type="number" placeholder="Btl Cost" class="clean-input c-cost" value="${ing.cost || 15}" step="0.01" oninput="calculateCocktail(); autoSaveCocktail()">
-          <div class="data-highlight c-line-cost">$0.00</div>
-          <button class="btn-remove" onclick="removeEl(this)">Remove</button>
-        `;
-        container.appendChild(div);
-    }
-
-    function addIngredientRow() {
-        injectIngredientRow({ unit: 'ml', size: 750, pour: 1, cost: 15 });
-        calculateCocktail();
-        autoSaveCocktail();
-    }
-
-    function calculateCocktail() {
-      let totalCost = 0;
-      document.querySelectorAll('.ingredient-row').forEach(row => {
-        const pourOz = parseFloat(row.querySelector('.c-pour').value) || 0;
-        const rawSize = parseFloat(row.querySelector('.c-size').value) || 1; 
-        const unit = row.querySelector('.c-unit').value;
-        const btlCost = parseFloat(row.querySelector('.c-cost').value) || 0;
-        
-        const lineCost = pourOz * (btlCost / convertToOz(rawSize, unit));
-        row.querySelector('.c-line-cost').innerText = `$${lineCost.toFixed(2)}`;
-        totalCost += lineCost;
-      });
-
-      document.getElementById('cocktail-cost').innerText = `$${totalCost.toFixed(2)}`;
-      const menuPrice = parseFloat(document.getElementById('menu-price').value) || 0;
-      const profitDisplay = document.getElementById('cocktail-profit');
-      const pourDisplay = document.getElementById('cocktail-pour-cost');
-      const classDisplay = document.getElementById('cocktail-class');
-      const pourBox = document.getElementById('cocktail-pour-box');
-
-      if (menuPrice > 0) {
-        const pourCostPct = (totalCost / menuPrice) * 100;
-        profitDisplay.innerText = `$${(menuPrice - totalCost).toFixed(2)}`;
-        pourDisplay.innerText = `${pourCostPct.toFixed(2)}%`;
-
-        if (pourCostPct <= 15) {
-          classDisplay.innerText = '🌟 STAR'; classDisplay.style.color = 'var(--neon-green)';
-          pourDisplay.className = 'value status-good'; profitDisplay.className = 'value status-good';
-          pourBox.style.borderLeftColor = 'var(--neon-green)';
-        } else if (pourCostPct <= 20) {
-          classDisplay.innerText = '🐴 PLOWHORSE'; classDisplay.style.color = 'var(--text-main)';
-          pourDisplay.className = 'value'; profitDisplay.className = 'value';
-          pourBox.style.borderLeftColor = 'var(--text-muted)';
-        } else {
-          classDisplay.innerText = '🐕 DOG'; classDisplay.style.color = 'var(--danger)';
-          pourDisplay.className = 'value status-warn'; profitDisplay.className = 'value status-warn';
-          pourBox.style.borderLeftColor = 'var(--danger)';
-        }
-      } else {
-        profitDisplay.innerText = `$0.00`; pourDisplay.innerText = `0.00%`; classDisplay.innerText = '--';
-        pourDisplay.className = 'value'; profitDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)';
-      }
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
   </script>
 </body>
