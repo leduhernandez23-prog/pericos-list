@@ -170,3 +170,27 @@ select.clean-input option { background: var(--bg-dark); color: var(--text-main);
   .builder-grid .data-highlight { text-align: right; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
   .builder-grid button { align-self: flex-end; width: auto; background: rgba(255, 71, 87, 0.1); border: 1px solid var(--danger); color: var(--danger); margin-top: 10px; }
 }
+/* ==========================================
+   MISSING UTILITY FUNCTIONS
+   ========================================== */
+function toggleCategory(cat) {
+    collapsedCats[cat] = !collapsedCats[cat];
+    filterInventory();
+}
+
+function updateMeta() {
+    db.ref(currentLocation + '/liquor_meta').update({
+        lastEditedBy: activeUser,
+        lastEditedAt: new Date().toISOString()
+    });
+}
+
+function autoSaveMeta() {
+    const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
+    db.ref(currentLocation + '/liquor_meta').update({
+        posSales: posSales,
+        lastEditedBy: activeUser,
+        lastEditedAt: new Date().toISOString()
+    });
+    calculateGlobalMetrics();
+}
