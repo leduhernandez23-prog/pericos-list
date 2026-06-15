@@ -18,6 +18,7 @@ let deletedStack = [];
 let inventoryLookup = {}; 
 let collapsedCats = {}; 
 let editingCocktailId = null; 
+let editingPrepId = null;
 
 const catColors = {
     'Tequila': '#00E676', 'Vodka': '#00b0ff', 'Whiskey': '#ff9f43',
@@ -57,6 +58,7 @@ function loadFirebaseData() {
             updateInventoryDatalist(); 
         } else { addInventoryRow(); }
         
+        // Load Single Drink Builder
         db.ref(currentLocation + '/liquor_builder_draft').once('value', snap2 => {
             const cData = snap2.val();
             const cbody = document.getElementById('ingredients-container');
@@ -64,7 +66,6 @@ function loadFirebaseData() {
             if(cData && cData.ingredients) {
                 editingCocktailId = cData.editingId || null;
                 document.getElementById('cocktail-name').value = cData.name || '';
-                document.getElementById('batch-yield').value = cData.yield || 1;
                 document.getElementById('menu-price').value = cData.price || '';
                 cData.ingredients.forEach(ing => { if(ing) injectIngredientRow(ing); });
             } else { addIngredientRow(); }
@@ -72,10 +73,27 @@ function loadFirebaseData() {
             isInitialLoad = true;
             renderMarginDashboard();
         });
+
+        // Load Prep Room Builder
+        db.ref(currentLocation + '/liquor_prep_draft').once('value', snap3 => {
+            const pData = snap3.val();
+            const pbody = document.getElementById('prep-ingredients-container');
+            pbody.innerHTML = '';
+            if(pData && pData.ingredients) {
+                editingPrepId = pData.editingId || null;
+                document.getElementById('prep-name').value = pData.name || '';
+                pData.ingredients.forEach(ing => { if(ing) injectPrepRow(ing); });
+            } else { addPrepRow(); }
+            calculatePrep();
+        });
     });
 
     db.ref(currentLocation + '/liquor_menu').on('value', snap => {
         renderMenuVault(snap.val());
+    });
+
+    db.ref(currentLocation + '/liquor_prep_menu').on('value', snap => {
+        renderPrepVault(snap.val());
     });
 
     db.ref(currentLocation + '/liquor_meta').on('value', snap => {
@@ -134,13 +152,6 @@ function autoSaveInv() {
     db.ref(currentLocation + '/liquor_inventory').set(data)
       .then(() => { updateMeta(); renderMarginDashboard(); updateInventoryDatalist(); })
       .catch(error => console.error("Firebase Save Error: ", error));
-}
-
-function autoSaveDraft() {
-    if(!isInitialLoad) return;
-    const data = getCocktailDataFromBuilder();
-    data.editingId = editingCocktailId; 
-    db.ref(currentLocation + '/liquor_builder_draft').set(data);
 }
 
 function autoSaveMeta() {
@@ -358,7 +369,9 @@ function openTab(event, tabId) {
   if(tabId === 'dashboard') addBtn.style.display = 'none';
   else { 
     addBtn.style.display = 'flex'; 
-    addBtn.onclick = tabId === 'builder' ? () => { addIngredientRow(); scrollToBottom(); } : () => { addInventoryRow(); scrollToBottom(); };
+    if (tabId === 'builder') addBtn.onclick = () => { addIngredientRow(); scrollToBottom(); };
+    else if (tabId === 'prep') addBtn.onclick = () => { addPrepRow(); scrollToBottom(); };
+    else addBtn.onclick = () => { addInventoryRow(); scrollToBottom(); };
   }
 }
 
@@ -451,28 +464,17 @@ function updateInventoryDatalist() {
     });
 }
 
-function handleIngredientChange(input) {
-    const val = input.value.trim().toLowerCase();
-    const row = input.closest('.ingredient-row');
-    if (inventoryLookup[val]) {
-        const data = inventoryLookup[val];
-        row.querySelector('.c-size').value = data.size;
-        row.querySelector('.c-unit').value = data.unit;
-        row.querySelector('.c-cost').value = data.cost;
-        // Default to ounces when selecting from inventory
-        row.querySelector('.c-pour-type').value = 'oz';
-        calculateCocktail();
-    }
-    autoSaveDraft();
-}
-
 function removeEl(btn) {
-  const row = btn.closest('tr, .ingredient-row');
+  const row = btn.closest('tr, .ingredient-row, .prep-row');
   deletedStack.push({ row: row, parent: row.parentElement, nextSibling: row.nextElementSibling });
   row.remove();
   document.getElementById('undo-btn-inv').style.display = 'inline-block';
   document.getElementById('undo-btn-build').style.display = 'inline-block';
-  if(row.classList.contains('inv-row')) { autoSaveInv(); } else { autoSaveDraft(); calculateCocktail(); }
+  document.getElementById('undo-btn-prep').style.display = 'inline-block';
+  
+  if(row.classList.contains('inv-row')) { autoSaveInv(); } 
+  else if (row.classList.contains('prep-row')) { autoSavePrepDraft(); calculatePrep(); }
+  else { autoSaveDraft(); calculateCocktail(); }
 }
 
 function undoDelete() {
@@ -480,13 +482,30 @@ function undoDelete() {
     const last = deletedStack.pop();
     if (last.nextSibling && last.nextSibling.parentNode === last.parent) last.parent.insertBefore(last.row, last.nextSibling);
     else last.parent.appendChild(last.row);
+    
     if(last.row.classList.contains('inv-row')) { sortInventory(); autoSaveInv(); } 
+    else if (last.row.classList.contains('prep-row')) { autoSavePrepDraft(); calculatePrep(); }
     else { autoSaveDraft(); calculateCocktail(); }
   }
   if (deletedStack.length === 0) { 
-      document.getElementById('undo-btn-inv').style.display = 'none'; 
-      document.getElementById('undo-btn-build').style.display = 'none'; 
+      document.querySelectorAll('.btn-undo').forEach(b => b.style.display = 'none');
   }
+}
+
+/* ==========================================
+   TAB 3: SINGLE DRINK BUILDER
+   ========================================== */
+function handleIngredientChange(input) {
+    const val = input.value.trim().toLowerCase();
+    if (inventoryLookup[val]) {
+        const row = input.closest('.ingredient-row');
+        const data = inventoryLookup[val];
+        row.querySelector('.c-size').value = data.size;
+        row.querySelector('.c-unit').value = data.unit;
+        row.querySelector('.c-cost').value = data.cost;
+        calculateCocktail();
+    }
+    autoSaveDraft();
 }
 
 function injectIngredientRow(ing) {
@@ -497,12 +516,7 @@ function injectIngredientRow(ing) {
     
     div.innerHTML = `
       <input type="text" placeholder="Ingredient / Auto-fill" class="clean-input c-name" value="${ing.name || ''}" list="inventory-datalist" oninput="handleIngredientChange(this)">
-      <input type="number" placeholder="Amt" class="clean-input c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveDraft()">
-      <select class="clean-input c-pour-type" onchange="calculateCocktail(); autoSaveDraft()">
-        <option value="oz" ${ing.pourType === 'oz' ? 'selected' : ''}>oz</option>
-        <option value="btl" ${ing.pourType === 'btl' ? 'selected' : ''}>btl</option>
-        <option value="ea" ${ing.pourType === 'ea' ? 'selected' : ''}>ea</option>
-      </select>
+      <input type="number" placeholder="Pour Oz" class="clean-input c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveDraft()">
       <div style="display: flex; gap: 5px;">
         <input type="number" placeholder="Btl Size" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveDraft()">
         <select class="clean-input c-unit" onchange="calculateCocktail(); autoSaveDraft()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
@@ -515,44 +529,39 @@ function injectIngredientRow(ing) {
 }
 
 function addIngredientRow() {
-    injectIngredientRow({ unit: 'ml', size: 750, pour: 1, pourType: 'oz', cost: 15 });
+    injectIngredientRow({ unit: 'ml', size: 750, pour: 1, cost: 15 });
     calculateCocktail(); autoSaveDraft();
+}
+
+function autoSaveDraft() {
+    if(!isInitialLoad) return;
+    const data = getCocktailDataFromBuilder();
+    data.editingId = editingCocktailId; 
+    db.ref(currentLocation + '/liquor_builder_draft').set(data);
 }
 
 function getCocktailDataFromBuilder() {
     const data = {
         name: document.getElementById('cocktail-name').value,
         price: parseFloat(document.getElementById('menu-price').value) || 0,
-        yield: parseFloat(document.getElementById('batch-yield').value) || 1,
         ingredients: [],
         totalCost: 0,
-        costPerDrink: 0,
         pourCostPct: 0
     };
     document.querySelectorAll('.ingredient-row').forEach(row => {
-        const pourAmt = parseFloat(row.querySelector('.c-pour').value) || 0;
-        const pourType = row.querySelector('.c-pour-type').value;
+        const pourOz = parseFloat(row.querySelector('.c-pour').value) || 0;
         const rawSize = parseFloat(row.querySelector('.c-size').value) || 1; 
         const unit = row.querySelector('.c-unit').value;
         const btlCost = parseFloat(row.querySelector('.c-cost').value) || 0;
-        
-        let lineCost = 0;
-        // If whole bottles or individual items are selected, ignore ounce conversion
-        if (pourType === 'btl' || pourType === 'ea') {
-            lineCost = pourAmt * btlCost;
-        } else {
-            lineCost = pourAmt * (btlCost / convertToOz(rawSize, unit));
-        }
+        const lineCost = pourOz * (btlCost / convertToOz(rawSize, unit));
         
         data.ingredients.push({
             name: row.querySelector('.c-name').value,
-            pour: pourAmt, pourType: pourType, size: rawSize, unit: unit, cost: btlCost
+            pour: pourOz, size: rawSize, unit: unit, cost: btlCost
         });
         data.totalCost += lineCost;
     });
-    
-    data.costPerDrink = data.totalCost / data.yield;
-    if(data.price > 0) { data.pourCostPct = (data.costPerDrink / data.price) * 100; }
+    if(data.price > 0) { data.pourCostPct = (data.totalCost / data.price) * 100; }
     return data;
 }
 
@@ -561,17 +570,11 @@ function calculateCocktail() {
   
   document.querySelectorAll('.ingredient-row').forEach((row, index) => {
       const ing = data.ingredients[index];
-      let lineCost = 0;
-      if (ing.pourType === 'btl' || ing.pourType === 'ea') {
-          lineCost = ing.pour * ing.cost;
-      } else {
-          lineCost = ing.pour * (ing.cost / convertToOz(ing.size, ing.unit));
-      }
+      const lineCost = ing.pour * (ing.cost / convertToOz(ing.size, ing.unit));
       row.querySelector('.c-line-cost').innerText = `$${lineCost.toFixed(2)}`;
   });
 
-  document.getElementById('cocktail-batch-cost').innerText = `$${data.totalCost.toFixed(2)}`;
-  document.getElementById('cocktail-cost').innerText = `$${data.costPerDrink.toFixed(2)}`;
+  document.getElementById('cocktail-cost').innerText = `$${data.totalCost.toFixed(2)}`;
   
   const profitDisplay = document.getElementById('cocktail-profit');
   const pourDisplay = document.getElementById('cocktail-pour-cost');
@@ -579,7 +582,7 @@ function calculateCocktail() {
   const pourBox = document.getElementById('cocktail-pour-box');
 
   if (data.price > 0) {
-    profitDisplay.innerText = `$${(data.price - data.costPerDrink).toFixed(2)}`;
+    profitDisplay.innerText = `$${(data.price - data.totalCost).toFixed(2)}`;
     pourDisplay.innerText = `${data.pourCostPct.toFixed(2)}%`;
 
     if (data.pourCostPct <= 15) {
@@ -603,58 +606,38 @@ function calculateCocktail() {
 
 function saveCocktailToMenu() {
     const data = getCocktailDataFromBuilder();
-    if(data.name.trim() === '') {
-        alert("Please give the cocktail a name before saving.");
-        return;
-    }
+    if(data.name.trim() === '') { alert("Please give the cocktail a name before saving."); return; }
     let ref = editingCocktailId ? db.ref(currentLocation + '/liquor_menu/' + editingCocktailId) : db.ref(currentLocation + '/liquor_menu').push();
     
     ref.set(data).then(() => {
         editingCocktailId = ref.key; 
-        autoSaveDraft(); 
-        flashSync();
+        autoSaveDraft(); flashSync();
         
-        const btn = document.querySelector('button[onclick="saveCocktailToMenu()"]');
-        btn.innerHTML = '✅ Saved';
-        btn.style.background = 'var(--neon-green)';
-        btn.style.color = '#000';
-        setTimeout(() => {
-            btn.innerHTML = '💾 Save to Menu';
-            btn.style.background = 'transparent';
-            btn.style.color = 'var(--neon-blue)';
-        }, 2000);
+        const btn = document.querySelector('#builder button[onclick="saveCocktailToMenu()"]');
+        btn.innerHTML = '✅ Saved'; btn.style.background = 'var(--neon-green)'; btn.style.color = '#000';
+        setTimeout(() => { btn.innerHTML = '💾 Save to Menu'; btn.style.background = 'transparent'; btn.style.color = 'var(--neon-blue)'; }, 2000);
     });
 }
 
 function clearBuilder() {
     editingCocktailId = null;
     document.getElementById('cocktail-name').value = '';
-    document.getElementById('batch-yield').value = 1;
     document.getElementById('menu-price').value = '';
     document.getElementById('ingredients-container').innerHTML = '';
-    addIngredientRow(); 
-    calculateCocktail();
-    autoSaveDraft();
-    scrollToTop();
+    addIngredientRow(); calculateCocktail(); autoSaveDraft(); scrollToTop();
 }
 
 function loadCocktailToBuilder(id, cocktailData) {
     editingCocktailId = id;
     document.getElementById('cocktail-name').value = cocktailData.name || '';
-    document.getElementById('batch-yield').value = cocktailData.yield || 1;
     document.getElementById('menu-price').value = cocktailData.price || '';
     
     const container = document.getElementById('ingredients-container');
     container.innerHTML = '';
-    if(cocktailData.ingredients) {
-        cocktailData.ingredients.forEach(ing => injectIngredientRow(ing));
-    } else {
-        addIngredientRow();
-    }
+    if(cocktailData.ingredients) { cocktailData.ingredients.forEach(ing => injectIngredientRow(ing)); } 
+    else { addIngredientRow(); }
     
-    calculateCocktail();
-    autoSaveDraft();
-    scrollToTop();
+    calculateCocktail(); autoSaveDraft(); scrollToTop();
 }
 
 function deleteFromMenu(id) {
@@ -682,23 +665,11 @@ function renderMenuVault(menuData) {
         if(drink.pourCostPct <= 15) { classEmoji = '🌟'; colorClass = 'status-good'; }
         else if (drink.pourCostPct <= 20) { classEmoji = '🐴'; colorClass = ''; }
         
-        const yieldDisplay = drink.yield > 1 ? ` (Yield: ${drink.yield})` : '';
-
         div.innerHTML = `
-            <h4 style="display:flex; justify-content:space-between;">
-                ${drink.name} <span>${classEmoji}</span>
-            </h4>
-            <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Price: $${drink.price.toFixed(2)}${yieldDisplay}</div>
-            
-            <div class="menu-stats">
-                <span>Cost / Drink:</span>
-                <span>$${(drink.costPerDrink || drink.totalCost).toFixed(2)}</span>
-            </div>
-            <div class="menu-stats">
-                <span>Pour %:</span>
-                <span class="${colorClass}">${drink.pourCostPct.toFixed(2)}%</span>
-            </div>
-            
+            <h4 style="display:flex; justify-content:space-between;">${drink.name} <span>${classEmoji}</span></h4>
+            <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Price: $${drink.price.toFixed(2)}</div>
+            <div class="menu-stats"><span>Cost:</span><span>$${drink.totalCost.toFixed(2)}</span></div>
+            <div class="menu-stats"><span>Pour %:</span><span class="${colorClass}">${drink.pourCostPct.toFixed(2)}%</span></div>
             <div class="menu-actions">
                 <button class="btn-glow" style="flex:1; padding:8px;" onclick='loadCocktailToBuilder("${key}", ${JSON.stringify(drink).replace(/'/g, "&#39;")})'>✎ Edit</button>
                 <button class="btn-remove" style="padding:8px;" onclick='deleteFromMenu("${key}")'>Delete</button>
@@ -708,6 +679,175 @@ function renderMenuVault(menuData) {
     });
 }
 
+/* ==========================================
+   TAB 4: PREP ROOM & BATCHING
+   ========================================== */
+function handlePrepIngredientChange(input) {
+    const val = input.value.trim().toLowerCase();
+    if (inventoryLookup[val]) {
+        const row = input.closest('.prep-row');
+        const data = inventoryLookup[val];
+        row.querySelector('.p-size').value = data.size;
+        row.querySelector('.p-unit').value = data.unit;
+        row.querySelector('.p-cost').value = data.cost;
+        row.querySelector('.p-measure').value = 'btl'; 
+        calculatePrep();
+    }
+    autoSavePrepDraft();
+}
+
+function injectPrepRow(ing) {
+    const container = document.getElementById('prep-ingredients-container');
+    const div = document.createElement('div');
+    div.className = 'prep-grid prep-row';
+    let unitHtml = builderUnitOptions.map(u => `<option value="${u}" ${u === ing.unit ? 'selected' : ''}>${u}</option>`).join('');
+    
+    div.innerHTML = `
+      <input type="text" placeholder="Ingredient" class="clean-input p-name" value="${ing.name || ''}" list="inventory-datalist" oninput="handlePrepIngredientChange(this)">
+      <input type="number" placeholder="Qty" class="clean-input p-pour" value="${ing.pour || 1}" step="0.25" oninput="calculatePrep(); autoSavePrepDraft()">
+      <select class="clean-input p-measure" onchange="calculatePrep(); autoSavePrepDraft()">
+        <option value="btl" ${ing.measure === 'btl' ? 'selected' : ''}>Whole Btls/Ea</option>
+        <option value="oz" ${ing.measure === 'oz' ? 'selected' : ''}>Ounces (oz)</option>
+      </select>
+      <div style="display: flex; gap: 5px;">
+        <input type="number" placeholder="Size" class="clean-input p-size" value="${ing.size || 750}" oninput="calculatePrep(); autoSavePrepDraft()">
+        <select class="clean-input p-unit" onchange="calculatePrep(); autoSavePrepDraft()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
+      </div>
+      <input type="number" placeholder="Btl Cost" class="clean-input p-cost" value="${ing.cost || 15}" step="0.01" oninput="calculatePrep(); autoSavePrepDraft()">
+      <div class="data-highlight p-line-cost">$0.00</div>
+      <button class="btn-remove" onclick="removeEl(this)">Remove</button>
+    `;
+    container.appendChild(div);
+}
+
+function addPrepRow() {
+    injectPrepRow({ unit: 'ml', size: 750, pour: 1, measure: 'btl', cost: 15 });
+    calculatePrep(); autoSavePrepDraft();
+}
+
+function autoSavePrepDraft() {
+    if(!isInitialLoad) return;
+    const data = getPrepDataFromBuilder();
+    data.editingId = editingPrepId; 
+    db.ref(currentLocation + '/liquor_prep_draft').set(data);
+}
+
+function getPrepDataFromBuilder() {
+    const data = {
+        name: document.getElementById('prep-name').value,
+        ingredients: [],
+        totalCost: 0
+    };
+    document.querySelectorAll('.prep-row').forEach(row => {
+        const pourQty = parseFloat(row.querySelector('.p-pour').value) || 0;
+        const measure = row.querySelector('.p-measure').value;
+        const rawSize = parseFloat(row.querySelector('.p-size').value) || 1; 
+        const unit = row.querySelector('.p-unit').value;
+        const btlCost = parseFloat(row.querySelector('.p-cost').value) || 0;
+        
+        let lineCost = 0;
+        if (measure === 'btl') {
+            lineCost = pourQty * btlCost;
+        } else {
+            lineCost = pourQty * (btlCost / convertToOz(rawSize, unit));
+        }
+        
+        data.ingredients.push({
+            name: row.querySelector('.p-name').value,
+            pour: pourQty, measure: measure, size: rawSize, unit: unit, cost: btlCost
+        });
+        data.totalCost += lineCost;
+    });
+    return data;
+}
+
+function calculatePrep() {
+  const data = getPrepDataFromBuilder();
+  
+  document.querySelectorAll('.prep-row').forEach((row, index) => {
+      const ing = data.ingredients[index];
+      let lineCost = 0;
+      if (ing.measure === 'btl') {
+          lineCost = ing.pour * ing.cost;
+      } else {
+          lineCost = ing.pour * (ing.cost / convertToOz(ing.size, ing.unit));
+      }
+      row.querySelector('.p-line-cost').innerText = `$${lineCost.toFixed(2)}`;
+  });
+
+  document.getElementById('prep-batch-cost').innerText = `$${data.totalCost.toFixed(2)}`;
+}
+
+function savePrepToMenu() {
+    const data = getPrepDataFromBuilder();
+    if(data.name.trim() === '') { alert("Please give the batch a name before saving."); return; }
+    let ref = editingPrepId ? db.ref(currentLocation + '/liquor_prep_menu/' + editingPrepId) : db.ref(currentLocation + '/liquor_prep_menu').push();
+    
+    ref.set(data).then(() => {
+        editingPrepId = ref.key; 
+        autoSavePrepDraft(); flashSync();
+        
+        const btn = document.querySelector('#prep button[onclick="savePrepToMenu()"]');
+        btn.innerHTML = '✅ Saved'; btn.style.background = 'var(--neon-green)'; btn.style.color = '#000';
+        setTimeout(() => { btn.innerHTML = '💾 Save Batch Info'; btn.style.background = 'transparent'; btn.style.color = 'var(--neon-blue)'; }, 2000);
+    });
+}
+
+function clearPrepBuilder() {
+    editingPrepId = null;
+    document.getElementById('prep-name').value = '';
+    document.getElementById('prep-ingredients-container').innerHTML = '';
+    addPrepRow(); calculatePrep(); autoSavePrepDraft(); scrollToTop();
+}
+
+function loadPrepToBuilder(id, prepData) {
+    editingPrepId = id;
+    document.getElementById('prep-name').value = prepData.name || '';
+    
+    const container = document.getElementById('prep-ingredients-container');
+    container.innerHTML = '';
+    if(prepData.ingredients) { prepData.ingredients.forEach(ing => injectPrepRow(ing)); } 
+    else { addPrepRow(); }
+    
+    calculatePrep(); autoSavePrepDraft(); scrollToTop();
+}
+
+function deleteFromPrepMenu(id) {
+    if(confirm("Are you sure you want to delete this batch from the vault?")) {
+        db.ref(currentLocation + '/liquor_prep_menu/' + id).remove();
+        if(editingPrepId === id) { clearPrepBuilder(); }
+    }
+}
+
+function renderPrepVault(menuData) {
+    const container = document.getElementById('prep-vault-container');
+    container.innerHTML = '';
+    
+    if(!menuData) {
+        container.innerHTML = '<p style="color:var(--text-muted);">No batches saved yet. Build one above and save.</p>';
+        return;
+    }
+
+    Object.keys(menuData).forEach(key => {
+        const prep = menuData[key];
+        const div = document.createElement('div');
+        div.className = 'menu-card';
+        
+        div.innerHTML = `
+            <h4 style="display:flex; justify-content:space-between; color: var(--neon-blue);">${prep.name}</h4>
+            <div class="menu-stats" style="margin-top: 15px;"><span>Total Batch Cost:</span><span>$${prep.totalCost.toFixed(2)}</span></div>
+            <div class="menu-actions">
+                <button class="btn-glow" style="flex:1; padding:8px; border-color: var(--neon-blue); color: var(--neon-blue);" onclick='loadPrepToBuilder("${key}", ${JSON.stringify(prep).replace(/'/g, "&#39;")})'>✎ Edit</button>
+                <button class="btn-remove" style="padding:8px;" onclick='deleteFromPrepMenu("${key}")'>Delete</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+/* ==========================================
+   EXPORT UTILS
+   ========================================== */
 function exportToCSV() {
   let csvContent = "data:text/csv;charset=utf-8,";
   csvContent += '"Category","Brand","Size","Start Count (Hidden)","Received","Current Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost","Shot Cost","Shot Profit","Shot Pour %"\r\n';
