@@ -453,12 +453,14 @@ function updateInventoryDatalist() {
 
 function handleIngredientChange(input) {
     const val = input.value.trim().toLowerCase();
+    const row = input.closest('.ingredient-row');
     if (inventoryLookup[val]) {
-        const row = input.closest('.ingredient-row');
         const data = inventoryLookup[val];
         row.querySelector('.c-size').value = data.size;
         row.querySelector('.c-unit').value = data.unit;
         row.querySelector('.c-cost').value = data.cost;
+        // Default to ounces when selecting from inventory
+        row.querySelector('.c-pour-type').value = 'oz';
         calculateCocktail();
     }
     autoSaveDraft();
@@ -495,7 +497,12 @@ function injectIngredientRow(ing) {
     
     div.innerHTML = `
       <input type="text" placeholder="Ingredient / Auto-fill" class="clean-input c-name" value="${ing.name || ''}" list="inventory-datalist" oninput="handleIngredientChange(this)">
-      <input type="number" placeholder="Pour Oz" class="clean-input c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveDraft()">
+      <input type="number" placeholder="Amt" class="clean-input c-pour" value="${ing.pour || 1}" step="0.25" oninput="calculateCocktail(); autoSaveDraft()">
+      <select class="clean-input c-pour-type" onchange="calculateCocktail(); autoSaveDraft()">
+        <option value="oz" ${ing.pourType === 'oz' ? 'selected' : ''}>oz</option>
+        <option value="btl" ${ing.pourType === 'btl' ? 'selected' : ''}>btl</option>
+        <option value="ea" ${ing.pourType === 'ea' ? 'selected' : ''}>ea</option>
+      </select>
       <div style="display: flex; gap: 5px;">
         <input type="number" placeholder="Btl Size" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateCocktail(); autoSaveDraft()">
         <select class="clean-input c-unit" onchange="calculateCocktail(); autoSaveDraft()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
@@ -508,7 +515,7 @@ function injectIngredientRow(ing) {
 }
 
 function addIngredientRow() {
-    injectIngredientRow({ unit: 'ml', size: 750, pour: 1, cost: 15 });
+    injectIngredientRow({ unit: 'ml', size: 750, pour: 1, pourType: 'oz', cost: 15 });
     calculateCocktail(); autoSaveDraft();
 }
 
@@ -523,15 +530,23 @@ function getCocktailDataFromBuilder() {
         pourCostPct: 0
     };
     document.querySelectorAll('.ingredient-row').forEach(row => {
-        const pourOz = parseFloat(row.querySelector('.c-pour').value) || 0;
+        const pourAmt = parseFloat(row.querySelector('.c-pour').value) || 0;
+        const pourType = row.querySelector('.c-pour-type').value;
         const rawSize = parseFloat(row.querySelector('.c-size').value) || 1; 
         const unit = row.querySelector('.c-unit').value;
         const btlCost = parseFloat(row.querySelector('.c-cost').value) || 0;
-        const lineCost = pourOz * (btlCost / convertToOz(rawSize, unit));
+        
+        let lineCost = 0;
+        // If whole bottles or individual items are selected, ignore ounce conversion
+        if (pourType === 'btl' || pourType === 'ea') {
+            lineCost = pourAmt * btlCost;
+        } else {
+            lineCost = pourAmt * (btlCost / convertToOz(rawSize, unit));
+        }
         
         data.ingredients.push({
             name: row.querySelector('.c-name').value,
-            pour: pourOz, size: rawSize, unit: unit, cost: btlCost
+            pour: pourAmt, pourType: pourType, size: rawSize, unit: unit, cost: btlCost
         });
         data.totalCost += lineCost;
     });
@@ -546,7 +561,12 @@ function calculateCocktail() {
   
   document.querySelectorAll('.ingredient-row').forEach((row, index) => {
       const ing = data.ingredients[index];
-      const lineCost = ing.pour * (ing.cost / convertToOz(ing.size, ing.unit));
+      let lineCost = 0;
+      if (ing.pourType === 'btl' || ing.pourType === 'ea') {
+          lineCost = ing.pour * ing.cost;
+      } else {
+          lineCost = ing.pour * (ing.cost / convertToOz(ing.size, ing.unit));
+      }
       row.querySelector('.c-line-cost').innerText = `$${lineCost.toFixed(2)}`;
   });
 
