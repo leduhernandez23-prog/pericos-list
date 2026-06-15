@@ -121,14 +121,22 @@
       
       <button class="btn-glow" style="border-color: var(--neon-blue); color: var(--neon-blue); margin-top: 15px; font-size: 0.7rem; padding: 8px 16px;" onclick="addBuilderRow()">+ Add Ingredient</button>
 
-      <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--glass-border);">
-        <div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Cost</div>
-            <div id="b-total-cost" style="font-size: 1.5rem; font-weight: bold; color: var(--text-main);">$0.00</div>
+      <div class="dashboard-grid" style="margin-top: 25px; margin-bottom: 25px;">
+        <div class="metric-box" style="padding: 15px;">
+          <h4 id="b-box-1-title">Cost to Build</h4>
+          <div class="value" id="b-box-1-val" style="font-size: 1.5rem;">$0.00</div>
         </div>
-        <div id="b-pour-metrics" style="text-align: right;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Pour %</div>
-            <div id="b-pour-pct" style="font-size: 1.5rem; font-weight: bold; color: var(--neon-green);">0.00%</div>
+        <div class="metric-box" style="padding: 15px;">
+          <h4 id="b-box-2-title">Gross Profit</h4>
+          <div class="value status-good" id="b-box-2-val" style="font-size: 1.5rem;">$0.00</div>
+        </div>
+        <div class="metric-box" id="b-box-3-container" style="padding: 15px; border-left: 4px solid var(--neon-green);">
+          <h4 id="b-box-3-title">Pour Cost (%)</h4>
+          <div class="value status-good" id="b-box-3-val" style="font-size: 1.5rem;">0.00%</div>
+        </div>
+        <div class="metric-box" id="b-box-4-container" style="padding: 15px;">
+          <h4 id="b-box-4-title">Matrix Class</h4>
+          <div class="value" id="b-box-4-val" style="font-size: 1.2rem; margin-top: 5px;">--</div>
         </div>
       </div>
 
