@@ -157,8 +157,79 @@ function showBuilder(type, id = null, isDuplicate = false) {
         else { addBuilderRow(); }
     } else { addBuilderRow(); }
 
-    calculateBuilder();
-    document.getElementById('builder-modal').style.display = 'flex';
+   function calculateBuilder() {
+    let totalCost = 0;
+    document.querySelectorAll('#builder-ingredients .ingredient-row').forEach(row => {
+        const pour = parseFloat(row.querySelector('.c-pour').value) || 0;
+        const measure = row.querySelector('.c-measure').value;
+        const size = parseFloat(row.querySelector('.c-size').value) || 1;
+        const unit = row.querySelector('.c-unit').value;
+        const pack = parseFloat(row.querySelector('.c-pack').value) || 1;
+        const cost = parseFloat(row.querySelector('.c-cost').value) || 0;
+        
+        const singleUnitCost = cost / pack; 
+        let lineCost = 0;
+        if (measure === 'btl' || measure === 'ea') { lineCost = pour * singleUnitCost; } 
+        else { lineCost = pour * (singleUnitCost / convertToOz(size, unit)); }
+        
+        row.querySelector('.c-line-cost').innerText = `$${lineCost.toFixed(2)}`;
+        totalCost += lineCost;
+    });
+
+    const isCocktail = (currentBuilderType === 'cocktail');
+    
+    if (isCocktail) {
+        // The dead code line causing the crash was removed right here
+        const price = parseFloat(document.getElementById('b-price').value) || 0;
+        const profitDisplay = document.getElementById('b-box-2-val');
+        const pourDisplay = document.getElementById('b-box-3-val');
+        const classDisplay = document.getElementById('b-box-4-val');
+        const pourBox = document.getElementById('b-box-3-container');
+
+        document.getElementById('b-box-1-title').innerText = "Cost to Build";
+        document.getElementById('b-box-1-val').innerText = `$${totalCost.toFixed(2)}`;
+        document.getElementById('b-box-2-title').innerText = "Gross Profit";
+        document.getElementById('b-box-3-title').innerText = "Pour Cost (%)";
+        document.getElementById('b-box-4-title').innerText = "Matrix Class";
+        
+        document.getElementById('b-box-3-container').style.display = 'block';
+        document.getElementById('b-box-4-container').style.display = 'block';
+
+        if (price > 0) {
+            profitDisplay.innerText = `$${(price - totalCost).toFixed(2)}`;
+            const pct = (totalCost / price) * 100;
+            pourDisplay.innerText = `${pct.toFixed(2)}%`;
+
+            if (pct <= 15) {
+                classDisplay.innerText = '🌟 STAR'; classDisplay.style.color = 'var(--neon-green)';
+                pourDisplay.className = 'value status-good'; profitDisplay.className = 'value status-good';
+                pourBox.style.borderLeftColor = 'var(--neon-green)';
+            } else if (pct <= 20) {
+                classDisplay.innerText = '🐴 PLOWHORSE'; classDisplay.style.color = 'var(--text-main)';
+                pourDisplay.className = 'value'; profitDisplay.className = 'value';
+                pourBox.style.borderLeftColor = 'var(--text-muted)';
+            } else {
+                classDisplay.innerText = '🐕 DOG'; classDisplay.style.color = 'var(--danger)';
+                pourDisplay.className = 'value status-warn'; profitDisplay.className = 'value status-warn';
+                pourBox.style.borderLeftColor = 'var(--danger)';
+            }
+        } else {
+            profitDisplay.innerText = `$0.00`; pourDisplay.innerText = `0.00%`; classDisplay.innerText = '--';
+            pourDisplay.className = 'value'; profitDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)';
+        }
+    } else {
+        const yieldAmt = parseFloat(document.getElementById('b-yield').value) || 1;
+        const costPerYield = totalCost / yieldAmt;
+
+        document.getElementById('b-box-1-title').innerText = "Total Batch Cost";
+        document.getElementById('b-box-1-val').innerText = `$${totalCost.toFixed(2)}`;
+        document.getElementById('b-box-2-title').innerText = "Cost Per Yield";
+        document.getElementById('b-box-2-val').innerText = `$${costPerYield.toFixed(2)}`;
+        document.getElementById('b-box-2-val').className = 'value';
+
+        document.getElementById('b-box-3-container').style.display = 'none';
+        document.getElementById('b-box-4-container').style.display = 'none';
+    }
 }
 
 function closeBuilder() { document.getElementById('builder-modal').style.display = 'none'; }
