@@ -13,11 +13,8 @@
 </head>
 <body>
 
-  <script>
-    if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
-    const activeUser = localStorage.getItem('pericos_active_user');
-    const currentLocation = localStorage.getItem('pericos_location');
-    const activeRole = localStorage.getItem('pericos_active_role');
+  <script> if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
+    const activeUser =
     
     if (!activeUser || !currentLocation || (activeRole !== 'Manager' && activeRole !== 'Owner')) {
         window.location.href = 'index.html'; 
