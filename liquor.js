@@ -20,7 +20,7 @@ let collapsedCats = {};
 
 let globalCocktails = {};
 let globalBatches = {};
-let currentBuilderType = 'cocktail'; // 'cocktail' or 'batch'
+let currentBuilderType = 'cocktail'; 
 let currentBuilderId = null;
 
 const catColors = {
@@ -110,9 +110,6 @@ function convertToOz(size, unit) {
   return size; 
 }
 
-/* ==========================================
-   TABS & MODALS
-   ========================================== */
 function openTab(event, tabId) {
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -123,16 +120,16 @@ function openTab(event, tabId) {
   if(tabId === 'dashboard') { addBtn.style.display = 'none'; }
   else { 
     addBtn.style.display = 'flex'; 
-    if (tabId === 'cocktails') addBtn.onclick = () => openBuilder('cocktail');
-    else if (tabId === 'batches') addBtn.onclick = () => openBuilder('batch');
+    if (tabId === 'cocktails') addBtn.onclick = () => showBuilder('cocktail');
+    else if (tabId === 'batches') addBtn.onclick = () => showBuilder('batch');
     else addBtn.onclick = () => { addInventoryRow(); scrollToBottom(); };
   }
 }
 
 /* ==========================================
-   BUILDER MODAL LOGIC (DASHBOARD INTEGRATED)
+   BUILDER MODAL CONFIG & CASE PACK MATH
    ========================================== */
-function openBuilder(type, id = null) {
+function showBuilder(type, id = null) {
     currentBuilderType = type;
     currentBuilderId = id;
     const isCocktail = (type === 'cocktail');
@@ -147,31 +144,21 @@ function openBuilder(type, id = null) {
     document.getElementById('builder-ingredients').innerHTML = '';
 
     let dataToLoad = null;
-    if (id) {
-        dataToLoad = isCocktail ? globalCocktails[id] : globalBatches[id];
-    }
+    if (id) { dataToLoad = isCocktail ? globalCocktails[id] : globalBatches[id]; }
 
     if (dataToLoad) {
         document.getElementById('b-name').value = dataToLoad.name || '';
         if (isCocktail) document.getElementById('b-price').value = dataToLoad.price || '';
         else document.getElementById('b-yield').value = dataToLoad.yield || 1;
-        
-        if (dataToLoad.ingredients) {
-            dataToLoad.ingredients.forEach(ing => addBuilderRow(ing));
-        } else {
-            addBuilderRow();
-        }
-    } else {
-        addBuilderRow(); // blank row
-    }
+        if (dataToLoad.ingredients) { dataToLoad.ingredients.forEach(ing => addBuilderRow(ing)); } 
+        else { addBuilderRow(); }
+    } else { addBuilderRow(); }
 
     calculateBuilder();
     document.getElementById('builder-modal').style.display = 'flex';
 }
 
-function closeBuilder() {
-    document.getElementById('builder-modal').style.display = 'none';
-}
+function closeBuilder() { document.getElementById('builder-modal').style.display = 'none'; }
 
 function handleBuilderIngredientChange(input) {
     const val = input.value.trim().toLowerCase();
@@ -181,6 +168,7 @@ function handleBuilderIngredientChange(input) {
         row.querySelector('.c-size').value = data.size;
         row.querySelector('.c-unit').value = data.unit;
         row.querySelector('.c-cost').value = data.cost;
+        row.querySelector('.c-pack').value = '1';
     }
     calculateBuilder();
 }
@@ -203,6 +191,7 @@ function addBuilderRow(ing = {}) {
         <input type="number" placeholder="Size" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateBuilder()">
         <select class="clean-input c-unit" onchange="calculateBuilder()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
       </div>
+      <input type="number" placeholder="Pack" class="clean-input c-pack" value="${ing.pack || 1}" min="1" oninput="calculateBuilder()">
       <input type="number" placeholder="Cost" class="clean-input c-cost" value="${ing.cost || 0}" step="0.01" oninput="calculateBuilder()">
       <div class="data-highlight c-line-cost">$0.00</div>
       <button class="btn-remove" onclick="this.closest('.ingredient-row').remove(); calculateBuilder();">X</button>
@@ -218,15 +207,13 @@ function calculateBuilder() {
         const measure = row.querySelector('.c-measure').value;
         const size = parseFloat(row.querySelector('.c-size').value) || 1;
         const unit = row.querySelector('.c-unit').value;
+        const pack = parseFloat(row.querySelector('.c-pack').value) || 1;
         const cost = parseFloat(row.querySelector('.c-cost').value) || 0;
         
+        const singleUnitCost = cost / pack; 
         let lineCost = 0;
-        // Advanced Math for btl/ea vs oz
-        if (measure === 'btl' || measure === 'ea') {
-            lineCost = pour * cost;
-        } else {
-            lineCost = pour * (cost / convertToOz(size, unit));
-        }
+        if (measure === 'btl' || measure === 'ea') { lineCost = pour * singleUnitCost; } 
+        else { lineCost = pour * (singleUnitCost / convertToOz(size, unit)); }
         
         row.querySelector('.c-line-cost').innerText = `$${lineCost.toFixed(2)}`;
         totalCost += lineCost;
@@ -234,17 +221,16 @@ function calculateBuilder() {
 
     const isCocktail = (currentBuilderType === 'cocktail');
     
-    // Dynamically update the 4-box dashboard
     if (isCocktail) {
-        document.getElementById('b-box-1-title').innerText = "Cost to Build";
-        document.getElementById('b-box-1-val').innerText = `$${totalCost.toFixed(2)}`;
-
+        document.getElementById('b-total-cost').innerText = `$${totalCost.toFixed(2)}`;
         const price = parseFloat(document.getElementById('b-price').value) || 0;
         const profitDisplay = document.getElementById('b-box-2-val');
         const pourDisplay = document.getElementById('b-box-3-val');
         const classDisplay = document.getElementById('b-box-4-val');
         const pourBox = document.getElementById('b-box-3-container');
 
+        document.getElementById('b-box-1-title').innerText = "Cost to Build";
+        document.getElementById('b-box-1-val').innerText = `$${totalCost.toFixed(2)}`;
         document.getElementById('b-box-2-title').innerText = "Gross Profit";
         document.getElementById('b-box-3-title').innerText = "Pour Cost (%)";
         document.getElementById('b-box-4-title').innerText = "Matrix Class";
@@ -275,18 +261,15 @@ function calculateBuilder() {
             pourDisplay.className = 'value'; profitDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)';
         }
     } else {
-        // Batch configuration for Dashboard
         const yieldAmt = parseFloat(document.getElementById('b-yield').value) || 1;
         const costPerYield = totalCost / yieldAmt;
 
         document.getElementById('b-box-1-title').innerText = "Total Batch Cost";
         document.getElementById('b-box-1-val').innerText = `$${totalCost.toFixed(2)}`;
-
         document.getElementById('b-box-2-title').innerText = "Cost Per Yield";
         document.getElementById('b-box-2-val').innerText = `$${costPerYield.toFixed(2)}`;
-        document.getElementById('b-box-2-val').className = 'value'; // Reset colors for batches
+        document.getElementById('b-box-2-val').className = 'value';
 
-        // Hide profit and matrix class for prep batches
         document.getElementById('b-box-3-container').style.display = 'none';
         document.getElementById('b-box-4-container').style.display = 'none';
     }
@@ -297,11 +280,7 @@ function saveBuilder() {
     if(name === '') { alert("Please enter a name."); return; }
 
     const isCocktail = (currentBuilderType === 'cocktail');
-    const data = {
-        name: name,
-        ingredients: [],
-        totalCost: 0
-    };
+    const data = { name: name, ingredients: [], totalCost: 0 };
 
     if (isCocktail) data.price = parseFloat(document.getElementById('b-price').value) || 0;
     else data.yield = parseFloat(document.getElementById('b-yield').value) || 1;
@@ -311,14 +290,16 @@ function saveBuilder() {
         const measure = row.querySelector('.c-measure').value;
         const size = parseFloat(row.querySelector('.c-size').value) || 1;
         const unit = row.querySelector('.c-unit').value;
+        const pack = parseFloat(row.querySelector('.c-pack').value) || 1;
         const cost = parseFloat(row.querySelector('.c-cost').value) || 0;
         
+        const singleUnitCost = cost / pack;
         let lineCost = 0;
-        if (measure === 'btl' || measure === 'ea') lineCost = pour * cost;
-        else lineCost = pour * (cost / convertToOz(size, unit));
+        if (measure === 'btl' || measure === 'ea') lineCost = pour * singleUnitCost;
+        else lineCost = pour * (singleUnitCost / convertToOz(size, unit));
         
         data.totalCost += lineCost;
-        data.ingredients.push({ name: row.querySelector('.c-name').value, pour, measure, size, unit, cost });
+        data.ingredients.push({ name: row.querySelector('.c-name').value, pour, measure, size, unit, pack, cost });
     });
 
     if (isCocktail && data.price > 0) data.pourCostPct = (data.totalCost / data.price) * 100;
@@ -326,10 +307,7 @@ function saveBuilder() {
     const node = isCocktail ? 'liquor_menu_cocktails' : 'liquor_menu_batches';
     let ref = currentBuilderId ? db.ref(currentLocation + '/' + node + '/' + currentBuilderId) : db.ref(currentLocation + '/' + node).push();
     
-    ref.set(data).then(() => {
-        flashSync();
-        closeBuilder();
-    });
+    ref.set(data).then(() => { flashSync(); closeBuilder(); });
 }
 
 function deleteMenuRecipe(type, id) {
@@ -340,14 +318,12 @@ function deleteMenuRecipe(type, id) {
 }
 
 /* ==========================================
-   RENDER VAULTS
+   RENDER VAULTS (UNCHANGED)
    ========================================== */
 function renderCocktailVault() {
     const container = document.getElementById('cocktail-vault-container');
     container.innerHTML = '';
-    if(Object.keys(globalCocktails).length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted);">No cocktails saved yet.</p>'; return;
-    }
+    if(Object.keys(globalCocktails).length === 0) { container.innerHTML = '<p style="color:var(--text-muted);">No cocktails saved yet.</p>'; return; }
     Object.keys(globalCocktails).forEach(key => {
         const drink = globalCocktails[key];
         const div = document.createElement('div');
@@ -359,7 +335,7 @@ function renderCocktailVault() {
             <div class="menu-stats"><span>Cost:</span><span>$${(drink.totalCost || 0).toFixed(2)}</span></div>
             <div class="menu-stats"><span>Pour %:</span><span class="${colorClass}">${(drink.pourCostPct || 0).toFixed(2)}%</span></div>
             <div class="menu-actions">
-                <button class="btn-glow" style="flex:1; padding:8px;" onclick="openBuilder('cocktail', '${key}')">✎ Edit</button>
+                <button class="btn-glow" style="flex:1; padding:8px;" onclick="showBuilder('cocktail', '${key}')">✎ Edit</button>
                 <button class="btn-remove" style="padding:8px;" onclick="deleteMenuRecipe('cocktail', '${key}')">Delete</button>
             </div>
         `;
@@ -370,9 +346,7 @@ function renderCocktailVault() {
 function renderBatchVault() {
     const container = document.getElementById('batch-vault-container');
     container.innerHTML = '';
-    if(Object.keys(globalBatches).length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted);">No batches saved yet.</p>'; return;
-    }
+    if(Object.keys(globalBatches).length === 0) { container.innerHTML = '<p style="color:var(--text-muted);">No batches saved yet.</p>'; return; }
     Object.keys(globalBatches).forEach(key => {
         const batch = globalBatches[key];
         const div = document.createElement('div');
@@ -384,7 +358,7 @@ function renderBatchVault() {
             <div class="menu-stats"><span>Total Batch Cost:</span><span>$${(batch.totalCost || 0).toFixed(2)}</span></div>
             <div class="menu-stats"><span>Cost Per Yield:</span><span>$${costPer.toFixed(2)}</span></div>
             <div class="menu-actions">
-                <button class="btn-glow" style="flex:1; padding:8px;" onclick="openBuilder('batch', '${key}')">✎ Edit</button>
+                <button class="btn-glow" style="flex:1; padding:8px;" onclick="showBuilder('batch', '${key}')">✎ Edit</button>
                 <button class="btn-remove" style="padding:8px;" onclick="deleteMenuRecipe('batch', '${key}')">Delete</button>
             </div>
         `;
@@ -393,18 +367,15 @@ function renderBatchVault() {
 }
 
 /* ==========================================
-   INVENTORY & MAIN LOGIC (UNCHANGED)
+   INVENTORY COUNT & METRICS (UNCHANGED)
    ========================================== */
 function autoSaveInv() {
     if(!isInitialLoad) return;
     const data = []; let seen = new Set();
     document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
-         const cat = row.querySelector('.i-category').value;
-         const brand = row.querySelector('.i-brand').value;
-         const size = parseFloat(row.querySelector('.i-size').value) || 0;
-         const unit = row.querySelector('.i-unit').value;
-         const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
-         const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
+         const cat = row.querySelector('.i-category').value; const brand = row.querySelector('.i-brand').value;
+         const size = parseFloat(row.querySelector('.i-size').value) || 0; const unit = row.querySelector('.i-unit').value;
+         const cost = parseFloat(row.querySelector('.i-cost').value) || 0; const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
          
          if(cost === 0 || sell === 0) { row.classList.add('price-warning'); } else { row.classList.remove('price-warning'); }
          const checkKey = `${brand.trim().toLowerCase()}|${size}|${unit}`;
@@ -417,65 +388,48 @@ function autoSaveInv() {
 }
 
 function sortInventory() {
-    const tbody = document.getElementById('inventory-body');
-    const rows = Array.from(tbody.querySelectorAll('.inv-row'));
+    const tbody = document.getElementById('inventory-body'); const rows = Array.from(tbody.querySelectorAll('.inv-row'));
     const catOptionsList = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
     rows.sort((a, b) => {
-        const catA = a.querySelector('.i-category').value;
-        const catB = b.querySelector('.i-category').value;
-        const idxA = catOptionsList.indexOf(catA);
-        const idxB = catOptionsList.indexOf(catB);
-        const brandA = a.querySelector('.i-brand').value.toLowerCase();
-        const brandB = b.querySelector('.i-brand').value.toLowerCase();
+        const catA = a.querySelector('.i-category').value; const catB = b.querySelector('.i-category').value;
+        const idxA = catOptionsList.indexOf(catA); const idxB = catOptionsList.indexOf(catB);
+        const brandA = a.querySelector('.i-brand').value.toLowerCase(); const brandB = b.querySelector('.i-brand').value.toLowerCase();
         if (idxA !== idxB) return idxA - idxB;
         if (brandA < brandB) return -1;
         if (brandA > brandB) return 1; return 0;
     });
     tbody.innerHTML = ''; let currentCat = '';
     rows.forEach(row => {
-        const cat = row.querySelector('.i-category').value;
-        row.style.borderLeft = `4px solid ${catColors[cat] || '#fff'}`;
+        const cat = row.querySelector('.i-category').value; row.style.borderLeft = `4px solid ${catColors[cat] || '#fff'}`;
         if (cat !== currentCat) {
-            currentCat = cat;
-            const header = document.createElement('tr');
-            header.className = 'cat-header'; header.setAttribute('data-target-cat', cat);
+            currentCat = cat; const header = document.createElement('tr'); header.className = 'cat-header'; header.setAttribute('data-target-cat', cat);
             header.innerHTML = `<td colspan="8" onclick="toggleCategory('${cat}')"><div style="display:flex; justify-content:space-between; color:${catColors[cat] || '#fff'}; font-weight:bold; letter-spacing:2px; text-transform:uppercase;"><span>${cat}</span><span class="cat-icon">${collapsedCats[cat] ? '▶' : '▼'}</span></div></td>`;
             tbody.appendChild(header);
-        }
-        tbody.appendChild(row);
-    });
-    filterInventory();
+        } tbody.appendChild(row);
+    }); filterInventory();
 }
 
 function filterInventory() {
   const textFilter = document.getElementById('inventory-search').value.toUpperCase();
   const catFilter = document.getElementById('category-filter').value.toUpperCase();
   document.querySelectorAll('.inv-row').forEach(row => {
-    const brand = row.querySelector('.i-brand').value.toUpperCase();
-    const cat = row.querySelector('.i-category').value.toUpperCase();
-    const matchesText = brand.includes(textFilter) || cat.includes(textFilter);
-    const matchesCat = (catFilter === 'ALL' || cat === catFilter);
+    const brand = row.querySelector('.i-brand').value.toUpperCase(); const cat = row.querySelector('.i-category').value.toUpperCase();
+    const matchesText = brand.includes(textFilter) || cat.includes(textFilter); const matchesCat = (catFilter === 'ALL' || cat === catFilter);
     const isCollapsed = collapsedCats[row.querySelector('.i-category').value];
     row.style.display = (matchesText && matchesCat && !isCollapsed) ? "" : "none";
   });
   document.querySelectorAll('.cat-header').forEach(header => {
-      const targetCat = header.getAttribute('data-target-cat').toUpperCase();
-      header.style.display = (catFilter === 'ALL' || targetCat === catFilter) ? "" : "none";
+      const targetCat = header.getAttribute('data-target-cat').toUpperCase(); header.style.display = (catFilter === 'ALL' || targetCat === catFilter) ? "" : "none";
   });
 }
 
 function adjustCount(btn, amount) {
-    const input = btn.parentElement.querySelector('.i-count');
-    let val = parseFloat(input.value) || 0;
-    val = Math.max(0, val + amount);
-    input.value = val.toFixed(1);
-    autoSaveInv();
+    const input = btn.parentElement.querySelector('.i-count'); let val = parseFloat(input.value) || 0;
+    val = Math.max(0, val + amount); input.value = val.toFixed(1); autoSaveInv();
 }
 
 function injectInventoryRow(item) {
-    const tbody = document.getElementById('inventory-body');
-    const tr = document.createElement('tr');
-    tr.className = 'inv-row';
+    const tbody = document.getElementById('inventory-body'); const tr = document.createElement('tr'); tr.className = 'inv-row';
     tr.setAttribute('data-received', item.received || 0); tr.setAttribute('data-start', item.start || 0);
     const catOptionsList = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
     let catHtml = catOptionsList.map(c => `<option value="${c}" ${c === item.category ? 'selected' : ''}>${c}</option>`).join('');
@@ -503,107 +457,71 @@ function injectInventoryRow(item) {
 function addInventoryRow() { injectInventoryRow({ category: 'Tequila', unit: 'ml', size: 750, start: 0, received: 0, count: 0, cost: 0, shotSell: 0 }); sortInventory(); autoSaveInv(); }
 
 function removeEl(btn) {
-  const row = btn.closest('tr');
-  deletedStack.push({ row: row, parent: row.parentElement, nextSibling: row.nextElementSibling });
-  row.remove();
-  document.getElementById('undo-btn-inv').style.display = 'inline-block';
-  autoSaveInv();
+  const row = btn.closest('tr'); deletedStack.push({ row: row, parent: row.parentElement, nextSibling: row.nextElementSibling });
+  row.remove(); document.getElementById('undo-btn-inv').style.display = 'inline-block'; autoSaveInv();
 }
 
 function undoDelete() {
   if (deletedStack.length > 0) {
-    const last = deletedStack.pop();
-    if (last.nextSibling && last.nextSibling.parentNode === last.parent) last.parent.insertBefore(last.row, last.nextSibling);
-    else last.parent.appendChild(last.row);
-    sortInventory(); autoSaveInv();
-  }
-  if (deletedStack.length === 0) { document.getElementById('undo-btn-inv').style.display = 'none'; }
+    const last = deletedStack.pop(); if (last.nextSibling && last.nextSibling.parentNode === last.parent) last.parent.insertBefore(last.row, last.nextSibling);
+    else last.parent.appendChild(last.row); sortInventory(); autoSaveInv();
+  } if (deletedStack.length === 0) { document.getElementById('undo-btn-inv').style.display = 'none'; }
 }
 
 function updateInventoryDatalist() {
-    const datalist = document.getElementById('inventory-datalist');
-    if(!datalist) return;
+    const datalist = document.getElementById('inventory-datalist'); if(!datalist) return;
     datalist.innerHTML = ''; inventoryLookup = {}; 
     document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
-        const brand = row.querySelector('.i-brand').value.trim();
-        const size = row.querySelector('.i-size').value;
-        const unit = row.querySelector('.i-unit').value;
-        const cost = row.querySelector('.i-cost').value;
+        const brand = row.querySelector('.i-brand').value.trim(); const size = row.querySelector('.i-size').value;
+        const unit = row.querySelector('.i-unit').value; const cost = row.querySelector('.i-cost').value;
         if(brand) {
-            const option = document.createElement('option');
-            option.value = brand; datalist.appendChild(option);
+            const option = document.createElement('option'); option.value = brand; datalist.appendChild(option);
             inventoryLookup[brand.toLowerCase()] = { size, unit, cost };
         }
     });
 }
 
 function renderMarginDashboard() {
-    const tbody = document.getElementById('dashboard-body');
-    tbody.innerHTML = ''; let totalUsageCost = 0;
+    const tbody = document.getElementById('dashboard-body'); tbody.innerHTML = ''; let totalUsageCost = 0;
     document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
-        const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit';
-        const rawSize = parseFloat(row.querySelector('.i-size').value) || 1;
-        const unit = row.querySelector('.i-unit').value;
-        const sizeOz = convertToOz(rawSize, unit);
-        const start = parseFloat(row.getAttribute('data-start')) || 0;
-        const received = parseFloat(row.getAttribute('data-received')) || 0;
-        const count = parseFloat(row.querySelector('.i-count').value) || 0;
-        const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
-        const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
-        const usageBtls = (start + received) - count;
-        const usageCost = usageBtls * cost;
+        const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; const rawSize = parseFloat(row.querySelector('.i-size').value) || 1;
+        const unit = row.querySelector('.i-unit').value; const sizeOz = convertToOz(rawSize, unit);
+        const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0;
+        const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
+        const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0; const usageBtls = (start + received) - count; const usageCost = usageBtls * cost;
         if (usageCost > 0) totalUsageCost += usageCost;
-        const shotCost = (cost / sizeOz) * 1.5;
-        const shotProfit = sell - shotCost;
+        const shotCost = (cost / sizeOz) * 1.5; const shotProfit = sell - shotCost;
         let pourCostPct = 0; let pourClass = ''; let profitClass = '';
         if (sell > 0) {
             pourCostPct = (shotCost / sell) * 100;
-            if (pourCostPct <= 20) { pourClass = 'status-good'; profitClass = 'status-good'; } 
-            else { pourClass = 'status-warn'; profitClass = 'status-warn'; }
+            if (pourCostPct <= 20) { pourClass = 'status-good'; profitClass = 'status-good'; } else { pourClass = 'status-warn'; profitClass = 'status-warn'; }
         }
         const tr = document.createElement('tr');
         tr.innerHTML = `<td data-label="Brand" style="font-weight: bold; color: var(--text-main);">${brand}</td><td data-label="Btls Used" style="color: var(--neon-orange); font-family: monospace; font-size: 1.1rem;">${Math.max(0, usageBtls).toFixed(1)}</td><td data-label="Usage Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${Math.max(0, usageCost).toFixed(2)}</td><td data-label="Shot Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${shotCost.toFixed(2)}</td><td data-label="Shot Profit ($)" class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">$${shotProfit.toFixed(2)}</td><td data-label="Pour Cost %" class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${sell > 0 ? pourCostPct.toFixed(2) + '%' : '0.00%'}</td>`;
         tbody.appendChild(tr);
-    });
-    document.getElementById('global-usage-cost').innerText = `$${totalUsageCost.toFixed(2)}`;
-    calculateGlobalMetrics(totalUsageCost);
+    }); document.getElementById('global-usage-cost').innerText = `$${totalUsageCost.toFixed(2)}`; calculateGlobalMetrics(totalUsageCost);
 }
 
 function calculateGlobalMetrics(totalUsageCost) {
   if (totalUsageCost === undefined) totalUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
-  const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
-  const pourDisplay = document.getElementById('global-pour-cost');
-  const pourBox = document.getElementById('global-pour-box');
+  const posSales = parseFloat(document.getElementById('pos-sales').value) || 0; const pourDisplay = document.getElementById('global-pour-cost'); const pourBox = document.getElementById('global-pour-box');
   if (posSales > 0) {
-    const globalPourPct = (totalUsageCost / posSales) * 100;
-    pourDisplay.innerText = `${globalPourPct.toFixed(2)}%`;
-    if (globalPourPct <= 20) { pourDisplay.className = 'value status-good'; pourBox.style.borderLeftColor = 'var(--neon-green)'; } 
-    else { pourDisplay.className = 'value status-warn'; pourBox.style.borderLeftColor = 'var(--danger)'; }
+    const globalPourPct = (totalUsageCost / posSales) * 100; pourDisplay.innerText = `${globalPourPct.toFixed(2)}%`;
+    if (globalPourPct <= 20) { pourDisplay.className = 'value status-good'; pourBox.style.borderLeftColor = 'var(--neon-green)'; } else { pourDisplay.className = 'value status-warn'; pourBox.style.borderLeftColor = 'var(--danger)'; }
   } else { pourDisplay.innerText = '0.00%'; pourDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)'; }
 }
 
 function filterDashboard() {
-  const filter = document.getElementById('dashboard-search').value.toUpperCase();
-  const rows = document.getElementById('dashboard-body').getElementsByTagName('tr');
-  for (let i = 0; i < rows.length; i++) {
-    const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase();
-    rows[i].style.display = brand.includes(filter) ? "" : "none";
-  }
+  const filter = document.getElementById('dashboard-search').value.toUpperCase(); const rows = document.getElementById('dashboard-body').getElementsByTagName('tr');
+  for (let i = 0; i < rows.length; i++) { const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase(); rows[i].style.display = brand.includes(filter) ? "" : "none"; }
 }
 
 function getInventoryOptionsHTML() {
-  let optionsHTML = '';
-  document.querySelectorAll('.inv-row').forEach((row, index) => {
-    const brand = row.querySelector('.i-brand').value.trim() || 'Unnamed Spirit';
-    const cat = row.querySelector('.i-category').value;
-    optionsHTML += `<option value="${index}">${brand} (${cat})</option>`;
-  }); return optionsHTML;
+  let optionsHTML = ''; document.querySelectorAll('.inv-row').forEach((row, index) => { const brand = row.querySelector('.i-brand').value.trim() || 'Unnamed Spirit'; const cat = row.querySelector('.i-category').value; optionsHTML += `<option value="${index}">${brand} (${cat})</option>`; }); return optionsHTML;
 }
 function addDeliveryRow() {
-  const list = document.getElementById('delivery-batch-list');
-  const div = document.createElement('div'); div.className = 'delivery-row';
-  div.innerHTML = `<select class="clean-input" style="flex: 2; background:rgba(0,0,0,0.5);">${getInventoryOptionsHTML()}</select><input class="clean-input" type="number" placeholder="Qty" min="0" step="1" style="flex: 1; background:rgba(0,0,0,0.5);"><button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
-  list.appendChild(div);
+  const list = document.getElementById('delivery-batch-list'); const div = document.createElement('div'); div.className = 'delivery-row';
+  div.innerHTML = `<select class="clean-input" style="flex: 2; background:rgba(0,0,0,0.5);">${getInventoryOptionsHTML()}</select><input class="clean-input" type="number" placeholder="Qty" min="0" step="1" style="flex: 1; background:rgba(0,0,0,0.5);"><button class="btn-remove" onclick="this.parentElement.remove()">×</button>`; list.appendChild(div);
 }
 function openReceiveModal() { document.getElementById('delivery-batch-list').innerHTML = ''; addDeliveryRow(); document.getElementById('receive-modal').style.display = 'flex'; }
 function closeReceiveModal() { document.getElementById('receive-modal').style.display = 'none'; }
@@ -613,10 +531,7 @@ function confirmBatchReceive() {
     const select = dRow.querySelector('select'); const input = dRow.querySelector('input');
     if (select && input) {
       const rowIndex = select.value; const amount = parseFloat(input.value) || 0;
-      if (amount > 0 && invRows[rowIndex]) {
-        const targetRow = invRows[rowIndex]; const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0;
-        targetRow.setAttribute('data-received', currentRec + amount); targetRow.querySelector('.calc-received').innerText = currentRec + amount;
-      }
+      if (amount > 0 && invRows[rowIndex]) { const targetRow = invRows[rowIndex]; const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0; targetRow.setAttribute('data-received', currentRec + amount); targetRow.querySelector('.calc-received').innerText = currentRec + amount; }
     }
   }); autoSaveInv(); closeReceiveModal();
 }
@@ -624,45 +539,27 @@ function confirmBatchReceive() {
 function openSummaryModal() {
   const list = document.getElementById('weekly-summary-list'); list.innerHTML = ''; let totalUsageCost = 0;
   document.querySelectorAll('.inv-row').forEach(row => {
-    const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit';
-    const start = parseFloat(row.getAttribute('data-start')) || 0;
-    const received = parseFloat(row.getAttribute('data-received')) || 0;
-    const count = parseFloat(row.querySelector('.i-count').value) || 0;
-    const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
+    const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0; const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     const usageBtls = (start + received) - count; const lineCost = usageBtls * cost;
     if (usageBtls > 0) {
-      totalUsageCost += lineCost;
-      const li = document.createElement('li'); li.style.padding = '10px 0'; li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
-      li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${brand}:</span> Used ${usageBtls.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${lineCost.toFixed(2)}</span>`;
-      list.appendChild(li);
+      totalUsageCost += lineCost; const li = document.createElement('li'); li.style.padding = '10px 0'; li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+      li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${brand}:</span> Used ${usageBtls.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${lineCost.toFixed(2)}</span>`; list.appendChild(li);
     }
-  });
-  if (list.innerHTML === '') list.innerHTML = `<li style="color: var(--text-muted); padding: 10px 0;">No usage recorded for this week yet.</li>`;
+  }); if (list.innerHTML === '') list.innerHTML = `<li style="color: var(--text-muted); padding: 10px 0;">No usage recorded for this week yet.</li>`;
   document.getElementById('weekly-summary-total').innerText = `$${totalUsageCost.toFixed(2)}`; document.getElementById('summary-modal').style.display = 'flex';
 }
 function closeSummaryModal() { document.getElementById('summary-modal').style.display = 'none'; }
 function confirmResetWeek() {
-  document.querySelectorAll('.inv-row').forEach(row => {
-    const currentCount = parseFloat(row.querySelector('.i-count').value) || 0;
-    row.setAttribute('data-start', currentCount); row.setAttribute('data-received', '0'); row.querySelector('.calc-received').innerText = '0';
-  }); autoSaveInv(); closeSummaryModal();
+  document.querySelectorAll('.inv-row').forEach(row => { const currentCount = parseFloat(row.querySelector('.i-count').value) || 0; row.setAttribute('data-start', currentCount); row.setAttribute('data-received', '0'); row.querySelector('.calc-received').innerText = '0'; }); autoSaveInv(); closeSummaryModal();
 }
 
 function exportToCSV() {
-  let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += '"Category","Brand","Size","Start Count (Hidden)","Received","Current Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost","Shot Cost","Shot Profit","Shot Pour %"\r\n';
+  let csvContent = "data:text/csv;charset=utf-8,"; csvContent += '"Category","Brand","Size","Start Count (Hidden)","Received","Current Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost","Shot Cost","Shot Profit","Shot Pour %"\r\n';
   document.querySelectorAll('.inv-row').forEach(row => {
-    const cat = row.querySelector('.i-category').value; const brand = row.querySelector('.i-brand').value;
-    const rawSize = row.querySelector('.i-size').value; const unit = row.querySelector('.i-unit').value;
-    const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0;
-    const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
-    const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
-    const btlsUsed = (start + received) - count; const usageCost = btlsUsed * cost;
-    const sizeOz = convertToOz(rawSize, unit); const shotCost = (cost / sizeOz) * 1.5; const shotProfit = sell - shotCost;
-    const pourCostPct = sell > 0 ? (shotCost / sell) * 100 : 0;
-    let rowData = [ `"${cat}"`, `"${brand}"`, `"${rawSize} ${unit}"`, `"${start}"`, `"${received}"`, `"${count}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, `"${usageCost.toFixed(2)}"`, `"${shotCost.toFixed(2)}"`, `"${shotProfit.toFixed(2)}"`, `"${pourCostPct.toFixed(2)}%"` ];
-    csvContent += rowData.join(",") + "\r\n";
+    const cat = row.querySelector('.i-category').value; const brand = row.querySelector('.i-brand').value; const rawSize = row.querySelector('.i-size').value; const unit = row.querySelector('.i-unit').value;
+    const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0; const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0; const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
+    const btlsUsed = (start + received) - count; const usageCost = btlsUsed * cost; const sizeOz = convertToOz(rawSize, unit); const shotCost = (cost / sizeOz) * 1.5; const shotProfit = sell - shotCost; const pourCostPct = sell > 0 ? (shotCost / sell) * 100 : 0;
+    let rowData = [ `"${cat}"`, `"${brand}"`, `"${rawSize} ${unit}"`, `"${start}"`, `"${received}"`, `"${count}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, `"${usageCost.toFixed(2)}"`, `"${shotCost.toFixed(2)}"`, `"${shotProfit.toFixed(2)}"`, `"${pourCostPct.toFixed(2)}%"` ]; csvContent += rowData.join(",") + "\r\n";
   });
-  const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `Los_Pericos_Inventory_${new Date().toISOString().split('T')[0]}.csv`);
-  document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `Los_Pericos_Inventory_${new Date().toISOString().split('T')[0]}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
