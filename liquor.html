@@ -90,6 +90,29 @@
   <div id="builder-modal" class="modal-overlay">
     <div class="modal-content builder-modal-content">
       <h3 id="builder-title" style="color: var(--neon-blue); margin-top: 0;">Build Recipe</h3>
+
+      <div id="history-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px;">
+      <h3 style="color: var(--neon-orange); margin-top: 0;">📜 History Vault</h3>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Select Past Week</label>
+        <select id="history-date-select" class="clean-input" style="background: rgba(0,0,0,0.5);" onchange="loadHistoryDetails()">
+          <option value="">Loading...</option>
+        </select>
+      </div>
+
+      <div id="history-details-container" style="display: none;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; margin-bottom: 10px;">
+              <strong style="color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem;">Total Usage Cost</strong>
+              <strong id="history-total-cost" style="font-size: 1.2rem; color: var(--neon-green);">$0.00</strong>
+          </div>
+          <ul id="history-item-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 40vh; overflow-y: auto;"></ul>
+      </div>
+
+      <button class="btn-remove" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="closeHistoryModal()">Close Vault</button>
+    </div>
+  </div>
       
       <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
         <div style="flex: 2; min-width: 200px;">
@@ -188,11 +211,10 @@
       <div class="action-row">
         <button class="btn-receive" onclick="openReceiveModal()">🚚 Receive Order</button>
         <button class="btn-export" onclick="exportToCSV()">↓ Export CSV</button>
-        <button class="btn-glow" style="margin-left: auto;" onclick="openSummaryModal()">🔄 Start New Week</button>
+        <button class="btn-receive" style="margin-left: auto;" onclick="openHistoryModal()">📜 View History</button>
+        <button class="btn-glow" onclick="openSummaryModal()">🔄 Start New Week</button>
         <button id="undo-btn-inv" class="btn-undo" onclick="undoDelete()">↩ Undo</button>
       </div>
-    </div>
-  </div>
 
   <div id="dashboard" class="tab-content">
     <div class="glass-card">
