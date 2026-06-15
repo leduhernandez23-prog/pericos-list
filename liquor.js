@@ -372,7 +372,7 @@ function renderBatchVault() {
 }
 
 /* ==========================================
-   INVENTORY COUNT & METRICS (UNCHANGED)
+   INVENTORY COUNT & METRICS
    ========================================== */
 function autoSaveInv() {
     if(!isInitialLoad) return;
@@ -567,4 +567,35 @@ function exportToCSV() {
     let rowData = [ `"${cat}"`, `"${brand}"`, `"${rawSize} ${unit}"`, `"${start}"`, `"${received}"`, `"${count}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, `"${usageCost.toFixed(2)}"`, `"${shotCost.toFixed(2)}"`, `"${shotProfit.toFixed(2)}"`, `"${pourCostPct.toFixed(2)}%"` ]; csvContent += rowData.join(",") + "\r\n";
   });
   const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `Los_Pericos_Inventory_${new Date().toISOString().split('T')[0]}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
+}
+
+/* ==========================================
+   UTILITY FUNCTIONS (Dropdowns & Saving)
+   ========================================== */
+function toggleCategory(cat) {
+    collapsedCats[cat] = !collapsedCats[cat];
+    filterInventory();
+    
+    // Fixes the dropdown arrows so they rotate
+    const headerIcon = document.querySelector(`.cat-header[data-target-cat="${cat}"] .cat-icon`);
+    if(headerIcon) headerIcon.innerText = collapsedCats[cat] ? '▶' : '▼';
+}
+
+function updateMeta() {
+    db.ref(currentLocation + '/liquor_meta').update({
+        lastEditedBy: activeUser,
+        lastEditedAt: firebase.database.ServerValue.TIMESTAMP
+    });
+    flashSync();
+}
+
+function autoSaveMeta() {
+    const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
+    db.ref(currentLocation + '/liquor_meta').update({
+        posSales: posSales,
+        lastEditedBy: activeUser,
+        lastEditedAt: firebase.database.ServerValue.TIMESTAMP
+    });
+    calculateGlobalMetrics();
+    flashSync();
 }
