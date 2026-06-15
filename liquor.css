@@ -109,7 +109,7 @@ select.clean-input option { background: var(--bg-dark); color: var(--text-main);
 .btn-remove:hover { background: rgba(255, 71, 87, 0.1); color: var(--danger); border-color: var(--danger); }
 
 /* --- BUILDER & VAULT --- */
-.builder-grid { display: grid; grid-template-columns: 2fr 1fr 2fr 1fr 1fr auto; gap: 15px; align-items: center; margin-bottom: 15px; }
+.builder-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr 1fr 1fr auto; gap: 10px; align-items: center; margin-bottom: 15px; }
 .builder-header { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); }
 .data-highlight { font-family: monospace; font-size: 1.1rem; color: var(--text-main); }
 
