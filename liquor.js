@@ -133,7 +133,6 @@ function showBuilder(type, id = null, isDuplicate = false) {
     currentBuilderType = type;
     const isCocktail = (type === 'cocktail');
     
-    // If we are duplicating, clear the ID so Firebase generates a brand new record
     currentBuilderId = isDuplicate ? null : id;
     
     document.getElementById('builder-title').innerText = isCocktail ? "Build Cocktail" : "Build Batch";
@@ -149,7 +148,6 @@ function showBuilder(type, id = null, isDuplicate = false) {
     if (id) { dataToLoad = isCocktail ? globalCocktails[id] : globalBatches[id]; }
 
     if (dataToLoad) {
-        // Append " (Copy)" if the duplicate process pulled this data
         document.getElementById('b-name').value = isDuplicate ? `${dataToLoad.name || ''} (Copy)` : (dataToLoad.name || '');
         if (isCocktail) document.getElementById('b-price').value = dataToLoad.price || '';
         else document.getElementById('b-yield').value = dataToLoad.yield || 1;
@@ -320,7 +318,7 @@ function deleteMenuRecipe(type, id) {
 }
 
 /* ==========================================
-   RENDER VAULTS (WITH DUPLICATE BUTTONS)
+   RENDER VAULTS
    ========================================== */
 function renderCocktailVault() {
     const container = document.getElementById('cocktail-vault-container');
@@ -520,39 +518,91 @@ function filterDashboard() {
   for (let i = 0; i < rows.length; i++) { const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase(); rows[i].style.display = brand.includes(filter) ? "" : "none"; }
 }
 
+/* ==========================================
+   DELIVERIES & HISTORY VAULT
+   ========================================== */
 function getInventoryOptionsHTML() {
-  let optionsHTML = ''; document.querySelectorAll('.inv-row').forEach((row, index) => { const brand = row.querySelector('.i-brand').value.trim() || 'Unnamed Spirit'; const cat = row.querySelector('.i-category').value; optionsHTML += `<option value="${index}">${brand} (${cat})</option>`; }); return optionsHTML;
+  let optionsHTML = ''; 
+  document.querySelectorAll('.inv-row').forEach((row, index) => { 
+    const brand = row.querySelector('.i-brand').value.trim() || 'Unnamed Spirit'; 
+    const cat = row.querySelector('.i-category').value; 
+    optionsHTML += `<option value="${index}">${brand} (${cat})</option>`; 
+  }); 
+  return optionsHTML;
 }
+
+function updateDeliveryRowDefaults(selectElement) {
+    const rowIndex = selectElement.value;
+    const invRows = document.querySelectorAll('.inv-row');
+    if (invRows[rowIndex]) {
+        const targetRow = invRows[rowIndex];
+        const cost = targetRow.querySelector('.i-cost').value;
+        const size = targetRow.querySelector('.i-size').value;
+        
+        const rowDiv = selectElement.closest('.delivery-row');
+        rowDiv.querySelector('.d-cost').value = parseFloat(cost).toFixed(2);
+        rowDiv.querySelector('.d-size').value = size;
+    }
+}
+
 function addDeliveryRow() {
-  const list = document.getElementById('delivery-batch-list'); const div = document.createElement('div'); div.className = 'delivery-row';
-  div.innerHTML = `<select class="clean-input" style="flex: 2; background:rgba(0,0,0,0.5);">${getInventoryOptionsHTML()}</select><input class="clean-input" type="number" placeholder="Qty" min="0" step="1" style="flex: 1; background:rgba(0,0,0,0.5);"><button class="btn-remove" onclick="this.parentElement.remove()">×</button>`; list.appendChild(div);
+  const list = document.getElementById('delivery-batch-list'); 
+  const div = document.createElement('div'); 
+  div.className = 'delivery-row';
+  div.innerHTML = `
+      <select class="clean-input d-select" style="flex: 2; background:rgba(0,0,0,0.5);" onchange="updateDeliveryRowDefaults(this)">
+          ${getInventoryOptionsHTML()}
+      </select>
+      <input class="clean-input d-qty" type="number" placeholder="Qty" min="0" step="1" style="flex: 1; background:rgba(0,0,0,0.5);">
+      <input class="clean-input d-size" type="number" placeholder="Size" style="flex: 1; background:rgba(0,0,0,0.5);">
+      <input class="clean-input d-cost" type="number" placeholder="Cost ($)" step="0.01" style="flex: 1; background:rgba(0,0,0,0.5);">
+      <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
+  `; 
+  list.appendChild(div);
+  
+  const select = div.querySelector('select');
+  updateDeliveryRowDefaults(select);
 }
-function openReceiveModal() { document.getElementById('delivery-batch-list').innerHTML = ''; addDeliveryRow(); document.getElementById('receive-modal').style.display = 'flex'; }
-function closeReceiveModal() { document.getElementById('receive-modal').style.display = 'none'; }
+
+function openReceiveModal() { 
+  document.getElementById('delivery-batch-list').innerHTML = ''; 
+  addDeliveryRow(); 
+  document.getElementById('receive-modal').style.display = 'flex'; 
+}
+
+function closeReceiveModal() { 
+  document.getElementById('receive-modal').style.display = 'none'; 
+}
+
 function confirmBatchReceive() {
   const rows = document.querySelectorAll('.delivery-row'); 
   const invRows = document.querySelectorAll('.inv-row');
   
   rows.forEach(dRow => {
-    const select = dRow.querySelector('select'); 
-    const input = dRow.querySelector('input');
+    const select = dRow.querySelector('.d-select'); 
+    const inputQty = dRow.querySelector('.d-qty');
+    const inputSize = dRow.querySelector('.d-size');
+    const inputCost = dRow.querySelector('.d-cost');
     
-    if (select && input) {
+    if (select && inputQty) {
       const rowIndex = select.value; 
-      const amount = parseFloat(input.value) || 0;
+      const amount = parseFloat(inputQty.value) || 0;
+      const newSize = parseFloat(inputSize.value);
+      const newCost = parseFloat(inputCost.value);
       
       if (amount > 0 && invRows[rowIndex]) { 
         const targetRow = invRows[rowIndex]; 
         
-        // 1. Log the delivery
         const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0; 
         targetRow.setAttribute('data-received', currentRec + amount); 
         targetRow.querySelector('.calc-received').innerText = currentRec + amount; 
         
-        // 2. Automatically add the new bottles to the physical shelf count
         const countInput = targetRow.querySelector('.i-count');
         const currentCount = parseFloat(countInput.value) || 0;
         countInput.value = (currentCount + amount).toFixed(1);
+
+        if (!isNaN(newSize)) targetRow.querySelector('.i-size').value = newSize;
+        if (!isNaN(newCost)) targetRow.querySelector('.i-cost').value = newCost;
       }
     }
   }); 
@@ -573,10 +623,11 @@ function openSummaryModal() {
   }); if (list.innerHTML === '') list.innerHTML = `<li style="color: var(--text-muted); padding: 10px 0;">No usage recorded for this week yet.</li>`;
   document.getElementById('weekly-summary-total').innerText = `$${totalUsageCost.toFixed(2)}`; document.getElementById('summary-modal').style.display = 'flex';
 }
+
 function closeSummaryModal() { document.getElementById('summary-modal').style.display = 'none'; }
+
 function confirmResetWeek() {
-  // 1. Create the Snapshot bundle
-  const today = new Date().toISOString().split('T')[0]; // Stamps the date (YYYY-MM-DD)
+  const today = new Date().toISOString().split('T')[0]; 
   const snapshotData = { date: today, totalCost: 0, items: [] };
 
   document.querySelectorAll('.inv-row').forEach(row => {
@@ -586,28 +637,77 @@ function confirmResetWeek() {
     const count = parseFloat(row.querySelector('.i-count').value) || 0; 
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     
-    // Do the usage math
     const usageBtls = (start + received) - count; 
     const lineCost = usageBtls * cost;
 
-    // Add it to the snapshot if you actually poured any
     if (usageBtls > 0) {
       snapshotData.totalCost += lineCost;
       snapshotData.items.push({ brand: brand, used: usageBtls, cost: lineCost });
     }
 
-    // 2. Reset the row for the new week
     row.setAttribute('data-start', count); 
     row.setAttribute('data-received', '0'); 
     row.querySelector('.calc-received').innerText = '0'; 
   }); 
 
-  // 3. Save snapshot to a permanent History folder, then auto-save the live screen
   db.ref(currentLocation + '/liquor_history/' + today).set(snapshotData).then(() => {
       autoSaveInv(); 
       closeSummaryModal();
       alert("Week closed out! Snapshot saved to History Vault.");
   });
+}
+
+function openHistoryModal() {
+    const select = document.getElementById('history-date-select');
+    select.innerHTML = '<option value="">Loading past weeks...</option>';
+    document.getElementById('history-details-container').style.display = 'none';
+    document.getElementById('history-modal').style.display = 'flex';
+
+    db.ref(currentLocation + '/liquor_history').once('value', snap => {
+        const historyData = snap.val();
+        select.innerHTML = '<option value="">Select a past week...</option>';
+        if (historyData) {
+            const dates = Object.keys(historyData).sort((a, b) => b.localeCompare(a));
+            dates.forEach(date => {
+                const opt = document.createElement('option');
+                opt.value = date;
+                opt.innerText = "Week Ending: " + date; 
+                select.appendChild(opt);
+            });
+            window.tempHistoryData = historyData; 
+        } else {
+            select.innerHTML = '<option value="">No history saved yet.</option>';
+        }
+    });
+}
+
+function loadHistoryDetails() {
+    const dateSelected = document.getElementById('history-date-select').value;
+    const container = document.getElementById('history-details-container');
+    const list = document.getElementById('history-item-list');
+    
+    if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) {
+        container.style.display = 'none'; return;
+    }
+
+    const data = window.tempHistoryData[dateSelected];
+    document.getElementById('history-total-cost').innerText = `$${(data.totalCost || 0).toFixed(2)}`;
+    list.innerHTML = '';
+
+    if (data.items) {
+        data.items.forEach(item => {
+            const li = document.createElement('li'); 
+            li.style.padding = '10px 0'; 
+            li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+            li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${item.brand}:</span> Used ${item.used.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${item.cost.toFixed(2)}</span>`;
+            list.appendChild(li);
+        });
+    }
+    container.style.display = 'block';
+}
+
+function closeHistoryModal() {
+    document.getElementById('history-modal').style.display = 'none';
 }
 
 function exportToCSV() {
@@ -649,62 +749,4 @@ function autoSaveMeta() {
     });
     calculateGlobalMetrics();
     flashSync();
-}
-/* ==========================================
-   HISTORY VAULT
-   ========================================== */
-function openHistoryModal() {
-    const select = document.getElementById('history-date-select');
-    select.innerHTML = '<option value="">Loading past weeks...</option>';
-    document.getElementById('history-details-container').style.display = 'none';
-    document.getElementById('history-modal').style.display = 'flex';
-
-    // Reach into the cloud and grab the History folder
-    db.ref(currentLocation + '/liquor_history').once('value', snap => {
-        const historyData = snap.val();
-        select.innerHTML = '<option value="">Select a past week...</option>';
-        if (historyData) {
-            // Sort the dates so the newest is at the top
-            const dates = Object.keys(historyData).sort((a, b) => b.localeCompare(a));
-            dates.forEach(date => {
-                const opt = document.createElement('option');
-                opt.value = date;
-                opt.innerText = "Week Ending: " + date; // Displays like "Week Ending: 2026-06-15"
-                select.appendChild(opt);
-            });
-            window.tempHistoryData = historyData; // Hold data temporarily for the dropdown
-        } else {
-            select.innerHTML = '<option value="">No history saved yet.</option>';
-        }
-    });
-}
-
-function loadHistoryDetails() {
-    const dateSelected = document.getElementById('history-date-select').value;
-    const container = document.getElementById('history-details-container');
-    const list = document.getElementById('history-item-list');
-    
-    if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) {
-        container.style.display = 'none'; return;
-    }
-
-    const data = window.tempHistoryData[dateSelected];
-    document.getElementById('history-total-cost').innerText = `$${(data.totalCost || 0).toFixed(2)}`;
-    list.innerHTML = '';
-
-    // Print out the receipt for that specific week
-    if (data.items) {
-        data.items.forEach(item => {
-            const li = document.createElement('li'); 
-            li.style.padding = '10px 0'; 
-            li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
-            li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${item.brand}:</span> Used ${item.used.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${item.cost.toFixed(2)}</span>`;
-            list.appendChild(li);
-        });
-    }
-    container.style.display = 'block';
-}
-
-function closeHistoryModal() {
-    document.getElementById('history-modal').style.display = 'none';
 }
