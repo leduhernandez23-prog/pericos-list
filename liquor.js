@@ -575,7 +575,39 @@ function openSummaryModal() {
 }
 function closeSummaryModal() { document.getElementById('summary-modal').style.display = 'none'; }
 function confirmResetWeek() {
-  document.querySelectorAll('.inv-row').forEach(row => { const currentCount = parseFloat(row.querySelector('.i-count').value) || 0; row.setAttribute('data-start', currentCount); row.setAttribute('data-received', '0'); row.querySelector('.calc-received').innerText = '0'; }); autoSaveInv(); closeSummaryModal();
+  // 1. Create the Snapshot bundle
+  const today = new Date().toISOString().split('T')[0]; // Stamps the date (YYYY-MM-DD)
+  const snapshotData = { date: today, totalCost: 0, items: [] };
+
+  document.querySelectorAll('.inv-row').forEach(row => {
+    const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; 
+    const start = parseFloat(row.getAttribute('data-start')) || 0; 
+    const received = parseFloat(row.getAttribute('data-received')) || 0; 
+    const count = parseFloat(row.querySelector('.i-count').value) || 0; 
+    const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
+    
+    // Do the usage math
+    const usageBtls = (start + received) - count; 
+    const lineCost = usageBtls * cost;
+
+    // Add it to the snapshot if you actually poured any
+    if (usageBtls > 0) {
+      snapshotData.totalCost += lineCost;
+      snapshotData.items.push({ brand: brand, used: usageBtls, cost: lineCost });
+    }
+
+    // 2. Reset the row for the new week
+    row.setAttribute('data-start', count); 
+    row.setAttribute('data-received', '0'); 
+    row.querySelector('.calc-received').innerText = '0'; 
+  }); 
+
+  // 3. Save snapshot to a permanent History folder, then auto-save the live screen
+  db.ref(currentLocation + '/liquor_history/' + today).set(snapshotData).then(() => {
+      autoSaveInv(); 
+      closeSummaryModal();
+      alert("Week closed out! Snapshot saved to History Vault.");
+  });
 }
 
 function exportToCSV() {
@@ -617,4 +649,62 @@ function autoSaveMeta() {
     });
     calculateGlobalMetrics();
     flashSync();
+}
+/* ==========================================
+   HISTORY VAULT
+   ========================================== */
+function openHistoryModal() {
+    const select = document.getElementById('history-date-select');
+    select.innerHTML = '<option value="">Loading past weeks...</option>';
+    document.getElementById('history-details-container').style.display = 'none';
+    document.getElementById('history-modal').style.display = 'flex';
+
+    // Reach into the cloud and grab the History folder
+    db.ref(currentLocation + '/liquor_history').once('value', snap => {
+        const historyData = snap.val();
+        select.innerHTML = '<option value="">Select a past week...</option>';
+        if (historyData) {
+            // Sort the dates so the newest is at the top
+            const dates = Object.keys(historyData).sort((a, b) => b.localeCompare(a));
+            dates.forEach(date => {
+                const opt = document.createElement('option');
+                opt.value = date;
+                opt.innerText = "Week Ending: " + date; // Displays like "Week Ending: 2026-06-15"
+                select.appendChild(opt);
+            });
+            window.tempHistoryData = historyData; // Hold data temporarily for the dropdown
+        } else {
+            select.innerHTML = '<option value="">No history saved yet.</option>';
+        }
+    });
+}
+
+function loadHistoryDetails() {
+    const dateSelected = document.getElementById('history-date-select').value;
+    const container = document.getElementById('history-details-container');
+    const list = document.getElementById('history-item-list');
+    
+    if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) {
+        container.style.display = 'none'; return;
+    }
+
+    const data = window.tempHistoryData[dateSelected];
+    document.getElementById('history-total-cost').innerText = `$${(data.totalCost || 0).toFixed(2)}`;
+    list.innerHTML = '';
+
+    // Print out the receipt for that specific week
+    if (data.items) {
+        data.items.forEach(item => {
+            const li = document.createElement('li'); 
+            li.style.padding = '10px 0'; 
+            li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+            li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${item.brand}:</span> Used ${item.used.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${item.cost.toFixed(2)}</span>`;
+            list.appendChild(li);
+        });
+    }
+    container.style.display = 'block';
+}
+
+function closeHistoryModal() {
+    document.getElementById('history-modal').style.display = 'none';
 }
