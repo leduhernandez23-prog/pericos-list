@@ -47,11 +47,12 @@
     <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
     <button class="tab-btn" onclick="openTab(event, 'builder')">3. Recipe Library</button>
+    <button class="tab-btn" onclick="openTab(event, 'prep')">4. Batch & Prep</button>
   </div>
 
   <div class="fab-container">
     <button id="fab-top" class="fab-top" onclick="scrollToTop()" title="Scroll to Top">↑</button>
-    <button id="fab-add" class="fab" onclick="addInventoryRow(); scrollToBottom()" title="Add Spirit">+</button>
+    <button id="fab-add" class="fab" onclick="addInventoryRow(); scrollToBottom()" title="Add Row">+</button>
   </div>
 
   <div id="receive-modal" class="modal-overlay">
@@ -190,10 +191,6 @@
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Cocktail Name</label>
           <input type="text" id="cocktail-name" class="clean-input" placeholder="e.g., Los Pericos Margarita" style="font-size: 1.5rem; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;" oninput="autoSaveDraft()">
         </div>
-        <div style="flex: 1; min-width: 100px;">
-          <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; color: var(--neon-blue);">Batch Yield (Drinks)</label>
-          <input type="number" id="batch-yield" class="clean-input" placeholder="1" value="1" min="1" style="font-size: 1.5rem; border-bottom: 2px solid var(--neon-blue); border-radius: 0; padding-left: 0;" oninput="calculateCocktail(); autoSaveDraft()">
-        </div>
         <div style="flex: 1; min-width: 150px;">
           <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Menu Price ($)</label>
           <input type="number" id="menu-price" class="clean-input" placeholder="0.00" style="font-size: 1.5rem; border-bottom: 2px solid var(--neon-green); border-radius: 0; padding-left: 0;" oninput="calculateCocktail(); autoSaveDraft()">
@@ -202,8 +199,7 @@
 
       <div class="builder-grid builder-header">
         <div>Ingredient Name</div>
-        <div>Amt</div>
-        <div>Type</div>
+        <div>Pour Oz</div>
         <div>Btl Size & Unit</div>
         <div>Cost ($)</div>
         <div>Line Cost</div>
@@ -225,16 +221,12 @@
     <div class="glass-card">
       <h3>Spec Analytics</h3>
       <div class="dashboard-grid">
-        <div class="metric-box" style="border-left: 4px solid var(--neon-blue);">
-          <h4>Total Batch Cost</h4>
-          <div class="value" id="cocktail-batch-cost">$0.00</div>
-        </div>
         <div class="metric-box">
-          <h4>Cost Per Drink</h4>
+          <h4>Cost to Build</h4>
           <div class="value" id="cocktail-cost">$0.00</div>
         </div>
         <div class="metric-box">
-          <h4>Gross Profit / Drink</h4>
+          <h4>Gross Profit</h4>
           <div class="value status-good" id="cocktail-profit">$0.00</div>
         </div>
         <div class="metric-box" id="cocktail-pour-box" style="border-left: 4px solid var(--neon-green);">
@@ -251,6 +243,57 @@
     <div class="glass-card">
         <h3>Saved Menu Vault</h3>
         <div class="menu-grid" id="menu-vault-container">
+            </div>
+    </div>
+  </div>
+
+  <div id="prep" class="tab-content">
+    <div class="glass-card">
+      <h3>Prep Room & Batching</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+        Build large format batches here. Use whole bottles or precise ounces to calculate total bulk costs.
+      </p>
+
+      <div style="display: flex; gap: 30px; margin-bottom: 30px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+          <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Batch Name</label>
+          <input type="text" id="prep-name" class="clean-input" placeholder="e.g., 5-Gallon House Margarita" style="font-size: 1.5rem; border-bottom: 2px solid var(--glass-border); border-radius: 0; padding-left: 0;" oninput="autoSavePrepDraft()">
+        </div>
+      </div>
+
+      <div class="prep-grid builder-header">
+        <div>Ingredient Name</div>
+        <div>Qty</div>
+        <div>Measure</div>
+        <div>Btl Size/Unit</div>
+        <div>Btl Cost ($)</div>
+        <div>Total Cost</div>
+        <div></div>
+      </div>
+
+      <div id="prep-ingredients-container"></div>
+      
+      <div class="action-row" style="border-top: 1px solid var(--glass-border); padding-top: 20px; margin-top: 20px;">
+        <button class="btn-glow" style="border-color: var(--neon-blue); color: var(--neon-blue);" onclick="addPrepRow()">+ Add Prep Item</button>
+        <button class="btn-glow" onclick="savePrepToMenu()">💾 Save Batch Info</button>
+        <button class="btn-remove" onclick="clearPrepBuilder()">Clear Batch</button>
+        <button id="undo-btn-prep" class="btn-undo" onclick="undoDelete()">↩ Undo</button>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <h3>Batch Analytics</h3>
+      <div class="dashboard-grid">
+        <div class="metric-box" style="border-left: 4px solid var(--neon-blue);">
+          <h4>Total Batch Cost</h4>
+          <div class="value" id="prep-batch-cost">$0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+        <h3>Saved Prep Vault</h3>
+        <div class="menu-grid" id="prep-vault-container">
             </div>
     </div>
   </div>
