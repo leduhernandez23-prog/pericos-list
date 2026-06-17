@@ -7,12 +7,14 @@
   
   <link rel="stylesheet" href="liquor.css">
 
+  <!-- Firebase Integration -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
+  <!-- AUTHENTICATION CHECK -->
   <script>
     if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
     const activeUser = localStorage.getItem('pericos_active_user');
@@ -43,6 +45,7 @@
     </div>
   </header>
 
+  <!-- 4-TAB SYSTEM -->
   <div class="tabs">
     <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
@@ -50,11 +53,13 @@
     <button class="tab-btn" onclick="openTab(event, 'batches')">4. Batch Vault</button>
   </div>
 
+  <!-- FLOATING ACTION BUTTONS -->
   <div class="fab-container">
     <button id="fab-top" class="fab-top" onclick="scrollToTop()" title="Scroll to Top">↑</button>
     <button id="fab-add" class="fab" onclick="addInventoryRow(); scrollToBottom()" title="Add Row">+</button>
   </div>
 
+  <!-- MODAL: RECEIVE DELIVERY -->
   <div id="receive-modal" class="modal-overlay">
     <div class="modal-content" style="width: 900px; max-width: 98%;">
       <h3 style="color: var(--neon-blue); margin-top: 0;">Receive Delivery Order</h3>
@@ -67,7 +72,7 @@
         <div style="width: 38px;"></div>
       </div>
       <div id="delivery-batch-list"></div>
-      <button class="btn-glow" style="margin-bottom: 20px; font-size: 0.7rem; padding: 8px 16px; border-color: var(--neon-blue); color: var(--neon-blue);" onclick="addDeliveryRow()">+ Add Row</button>
+      <button class="btn-glow" style="margin-bottom: 20px; font-size: 0.7rem; padding: 8px 16px; border-color: var(--neon-blue); background: transparent; color: var(--neon-blue);" onclick="addDeliveryRow()">+ Add Row</button>
       <div style="display: flex; gap: 15px; margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 20px;">
         <button class="btn-receive" style="flex: 1;" onclick="confirmBatchReceive()">Confirm Delivery</button>
         <button class="btn-remove" style="flex: 1; padding: 12px;" onclick="closeReceiveModal()">Cancel</button>
@@ -75,6 +80,7 @@
     </div>
   </div>
 
+  <!-- MODAL: WEEKLY SUMMARY -->
   <div id="summary-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
       <h3 style="color: var(--neon-green); margin-top: 0;">Weekly Usage Summary</h3>
@@ -90,6 +96,7 @@
     </div>
   </div>
 
+  <!-- MODAL: HISTORY VAULT -->
   <div id="history-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
       <h3 style="color: var(--neon-orange); margin-top: 0;">📜 History Vault</h3>
@@ -113,6 +120,25 @@
     </div>
   </div>
 
+  <!-- MODAL: LOG BATCH PRODUCTION -->
+  <div id="produce-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 400px;">
+      <h3 style="color: var(--neon-orange); margin-top: 0;">Log Batch Prep</h3>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">Deduct ingredients for: <br><strong id="produce-batch-name" style="color: var(--text-main); font-size: 1.2rem;"></strong></p>
+      
+      <div style="margin-bottom: 15px;">
+        <label>How many batches did you make?</label>
+        <input type="number" id="produce-batch-qty" class="clean-input" value="1" min="0.25" step="0.25" style="font-size: 1.5rem; padding: 15px; text-align: center;">
+      </div>
+      
+      <div style="display: flex; gap: 15px; margin-top: 25px;">
+        <button class="btn-glow" style="flex: 2; background: var(--neon-orange); color: #fff; border: none;" onclick="confirmProduceBatch()">Deduct from Shelf</button>
+        <button class="btn-remove" style="flex: 1; padding: 12px;" onclick="closeProduceModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RECIPE BUILDER -->
   <div id="builder-modal" class="modal-overlay">
     <div class="modal-content builder-modal-content">
       <h3 id="builder-title" style="color: var(--neon-blue); margin-top: 0;">Build Recipe</h3>
@@ -146,8 +172,9 @@
       <datalist id="inventory-datalist"></datalist>
       <div id="builder-ingredients"></div>
       
-      <button class="btn-glow" style="border-color: var(--neon-blue); color: var(--neon-blue); margin-top: 15px; font-size: 0.7rem; padding: 8px 16px;" onclick="addBuilderRow()">+ Add Ingredient</button>
+      <button class="btn-glow" style="background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); margin-top: 15px; font-size: 0.7rem; padding: 8px 16px;" onclick="addBuilderRow()">+ Add Ingredient</button>
 
+      <!-- ADVANCED MATH & ANALYTICS DASHBOARD -->
       <div class="dashboard-grid" style="margin-top: 25px; margin-bottom: 25px;">
         <div class="metric-box" style="padding: 15px;">
           <h4 id="b-box-1-title">Cost to Build</h4>
@@ -174,6 +201,7 @@
     </div>
   </div>
 
+  <!-- TAB 1: MASTER INVENTORY -->
   <div id="inventory" class="tab-content active">
     <div class="glass-card">
       <h3>Live Inventory Count</h3>
@@ -214,13 +242,14 @@
       <div class="action-row">
         <button class="btn-receive" onclick="openReceiveModal()">🚚 Receive Order</button>
         <button class="btn-export" onclick="exportToCSV()">↓ Export CSV</button>
-        <button class="btn-receive" style="margin-left: auto;" onclick="openHistoryModal()">📜 View History</button>
+        <button class="btn-receive" style="margin-left: auto; background: var(--glass-border); color: #fff;" onclick="openHistoryModal()">📜 View History</button>
         <button class="btn-glow" onclick="openSummaryModal()">🔄 Start New Week</button>
         <button id="undo-btn-inv" class="btn-undo" onclick="undoDelete()">↩ Undo</button>
       </div>
     </div>
   </div>
 
+  <!-- TAB 2: MARGIN DASHBOARD -->
   <div id="dashboard" class="tab-content">
     <div class="glass-card">
       <h3>Global Shift Metrics</h3>
@@ -251,6 +280,7 @@
               <th style="color: var(--neon-orange);">Btls Used</th>
               <th>Usage ($)</th>
               <th>Shot Cost</th>
+              <th style="color: var(--neon-green);">Rec Price (20%)</th>
               <th>Shot Profit</th>
               <th>Shot Pour %</th>
             </tr>
@@ -261,21 +291,23 @@
     </div>
   </div>
 
+  <!-- TAB 3: COCKTAIL VAULT -->
   <div id="cocktails" class="tab-content">
     <div class="glass-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 style="margin: 0;">Menu Cocktails</h3>
-            <button class="btn-glow" style="border-color: var(--neon-blue); color: var(--neon-blue);" onclick="showBuilder('cocktail')">+ Add Cocktail</button>
+            <button class="btn-receive" onclick="showBuilder('cocktail')">+ Add Cocktail</button>
         </div>
         <div class="menu-grid" id="cocktail-vault-container"></div>
     </div>
   </div>
 
+  <!-- TAB 4: BATCH VAULT -->
   <div id="batches" class="tab-content">
     <div class="glass-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 style="margin: 0;">Prep & Batches</h3>
-            <button class="btn-glow" style="border-color: var(--neon-blue); color: var(--neon-blue);" onclick="showBuilder('batch')">+ Add Batch</button>
+            <button class="btn-receive" onclick="showBuilder('batch')">+ Add Batch</button>
         </div>
         <div class="menu-grid" id="batch-vault-container"></div>
     </div>
