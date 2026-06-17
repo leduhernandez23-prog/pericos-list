@@ -24,9 +24,9 @@ let currentBuilderType = 'cocktail';
 let currentBuilderId = null;
 
 const catColors = {
-    'Tequila': '#00E676', 'Vodka': '#00b0ff', 'Whiskey': '#ff9f43',
-    'Rum': '#ff4757', 'Gin': '#00e5ff', 'Liqueur': '#d500f9',
-    'Mixer': '#ffea00', 'Beer': '#ffd600', 'Wine': '#880e4f'
+    'Tequila': '#10b981', 'Vodka': '#3b82f6', 'Whiskey': '#f59e0b',
+    'Rum': '#ef4444', 'Gin': '#06b6d4', 'Liqueur': '#a855f7',
+    'Mixer': '#eab308', 'Beer': '#ca8a04', 'Wine': '#be185d'
 };
 const unitOptions = ['ml', 'oz', 'L'];
 const builderUnitOptions = ['ml', 'oz', 'L', 'dash', 'ea']; 
@@ -46,7 +46,6 @@ firebase.auth().onAuthStateChanged((user) => {
         const text = document.getElementById('sync-text');
         text.innerText = "Connected";
         dot.style.background = "var(--neon-green)";
-        dot.style.boxShadow = "var(--neon-glow)";
         loadFirebaseData();
     } else {
         window.location.href = 'index.html';
@@ -95,11 +94,9 @@ function flashSync() {
     const text = document.getElementById('sync-text');
     text.innerText = "Syncing...";
     dot.style.background = "var(--neon-orange)";
-    dot.style.boxShadow = "var(--neon-orange-glow)";
     setTimeout(() => {
         text.innerText = "Cloud Synced";
         dot.style.background = "var(--neon-green)";
-        dot.style.boxShadow = "var(--neon-glow)";
     }, 800);
 }
 
@@ -245,15 +242,15 @@ function calculateBuilder() {
             pourDisplay.innerText = `${pct.toFixed(2)}%`;
 
             if (pct <= 15) {
-                classDisplay.innerText = '🌟 STAR'; classDisplay.style.color = 'var(--neon-green)';
+                classDisplay.innerText = '🌟 STAR'; classDisplay.className = 'value status-good';
                 pourDisplay.className = 'value status-good'; profitDisplay.className = 'value status-good';
                 pourBox.style.borderLeftColor = 'var(--neon-green)';
             } else if (pct <= 20) {
-                classDisplay.innerText = '🐴 PLOWHORSE'; classDisplay.style.color = 'var(--text-main)';
+                classDisplay.innerText = '🐴 PLOWHORSE'; classDisplay.className = 'value';
                 pourDisplay.className = 'value'; profitDisplay.className = 'value';
                 pourBox.style.borderLeftColor = 'var(--text-muted)';
             } else {
-                classDisplay.innerText = '🐕 DOG'; classDisplay.style.color = 'var(--danger)';
+                classDisplay.innerText = '🐕 DOG'; classDisplay.className = 'value status-warn';
                 pourDisplay.className = 'value status-warn'; profitDisplay.className = 'value status-warn';
                 pourBox.style.borderLeftColor = 'var(--danger)';
             }
@@ -319,7 +316,7 @@ function deleteMenuRecipe(type, id) {
 }
 
 /* ==========================================
-   RENDER VAULTS (WITH DUPLICATE BUTTONS)
+   RENDER VAULTS
    ========================================== */
 function renderCocktailVault() {
     const container = document.getElementById('cocktail-vault-container');
@@ -335,10 +332,10 @@ function renderCocktailVault() {
             <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Menu Price: $${(drink.price || 0).toFixed(2)}</div>
             <div class="menu-stats"><span>Cost:</span><span>$${(drink.totalCost || 0).toFixed(2)}</span></div>
             <div class="menu-stats"><span>Pour %:</span><span class="${colorClass}">${(drink.pourCostPct || 0).toFixed(2)}%</span></div>
-            <div class="menu-actions" style="flex-wrap: wrap; gap: 5px;">
-                <button class="btn-glow" style="flex:1; padding:8px; font-size:0.75rem;" onclick="showBuilder('cocktail', '${key}')">✎ Edit</button>
-                <button class="btn-receive" style="flex:1; padding:8px; font-size:0.75rem;" onclick="showBuilder('cocktail', '${key}', true)">📋 Copy</button>
-                <button class="btn-remove" style="padding:8px; font-size:0.75rem;" onclick="deleteMenuRecipe('cocktail', '${key}')">Del</button>
+            <div class="menu-actions">
+                <button class="btn-export" style="background:transparent; color:var(--text-main);" onclick="showBuilder('cocktail', '${key}')">✎ Edit</button>
+                <button class="btn-export" style="background:transparent; color:var(--neon-blue);" onclick="showBuilder('cocktail', '${key}', true)">📋 Copy</button>
+                <button class="btn-remove" onclick="deleteMenuRecipe('cocktail', '${key}')">Del</button>
             </div>
         `;
         container.appendChild(div);
@@ -359,14 +356,73 @@ function renderBatchVault() {
             <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Yield: ${batch.yield || 1}</div>
             <div class="menu-stats"><span>Total Cost:</span><span>$${(batch.totalCost || 0).toFixed(2)}</span></div>
             <div class="menu-stats"><span>Per Yield:</span><span>$${costPer.toFixed(2)}</span></div>
-            <div class="menu-actions" style="flex-wrap: wrap; gap: 5px;">
-                <button class="btn-glow" style="flex:1; padding:8px; font-size:0.75rem;" onclick="showBuilder('batch', '${key}')">✎ Edit</button>
-                <button class="btn-receive" style="flex:1; padding:8px; font-size:0.75rem;" onclick="showBuilder('batch', '${key}', true)">📋 Copy</button>
-                <button class="btn-remove" style="padding:8px; font-size:0.75rem;" onclick="deleteMenuRecipe('batch', '${key}')">Del</button>
+            
+            <button class="btn-glow" style="width: 100%; margin-top: 10px; margin-bottom: 15px; background: var(--neon-orange); color: #fff;" onclick="openProduceModal('${key}')">🧪 Log Prep (Deduct Bottles)</button>
+
+            <div class="menu-actions">
+                <button class="btn-export" style="background:transparent; color:var(--text-main);" onclick="showBuilder('batch', '${key}')">✎ Edit</button>
+                <button class="btn-export" style="background:transparent; color:var(--neon-blue);" onclick="showBuilder('batch', '${key}', true)">📋 Copy</button>
+                <button class="btn-remove" onclick="deleteMenuRecipe('batch', '${key}')">Del</button>
             </div>
         `;
         container.appendChild(div);
     });
+}
+
+/* ==========================================
+   LOG BATCH PRODUCTION (AUTO-DEDUCT)
+   ========================================== */
+let currentProduceBatchId = null;
+
+function openProduceModal(batchId) {
+    currentProduceBatchId = batchId;
+    document.getElementById('produce-batch-qty').value = 1;
+    document.getElementById('produce-batch-name').innerText = globalBatches[batchId].name;
+    document.getElementById('produce-modal').style.display = 'flex';
+}
+
+function closeProduceModal() {
+    document.getElementById('produce-modal').style.display = 'none';
+}
+
+function confirmProduceBatch() {
+    const qty = parseFloat(document.getElementById('produce-batch-qty').value) || 0;
+    if (qty <= 0) return;
+    
+    const batch = globalBatches[currentProduceBatchId];
+    if (!batch || !batch.ingredients) return;
+    
+    const invRows = Array.from(document.querySelectorAll('.inv-row'));
+    let deductionLog = "";
+    
+    batch.ingredients.forEach(ing => {
+        let targetRow = invRows.find(r => r.querySelector('.i-brand').value.trim().toLowerCase() === ing.name.toLowerCase());
+        
+        if (targetRow) {
+            let bottlesToDeduct = 0;
+            if (ing.measure === 'btl' || ing.measure === 'ea') {
+                bottlesToDeduct = ing.pour * qty;
+            } else if (ing.measure === 'oz') {
+                const bottleSizeOz = convertToOz(ing.size, ing.unit);
+                bottlesToDeduct = (ing.pour * qty) / bottleSizeOz;
+            }
+            
+            const countInput = targetRow.querySelector('.i-count');
+            const currentCount = parseFloat(countInput.value) || 0;
+            const newCount = Math.max(0, currentCount - bottlesToDeduct);
+            
+            countInput.value = newCount.toFixed(1);
+            deductionLog += `\n- ${ing.name}: Deducted ${bottlesToDeduct.toFixed(2)} btls`;
+        }
+    });
+    
+    if(deductionLog === "") {
+        alert("Could not find matching ingredients on the master shelf. Make sure the names are spelled exactly the same!");
+    } else {
+        autoSaveInv();
+        closeProduceModal();
+        alert(`Batch logged! Inventory has been automatically deducted:\n${deductionLog}`);
+    }
 }
 
 /* ==========================================
@@ -382,8 +438,8 @@ function autoSaveInv() {
          
          if(cost === 0 || sell === 0) { row.classList.add('price-warning'); } else { row.classList.remove('price-warning'); }
          const checkKey = `${brand.trim().toLowerCase()}|${size}|${unit}`;
-         if(brand.trim() !== '' && seen.has(checkKey)) { row.style.background = 'rgba(255, 71, 87, 0.15)'; } 
-         else { row.style.background = 'rgba(0,0,0,0.4)'; seen.add(checkKey); }
+         if(brand.trim() !== '' && seen.has(checkKey)) { row.style.background = 'rgba(239, 68, 68, 0.1)'; } 
+         else { row.style.background = 'var(--glass-bg)'; seen.add(checkKey); }
 
          data.push({ category: cat, brand: brand, size: size, unit: unit, start: parseFloat(row.getAttribute('data-start')) || 0, received: parseFloat(row.getAttribute('data-received')) || 0, count: parseFloat(row.querySelector('.i-count').value) || 0, cost: cost, shotSell: sell });
     });
@@ -481,7 +537,6 @@ function updateInventoryDatalist() {
         
         if(brand) {
             const option = document.createElement('option'); option.value = brand; datalist.appendChild(option);
-            // We now store the category so the delivery modal can auto-fill it
             inventoryLookup[brand.toLowerCase()] = { size, unit, cost, category: cat };
         }
     });
@@ -496,14 +551,25 @@ function renderMarginDashboard() {
         const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
         const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0; const usageBtls = (start + received) - count; const usageCost = usageBtls * cost;
         if (usageCost > 0) totalUsageCost += usageCost;
-        const shotCost = (cost / sizeOz) * 1.5; const shotProfit = sell - shotCost;
+        
+        const shotCost = (cost / sizeOz) * 1.5; 
+        const recPrice20 = shotCost * 5;
+        const shotProfit = sell - shotCost;
         let pourCostPct = 0; let pourClass = ''; let profitClass = '';
         if (sell > 0) {
             pourCostPct = (shotCost / sell) * 100;
             if (pourCostPct <= 20) { pourClass = 'status-good'; profitClass = 'status-good'; } else { pourClass = 'status-warn'; profitClass = 'status-warn'; }
         }
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td data-label="Brand" style="font-weight: bold; color: var(--text-main);">${brand}</td><td data-label="Btls Used" style="color: var(--neon-orange); font-family: monospace; font-size: 1.1rem;">${Math.max(0, usageBtls).toFixed(1)}</td><td data-label="Usage Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${Math.max(0, usageCost).toFixed(2)}</td><td data-label="Shot Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${shotCost.toFixed(2)}</td><td data-label="Shot Profit ($)" class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">$${shotProfit.toFixed(2)}</td><td data-label="Pour Cost %" class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${sell > 0 ? pourCostPct.toFixed(2) + '%' : '0.00%'}</td>`;
+        tr.innerHTML = `
+            <td data-label="Brand" style="font-weight: bold; color: var(--text-main);">${brand}</td>
+            <td data-label="Btls Used" style="color: var(--neon-orange); font-family: monospace; font-size: 1.1rem;">${Math.max(0, usageBtls).toFixed(1)}</td>
+            <td data-label="Usage Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${Math.max(0, usageCost).toFixed(2)}</td>
+            <td data-label="Shot Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${shotCost.toFixed(2)}</td>
+            <td data-label="Rec Price (20%)" style="font-family: monospace; font-size: 1.1rem; color: var(--neon-green); font-weight: 600;">$${recPrice20.toFixed(2)}</td>
+            <td data-label="Shot Profit ($)" class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">$${shotProfit.toFixed(2)}</td>
+            <td data-label="Pour Cost %" class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${sell > 0 ? pourCostPct.toFixed(2) + '%' : '0.00%'}</td>
+        `;
         tbody.appendChild(tr);
     }); document.getElementById('global-usage-cost').innerText = `$${totalUsageCost.toFixed(2)}`; calculateGlobalMetrics(totalUsageCost);
 }
@@ -523,7 +589,7 @@ function filterDashboard() {
 }
 
 /* ==========================================
-   DELIVERIES (WITH NEW AUTO-CREATE LOGIC)
+   DELIVERIES
    ========================================== */
 function autoFillDelivery(input) {
     const val = input.value.trim().toLowerCase();
@@ -582,11 +648,9 @@ function confirmBatchReceive() {
     const cost = parseFloat(dRow.querySelector('.d-cost').value) || 0;
     
     if (brand !== '' && amount > 0) {
-      // Look to see if this brand already exists on the master shelf
       let targetRow = invRows.find(r => r.querySelector('.i-brand').value.trim().toLowerCase() === brand.toLowerCase());
       
       if (targetRow) {
-        // IT EXISTS: Update the current row
         const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0; 
         targetRow.setAttribute('data-received', currentRec + amount); 
         targetRow.querySelector('.calc-received').innerText = currentRec + amount; 
@@ -600,7 +664,6 @@ function confirmBatchReceive() {
         targetRow.querySelector('.i-unit').value = unit;
         if (!isNaN(cost)) targetRow.querySelector('.i-cost').value = cost;
       } else {
-        // IT IS BRAND NEW: Build a brand new row in the vault and add the inventory immediately
         injectInventoryRow({
             category: cat,
             brand: brand,
@@ -608,9 +671,9 @@ function confirmBatchReceive() {
             unit: unit,
             start: 0,
             received: amount,
-            count: amount, // Since it's new, the count on shelf equals what we just received
+            count: amount, 
             cost: cost,
-            shotSell: 0 // Shot price defaults to $0.00 so you can update it later
+            shotSell: 0
         });
       }
     }
@@ -626,7 +689,7 @@ function openSummaryModal() {
     const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0; const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     const usageBtls = (start + received) - count; const lineCost = usageBtls * cost;
     if (usageBtls > 0) {
-      totalUsageCost += lineCost; const li = document.createElement('li'); li.style.padding = '10px 0'; li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+      totalUsageCost += lineCost; const li = document.createElement('li'); li.style.padding = '10px 0'; li.style.borderBottom = '1px solid var(--glass-border)';
       li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${brand}:</span> Used ${usageBtls.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${lineCost.toFixed(2)}</span>`; list.appendChild(li);
     }
   }); if (list.innerHTML === '') list.innerHTML = `<li style="color: var(--text-muted); padding: 10px 0;">No usage recorded for this week yet.</li>`;
@@ -707,7 +770,7 @@ function loadHistoryDetails() {
         data.items.forEach(item => {
             const li = document.createElement('li'); 
             li.style.padding = '10px 0'; 
-            li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+            li.style.borderBottom = '1px solid var(--glass-border)';
             li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${item.brand}:</span> Used ${item.used.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${item.cost.toFixed(2)}</span>`;
             list.appendChild(li);
         });
