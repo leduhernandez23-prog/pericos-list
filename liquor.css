@@ -103,8 +103,8 @@ select.clean-input option { background: var(--bg-dark); color: var(--text-main);
 .btn-remove { background: transparent; color: var(--text-muted); border: 1px solid transparent; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
 .btn-remove:hover { background: rgba(255, 71, 87, 0.1); color: var(--danger); border-color: var(--danger); }
 
-/* --- BUILDER & VAULTS --- */
-.builder-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr 1fr 1fr auto; gap: 10px; align-items: center; margin-bottom: 15px; }
+/* --- BUILDER & VAULTS (7-COLUMN AUTO SPACING) --- */
+.builder-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr 1fr 1fr 1fr auto; gap: 10px; align-items: center; margin-bottom: 15px; }
 .builder-header { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); }
 .data-highlight { font-family: monospace; font-size: 1.1rem; color: var(--text-main); }
 
@@ -127,7 +127,7 @@ select.clean-input option { background: var(--bg-dark); color: var(--text-main);
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease forwards; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .modal-content { background: var(--glass-bg); border: 1px solid var(--neon-blue); box-shadow: 0 10px 40px rgba(0, 176, 255, 0.2); padding: 2.5rem; border-radius: 16px; width: 550px; max-width: 95%; max-height: 85vh; overflow-y: auto; }
-.builder-modal-content { width: 850px; border-color: var(--neon-green); box-shadow: 0 10px 40px rgba(0, 230, 118, 0.1); }
+.builder-modal-content { width: 880px; max-width: 98%; border-color: var(--neon-green); box-shadow: 0 10px 40px rgba(0, 230, 118, 0.1); }
 .modal-content::-webkit-scrollbar { width: 8px; }
 .modal-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 .form-group label { display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
@@ -144,8 +144,14 @@ select.clean-input option { background: var(--bg-dark); color: var(--text-main);
   .tabs { flex-direction: column; gap: 10px; }
   .tab-btn { width: 100%; text-align: center; }
   .modal-content { padding: 1.5rem; width: 100%; }
-  .delivery-row { flex-direction: column; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; }
-  .delivery-row select, .delivery-row input { width: 100%; margin-bottom: 10px; }
+  
+  /* MOBILE DELIVERY ROW FIXES */
+  .delivery-header-desktop { display: none !important; }
+  .delivery-row { flex-direction: column; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; align-items: stretch; }
+  .delivery-row > input, .delivery-row > select, .delivery-row > div { width: 100%; margin-bottom: 10px; }
+  .delivery-row > div { margin-bottom: 10px !important; }
+  .delivery-row button { margin-top: 5px; }
+
   #inventory-search, #category-filter, #dashboard-search { width: 100%; flex: none; margin-bottom: 10px; }
 
   /* VERTICAL CARDS */
@@ -163,34 +169,10 @@ select.clean-input option { background: var(--bg-dark); color: var(--text-main);
   td > div { justify-content: flex-end; } 
   .stepper { margin-left: auto; }
 
-  /* BUILDER MODAL FIXES */
+  /* MOBILE FIX FOR POPUP ENGINE */
   .builder-header { display: none !important; }
   .builder-grid { display: flex; flex-direction: column; background: rgba(0, 0, 0, 0.4); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid var(--glass-border) !important; }
   .builder-grid > * { margin-bottom: 10px; width: 100%; }
   .builder-grid .data-highlight { text-align: right; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
   .builder-grid button { align-self: flex-end; width: auto; background: rgba(255, 71, 87, 0.1); border: 1px solid var(--danger); color: var(--danger); margin-top: 10px; }
-}
-/* ==========================================
-   MISSING UTILITY FUNCTIONS
-   ========================================== */
-function toggleCategory(cat) {
-    collapsedCats[cat] = !collapsedCats[cat];
-    filterInventory();
-}
-
-function updateMeta() {
-    db.ref(currentLocation + '/liquor_meta').update({
-        lastEditedBy: activeUser,
-        lastEditedAt: new Date().toISOString()
-    });
-}
-
-function autoSaveMeta() {
-    const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
-    db.ref(currentLocation + '/liquor_meta').update({
-        posSales: posSales,
-        lastEditedBy: activeUser,
-        lastEditedAt: new Date().toISOString()
-    });
-    calculateGlobalMetrics();
 }
