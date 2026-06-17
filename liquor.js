@@ -30,6 +30,7 @@ const catColors = {
 };
 const unitOptions = ['ml', 'oz', 'L'];
 const builderUnitOptions = ['ml', 'oz', 'L', 'dash', 'ea']; 
+const catOptionsList = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
 
 window.addEventListener('scroll', () => {
   const btn = document.getElementById('fab-top');
@@ -318,7 +319,7 @@ function deleteMenuRecipe(type, id) {
 }
 
 /* ==========================================
-   RENDER VAULTS
+   RENDER VAULTS (WITH DUPLICATE BUTTONS)
    ========================================== */
 function renderCocktailVault() {
     const container = document.getElementById('cocktail-vault-container');
@@ -391,7 +392,6 @@ function autoSaveInv() {
 
 function sortInventory() {
     const tbody = document.getElementById('inventory-body'); const rows = Array.from(tbody.querySelectorAll('.inv-row'));
-    const catOptionsList = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
     rows.sort((a, b) => {
         const catA = a.querySelector('.i-category').value; const catB = b.querySelector('.i-category').value;
         const idxA = catOptionsList.indexOf(catA); const idxB = catOptionsList.indexOf(catB);
@@ -433,7 +433,6 @@ function adjustCount(btn, amount) {
 function injectInventoryRow(item) {
     const tbody = document.getElementById('inventory-body'); const tr = document.createElement('tr'); tr.className = 'inv-row';
     tr.setAttribute('data-received', item.received || 0); tr.setAttribute('data-start', item.start || 0);
-    const catOptionsList = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
     let catHtml = catOptionsList.map(c => `<option value="${c}" ${c === item.category ? 'selected' : ''}>${c}</option>`).join('');
     let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
     if(isInitialLoad && (item.cost === 0 || item.shotSell === 0)) { tr.classList.add('price-warning'); }
@@ -474,11 +473,16 @@ function updateInventoryDatalist() {
     const datalist = document.getElementById('inventory-datalist'); if(!datalist) return;
     datalist.innerHTML = ''; inventoryLookup = {}; 
     document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
-        const brand = row.querySelector('.i-brand').value.trim(); const size = row.querySelector('.i-size').value;
-        const unit = row.querySelector('.i-unit').value; const cost = row.querySelector('.i-cost').value;
+        const brand = row.querySelector('.i-brand').value.trim(); 
+        const size = row.querySelector('.i-size').value;
+        const unit = row.querySelector('.i-unit').value; 
+        const cost = row.querySelector('.i-cost').value;
+        const cat = row.querySelector('.i-category').value;
+        
         if(brand) {
             const option = document.createElement('option'); option.value = brand; datalist.appendChild(option);
-            inventoryLookup[brand.toLowerCase()] = { size, unit, cost };
+            // We now store the category so the delivery modal can auto-fill it
+            inventoryLookup[brand.toLowerCase()] = { size, unit, cost, category: cat };
         }
     });
 }
@@ -519,29 +523,17 @@ function filterDashboard() {
 }
 
 /* ==========================================
-   DELIVERIES & HISTORY VAULT
+   DELIVERIES (WITH NEW AUTO-CREATE LOGIC)
    ========================================== */
-function getInventoryOptionsHTML() {
-  let optionsHTML = ''; 
-  document.querySelectorAll('.inv-row').forEach((row, index) => { 
-    const brand = row.querySelector('.i-brand').value.trim() || 'Unnamed Spirit'; 
-    const cat = row.querySelector('.i-category').value; 
-    optionsHTML += `<option value="${index}">${brand} (${cat})</option>`; 
-  }); 
-  return optionsHTML;
-}
-
-function updateDeliveryRowDefaults(selectElement) {
-    const rowIndex = selectElement.value;
-    const invRows = document.querySelectorAll('.inv-row');
-    if (invRows[rowIndex]) {
-        const targetRow = invRows[rowIndex];
-        const cost = targetRow.querySelector('.i-cost').value;
-        const size = targetRow.querySelector('.i-size').value;
-        
-        const rowDiv = selectElement.closest('.delivery-row');
-        rowDiv.querySelector('.d-cost').value = parseFloat(cost).toFixed(2);
-        rowDiv.querySelector('.d-size').value = size;
+function autoFillDelivery(input) {
+    const val = input.value.trim().toLowerCase();
+    if (inventoryLookup[val]) {
+        const data = inventoryLookup[val];
+        const row = input.closest('.delivery-row');
+        row.querySelector('.d-cat').value = data.category;
+        row.querySelector('.d-size').value = data.size;
+        row.querySelector('.d-unit').value = data.unit;
+        row.querySelector('.d-cost').value = parseFloat(data.cost).toFixed(2);
     }
 }
 
@@ -549,19 +541,22 @@ function addDeliveryRow() {
   const list = document.getElementById('delivery-batch-list'); 
   const div = document.createElement('div'); 
   div.className = 'delivery-row';
+  
+  const catHtml = catOptionsList.map(c => `<option value="${c}">${c}</option>`).join('');
+  const unitHtml = unitOptions.map(u => `<option value="${u}">${u}</option>`).join('');
+
   div.innerHTML = `
-      <select class="clean-input d-select" style="flex: 2; background:rgba(0,0,0,0.5);" onchange="updateDeliveryRowDefaults(this)">
-          ${getInventoryOptionsHTML()}
-      </select>
-      <input class="clean-input d-qty" type="number" placeholder="Qty" min="0" step="1" style="flex: 1; background:rgba(0,0,0,0.5);">
-      <input class="clean-input d-size" type="number" placeholder="Size" style="flex: 1; background:rgba(0,0,0,0.5);">
+      <select class="clean-input d-cat" style="flex: 1; background:rgba(0,0,0,0.5);">${catHtml}</select>
+      <input class="clean-input d-brand" type="text" list="inventory-datalist" placeholder="Search or Type New..." style="flex: 2; background:rgba(0,0,0,0.5);" oninput="autoFillDelivery(this)">
+      <input class="clean-input d-qty" type="number" placeholder="Qty" min="0" step="1" style="flex: 0.8; background:rgba(0,0,0,0.5);">
+      <div style="display:flex; flex: 1.5; gap: 5px;">
+          <input class="clean-input d-size" type="number" placeholder="Size" style="width: 100%; background:rgba(0,0,0,0.5);">
+          <select class="clean-input d-unit" style="padding: 10px 5px; background:rgba(0,0,0,0.5);">${unitHtml}</select>
+      </div>
       <input class="clean-input d-cost" type="number" placeholder="Cost ($)" step="0.01" style="flex: 1; background:rgba(0,0,0,0.5);">
       <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
   `; 
   list.appendChild(div);
-  
-  const select = div.querySelector('select');
-  updateDeliveryRowDefaults(select);
 }
 
 function openReceiveModal() { 
@@ -576,23 +571,22 @@ function closeReceiveModal() {
 
 function confirmBatchReceive() {
   const rows = document.querySelectorAll('.delivery-row'); 
-  const invRows = document.querySelectorAll('.inv-row');
+  const invRows = Array.from(document.querySelectorAll('.inv-row'));
   
   rows.forEach(dRow => {
-    const select = dRow.querySelector('.d-select'); 
-    const inputQty = dRow.querySelector('.d-qty');
-    const inputSize = dRow.querySelector('.d-size');
-    const inputCost = dRow.querySelector('.d-cost');
+    const cat = dRow.querySelector('.d-cat').value;
+    const brand = dRow.querySelector('.d-brand').value.trim();
+    const amount = parseFloat(dRow.querySelector('.d-qty').value) || 0;
+    const size = parseFloat(dRow.querySelector('.d-size').value) || 750;
+    const unit = dRow.querySelector('.d-unit').value;
+    const cost = parseFloat(dRow.querySelector('.d-cost').value) || 0;
     
-    if (select && inputQty) {
-      const rowIndex = select.value; 
-      const amount = parseFloat(inputQty.value) || 0;
-      const newSize = parseFloat(inputSize.value);
-      const newCost = parseFloat(inputCost.value);
+    if (brand !== '' && amount > 0) {
+      // Look to see if this brand already exists on the master shelf
+      let targetRow = invRows.find(r => r.querySelector('.i-brand').value.trim().toLowerCase() === brand.toLowerCase());
       
-      if (amount > 0 && invRows[rowIndex]) { 
-        const targetRow = invRows[rowIndex]; 
-        
+      if (targetRow) {
+        // IT EXISTS: Update the current row
         const currentRec = parseFloat(targetRow.getAttribute('data-received')) || 0; 
         targetRow.setAttribute('data-received', currentRec + amount); 
         targetRow.querySelector('.calc-received').innerText = currentRec + amount; 
@@ -601,8 +595,23 @@ function confirmBatchReceive() {
         const currentCount = parseFloat(countInput.value) || 0;
         countInput.value = (currentCount + amount).toFixed(1);
 
-        if (!isNaN(newSize)) targetRow.querySelector('.i-size').value = newSize;
-        if (!isNaN(newCost)) targetRow.querySelector('.i-cost').value = newCost;
+        targetRow.querySelector('.i-category').value = cat;
+        if (!isNaN(size)) targetRow.querySelector('.i-size').value = size;
+        targetRow.querySelector('.i-unit').value = unit;
+        if (!isNaN(cost)) targetRow.querySelector('.i-cost').value = cost;
+      } else {
+        // IT IS BRAND NEW: Build a brand new row in the vault and add the inventory immediately
+        injectInventoryRow({
+            category: cat,
+            brand: brand,
+            size: size,
+            unit: unit,
+            start: 0,
+            received: amount,
+            count: amount, // Since it's new, the count on shelf equals what we just received
+            cost: cost,
+            shotSell: 0 // Shot price defaults to $0.00 so you can update it later
+        });
       }
     }
   }); 
