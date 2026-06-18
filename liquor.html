@@ -7,14 +7,12 @@
   
   <link rel="stylesheet" href="liquor.css">
 
-  <!-- Firebase Integration -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-  <!-- AUTHENTICATION CHECK -->
   <script>
     if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
     const activeUser = localStorage.getItem('pericos_active_user');
@@ -45,7 +43,6 @@
     </div>
   </header>
 
-  <!-- 4-TAB SYSTEM -->
   <div class="tabs">
     <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
@@ -53,13 +50,11 @@
     <button class="tab-btn" onclick="openTab(event, 'batches')">4. Batch Vault</button>
   </div>
 
-  <!-- FLOATING ACTION BUTTONS -->
   <div class="fab-container">
     <button id="fab-top" class="fab-top" onclick="scrollToTop()" title="Scroll to Top">↑</button>
     <button id="fab-add" class="fab" onclick="addInventoryRow(); scrollToBottom()" title="Add Row">+</button>
   </div>
 
-  <!-- MODAL: RECEIVE DELIVERY -->
   <div id="receive-modal" class="modal-overlay">
     <div class="modal-content" style="width: 900px; max-width: 98%;">
       <h3 style="color: var(--neon-blue); margin-top: 0;">Receive Delivery Order</h3>
@@ -80,7 +75,6 @@
     </div>
   </div>
 
-  <!-- MODAL: WEEKLY SUMMARY -->
   <div id="summary-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
       <h3 style="color: var(--neon-green); margin-top: 0;">Weekly Usage Summary</h3>
@@ -96,7 +90,6 @@
     </div>
   </div>
 
-  <!-- MODAL: HISTORY VAULT -->
   <div id="history-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
       <h3 style="color: var(--neon-orange); margin-top: 0;">📜 History Vault</h3>
@@ -120,7 +113,6 @@
     </div>
   </div>
 
-  <!-- MODAL: LOG BATCH PRODUCTION -->
   <div id="produce-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 400px;">
       <h3 style="color: var(--neon-orange); margin-top: 0;">Log Batch Prep</h3>
@@ -138,7 +130,6 @@
     </div>
   </div>
 
-  <!-- MODAL: RECIPE BUILDER -->
   <div id="builder-modal" class="modal-overlay">
     <div class="modal-content builder-modal-content">
       <h3 id="builder-title" style="color: var(--neon-blue); margin-top: 0;">Build Recipe</h3>
@@ -174,7 +165,6 @@
       
       <button class="btn-glow" style="background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); margin-top: 15px; font-size: 0.7rem; padding: 8px 16px;" onclick="addBuilderRow()">+ Add Ingredient</button>
 
-      <!-- ADVANCED MATH & ANALYTICS DASHBOARD -->
       <div class="dashboard-grid" style="margin-top: 25px; margin-bottom: 25px;">
         <div class="metric-box" style="padding: 15px;">
           <h4 id="b-box-1-title">Cost to Build</h4>
@@ -201,7 +191,6 @@
     </div>
   </div>
 
-  <!-- TAB 1: MASTER INVENTORY -->
   <div id="inventory" class="tab-content active">
     <div class="glass-card">
       <h3>Live Inventory Count</h3>
@@ -249,8 +238,29 @@
     </div>
   </div>
 
-  <!-- TAB 2: MARGIN DASHBOARD -->
- <div class="table-container">
+  <div id="dashboard" class="tab-content">
+    <div class="glass-card">
+      <h3>Global Shift Metrics</h3>
+      <div class="dashboard-grid">
+        <div class="metric-box">
+          <h4>Total POS Sales ($)</h4>
+          <input type="number" id="pos-sales" class="clean-input" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px; background: rgba(0,0,0,0.5);">
+        </div>
+        <div class="metric-box">
+          <h4>Total Usage Cost</h4>
+          <div class="value" id="global-usage-cost">$0.00</div>
+        </div>
+        <div class="metric-box" id="global-pour-box" style="border-left: 4px solid var(--neon-green);">
+          <h4>Gross Pour Cost %</h4>
+          <div class="value" id="global-pour-cost">0.00%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <h3>Margin Analysis</h3>
+      <input type="text" id="dashboard-search" class="clean-input" placeholder="🔍 Search margins by brand..." onkeyup="filterDashboard()" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
+      <div class="table-container">
         <table id="dashboard-table">
           <thead>
             <tr>
@@ -266,30 +276,9 @@
           <tbody id="dashboard-body"></tbody>
         </table>
       </div>
-
-    <div class="glass-card">
-      <h3>Margin Analysis</h3>
-      <input type="text" id="dashboard-search" class="clean-input" placeholder="🔍 Search margins by brand..." onkeyup="filterDashboard()" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
-      <div class="table-container">
-        <table id="dashboard-table">
-          <thead>
-            <tr>
-              <th>Brand</th>
-              <th style="color: var(--neon-orange);">Btls Used</th>
-              <th>Usage ($)</th>
-              <th>Shot Cost</th>
-              <th style="color: var(--neon-green);">Rec Price (20%)</th>
-              <th>Shot Profit</th>
-              <th>Shot Pour %</th>
-            </tr>
-          </thead>
-          <tbody id="dashboard-body"></tbody>
-        </table>
-      </div>
     </div>
   </div>
 
-  <!-- TAB 3: COCKTAIL VAULT -->
   <div id="cocktails" class="tab-content">
     <div class="glass-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -300,7 +289,6 @@
     </div>
   </div>
 
-  <!-- TAB 4: BATCH VAULT -->
   <div id="batches" class="tab-content">
     <div class="glass-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -311,6 +299,6 @@
     </div>
   </div>
 
-  <script src="liquor.js?v=2"></script>
+  <script src="liquor.js?v=5"></script>
 </body>
 </html>
