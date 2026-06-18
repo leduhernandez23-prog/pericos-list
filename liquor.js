@@ -109,7 +109,6 @@ function convertToOz(size, unit) {
 }
 
 function openTab(event, tabId) {
-  // Bulletproof Layout Lock: Forcibly hide every layout container via script script
   document.querySelectorAll('.tab-content').forEach(tab => {
     tab.style.display = 'none';
     tab.classList.remove('active');
@@ -366,10 +365,7 @@ function renderBatchVault() {
             <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Yield: ${batch.yield || 1}</div>
             <div class="menu-stats"><span>Total Cost:</span><span>$${(batch.totalCost || 0).toFixed(2)}</span></div>
             <div class="menu-stats"><span>Per Yield:</span><span>$${costPer.toFixed(2)}</span></div>
-            
-            <button class="btn-glow" style="width: 100%; margin-top: 10px; margin-bottom: 15px; background: var(--neon-orange); color: #fff;" onclick="openProduceModal('${key}')">🧪 Log Prep (Deduct Bottles)</button>
-
-            <div class="menu-actions">
+            <div class="menu-actions" style="margin-top: 15px;">
                 <button class="btn-export" style="background:transparent; color:var(--text-main);" onclick="showBuilder('batch', '${key}')">✎ Edit</button>
                 <button class="btn-export" style="background:transparent; color:var(--neon-blue);" onclick="showBuilder('batch', '${key}', true)">📋 Copy</button>
                 <button class="btn-remove" onclick="deleteMenuRecipe('batch', '${key}')">Del</button>
@@ -377,62 +373,6 @@ function renderBatchVault() {
         `;
         container.appendChild(div);
     });
-}
-
-/* ==========================================
-   LOG BATCH PRODUCTION (AUTO-DEDUCT)
-   ========================================== */
-let currentProduceBatchId = null;
-
-function openProduceModal(batchId) {
-    currentProduceBatchId = batchId;
-    document.getElementById('produce-batch-qty').value = 1;
-    document.getElementById('produce-batch-name').innerText = globalBatches[batchId].name;
-    document.getElementById('produce-modal').style.display = 'flex';
-}
-
-function closeProduceModal() {
-    document.getElementById('produce-modal').style.display = 'none';
-}
-
-function confirmProduceBatch() {
-    const qty = parseFloat(document.getElementById('produce-batch-qty').value) || 0;
-    if (qty <= 0) return;
-    
-    const batch = globalBatches[currentProduceBatchId];
-    if (!batch || !batch.ingredients) return;
-    
-    const invRows = Array.from(document.querySelectorAll('.inv-row'));
-    let deductionLog = "";
-    
-    batch.ingredients.forEach(ing => {
-        let targetRow = invRows.find(r => r.querySelector('.i-brand').value.trim().toLowerCase() === ing.name.toLowerCase());
-        
-        if (targetRow) {
-            let bottlesToDeduct = 0;
-            if (ing.measure === 'btl' || ing.measure === 'ea') {
-                bottlesToDeduct = ing.pour * qty;
-            } else if (ing.measure === 'oz') {
-                const bottleSizeOz = convertToOz(ing.size, ing.unit);
-                bottlesToDeduct = (ing.pour * qty) / bottleSizeOz;
-            }
-            
-            const countInput = targetRow.querySelector('.i-count');
-            const currentCount = parseFloat(countInput.value) || 0;
-            const newCount = Math.max(0, currentCount - bottlesToDeduct);
-            
-            countInput.value = newCount.toFixed(1);
-            deductionLog += `\n- ${ing.name}: Deducted ${bottlesToDeduct.toFixed(2)} btls`;
-        }
-    });
-    
-    if(deductionLog === "") {
-        alert("Could not find matching ingredients on the master shelf. Make sure the names are spelled exactly the same!");
-    } else {
-        autoSaveInv();
-        closeProduceModal();
-        alert(`Batch logged! Inventory has been automatically deducted:\n${deductionLog}`);
-    }
 }
 
 /* ==========================================
@@ -484,15 +424,10 @@ function filterInventory() {
     const brand = row.querySelector('.i-brand').value.toUpperCase(); const cat = row.querySelector('.i-category').value.toUpperCase();
     const matchesText = brand.includes(textFilter) || cat.includes(textFilter); const matchesCat = (catFilter === 'ALL' || cat === catFilter);
     const isCollapsed = collapsedCats[row.querySelector('.i-category').value];
-    
-    // Explicitly safe filter layout check
-    const isInventoryTab = document.getElementById('inventory').style.display === 'block';
-    row.style.display = (matchesText && matchesCat && !isCollapsed && isInventoryTab) ? "" : "none";
+    row.style.display = (matchesText && matchesCat && !isCollapsed) ? "" : "none";
   });
   document.querySelectorAll('.cat-header').forEach(header => {
-      const targetCat = header.getAttribute('data-target-cat').toUpperCase(); 
-      const isInventoryTab = document.getElementById('inventory').style.display === 'block';
-      header.style.display = (catFilter === 'ALL' || targetCat === catFilter) && isInventoryTab ? "" : "none";
+      const targetCat = header.getAttribute('data-target-cat').toUpperCase(); header.style.display = (catFilter === 'ALL' || targetCat === catFilter) ? "" : "none";
   });
 }
 
