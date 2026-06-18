@@ -250,24 +250,22 @@
   </div>
 
   <!-- TAB 2: MARGIN DASHBOARD -->
-  <div id="dashboard" class="tab-content">
-    <div class="glass-card">
-      <h3>Global Shift Metrics</h3>
-      <div class="dashboard-grid">
-        <div class="metric-box">
-          <h4>Total POS Sales ($)</h4>
-          <input type="number" id="pos-sales" class="clean-input" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px; background: rgba(0,0,0,0.5);">
-        </div>
-        <div class="metric-box">
-          <h4>Total Usage Cost</h4>
-          <div class="value" id="global-usage-cost">$0.00</div>
-        </div>
-        <div class="metric-box" id="global-pour-box" style="border-left: 4px solid var(--neon-green);">
-          <h4>Gross Pour Cost %</h4>
-          <div class="value" id="global-pour-cost">0.00%</div>
-        </div>
+ <div class="table-container">
+        <table id="dashboard-table">
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th style="color: var(--neon-orange);">Btls Used</th>
+              <th>Usage ($)</th>
+              <th>Shot Cost</th>
+              <th style="color: var(--neon-green);">Shot Price</th>
+              <th>Shot Profit</th>
+              <th>Shot Pour %</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-body"></tbody>
+        </table>
       </div>
-    </div>
 
     <div class="glass-card">
       <h3>Margin Analysis</h3>
