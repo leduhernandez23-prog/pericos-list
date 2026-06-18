@@ -550,19 +550,31 @@ function renderMarginDashboard() {
         const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0;
         const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
         
-        // This pulls your actual Shot Price straight from Tab 1
         const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0; 
         
         const usageBtls = (start + received) - count; const usageCost = usageBtls * cost;
         if (usageCost > 0) totalUsageCost += usageCost;
         
         const shotCost = (cost / sizeOz) * 1.5; 
+        const recPrice20 = shotCost * 5;
         const shotProfit = sell - shotCost;
-        let pourCostPct = 0; let pourClass = ''; let profitClass = '';
         
+        let pourCostPct = 0; let pourClass = ''; let profitClass = '';
+        let priceDisplay = `$${sell.toFixed(2)}`;
+        let priceStyle = "color: var(--neon-green);";
+
         if (sell > 0) {
             pourCostPct = (shotCost / sell) * 100;
-            if (pourCostPct <= 20) { pourClass = 'status-good'; profitClass = 'status-good'; } else { pourClass = 'status-warn'; profitClass = 'status-warn'; }
+            if (pourCostPct <= 20) { 
+                pourClass = 'status-good'; 
+                profitClass = 'status-good'; 
+            } else { 
+                // Triggers the red warning only if margin breaks 20%
+                pourClass = 'status-warn'; 
+                profitClass = 'status-warn'; 
+                priceStyle = "color: var(--text-main);";
+                priceDisplay = `$${sell.toFixed(2)} <br><span style="color: var(--danger); font-size: 0.8rem; font-weight: normal;">Rec: $${recPrice20.toFixed(2)}</span>`;
+            }
         }
         
         const tr = document.createElement('tr');
@@ -571,7 +583,7 @@ function renderMarginDashboard() {
             <td data-label="Btls Used" style="color: var(--neon-orange); font-family: monospace; font-size: 1.1rem;">${Math.max(0, usageBtls).toFixed(1)}</td>
             <td data-label="Usage Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${Math.max(0, usageCost).toFixed(2)}</td>
             <td data-label="Shot Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${shotCost.toFixed(2)}</td>
-            <td data-label="Shot Price" style="font-family: monospace; font-size: 1.1rem; color: var(--neon-green); font-weight: 600;">$${sell.toFixed(2)}</td>
+            <td data-label="Shot Price" style="font-family: monospace; font-size: 1.1rem; ${priceStyle} font-weight: 600;">${priceDisplay}</td>
             <td data-label="Shot Profit ($)" class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">$${shotProfit.toFixed(2)}</td>
             <td data-label="Pour Cost %" class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${sell > 0 ? pourCostPct.toFixed(2) + '%' : '0.00%'}</td>
         `;
