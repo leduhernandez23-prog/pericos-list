@@ -549,31 +549,36 @@ function renderMarginDashboard() {
         const unit = row.querySelector('.i-unit').value; const sizeOz = convertToOz(rawSize, unit);
         const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0;
         const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
-        const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0; const usageBtls = (start + received) - count; const usageCost = usageBtls * cost;
+        
+        // This pulls your actual Shot Price straight from Tab 1
+        const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0; 
+        
+        const usageBtls = (start + received) - count; const usageCost = usageBtls * cost;
         if (usageCost > 0) totalUsageCost += usageCost;
         
         const shotCost = (cost / sizeOz) * 1.5; 
-        const recPrice20 = shotCost * 5;
         const shotProfit = sell - shotCost;
         let pourCostPct = 0; let pourClass = ''; let profitClass = '';
+        
         if (sell > 0) {
             pourCostPct = (shotCost / sell) * 100;
             if (pourCostPct <= 20) { pourClass = 'status-good'; profitClass = 'status-good'; } else { pourClass = 'status-warn'; profitClass = 'status-warn'; }
         }
+        
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td data-label="Brand" style="font-weight: bold; color: var(--text-main);">${brand}</td>
             <td data-label="Btls Used" style="color: var(--neon-orange); font-family: monospace; font-size: 1.1rem;">${Math.max(0, usageBtls).toFixed(1)}</td>
             <td data-label="Usage Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${Math.max(0, usageCost).toFixed(2)}</td>
             <td data-label="Shot Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${shotCost.toFixed(2)}</td>
-            <td data-label="Rec Price (20%)" style="font-family: monospace; font-size: 1.1rem; color: var(--neon-green); font-weight: 600;">$${recPrice20.toFixed(2)}</td>
+            <td data-label="Shot Price" style="font-family: monospace; font-size: 1.1rem; color: var(--neon-green); font-weight: 600;">$${sell.toFixed(2)}</td>
             <td data-label="Shot Profit ($)" class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">$${shotProfit.toFixed(2)}</td>
             <td data-label="Pour Cost %" class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${sell > 0 ? pourCostPct.toFixed(2) + '%' : '0.00%'}</td>
         `;
         tbody.appendChild(tr);
     }); document.getElementById('global-usage-cost').innerText = `$${totalUsageCost.toFixed(2)}`; calculateGlobalMetrics(totalUsageCost);
 }
-
+   
 function calculateGlobalMetrics(totalUsageCost) {
   if (totalUsageCost === undefined) totalUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
   const posSales = parseFloat(document.getElementById('pos-sales').value) || 0; const pourDisplay = document.getElementById('global-pour-cost'); const pourBox = document.getElementById('global-pour-box');
