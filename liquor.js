@@ -569,7 +569,6 @@ function renderMarginDashboard() {
                 pourClass = 'status-good'; 
                 profitClass = 'status-good'; 
             } else { 
-                // Triggers the red warning only if margin breaks 20%
                 pourClass = 'status-warn'; 
                 profitClass = 'status-warn'; 
                 priceStyle = "color: var(--text-main);";
@@ -590,7 +589,7 @@ function renderMarginDashboard() {
         tbody.appendChild(tr);
     }); document.getElementById('global-usage-cost').innerText = `$${totalUsageCost.toFixed(2)}`; calculateGlobalMetrics(totalUsageCost);
 }
-   
+
 function calculateGlobalMetrics(totalUsageCost) {
   if (totalUsageCost === undefined) totalUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
   const posSales = parseFloat(document.getElementById('pos-sales').value) || 0; const pourDisplay = document.getElementById('global-pour-cost'); const pourBox = document.getElementById('global-pour-box');
