@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Los Pericos | Bar Vault</title>
   
-  <link rel="stylesheet" href="liquor.css?v=7">
+  <link rel="stylesheet" href="liquor.css?v=8">
 
   <!-- Firebase Integration -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -117,24 +117,6 @@
       </div>
 
       <button class="btn-remove" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="closeHistoryModal()">Close Vault</button>
-    </div>
-  </div>
-
-  <!-- MODAL: LOG BATCH PRODUCTION -->
-  <div id="produce-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 400px;">
-      <h3 style="color: var(--neon-orange); margin-top: 0;">Log Batch Prep</h3>
-      <p style="color: var(--text-muted); margin-bottom: 20px;">Deduct ingredients for: <br><strong id="produce-batch-name" style="color: var(--text-main); font-size: 1.2rem;"></strong></p>
-      
-      <div style="margin-bottom: 15px;">
-        <label>How many batches did you make?</label>
-        <input type="number" id="produce-batch-qty" class="clean-input" value="1" min="0.25" step="0.25" style="font-size: 1.5rem; padding: 15px; text-align: center;">
-      </div>
-      
-      <div style="display: flex; gap: 15px; margin-top: 25px;">
-        <button class="btn-glow" style="flex: 2; background: var(--neon-orange); color: #fff; border: none;" onclick="confirmProduceBatch()">Deduct from Shelf</button>
-        <button class="btn-remove" style="flex: 1; padding: 12px;" onclick="closeProduceModal()">Cancel</button>
-      </div>
     </div>
   </div>
 
@@ -313,6 +295,6 @@
     </div>
   </div>
 
-  <script src="liquor.js?v=7"></script>
+  <script src="liquor.js?v=8"></script>
 </body>
 </html>
