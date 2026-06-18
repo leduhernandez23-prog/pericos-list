@@ -109,14 +109,24 @@ function convertToOz(size, unit) {
 }
 
 function openTab(event, tabId) {
-  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  // Bulletproof Layout Lock: Forcibly hide every layout container via script script
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.style.display = 'none';
+    tab.classList.remove('active');
+  });
+  
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
+  
+  const activeTab = document.getElementById(tabId);
+  activeTab.classList.add('active');
+  activeTab.style.display = 'block'; 
+  
   if(event && event.currentTarget) event.currentTarget.classList.add('active');
   
   const addBtn = document.getElementById('fab-add');
-  if(tabId === 'dashboard') { addBtn.style.display = 'none'; }
-  else { 
+  if(tabId === 'dashboard') { 
+    addBtn.style.display = 'none'; 
+  } else { 
     addBtn.style.display = 'flex'; 
     if (tabId === 'cocktails') addBtn.onclick = () => showBuilder('cocktail');
     else if (tabId === 'batches') addBtn.onclick = () => showBuilder('batch');
@@ -188,7 +198,7 @@ function addBuilderRow(ing = {}) {
       </select>
       <div style="display: flex; gap: 5px;">
         <input type="number" placeholder="Size" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateBuilder()">
-        <select class="clean-input c-unit" onchange="calculateBuilder()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
+        <select class="clean-input i-unit" onchange="calculateBuilder()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
       </div>
       <input type="number" placeholder="Pack" class="clean-input c-pack" value="${ing.pack || 1}" min="1" oninput="calculateBuilder()">
       <input type="number" placeholder="Cost" class="clean-input c-cost" value="${ing.cost || 0}" step="0.01" oninput="calculateBuilder()">
@@ -474,10 +484,15 @@ function filterInventory() {
     const brand = row.querySelector('.i-brand').value.toUpperCase(); const cat = row.querySelector('.i-category').value.toUpperCase();
     const matchesText = brand.includes(textFilter) || cat.includes(textFilter); const matchesCat = (catFilter === 'ALL' || cat === catFilter);
     const isCollapsed = collapsedCats[row.querySelector('.i-category').value];
-    row.style.display = (matchesText && matchesCat && !isCollapsed) ? "" : "none";
+    
+    // Explicitly safe filter layout check
+    const isInventoryTab = document.getElementById('inventory').style.display === 'block';
+    row.style.display = (matchesText && matchesCat && !isCollapsed && isInventoryTab) ? "" : "none";
   });
   document.querySelectorAll('.cat-header').forEach(header => {
-      const targetCat = header.getAttribute('data-target-cat').toUpperCase(); header.style.display = (catFilter === 'ALL' || targetCat === catFilter) ? "" : "none";
+      const targetCat = header.getAttribute('data-target-cat').toUpperCase(); 
+      const isInventoryTab = document.getElementById('inventory').style.display === 'block';
+      header.style.display = (catFilter === 'ALL' || targetCat === catFilter) && isInventoryTab ? "" : "none";
   });
 }
 
