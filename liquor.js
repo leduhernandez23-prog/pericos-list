@@ -197,7 +197,7 @@ function addBuilderRow(ing = {}) {
       </select>
       <div style="display: flex; gap: 5px;">
         <input type="number" placeholder="Size" class="clean-input c-size" value="${ing.size || 750}" oninput="calculateBuilder()">
-        <select class="clean-input i-unit" onchange="calculateBuilder()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
+        <select class="clean-input c-unit" onchange="calculateBuilder()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
       </div>
       <input type="number" placeholder="Pack" class="clean-input c-pack" value="${ing.pack || 1}" min="1" oninput="calculateBuilder()">
       <input type="number" placeholder="Cost" class="clean-input c-cost" value="${ing.cost || 0}" step="0.01" oninput="calculateBuilder()">
