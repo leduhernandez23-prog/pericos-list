@@ -330,18 +330,38 @@ function deleteMenuRecipe(type, id) {
 function renderCocktailVault() {
     const container = document.getElementById('cocktail-vault-container');
     container.innerHTML = '';
-    if(Object.keys(globalCocktails).length === 0) { container.innerHTML = '<p style="color:var(--text-muted);">No cocktails saved yet.</p>'; return; }
-    Object.keys(globalCocktails).forEach(key => {
+    if(Object.keys(globalCocktails).length === 0) { 
+        container.innerHTML = '<p style="color:var(--text-muted);">No cocktails saved yet.</p>'; 
+        return; 
+    }
+
+    // Sorts the cocktails alphabetically by name A-Z
+    const sortedKeys = Object.keys(globalCocktails).sort((a, b) => {
+        const nameA = (globalCocktails[a].name || '').toLowerCase();
+        const nameB = (globalCocktails[b].name || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+    });
+
+    sortedKeys.forEach(key => {
         const drink = globalCocktails[key];
         const div = document.createElement('div');
         div.className = 'menu-card';
+        
+        // Calculates the Gross Profit to display on the card
+        const price = drink.price || 0;
+        const cost = drink.totalCost || 0;
+        const grossProfit = price - cost;
+        
         let colorClass = drink.pourCostPct <= 20 ? 'status-good' : 'status-warn';
+        let profitClass = grossProfit >= 0 ? 'status-good' : 'status-warn';
+
         div.innerHTML = `
             <h4>${drink.name}</h4>
-            <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Menu Price: $${(drink.price || 0).toFixed(2)}</div>
-            <div class="menu-stats"><span>Cost:</span><span>$${(drink.totalCost || 0).toFixed(2)}</span></div>
+            <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Menu Price: $${price.toFixed(2)}</div>
+            <div class="menu-stats"><span>Cost:</span><span>$${cost.toFixed(2)}</span></div>
+            <div class="menu-stats"><span>Gross Profit:</span><span class="${profitClass}">+$${grossProfit.toFixed(2)}</span></div>
             <div class="menu-stats"><span>Pour %:</span><span class="${colorClass}">${(drink.pourCostPct || 0).toFixed(2)}%</span></div>
-            <div class="menu-actions">
+            <div class="menu-actions" style="margin-top: 15px;">
                 <button class="btn-export" style="background:transparent; color:var(--text-main);" onclick="showBuilder('cocktail', '${key}')">✎ Edit</button>
                 <button class="btn-export" style="background:transparent; color:var(--neon-blue);" onclick="showBuilder('cocktail', '${key}', true)">📋 Copy</button>
                 <button class="btn-remove" onclick="deleteMenuRecipe('cocktail', '${key}')">Del</button>
