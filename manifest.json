@@ -1,11 +1,10 @@
 {
-  "name": "Los Pericos Master",
-  "short_name": "Pericos",
-  "description": "Inventory and ordering app for Los Pericos",
-  "start_url": "./index.html",
+  "name": "Los Pericos Master Hub",
+  "short_name": "Pericos Hub",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0056b3",
+  "theme_color": "#0f172a",
   "icons": [
     {
       "src": "image_0.png",
