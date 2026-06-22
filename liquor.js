@@ -759,6 +759,35 @@ function exportToCSV() {
   const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `Los_Pericos_Inventory_${new Date().toISOString().split('T')[0]}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
 
+function exportHistoryToCSV() {
+    const dateSelected = document.getElementById('history-date-select').value;
+    if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) {
+        alert("Please select a valid history week first.");
+        return;
+    }
+    
+    const data = window.tempHistoryData[dateSelected];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += '"Brand","Bottles Used","Line Usage Cost ($)"\r\n';
+    
+    if (data.items) {
+        data.items.forEach(item => {
+            let rowData = [
+                `"${item.brand}"`,
+                `"${item.used.toFixed(1)}"`,
+                `"${item.cost.toFixed(2)}"`
+            ];
+            csvContent += rowData.join(",") + "\r\n";
+        });
+    }
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", `Los_Pericos_Historical_Usage_${dateSelected}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 /* ==========================================
    UTILITY FUNCTIONS (Dropdowns & Saving)
    ========================================== */
