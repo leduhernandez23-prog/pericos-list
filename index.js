@@ -1,3 +1,14 @@
+// Register Service Worker for Android Install
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+            console.log('ServiceWorker registered');
+        }).catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+}
+
 // Applies dark mode immediately if set
 if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
 
