@@ -96,7 +96,7 @@
     </div>
   </div>
 
-  <!-- MODAL: HISTORY VAULT -->
+<!-- MODAL: HISTORY VAULT -->
   <div id="history-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
       <h3 style="color: var(--neon-orange); margin-top: 0;">📜 History Vault</h3>
@@ -114,6 +114,9 @@
               <strong id="history-total-cost" style="font-size: 1.2rem; color: var(--neon-green);">$0.00</strong>
           </div>
           <ul id="history-item-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 40vh; overflow-y: auto;"></ul>
+          
+          <!-- NEW HISTORICAL EXPORT BUTTON -->
+          <button class="btn-export" style="width: 100%; margin-bottom: 15px; padding: 12px; background: rgba(59, 130, 246, 0.2); border: 1px solid var(--neon-blue); color: #fff;" onclick="exportHistoryToCSV()">↓ Download Past CSV</button>
       </div>
 
       <button class="btn-remove" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="closeHistoryModal()">Close Vault</button>
@@ -295,6 +298,6 @@
     </div>
   </div>
 
-  <script src="liquor.js?v=10"></script>
+  <script src="liquor.js?v=11"></script>
 </body>
 </html>
