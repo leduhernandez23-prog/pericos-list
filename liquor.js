@@ -666,7 +666,9 @@ function closeSummaryModal() { document.getElementById('summary-modal').style.di
 
 function confirmResetWeek() {
   const today = new Date().toISOString().split('T')[0]; 
-  const snapshotData = { date: today, totalCost: 0, items: [] };
+  const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
+  
+  const snapshotData = { date: today, totalCost: 0, posSales: posSales, items: [] };
 
   document.querySelectorAll('.inv-row').forEach(row => {
     const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; 
@@ -690,6 +692,8 @@ function confirmResetWeek() {
 
   db.ref(currentLocation + '/liquor_history/' + today).set(snapshotData).then(() => {
       autoSaveInv(); 
+      document.getElementById('pos-sales').value = '';
+      autoSaveMeta();
       closeSummaryModal();
       alert("Week closed out! Snapshot saved to History Vault.");
   });
@@ -748,17 +752,6 @@ function closeHistoryModal() {
     document.getElementById('history-modal').style.display = 'none';
 }
 
-function exportToCSV() {
-  let csvContent = "data:text/csv;charset=utf-8,"; csvContent += '"Category","Brand","Size","Start Count (Hidden)","Received","Current Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost","Shot Cost","Shot Profit","Shot Pour %"\r\n';
-  document.querySelectorAll('.inv-row').forEach(row => {
-    const cat = row.querySelector('.i-category').value; const brand = row.querySelector('.i-brand').value; const rawSize = row.querySelector('.i-size').value; const unit = row.querySelector('.i-unit').value;
-    const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0; const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0; const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
-    const btlsUsed = (start + received) - count; const usageCost = btlsUsed * cost; const sizeOz = convertToOz(rawSize, unit); const shotCost = (cost / sizeOz) * 1.5; const shotProfit = sell - shotCost; const pourCostPct = sell > 0 ? (shotCost / sell) * 100 : 0;
-    let rowData = [ `"${cat}"`, `"${brand}"`, `"${rawSize} ${unit}"`, `"${start}"`, `"${received}"`, `"${count}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, `"${usageCost.toFixed(2)}"`, `"${shotCost.toFixed(2)}"`, `"${shotProfit.toFixed(2)}"`, `"${pourCostPct.toFixed(2)}%"` ]; csvContent += rowData.join(",") + "\r\n";
-  });
-  const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `Los_Pericos_Inventory_${new Date().toISOString().split('T')[0]}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
-}
-
 function exportHistoryToCSV() {
     const dateSelected = document.getElementById('history-date-select').value;
     if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) {
@@ -768,6 +761,15 @@ function exportHistoryToCSV() {
     
     const data = window.tempHistoryData[dateSelected];
     let csvContent = "data:text/csv;charset=utf-8,";
+    
+    csvContent += `"Week Ending:","${dateSelected}"\r\n`;
+    csvContent += `"POS Sales:","$${(data.posSales || 0).toFixed(2)}"\r\n`;
+    csvContent += `"Total Usage Cost:","$${(data.totalCost || 0).toFixed(2)}"\r\n`;
+    
+    let pourCost = 0;
+    if (data.posSales > 0) pourCost = (data.totalCost / data.posSales) * 100;
+    csvContent += `"Global Pour Cost:","${pourCost.toFixed(2)}%"\r\n\r\n`;
+    
     csvContent += '"Brand","Bottles Used","Line Usage Cost ($)"\r\n';
     
     if (data.items) {
@@ -788,6 +790,48 @@ function exportHistoryToCSV() {
     link.click();
     document.body.removeChild(link);
 }
+
+function exportToCSV() {
+  let csvContent = "data:text/csv;charset=utf-8,"; 
+  csvContent += '"Category","Brand","Size","Start Count (Hidden)","Received","Current Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost ($)","Potential Sales ($)","Shot Cost","Shot Profit","Shot Pour %"\r\n';
+  
+  document.querySelectorAll('.inv-row').forEach(row => {
+    const cat = row.querySelector('.i-category').value; 
+    const brand = row.querySelector('.i-brand').value; 
+    const rawSize = row.querySelector('.i-size').value; 
+    const unit = row.querySelector('.i-unit').value;
+    const start = parseFloat(row.getAttribute('data-start')) || 0; 
+    const received = parseFloat(row.getAttribute('data-received')) || 0; 
+    const count = parseFloat(row.querySelector('.i-count').value) || 0; 
+    const cost = parseFloat(row.querySelector('.i-cost').value) || 0; 
+    const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
+    
+    const btlsUsed = (start + received) - count; 
+    const usageCost = btlsUsed * cost; 
+    const sizeOz = convertToOz(rawSize, unit); 
+    const shotCost = sizeOz > 0 ? (cost / sizeOz) * 1.5 : 0; 
+    const shotProfit = sell - shotCost; 
+    const pourCostPct = sell > 0 ? (shotCost / sell) * 100 : 0;
+    
+    const potentialSales = sizeOz > 0 ? ((btlsUsed * sizeOz) / 1.5) * sell : 0;
+    
+    let rowData = [ 
+        `"${cat}"`, `"${brand}"`, `"${rawSize} ${unit}"`, `"${start}"`, `"${received}"`, 
+        `"${count}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, 
+        `"${usageCost.toFixed(2)}"`, `"${potentialSales.toFixed(2)}"`, `"${shotCost.toFixed(2)}"`, 
+        `"${shotProfit.toFixed(2)}"`, `"${pourCostPct.toFixed(2)}%"` 
+    ]; 
+    csvContent += rowData.join(",") + "\r\n";
+  });
+  
+  const link = document.createElement("a"); 
+  link.setAttribute("href", encodeURI(csvContent)); 
+  link.setAttribute("download", `Los_Pericos_Inventory_${new Date().toISOString().split('T')[0]}.csv`); 
+  document.body.appendChild(link); 
+  link.click(); 
+  document.body.removeChild(link);
+}
+
 /* ==========================================
    UTILITY FUNCTIONS (Dropdowns & Saving)
    ========================================== */
