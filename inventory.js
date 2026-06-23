@@ -1,13 +1,13 @@
 /**
  * PrepTrack - Frontend Logic
- * Handles dynamic rendering, inventory calculations, and form submissions.
+ * Handles dynamic rendering, inventory calculations, form submissions, and tab navigation.
  */
 
 // --- 1. Mock Data Source ---
 let inventoryData = [
     { id: 1, name: 'Roma Tomatoes', category: 'Produce', qty: 15, unit: 'lbs', threshold: 10, cost: 1.50 },
-    { id: 2, name: 'Yellow Onions', category: 'Produce', qty: 8, unit: 'lbs', threshold: 15, cost: 0.80 }, // Low stock
-    { id: 3, name: 'Heavy Cream', category: 'Dairy', qty: 4, unit: 'gallons', threshold: 6, cost: 14.00 }, // Low stock
+    { id: 2, name: 'Yellow Onions', category: 'Produce', qty: 8, unit: 'lbs', threshold: 15, cost: 0.80 }, 
+    { id: 3, name: 'Heavy Cream', category: 'Dairy', qty: 4, unit: 'gallons', threshold: 6, cost: 14.00 }, 
     { id: 4, name: 'All-Purpose Flour', category: 'Dry Goods', qty: 50, unit: 'lbs', threshold: 20, cost: 0.60 },
     { id: 5, name: 'Olive Oil', category: 'Dry Goods', qty: 12, unit: 'cases', threshold: 5, cost: 45.00 }
 ];
@@ -152,7 +152,36 @@ wasteForm.addEventListener('submit', (e) => {
     }
 });
 
-// --- 5. Initialization ---
+// --- 5. Tab Navigation Logic ---
+const navItems = document.querySelectorAll('.nav-item');
+const tabContents = document.querySelectorAll('.tab-content');
+
+// Ensure proper initial state: Dashboard active, header text dynamic
+const topHeaderTitle = document.querySelector('.top-header h1');
+
+navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault(); 
+
+        // 1. Remove 'active' class from all sidebar links
+        navItems.forEach(nav => nav.classList.remove('active'));
+        
+        // 2. Add 'active' class to the clicked link
+        item.classList.add('active');
+
+        // 3. Hide all tab contents
+        tabContents.forEach(content => content.classList.remove('active-tab'));
+
+        // 4. Show the target tab content based on the href attribute
+        const targetId = item.getAttribute('href').substring(1); 
+        document.getElementById(targetId).classList.add('active-tab');
+
+        // 5. Update Header Title dynamically
+        topHeaderTitle.textContent = item.textContent;
+    });
+});
+
+// --- 6. Initialization ---
 function initApp() {
     renderInventory(inventoryData);
     populateWasteDropdown();
