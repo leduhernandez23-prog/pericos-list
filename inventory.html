@@ -31,22 +31,24 @@
                 </div>
             </header>
 
-            <section class="summary-cards">
-                <div class="card">
-                    <h3>Total Inventory Value</h3>
-                    <p class="card-value" id="total-value">$0.00</p>
-                </div>
-                <div class="card">
-                    <h3>Items Low on Stock</h3>
-                    <p class="card-value alert-text" id="low-stock-count">0</p>
-                </div>
-                <div class="card">
-                    <h3>Recent Waste (This Week)</h3>
-                    <p class="card-value" id="waste-value">$0.00</p>
-                </div>
-            </section>
+            <div id="dashboard" class="tab-content active-tab">
+                <section class="summary-cards">
+                    <div class="card">
+                        <h3>Total Inventory Value</h3>
+                        <p class="card-value" id="total-value">$0.00</p>
+                    </div>
+                    <div class="card">
+                        <h3>Items Low on Stock</h3>
+                        <p class="card-value alert-text" id="low-stock-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Recent Waste (This Week)</h3>
+                        <p class="card-value" id="waste-value">$0.00</p>
+                    </div>
+                </section>
+            </div>
 
-            <div class="grid-layout">
+            <div id="inventory" class="tab-content">
                 <section class="inventory-section">
                     <div class="section-header">
                         <h2>Dynamic Stock Tracker</h2>
@@ -70,38 +72,39 @@
                         </table>
                     </div>
                 </section>
-
-                <aside class="side-panel">
-                    
-                    <section class="waste-log-section panel-section">
-                        <h2>Log Waste</h2>
-                        <form id="waste-form" class="waste-form">
-                            <div class="form-group">
-                                <label for="waste-item">Item</label>
-                                <select id="waste-item" required>
-                                    <option value="" disabled selected>Select an item...</option>
-                                    </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="waste-qty">Quantity Lost</label>
-                                <input type="number" id="waste-qty" min="0.1" step="0.1" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="waste-reason">Reason</label>
-                                <input type="text" id="waste-reason" placeholder="e.g., Dropped, Expired" required>
-                            </div>
-                            <button type="submit" class="btn btn-alert w-100">Record Loss</button>
-                        </form>
-                    </section>
-
-                    <section class="suppliers-section panel-section">
-                        <h2>Quick Suppliers</h2>
-                        <ul class="supplier-list" id="supplier-list">
-                            </ul>
-                    </section>
-
-                </aside>
             </div>
+
+            <div id="waste" class="tab-content">
+                <section class="waste-log-section panel-section" style="max-width: 600px;">
+                    <h2>Log Waste</h2>
+                    <form id="waste-form" class="waste-form">
+                        <div class="form-group">
+                            <label for="waste-item">Item</label>
+                            <select id="waste-item" required>
+                                <option value="" disabled selected>Select an item...</option>
+                                </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="waste-qty">Quantity Lost</label>
+                            <input type="number" id="waste-qty" min="0.1" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="waste-reason">Reason</label>
+                            <input type="text" id="waste-reason" placeholder="e.g., Dropped, Expired" required>
+                        </div>
+                        <button type="submit" class="btn btn-alert w-100">Record Loss</button>
+                    </form>
+                </section>
+            </div>
+
+            <div id="suppliers" class="tab-content">
+                <section class="suppliers-section panel-section" style="max-width: 600px;">
+                    <h2>Quick Suppliers</h2>
+                    <ul class="supplier-list" id="supplier-list">
+                        </ul>
+                </section>
+            </div>
+
         </main>
     </div>
 
