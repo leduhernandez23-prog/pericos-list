@@ -1,303 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Los Pericos | Bar Vault</title>
-  
-  <link rel="stylesheet" href="liquor.css?v=13">
-
-  <!-- Firebase Integration -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrepTrack | Next-Gen Inventory</title>
+    <link rel="stylesheet" href="inventory.css">
 </head>
 <body>
 
-  <!-- AUTHENTICATION CHECK -->
-  <script>
-    if (localStorage.getItem('pericos_dark') === 'true') { document.body.classList.add('dark-mode'); }
-    const activeUser = localStorage.getItem('pericos_active_user');
-    const currentLocation = localStorage.getItem('pericos_location');
-    const activeRole = localStorage.getItem('pericos_active_role');
-    
-    if (!activeUser || !currentLocation || (activeRole !== 'Manager' && activeRole !== 'Owner')) {
-        window.location.href = 'index.html'; 
-    }
-  </script>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <h2>PrepTrack</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-item active">Dashboard Overview</a>
+                <a href="#inventory" class="nav-item">Stock Tracker</a>
+                <a href="#waste" class="nav-item">Waste Log</a>
+                <a href="#suppliers" class="nav-item">Suppliers</a>
+            </nav>
+        </aside>
 
-  <div class="sys-bar">
-      <div><a href="index.html">⬅ Master Hub</a></div>
-      <div class="sync-status">
-          <div class="sync-dot" id="sync-indicator"></div>
-          <span id="sync-text">Connecting...</span>
-          &nbsp;|&nbsp; 📍 <span id="loc-display"></span> &nbsp;|&nbsp; 👤 <span id="user-display"></span>
-      </div>
-  </div>
+        <main class="main-content">
+            
+            <header class="top-header">
+                <h1>Live Dashboard</h1>
+                <div class="quick-actions">
+                    <button id="btn-receive-delivery" class="btn btn-primary">+ Receive Delivery / Add Item</button>
+                    <button class="btn btn-secondary">Export Report</button>
+                </div>
+            </header>
 
-  <header>
-    <div class="brand">
-      <img src="image_0.png" alt="Los Pericos Logo" class="parrot-logo">
-      Los Pericos Bar Vault
-    </div>
-    <div class="meta-info">
-        Last edited by: <br><span id="last-edited-by">Loading...</span>
-    </div>
-  </header>
+            <div id="dashboard" class="tab-content active-tab">
+                <section class="summary-cards">
+                    <div class="card">
+                        <h3>Total Inventory Value</h3>
+                        <p class="card-value" id="total-value">$0.00</p>
+                    </div>
+                    <div class="card">
+                        <h3>Items Low on Stock</h3>
+                        <p class="card-value alert-text" id="low-stock-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Recent Waste (This Week)</h3>
+                        <p class="card-value" id="waste-value">$0.00</p>
+                    </div>
+                </section>
+            </div>
 
-  <!-- 4-TAB SYSTEM -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
-    <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
-    <button class="tab-btn" onclick="openTab(event, 'cocktails')">3. Cocktail Vault</button>
-    <button class="tab-btn" onclick="openTab(event, 'batches')">4. Batch Vault</button>
-  </div>
+            <div id="inventory" class="tab-content">
+                <section class="inventory-section">
+                    <div class="section-header">
+                        <h2>Dynamic Stock Tracker</h2>
+                        <input type="text" id="search-input" placeholder="Search items..." class="search-bar">
+                    </div>
+                    <div class="table-container">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Cost</th>
+                                    <th>Total Value</th>
+                                    <th>Status</th>
+                                    <th>Quick Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
 
-  <!-- FLOATING ACTION BUTTONS -->
-  <div class="fab-container">
-    <button id="fab-top" class="fab-top" onclick="scrollToTop()" title="Scroll to Top">↑</button>
-    <button id="fab-add" class="fab" onclick="addInventoryRow(); scrollToBottom()" title="Add Row">+</button>
-  </div>
+            <div id="waste" class="tab-content">
+                <section class="waste-log-section panel-section" style="max-width: 600px;">
+                    <h2>Log Waste</h2>
+                    <form id="waste-form" class="waste-form">
+                        <div class="form-group">
+                            <label for="waste-item">Item</label>
+                            <select id="waste-item" required>
+                                <option value="" disabled selected>Select an item...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="waste-qty">Quantity Lost</label>
+                            <input type="number" id="waste-qty" min="0.1" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="waste-reason">Reason</label>
+                            <input type="text" id="waste-reason" placeholder="e.g., Dropped, Expired" required>
+                        </div>
+                        <button type="submit" class="btn btn-alert w-100">Record Loss</button>
+                    </form>
+                </section>
+            </div>
 
-  <!-- MODAL: RECEIVE DELIVERY -->
-  <div id="receive-modal" class="modal-overlay">
-    <div class="modal-content" style="width: 900px; max-width: 98%;">
-      <h3 style="color: var(--neon-blue); margin-top: 0;">Receive Delivery Order</h3>
-      <div class="form-group delivery-header-desktop" style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <label style="flex: 1; margin-bottom: 0;">Category</label>
-        <label style="flex: 2; margin-bottom: 0;">Spirit Brand</label>
-        <label style="flex: 0.8; margin-bottom: 0;">Qty</label>
-        <label style="flex: 1.5; margin-bottom: 0;">Size & Unit</label>
-        <label style="flex: 1; margin-bottom: 0;">Cost ($)</label>
-        <div style="width: 38px;"></div>
-      </div>
-      <div id="delivery-batch-list"></div>
-      <button class="btn-glow" style="margin-bottom: 20px; font-size: 0.7rem; padding: 8px 16px; border-color: var(--neon-blue); background: transparent; color: var(--neon-blue);" onclick="addDeliveryRow()">+ Add Row</button>
-      <div style="display: flex; gap: 15px; margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 20px;">
-        <button class="btn-receive" style="flex: 1;" onclick="confirmBatchReceive()">Confirm Delivery</button>
-        <button class="btn-remove" style="flex: 1; padding: 12px;" onclick="closeReceiveModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
+            <div id="suppliers" class="tab-content">
+                <section class="suppliers-section panel-section" style="max-width: 600px;">
+                    <h2>Quick Suppliers</h2>
+                    <ul class="supplier-list" id="supplier-list">
+                        </ul>
+                </section>
+            </div>
 
-  <!-- MODAL: WEEKLY SUMMARY -->
-  <div id="summary-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 500px;">
-      <h3 style="color: var(--neon-green); margin-top: 0;">Weekly Usage Summary</h3>
-      <ul id="weekly-summary-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 35vh; overflow-y: auto;"></ul>
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 15px; margin-bottom: 25px;">
-        <strong style="color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem;">Total Usage Cost</strong>
-        <strong id="weekly-summary-total" style="font-size: 1.5rem; color: var(--neon-green);">$0.00</strong>
-      </div>
-      <div style="display: flex; gap: 15px;">
-        <button class="btn-glow" style="flex: 1;" onclick="confirmResetWeek()">Confirm & Sync</button>
-        <button class="btn-remove" style="flex: 1; padding: 12px;" onclick="closeSummaryModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: HISTORY VAULT -->
-  <div id="history-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 500px;">
-      <h3 style="color: var(--neon-orange); margin-top: 0;">📜 History Vault</h3>
-      
-      <div style="margin-bottom: 20px;">
-        <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Select Past Week</label>
-        <select id="history-date-select" class="clean-input" style="background: rgba(0,0,0,0.5);" onchange="loadHistoryDetails()">
-          <option value="">Loading...</option>
-        </select>
-      </div>
-
-      <div id="history-details-container" style="display: none;">
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; margin-bottom: 10px;">
-              <strong style="color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem;">Total Usage Cost</strong>
-              <strong id="history-total-cost" style="font-size: 1.2rem; color: var(--neon-green);">$0.00</strong>
-          </div>
-          <ul id="history-item-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 40vh; overflow-y: auto;"></ul>
-          
-          <!-- NEW HISTORICAL EXPORT BUTTON -->
-          <button class="btn-export" style="width: 100%; margin-bottom: 15px; padding: 12px; background: rgba(59, 130, 246, 0.2); border: 1px solid var(--neon-blue); color: #fff;" onclick="exportHistoryToCSV()">↓ Download Past CSV</button>
-      </div>
-
-      <button class="btn-remove" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="closeHistoryModal()">Close Vault</button>
-    </div>
-  </div>
-
-  <!-- MODAL: RECIPE BUILDER -->
-  <div id="builder-modal" class="modal-overlay">
-    <div class="modal-content builder-modal-content">
-      <h3 id="builder-title" style="color: var(--neon-blue); margin-top: 0;">Build Recipe</h3>
-      
-      <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-        <div style="flex: 2; min-width: 200px;">
-          <label>Recipe Name</label>
-          <input type="text" id="b-name" class="clean-input" placeholder="Name..." style="font-size: 1.2rem; border-bottom: 1px solid var(--glass-border);">
-        </div>
-        <div id="b-price-container" style="flex: 1; min-width: 100px;">
-          <label>Menu Price ($)</label>
-          <input type="number" id="b-price" class="clean-input" placeholder="0.00" oninput="calculateBuilder()" style="font-size: 1.2rem; border-bottom: 1px solid var(--neon-green);">
-        </div>
-        <div id="b-yield-container" style="flex: 1; min-width: 100px; display: none;">
-          <label>Yield (Drinks)</label>
-          <input type="number" id="b-yield" class="clean-input" placeholder="1" value="1" oninput="calculateBuilder()" style="font-size: 1.2rem; border-bottom: 1px solid var(--neon-blue);">
-        </div>
-      </div>
-
-      <div class="builder-grid builder-header" style="background: transparent; border: none; padding: 0;">
-        <div>Ingredient Name</div>
-        <div>Qty</div>
-        <div>Type</div>
-        <div>Size & Unit</div>
-        <div>Pack Size</div>
-        <div>Total Cost ($)</div>
-        <div>Line Cost</div>
-        <div></div>
-      </div>
-
-      <datalist id="inventory-datalist"></datalist>
-      <div id="builder-ingredients"></div>
-      
-      <button class="btn-glow" style="background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); margin-top: 15px; font-size: 0.7rem; padding: 8px 16px;" onclick="addBuilderRow()">+ Add Ingredient</button>
-
-      <!-- ADVANCED MATH & ANALYTICS DASHBOARD -->
-      <div class="dashboard-grid" style="margin-top: 25px; margin-bottom: 25px;">
-        <div class="metric-box" style="padding: 15px;">
-          <h4 id="b-box-1-title">Cost to Build</h4>
-          <div class="value" id="b-box-1-val" style="font-size: 1.5rem;">$0.00</div>
-        </div>
-        <div class="metric-box" style="padding: 15px;">
-          <h4 id="b-box-2-title">Gross Profit</h4>
-          <div class="value status-good" id="b-box-2-val" style="font-size: 1.5rem;">$0.00</div>
-        </div>
-        <div class="metric-box" id="b-box-3-container" style="padding: 15px; border-left: 4px solid var(--neon-green);">
-          <h4 id="b-box-3-title">Pour Cost (%)</h4>
-          <div class="value status-good" id="b-box-3-val" style="font-size: 1.5rem;">0.00%</div>
-        </div>
-        <div class="metric-box" id="b-box-4-container" style="padding: 15px;">
-          <h4 id="b-box-4-title">Matrix Class</h4>
-          <div class="value" id="b-box-4-val" style="font-size: 1.2rem; margin-top: 5px;">--</div>
-        </div>
-      </div>
-
-      <div style="display: flex; gap: 15px; margin-top: 20px;">
-        <button class="btn-glow" style="flex: 1;" onclick="saveBuilder()">💾 Save Item</button>
-        <button class="btn-remove" style="flex: 1; padding: 12px;" onclick="closeBuilder()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 1: MASTER INVENTORY -->
-  <div id="inventory" class="tab-content" style="display: block;">
-    <div class="glass-card">
-      <h3>Live Inventory Count</h3>
-      <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-        <input type="text" id="inventory-search" class="clean-input" placeholder="🔍 Search spirits..." onkeyup="filterInventory()" style="flex: 2; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
-        <select id="category-filter" class="clean-input" onchange="filterInventory()" style="flex: 1; border-bottom: 1px solid var(--glass-border); border-radius: 0; cursor: pointer;">
-          <option value="ALL">All Categories</option>
-          <option value="TEQUILA">Tequila</option>
-          <option value="VODKA">Vodka</option>
-          <option value="WHISKEY">Whiskey</option>
-          <option value="RUM">Rum</option>
-          <option value="GIN">Gin</option>
-          <option value="LIQUEUR">Liqueur</option>
-          <option value="MIXER">Mixer</option>
-          <option value="BEER">Beer</option>
-          <option value="WINE">Wine</option>
-        </select>
-      </div>
-      
-      <div class="table-container">
-        <table id="inventory-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Brand</th>
-              <th>Size</th>
-              <th>Count</th>
-              <th style="color: var(--neon-blue);">Rec'd</th>
-              <th>Cost ($)</th>
-              <th>Shot Sell ($)</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="inventory-body"></tbody>
-        </table>
-      </div>
-      
-      <div class="action-row">
-        <button class="btn-receive" onclick="openReceiveModal()">🚚 Receive Order</button>
-        <button class="btn-export" onclick="exportToCSV()">↓ Export CSV</button>
-        <button class="btn-receive" style="margin-left: auto; background: var(--glass-border); color: #fff;" onclick="openHistoryModal()">📜 View History</button>
-        <button class="btn-glow" onclick="openSummaryModal()">🔄 Start New Week</button>
-        <button id="undo-btn-inv" class="btn-undo" onclick="undoDelete()">↩ Undo</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 2: MARGIN DASHBOARD -->
-  <div id="dashboard" class="tab-content" style="display: none;">
-    <div class="glass-card">
-      <h3>Global Shift Metrics</h3>
-      <div class="dashboard-grid">
-        <div class="metric-box">
-          <h4>Total POS Sales ($)</h4>
-          <input type="number" id="pos-sales" class="clean-input" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px; background: rgba(0,0,0,0.5);">
-        </div>
-        <div class="metric-box">
-          <h4>Total Usage Cost</h4>
-          <div class="value" id="global-usage-cost">$0.00</div>
-        </div>
-        <div class="metric-box" id="global-pour-box" style="border-left: 4px solid var(--neon-green);">
-          <h4>Gross Pour Cost %</h4>
-          <div class="value" id="global-pour-cost">0.00%</div>
-        </div>
-      </div>
+        </main>
     </div>
 
-    <div class="glass-card">
-      <h3>Margin Analysis</h3>
-      <input type="text" id="dashboard-search" class="clean-input" placeholder="🔍 Search margins by brand..." onkeyup="filterDashboard()" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
-      <div class="table-container">
-        <table id="dashboard-table">
-          <thead>
-            <tr>
-              <th>Brand</th>
-              <th style="color: var(--neon-orange);">Btls Used</th>
-              <th>Usage ($)</th>
-              <th>Shot Cost</th>
-              <th style="color: var(--neon-green);">Shot Price</th>
-              <th>Shot Profit</th>
-              <th>Shot Pour %</th>
-            </tr>
-          </thead>
-          <tbody id="dashboard-body"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 3: COCKTAIL VAULT -->
-  <div id="cocktails" class="tab-content" style="display: none;">
-    <div class="glass-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="margin: 0;">Menu Cocktails</h3>
-            <button class="btn-receive" onclick="showBuilder('cocktail')">+ Add Cocktail</button>
+    <div id="delivery-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-delivery">&times;</span>
+            <h2>Receive Delivery / Add Item</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px;">
+                Type an existing item to update stock and price, or type a new name to create one.
+            </p>
+            <form id="delivery-form">
+                <div class="form-group">
+                    <label for="del-name">Item Name</label>
+                    <input type="text" id="del-name" list="existing-items" placeholder="e.g., Roma Tomatoes..." required>
+                    <datalist id="existing-items">
+                        </datalist>
+                </div>
+                <div class="form-group">
+                    <label for="del-category">Category</label>
+                    <select id="del-category" required>
+                        <option value="Produce">Produce</option>
+                        <option value="Dairy">Dairy</option>
+                        <option value="Dry Goods">Dry Goods</option>
+                        <option value="Meat">Meat</option>
+                        <option value="Beverage">Beverage</option>
+                    </select>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="del-qty">Qty Received</label>
+                        <input type="number" id="del-qty" min="0.1" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="del-unit">Unit (e.g., lbs)</label>
+                        <input type="text" id="del-unit" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="del-cost">New Unit Cost ($)</label>
+                        <input type="number" id="del-cost" min="0.01" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="del-threshold">Low Stock Alert At</label>
+                        <input type="number" id="del-threshold" min="1" step="1" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Process Delivery</button>
+            </form>
         </div>
-        <div class="menu-grid" id="cocktail-vault-container"></div>
     </div>
-  </div>
 
-  <!-- TAB 4: BATCH VAULT -->
-  <div id="batches" class="tab-content" style="display: none;">
-    <div class="glass-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="margin: 0;">Prep & Batches</h3>
-            <button class="btn-receive" onclick="showBuilder('batch')">+ Add Batch</button>
-        </div>
-        <div class="menu-grid" id="batch-vault-container"></div>
-    </div>
-  </div>
-
-  <script src="liquor.js?v=13"></script>
+    <script src="inventory.js"></script>
 </body>
 </html>
