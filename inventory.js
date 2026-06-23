@@ -1,6 +1,5 @@
 /**
  * PrepTrack - Frontend Logic
- * Handles dynamic rendering, inventory calculations, form submissions, and tab navigation.
  */
 
 // --- 1. Mock Data Source ---
@@ -30,9 +29,15 @@ const searchInput = document.getElementById('search-input');
 const wasteForm = document.getElementById('waste-form');
 const wasteValueEl = document.getElementById('waste-value');
 
+// Modal Elements
+const deliveryModal = document.getElementById('delivery-modal');
+const btnReceiveDelivery = document.getElementById('btn-receive-delivery');
+const closeDeliveryBtn = document.getElementById('close-delivery');
+const deliveryForm = document.getElementById('delivery-form');
+const existingItemsDatalist = document.getElementById('existing-items');
+
 // --- 3. Core Functions ---
 
-// Render the main inventory table
 function renderInventory(data) {
     inventoryBody.innerHTML = '';
     let totalInvValue = 0;
@@ -42,7 +47,6 @@ function renderInventory(data) {
         const totalCost = item.qty * item.cost;
         totalInvValue += totalCost;
 
-        // Determine Status
         const isLowStock = item.qty <= item.threshold;
         if (isLowStock) lowStockCount++;
         
@@ -59,30 +63,36 @@ function renderInventory(data) {
             <td>$${totalCost.toFixed(2)}</td>
             <td>${statusBadge}</td>
             <td>
-                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem;" onclick="updateStock(${item.id}, 1)">+</button>
-                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem;" onclick="updateStock(${item.id}, -1)">-</button>
+                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem;" onclick="updateStock(${item.id}, -1)">Use 1</button>
             </td>
         `;
         inventoryBody.appendChild(row);
     });
 
-    // Update Dashboard Metrics
     totalValueEl.textContent = `$${totalInvValue.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
     lowStockCountEl.textContent = lowStockCount;
 }
 
-// Populate the waste form dropdown
-function populateWasteDropdown() {
+function populateDropdowns() {
+    // Populate Waste Form
     wasteItemSelect.innerHTML = '<option value="" disabled selected>Select an item...</option>';
+    // Populate Delivery Datalist
+    existingItemsDatalist.innerHTML = '';
+
     inventoryData.forEach(item => {
+        // Waste
         const option = document.createElement('option');
         option.value = item.id;
         option.textContent = `${item.name} (${item.unit})`;
         wasteItemSelect.appendChild(option);
+
+        // Datalist
+        const dataOption = document.createElement('option');
+        dataOption.value = item.name;
+        existingItemsDatalist.appendChild(dataOption);
     });
 }
 
-// Render the supplier quick-contact list
 function renderSuppliers() {
     supplierListEl.innerHTML = '';
     suppliers.forEach(supplier => {
@@ -101,17 +111,16 @@ function renderSuppliers() {
 
 // --- 4. Interactions & Event Listeners ---
 
-// Quick Add/Subtract stock
+// Quick usage (now only subtracts for daily prep usage)
 window.updateStock = function(id, change) {
     const item = inventoryData.find(i => i.id === id);
-    if (item) {
+    if (item && item.qty > 0) {
         item.qty += change;
-        if (item.qty < 0) item.qty = 0; // Prevent negative stock
+        if (item.qty < 0) item.qty = 0; 
         renderInventory(inventoryData);
     }
 };
 
-// Search filtering
 searchInput.addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     const filteredData = inventoryData.filter(item => 
@@ -121,32 +130,77 @@ searchInput.addEventListener('input', (e) => {
     renderInventory(filteredData);
 });
 
-// Waste Log Submission
+// Modal Logic
+btnReceiveDelivery.addEventListener('click', () => {
+    deliveryModal.classList.add('active-modal');
+});
+
+closeDeliveryBtn.addEventListener('click', () => {
+    deliveryModal.classList.remove('active-modal');
+});
+
+// Close modal if clicking outside the white box
+window.addEventListener('click', (e) => {
+    if (e.target === deliveryModal) {
+        deliveryModal.classList.remove('active-modal');
+    }
+});
+
+// Process Delivery Submission
+deliveryForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const nameInput = document.getElementById('del-name').value.trim();
+    const catInput = document.getElementById('del-category').value;
+    const qtyInput = parseFloat(document.getElementById('del-qty').value);
+    const unitInput = document.getElementById('del-unit').value.trim();
+    const costInput = parseFloat(document.getElementById('del-cost').value);
+    const thresholdInput = parseInt(document.getElementById('del-threshold').value);
+
+    // Check if item already exists (case insensitive)
+    const existingItem = inventoryData.find(i => i.name.toLowerCase() === nameInput.toLowerCase());
+
+    if (existingItem) {
+        // Update existing item
+        existingItem.qty += qtyInput;
+        existingItem.cost = costInput; // Overwrites old price with new delivery price
+        existingItem.threshold = thresholdInput;
+        existingItem.category = catInput;
+        existingItem.unit = unitInput;
+    } else {
+        // Create new item
+        const newId = inventoryData.length > 0 ? Math.max(...inventoryData.map(i => i.id)) + 1 : 1;
+        inventoryData.push({
+            id: newId,
+            name: nameInput,
+            category: catInput,
+            qty: qtyInput,
+            unit: unitInput,
+            cost: costInput,
+            threshold: thresholdInput
+        });
+    }
+
+    // Refresh UI and close modal
+    renderInventory(inventoryData);
+    populateDropdowns();
+    deliveryForm.reset();
+    deliveryModal.classList.remove('active-modal');
+});
+
+// Waste Log
 wasteForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
     const itemId = parseInt(wasteItemSelect.value);
     const wasteQty = parseFloat(document.getElementById('waste-qty').value);
-    
     const item = inventoryData.find(i => i.id === itemId);
     
     if (item && item.qty >= wasteQty) {
-        // Deduct from inventory
         item.qty -= wasteQty;
-        
-        // Calculate financial loss
-        const lossValue = wasteQty * item.cost;
-        totalWasteValue += lossValue;
-        
-        // Update UI
+        totalWasteValue += (wasteQty * item.cost);
         wasteValueEl.textContent = `$${totalWasteValue.toFixed(2)}`;
         renderInventory(inventoryData);
-        
-        // Reset form
         wasteForm.reset();
-        
-        // In a real app, you'd show a success toast here
-        console.log(`Logged ${wasteQty} ${item.unit} of ${item.name} as waste. Loss: $${lossValue.toFixed(2)}`);
     } else {
         alert("Cannot log more waste than current stock quantity.");
     }
@@ -155,28 +209,16 @@ wasteForm.addEventListener('submit', (e) => {
 // --- 5. Tab Navigation Logic ---
 const navItems = document.querySelectorAll('.nav-item');
 const tabContents = document.querySelectorAll('.tab-content');
-
-// Ensure proper initial state: Dashboard active, header text dynamic
 const topHeaderTitle = document.querySelector('.top-header h1');
 
 navItems.forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault(); 
-
-        // 1. Remove 'active' class from all sidebar links
         navItems.forEach(nav => nav.classList.remove('active'));
-        
-        // 2. Add 'active' class to the clicked link
         item.classList.add('active');
-
-        // 3. Hide all tab contents
         tabContents.forEach(content => content.classList.remove('active-tab'));
-
-        // 4. Show the target tab content based on the href attribute
         const targetId = item.getAttribute('href').substring(1); 
         document.getElementById(targetId).classList.add('active-tab');
-
-        // 5. Update Header Title dynamically
         topHeaderTitle.textContent = item.textContent;
     });
 });
@@ -184,9 +226,8 @@ navItems.forEach(item => {
 // --- 6. Initialization ---
 function initApp() {
     renderInventory(inventoryData);
-    populateWasteDropdown();
+    populateDropdowns();
     renderSuppliers();
 }
 
-// Boot up the application
 initApp();
