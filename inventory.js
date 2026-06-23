@@ -1,5 +1,6 @@
 /**
  * PrepTrack - Frontend Logic
+ * Includes Weighted Average Calculation on Delivery
  */
 
 // --- 1. Mock Data Source ---
@@ -58,7 +59,7 @@ function renderInventory(data) {
         row.innerHTML = `
             <td><strong>${item.name}</strong></td>
             <td>${item.category}</td>
-            <td>${item.qty} ${item.unit}</td>
+            <td>${item.qty.toFixed(2)} ${item.unit}</td>
             <td>$${item.cost.toFixed(2)}</td>
             <td>$${totalCost.toFixed(2)}</td>
             <td>${statusBadge}</td>
@@ -74,9 +75,7 @@ function renderInventory(data) {
 }
 
 function populateDropdowns() {
-    // Populate Waste Form
     wasteItemSelect.innerHTML = '<option value="" disabled selected>Select an item...</option>';
-    // Populate Delivery Datalist
     existingItemsDatalist.innerHTML = '';
 
     inventoryData.forEach(item => {
@@ -111,7 +110,7 @@ function renderSuppliers() {
 
 // --- 4. Interactions & Event Listeners ---
 
-// Quick usage (now only subtracts for daily prep usage)
+// Quick usage (subtracts for daily prep usage)
 window.updateStock = function(id, change) {
     const item = inventoryData.find(i => i.id === id);
     if (item && item.qty > 0) {
@@ -139,14 +138,13 @@ closeDeliveryBtn.addEventListener('click', () => {
     deliveryModal.classList.remove('active-modal');
 });
 
-// Close modal if clicking outside the white box
 window.addEventListener('click', (e) => {
     if (e.target === deliveryModal) {
         deliveryModal.classList.remove('active-modal');
     }
 });
 
-// Process Delivery Submission
+// Process Delivery Submission (With Weighted Average)
 deliveryForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -157,16 +155,23 @@ deliveryForm.addEventListener('submit', (e) => {
     const costInput = parseFloat(document.getElementById('del-cost').value);
     const thresholdInput = parseInt(document.getElementById('del-threshold').value);
 
-    // Check if item already exists (case insensitive)
     const existingItem = inventoryData.find(i => i.name.toLowerCase() === nameInput.toLowerCase());
 
     if (existingItem) {
+        // Calculate Weighted Average Cost
+        const currentTotalValue = existingItem.qty * existingItem.cost;
+        const newDeliveryValue = qtyInput * costInput;
+        const newTotalQty = existingItem.qty + qtyInput;
+        
+        const weightedAverageCost = (currentTotalValue + newDeliveryValue) / newTotalQty;
+
         // Update existing item
-        existingItem.qty += qtyInput;
-        existingItem.cost = costInput; // Overwrites old price with new delivery price
+        existingItem.qty = newTotalQty;
+        existingItem.cost = weightedAverageCost; 
         existingItem.threshold = thresholdInput;
         existingItem.category = catInput;
         existingItem.unit = unitInput;
+        
     } else {
         // Create new item
         const newId = inventoryData.length > 0 ? Math.max(...inventoryData.map(i => i.id)) + 1 : 1;
@@ -181,7 +186,6 @@ deliveryForm.addEventListener('submit', (e) => {
         });
     }
 
-    // Refresh UI and close modal
     renderInventory(inventoryData);
     populateDropdowns();
     deliveryForm.reset();
