@@ -54,7 +54,6 @@ firebase.auth().onAuthStateChanged((user) => {
 });
 
 function loadFirebaseData() {
-    // Live Inventory
     db.ref(currentLocation + '/food_inventory').on('value', snap => {
         const data = snap.val() || {};
         inventoryData = Object.values(data);
@@ -62,19 +61,16 @@ function loadFirebaseData() {
         populateDropdowns();
     });
 
-    // Waste
     db.ref(currentLocation + '/food_waste_total').on('value', snap => {
         totalWasteValue = snap.val() || 0;
         document.getElementById('waste-value').textContent = `$${totalWasteValue.toFixed(2)}`;
     });
 
-    // Cloud Suppliers
     db.ref(currentLocation + '/food_suppliers').on('value', snap => {
         globalSuppliers = snap.val() || {};
         renderSuppliers();
     });
 
-    // Prep Recipes
     db.ref(currentLocation + '/food_prep_recipes').on('value', snap => {
         globalPrepRecipes = snap.val() || {};
         renderPrepVault();
@@ -103,12 +99,12 @@ function renderInventory(data) {
 
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><strong>${item.name}</strong></td>
-            <td>${item.category}</td>
+            <td><strong>${item.name || 'Unnamed'}</strong></td>
+            <td>${item.category || ''}</td>
             <td>
-                <input type="number" class="clean-input" value="${item.qty.toFixed(2)}" step="0.1" style="width:80px;" onchange="updateExactStock(${item.id}, this.value)"> ${item.unit}
+                <input type="number" class="clean-input" value="${(item.qty || 0).toFixed(2)}" step="0.1" style="width:80px;" onchange="updateExactStock(${item.id}, this.value)"> ${item.unit || ''}
             </td>
-            <td>$${item.cost.toFixed(2)}</td>
+            <td>$${(item.cost || 0).toFixed(2)}</td>
             <td>$${totalCost.toFixed(2)}</td>
             <td>${statusBadge}</td>
             <td>
@@ -153,9 +149,17 @@ function populateDropdowns() {
     });
 }
 
-// --- 4. Delivery & Weighted Average ---
-document.getElementById('btn-receive-delivery').addEventListener('click', () => { document.getElementById('delivery-modal').style.display = 'flex'; });
-document.getElementById('close-delivery').addEventListener('click', () => { document.getElementById('delivery-modal').style.display = 'none'; });
+// --- 4. Modals & Delivery ---
+
+// Universal Modal Click-to-Close
+window.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('active-modal');
+    }
+});
+
+document.getElementById('btn-receive-delivery').addEventListener('click', () => { document.getElementById('delivery-modal').classList.add('active-modal'); });
+document.getElementById('close-delivery').addEventListener('click', () => { document.getElementById('delivery-modal').classList.remove('active-modal'); });
 
 document.getElementById('delivery-form').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -166,16 +170,16 @@ document.getElementById('delivery-form').addEventListener('submit', (e) => {
     const cost = parseFloat(document.getElementById('del-cost').value);
     const threshold = parseInt(document.getElementById('del-threshold').value);
 
-    const existingItem = inventoryData.find(i => i.name.toLowerCase() === name.toLowerCase());
+    const existingItem = inventoryData.find(i => (i.name || '').toLowerCase() === name.toLowerCase());
 
     if (existingItem) {
         const currentTotalValue = existingItem.qty * existingItem.cost;
-        const newDeliveryValue = qty * cost; // Assume user enters unit cost. If it's invoice total, change to just `cost`
+        const newDeliveryValue = qty * cost; 
         const newTotalQty = existingItem.qty + qty;
         
         existingItem.cost = (currentTotalValue + newDeliveryValue) / newTotalQty;
         existingItem.qty = newTotalQty;
-        existingItem.receivedQty = (existingItem.receivedQty || 0) + qty; // Track for weekly snapshot
+        existingItem.receivedQty = (existingItem.receivedQty || 0) + qty; 
         existingItem.threshold = threshold;
         
     } else {
@@ -188,7 +192,7 @@ document.getElementById('delivery-form').addEventListener('submit', (e) => {
 
     saveToFirebase(); 
     document.getElementById('delivery-form').reset();
-    document.getElementById('delivery-modal').style.display = 'none';
+    document.getElementById('delivery-modal').classList.remove('active-modal');
 });
 
 // --- 5. Weekly Snapshots & History Vault ---
@@ -209,13 +213,12 @@ window.closeWeek = function() {
             snapshot.items.push({ name: item.name, used: used, cost: lineCost, unit: item.unit });
         }
 
-        // Reset tracking for the new week
         item.startQty = item.qty;
         item.receivedQty = 0;
     });
 
     db.ref(currentLocation + '/food_history/' + today).set(snapshot).then(() => {
-        saveToFirebase(); // Save the reset start/rec quantities
+        saveToFirebase(); 
         alert("Week closed out successfully. View data in the History Vault.");
     });
 }
@@ -224,7 +227,7 @@ window.openHistoryModal = function() {
     const select = document.getElementById('history-date-select');
     select.innerHTML = '<option value="">Loading past weeks...</option>';
     document.getElementById('history-details-container').style.display = 'none';
-    document.getElementById('history-modal').style.display = 'flex';
+    document.getElementById('history-modal').classList.add('active-modal');
 
     db.ref(currentLocation + '/food_history').once('value', snap => {
         historyDataCache = snap.val() || {};
@@ -260,17 +263,17 @@ window.loadHistoryDetails = function() {
     container.style.display = 'block';
 }
 
-window.closeHistoryModal = function() { document.getElementById('history-modal').style.display = 'none'; }
+window.closeHistoryModal = function() { document.getElementById('history-modal').classList.remove('active-modal'); }
 
 // --- 6. Kitchen Prep Vault ---
 window.openPrepBuilder = function(id = null) {
     document.getElementById('prep-name').value = '';
     document.getElementById('prep-yield').value = '1';
     document.getElementById('prep-ingredients').innerHTML = '';
-    document.getElementById('prep-modal').style.display = 'flex';
+    document.getElementById('prep-modal').classList.add('active-modal');
     addPrepIngredientRow();
 }
-window.closePrepBuilder = function() { document.getElementById('prep-modal').style.display = 'none'; }
+window.closePrepBuilder = function() { document.getElementById('prep-modal').classList.remove('active-modal'); }
 
 window.addPrepIngredientRow = function() {
     const container = document.getElementById('prep-ingredients');
@@ -354,14 +357,16 @@ function renderPrepVault() {
 window.deletePrep = function(key) { if(confirm("Delete this recipe?")) db.ref(currentLocation + '/food_prep_recipes/' + key).remove(); }
 
 // --- 7. Cloud Suppliers ---
-window.openSupplierModal = function() { document.getElementById('supplier-modal').style.display = 'flex'; }
+window.openSupplierModal = function() { document.getElementById('supplier-modal').classList.add('active-modal'); }
+window.closeSupplierModal = function() { document.getElementById('supplier-modal').classList.remove('active-modal'); }
+
 window.saveSupplier = function() {
     const name = document.getElementById('sup-name').value;
     const phone = document.getElementById('sup-phone').value;
     const items = document.getElementById('sup-items').value;
     if(!name) return;
     db.ref(currentLocation + '/food_suppliers').push({ name, phone, items }).then(() => {
-        document.getElementById('supplier-modal').style.display = 'none';
+        closeSupplierModal();
         document.getElementById('sup-name').value = ''; document.getElementById('sup-phone').value = ''; document.getElementById('sup-items').value = '';
     });
 }
@@ -387,6 +392,26 @@ function renderSuppliers() {
         list.appendChild(li);
     });
 }
+
+// Waste Submissions
+document.getElementById('waste-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const itemId = parseInt(document.getElementById('waste-item').value);
+    const wasteQty = parseFloat(document.getElementById('waste-qty').value);
+    const item = inventoryData.find(i => i.id === itemId);
+    
+    if (item && item.qty >= wasteQty) {
+        item.qty -= wasteQty;
+        totalWasteValue += (wasteQty * item.cost);
+        
+        saveToFirebase();
+        db.ref(currentLocation + '/food_waste_total').set(totalWasteValue).then(() => flashSync());
+        
+        document.getElementById('waste-form').reset();
+    } else {
+        alert("Cannot log more waste than current stock quantity.");
+    }
+});
 
 // --- 8. UI & Tab Logic ---
 const navItems = document.querySelectorAll('.nav-item');
