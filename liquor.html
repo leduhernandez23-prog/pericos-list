@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Los Pericos | Bar Vault</title>
   
-  <link rel="stylesheet" href="liquor.css?v=13">
+  <link rel="stylesheet" href="liquor.css?v=16">
 
   <!-- Firebase Integration -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -45,18 +45,18 @@
     </div>
   </header>
 
-  <!-- 4-TAB SYSTEM -->
+  <!-- 4-TAB SYSTEM (Removed active class) -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
+    <button class="tab-btn" onclick="openTab(event, 'inventory')">1. Count Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
     <button class="tab-btn" onclick="openTab(event, 'cocktails')">3. Cocktail Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'batches')">4. Batch Vault</button>
   </div>
 
-  <!-- FLOATING ACTION BUTTONS -->
+  <!-- FLOATING ACTION BUTTONS (Hidden on load) -->
   <div class="fab-container">
     <button id="fab-top" class="fab-top" onclick="scrollToTop()" title="Scroll to Top">↑</button>
-    <button id="fab-add" class="fab" onclick="addInventoryRow(); scrollToBottom()" title="Add Row">+</button>
+    <button id="fab-add" class="fab" style="display: none;" onclick="addInventoryRow(); scrollToBottom()" title="Add Row">+</button>
   </div>
 
   <!-- MODAL: RECEIVE DELIVERY -->
@@ -115,7 +115,6 @@
           </div>
           <ul id="history-item-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 40vh; overflow-y: auto;"></ul>
           
-          <!-- NEW HISTORICAL EXPORT BUTTON -->
           <button class="btn-export" style="width: 100%; margin-bottom: 15px; padding: 12px; background: rgba(59, 130, 246, 0.2); border: 1px solid var(--neon-blue); color: #fff;" onclick="exportHistoryToCSV()">↓ Download Past CSV</button>
       </div>
 
@@ -186,8 +185,8 @@
     </div>
   </div>
 
-  <!-- TAB 1: MASTER INVENTORY -->
-  <div id="inventory" class="tab-content" style="display: block;">
+  <!-- TAB 1: MASTER INVENTORY (Hidden on load) -->
+  <div id="inventory" class="tab-content" style="display: none;">
     <div class="glass-card">
       <h3>Live Inventory Count</h3>
       <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
@@ -276,13 +275,17 @@
     </div>
   </div>
 
-  <!-- TAB 3: COCKTAIL VAULT -->
+  <!-- TAB 3: COCKTAIL VAULT (Search Bar Added) -->
   <div id="cocktails" class="tab-content" style="display: none;">
     <div class="glass-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 style="margin: 0;">Menu Cocktails</h3>
             <button class="btn-receive" onclick="showBuilder('cocktail')">+ Add Cocktail</button>
         </div>
+        
+        <!-- NEW COCKTAIL SEARCH BAR -->
+        <input type="text" id="cocktail-search" class="clean-input" placeholder="🔍 Search cocktails..." oninput="renderCocktailVault()" style="width: 100%; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
+
         <div class="menu-grid" id="cocktail-vault-container"></div>
     </div>
   </div>
@@ -298,6 +301,6 @@
     </div>
   </div>
 
-  <script src="liquor.js?v=13"></script>
+  <script src="liquor.js?v=16"></script>
 </body>
 </html>
