@@ -6,12 +6,21 @@
     <title>PrepTrack | Next-Gen Inventory</title>
     <link rel="stylesheet" href="inventory.css">
 
-    <!-- Firebase Integration -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
+
+    <div class="sys-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #09090b; border-bottom: 1px solid #27272a; font-size: 0.85rem; color: #a1a1aa; font-family: system-ui, sans-serif;">
+        <div><a href="index.html" style="color: #a1a1aa; text-decoration: none; font-weight: 600;">⬅ Master Hub</a></div>
+        <div class="sync-status" style="display: flex; align-items: center;">
+            <div id="sync-indicator" style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; margin-right: 8px; box-shadow: 0 0 5px #3b82f6;"></div>
+            <span id="sync-text">Connecting...</span>
+            <span style="margin: 0 10px;">|</span> 📍 <span id="loc-display">Loading...</span> 
+            <span style="margin: 0 10px;">|</span> 👤 <span id="user-display">Loading...</span>
+        </div>
+    </div>
 
     <div class="app-container">
         <aside class="sidebar">
@@ -19,9 +28,6 @@
                 <h2>PrepTrack</h2>
             </div>
             <nav class="nav-menu">
-                <!-- FIXED REDIRECT BUTTON -->
-                <a href="index.html" style="display: block; padding: 10px 15px; color: #3b82f6; font-weight: bold; margin-bottom: 15px; text-decoration: none; border-radius: 8px; background: rgba(59, 130, 246, 0.1);" onclick="window.location.href='index.html';">⬅ Back to Master Hub</a>
-                
                 <a href="#dashboard" class="nav-item active">Dashboard Overview</a>
                 <a href="#inventory" class="nav-item">Stock Tracker</a>
                 <a href="#waste" class="nav-item">Waste Log</a>
