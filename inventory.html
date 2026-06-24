@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrepTrack | Next-Gen Inventory</title>
     <link rel="stylesheet" href="inventory.css">
+
+    <!-- Firebase Integration -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
@@ -14,6 +19,9 @@
                 <h2>PrepTrack</h2>
             </div>
             <nav class="nav-menu">
+                <!-- REDIRECT BUTTON TO MASTER HUB -->
+                <a href="index.html" class="nav-item" style="color: #3b82f6; font-weight: bold; margin-bottom: 15px;">⬅ Back to Master Hub</a>
+                
                 <a href="#dashboard" class="nav-item active">Dashboard Overview</a>
                 <a href="#inventory" class="nav-item">Stock Tracker</a>
                 <a href="#waste" class="nav-item">Waste Log</a>
