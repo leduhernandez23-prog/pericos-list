@@ -329,25 +329,40 @@ function deleteMenuRecipe(type, id) {
    ========================================== */
 function renderCocktailVault() {
     const container = document.getElementById('cocktail-vault-container');
+    
+    // Grab the search text and convert to lowercase
+    const searchInput = document.getElementById('cocktail-search');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+
     container.innerHTML = '';
     if(Object.keys(globalCocktails).length === 0) { 
         container.innerHTML = '<p style="color:var(--text-muted);">No cocktails saved yet.</p>'; 
         return; 
     }
 
-    // Sorts the cocktails alphabetically by name A-Z
-    const sortedKeys = Object.keys(globalCocktails).sort((a, b) => {
+    // Filter by search term AND sort alphabetically A-Z
+    let sortedKeys = Object.keys(globalCocktails).filter(key => {
+        const name = (globalCocktails[key].name || '').toLowerCase();
+        return name.includes(searchTerm);
+    }).sort((a, b) => {
         const nameA = (globalCocktails[a].name || '').toLowerCase();
         const nameB = (globalCocktails[b].name || '').toLowerCase();
         return nameA.localeCompare(nameB);
     });
 
+    // If search doesn't match anything
+    if(sortedKeys.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);">No cocktails match your search.</p>'; 
+        return;
+    }
+
+    // Print the cards
     sortedKeys.forEach(key => {
         const drink = globalCocktails[key];
         const div = document.createElement('div');
         div.className = 'menu-card';
         
-        // Calculates the Gross Profit to display on the card
+        // Calculate Gross Profit
         const price = drink.price || 0;
         const cost = drink.totalCost || 0;
         const grossProfit = price - cost;
