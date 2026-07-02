@@ -5,7 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Los Pericos | Bar Vault</title>
   
-  <link rel="stylesheet" href="liquor.css?v=16">
+  <link rel="stylesheet" href="liquor.css?v=17">
+
+  <!-- Custom CSS for 10-Point Sliders and Location Splits -->
+  <style>
+    .count-split-container { display: flex; flex-direction: column; gap: 8px; min-width: 220px; }
+    .count-row { display: flex; align-items: center; gap: 8px; }
+    .count-row label { width: 45px; color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
+    .count-input { width: 65px !important; padding: 6px !important; text-align: center; font-size: 0.9rem; }
+    
+    .tenthing-slider { 
+        flex: 1; 
+        accent-color: var(--neon-blue); 
+        height: 6px; 
+        border-radius: 3px; 
+        outline: none; 
+        background: rgba(255,255,255,0.1);
+        -webkit-appearance: none;
+    }
+    .tenthing-slider::-webkit-slider-thumb { 
+        -webkit-appearance: none; 
+        appearance: none; 
+        width: 18px; 
+        height: 18px; 
+        border-radius: 50%; 
+        background: var(--neon-blue); 
+        cursor: pointer; 
+        box-shadow: 0 0 5px var(--neon-blue);
+    }
+    
+    .count-total-display { margin-top: 5px; padding-top: 5px; border-top: 1px dashed var(--glass-border); text-align: right; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+    .calc-total-count { font-size: 1.1rem; font-weight: bold; color: var(--neon-green); margin-left: 8px; font-family: monospace; }
+  </style>
 
   <!-- Firebase Integration -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -45,7 +76,7 @@
     </div>
   </header>
 
-  <!-- 4-TAB SYSTEM (Removed active class) -->
+  <!-- 4-TAB SYSTEM -->
   <div class="tabs">
     <button class="tab-btn" onclick="openTab(event, 'inventory')">1. Count Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
@@ -53,7 +84,7 @@
     <button class="tab-btn" onclick="openTab(event, 'batches')">4. Batch Vault</button>
   </div>
 
-  <!-- FLOATING ACTION BUTTONS (Hidden on load) -->
+  <!-- FLOATING ACTION BUTTONS -->
   <div class="fab-container">
     <button id="fab-top" class="fab-top" onclick="scrollToTop()" title="Scroll to Top">↑</button>
     <button id="fab-add" class="fab" style="display: none;" onclick="addInventoryRow(); scrollToBottom()" title="Add Row">+</button>
@@ -158,7 +189,6 @@
       
       <button class="btn-glow" style="background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); margin-top: 15px; font-size: 0.7rem; padding: 8px 16px;" onclick="addBuilderRow()">+ Add Ingredient</button>
 
-      <!-- ADVANCED MATH & ANALYTICS DASHBOARD -->
       <div class="dashboard-grid" style="margin-top: 25px; margin-bottom: 25px;">
         <div class="metric-box" style="padding: 15px;">
           <h4 id="b-box-1-title">Cost to Build</h4>
@@ -185,7 +215,7 @@
     </div>
   </div>
 
-  <!-- TAB 1: MASTER INVENTORY (Hidden on load) -->
+  <!-- TAB 1: MASTER INVENTORY -->
   <div id="inventory" class="tab-content" style="display: none;">
     <div class="glass-card">
       <h3>Live Inventory Count</h3>
@@ -212,7 +242,7 @@
               <th>Category</th>
               <th>Brand</th>
               <th>Size</th>
-              <th>Count</th>
+              <th>Location Counts</th>
               <th style="color: var(--neon-blue);">Rec'd</th>
               <th>Cost ($)</th>
               <th>Shot Sell ($)</th>
@@ -275,17 +305,14 @@
     </div>
   </div>
 
-  <!-- TAB 3: COCKTAIL VAULT (Search Bar Added) -->
+  <!-- TAB 3: COCKTAIL VAULT -->
   <div id="cocktails" class="tab-content" style="display: none;">
     <div class="glass-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 style="margin: 0;">Menu Cocktails</h3>
             <button class="btn-receive" onclick="showBuilder('cocktail')">+ Add Cocktail</button>
         </div>
-        
-        <!-- NEW COCKTAIL SEARCH BAR -->
         <input type="text" id="cocktail-search" class="clean-input" placeholder="🔍 Search cocktails..." oninput="renderCocktailVault()" style="width: 100%; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
-
         <div class="menu-grid" id="cocktail-vault-container"></div>
     </div>
   </div>
@@ -301,6 +328,6 @@
     </div>
   </div>
 
-  <script src="liquor.js?v=16"></script>
+  <script src="liquor.js?v=17"></script>
 </body>
 </html>
