@@ -139,7 +139,6 @@ function openTab(event, tabId) {
 function showBuilder(type, id = null, isDuplicate = false) {
     currentBuilderType = type;
     const isCocktail = (type === 'cocktail');
-    
     currentBuilderId = isDuplicate ? null : id;
     
     document.getElementById('builder-title').innerText = isCocktail ? "Build Cocktail" : "Build Batch";
@@ -324,23 +323,16 @@ function deleteMenuRecipe(type, id) {
     }
 }
 
-/* ==========================================
-   RENDER VAULTS
-   ========================================== */
 function renderCocktailVault() {
     const container = document.getElementById('cocktail-vault-container');
-    
-    // Grab the search text and convert to lowercase
     const searchInput = document.getElementById('cocktail-search');
     const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
 
     container.innerHTML = '';
     if(Object.keys(globalCocktails).length === 0) { 
-        container.innerHTML = '<p style="color:var(--text-muted);">No cocktails saved yet.</p>'; 
-        return; 
+        container.innerHTML = '<p style="color:var(--text-muted);">No cocktails saved yet.</p>'; return; 
     }
 
-    // Filter by search term AND sort alphabetically A-Z
     let sortedKeys = Object.keys(globalCocktails).filter(key => {
         const name = (globalCocktails[key].name || '').toLowerCase();
         return name.includes(searchTerm);
@@ -350,19 +342,12 @@ function renderCocktailVault() {
         return nameA.localeCompare(nameB);
     });
 
-    // If search doesn't match anything
-    if(sortedKeys.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted);">No cocktails match your search.</p>'; 
-        return;
-    }
+    if(sortedKeys.length === 0) { container.innerHTML = '<p style="color:var(--text-muted);">No cocktails match search.</p>'; return; }
 
-    // Print the cards
     sortedKeys.forEach(key => {
         const drink = globalCocktails[key];
         const div = document.createElement('div');
         div.className = 'menu-card';
-        
-        // Calculate Gross Profit
         const price = drink.price || 0;
         const cost = drink.totalCost || 0;
         const grossProfit = price - cost;
@@ -411,22 +396,56 @@ function renderBatchVault() {
 }
 
 /* ==========================================
-   INVENTORY COUNT & METRICS
+   INVENTORY COUNT & SLIDER SYNC METRICS
    ========================================== */
+window.syncSlider = function(inputEl) {
+    let val = parseFloat(inputEl.value) || 0;
+    let whole = Math.floor(val);
+    let decimal = (val - whole).toFixed(1);
+    let slider = inputEl.nextElementSibling;
+    if(slider && slider.classList.contains('tenthing-slider')) {
+        slider.value = decimal;
+    }
+}
+
+window.syncInput = function(sliderEl, inputSelector) {
+    let container = sliderEl.closest('.count-row');
+    let inputEl = container.querySelector(inputSelector);
+    let currentVal = parseFloat(inputEl.value) || 0;
+    let whole = Math.floor(currentVal);
+    let decimal = parseFloat(sliderEl.value) || 0;
+    inputEl.value = (whole + decimal).toFixed(1);
+}
+
 function autoSaveInv() {
     if(!isInitialLoad) return;
     const data = []; let seen = new Set();
     document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
-         const cat = row.querySelector('.i-category').value; const brand = row.querySelector('.i-brand').value;
-         const size = parseFloat(row.querySelector('.i-size').value) || 0; const unit = row.querySelector('.i-unit').value;
-         const cost = parseFloat(row.querySelector('.i-cost').value) || 0; const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
+         const cat = row.querySelector('.i-category').value; 
+         const brand = row.querySelector('.i-brand').value;
+         const size = parseFloat(row.querySelector('.i-size').value) || 0; 
+         const unit = row.querySelector('.i-unit').value;
+         const cost = parseFloat(row.querySelector('.i-cost').value) || 0; 
+         const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
+         
+         const well = parseFloat(row.querySelector('.i-well').value) || 0;
+         const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
+         const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
+         const totalCount = well + backbar + storage;
+         row.querySelector('.calc-total-count').innerText = totalCount.toFixed(1);
          
          if(cost === 0 || sell === 0) { row.classList.add('price-warning'); } else { row.classList.remove('price-warning'); }
          const checkKey = `${brand.trim().toLowerCase()}|${size}|${unit}`;
          if(brand.trim() !== '' && seen.has(checkKey)) { row.style.background = 'rgba(239, 68, 68, 0.1)'; } 
          else { row.style.background = 'var(--glass-bg)'; seen.add(checkKey); }
 
-         data.push({ category: cat, brand: brand, size: size, unit: unit, start: parseFloat(row.getAttribute('data-start')) || 0, received: parseFloat(row.getAttribute('data-received')) || 0, count: parseFloat(row.querySelector('.i-count').value) || 0, cost: cost, shotSell: sell });
+         data.push({ 
+            category: cat, brand: brand, size: size, unit: unit, 
+            start: parseFloat(row.getAttribute('data-start')) || 0, 
+            received: parseFloat(row.getAttribute('data-received')) || 0, 
+            well: well, backbar: backbar, storage: storage, count: totalCount, 
+            cost: cost, shotSell: sell 
+         });
     });
     db.ref(currentLocation + '/liquor_inventory').set(data).then(() => { updateMeta(); renderMarginDashboard(); updateInventoryDatalist(); });
 }
@@ -466,17 +485,21 @@ function filterInventory() {
   });
 }
 
-function adjustCount(btn, amount) {
-    const input = btn.parentElement.querySelector('.i-count'); let val = parseFloat(input.value) || 0;
-    val = Math.max(0, val + amount); input.value = val.toFixed(1); autoSaveInv();
-}
-
 function injectInventoryRow(item) {
     const tbody = document.getElementById('inventory-body'); const tr = document.createElement('tr'); tr.className = 'inv-row';
     tr.setAttribute('data-received', item.received || 0); tr.setAttribute('data-start', item.start || 0);
     let catHtml = catOptionsList.map(c => `<option value="${c}" ${c === item.category ? 'selected' : ''}>${c}</option>`).join('');
     let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
     if(isInitialLoad && (item.cost === 0 || item.shotSell === 0)) { tr.classList.add('price-warning'); }
+
+    // Fallback logic so old total 'count' isn't lost if well/backbar/storage don't exist yet
+    let w = item.well || 0;
+    let b = item.backbar || 0;
+    let s = item.storage || (item.well === undefined && item.backbar === undefined && item.storage === undefined ? (item.count || 0) : 0);
+    let t = w + b + s;
+
+    let wDec = (w - Math.floor(w)).toFixed(1);
+    let bDec = (b - Math.floor(b)).toFixed(1);
 
     tr.innerHTML = `
       <td data-label="Category"><select class="i-category clean-input col-med" onchange="autoSaveInv(); sortInventory()">${catHtml}</select></td>
@@ -485,8 +508,24 @@ function injectInventoryRow(item) {
         <input type="number" class="clean-input i-size col-small" value="${item.size || 750}" oninput="autoSaveInv()">
         <select class="clean-input i-unit" onchange="autoSaveInv()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
       </td>
-      <td data-label="Current Count">
-        <div class="stepper"><button type="button" class="stepper-btn" onclick="adjustCount(this, -0.1)">-</button><input type="number" class="clean-input i-count col-small" value="${item.count || 0}" step="0.1" oninput="autoSaveInv()"><button type="button" class="stepper-btn" onclick="adjustCount(this, 0.1)">+</button></div>
+      <td data-label="Location Counts">
+        <div class="count-split-container">
+            <div class="count-row">
+                <label>Well</label>
+                <input type="number" class="clean-input count-input i-well" value="${w}" step="0.1" min="0" oninput="syncSlider(this); autoSaveInv()">
+                <input type="range" class="tenthing-slider" min="0" max="0.9" step="0.1" value="${wDec}" oninput="syncInput(this, '.i-well'); autoSaveInv()">
+            </div>
+            <div class="count-row">
+                <label>Back</label>
+                <input type="number" class="clean-input count-input i-backbar" value="${b}" step="0.1" min="0" oninput="syncSlider(this); autoSaveInv()">
+                <input type="range" class="tenthing-slider" min="0" max="0.9" step="0.1" value="${bDec}" oninput="syncInput(this, '.i-backbar'); autoSaveInv()">
+            </div>
+            <div class="count-row">
+                <label>Store</label>
+                <input type="number" class="clean-input count-input i-storage" value="${s}" step="1" min="0" oninput="autoSaveInv()" placeholder="Full Btls">
+            </div>
+            <div class="count-total-display">Total: <span class="calc-total-count">${t.toFixed(1)}</span></div>
+        </div>
       </td>
       <td data-label="Received Btls" class="data-highlight calc-received" style="color: var(--neon-blue); padding-left:15px;">${item.received || 0}</td>
       <td data-label="Btl Cost ($)"><input type="number" class="clean-input i-cost col-small" value="${item.cost || 0}" step="0.01" oninput="autoSaveInv()"></td>
@@ -496,7 +535,7 @@ function injectInventoryRow(item) {
     tbody.appendChild(tr); filterInventory(); 
 }
 
-function addInventoryRow() { injectInventoryRow({ category: 'Tequila', unit: 'ml', size: 750, start: 0, received: 0, count: 0, cost: 0, shotSell: 0 }); sortInventory(); autoSaveInv(); }
+function addInventoryRow() { injectInventoryRow({ category: 'Tequila', unit: 'ml', size: 750, start: 0, received: 0, well: 0, backbar: 0, storage: 0, count: 0, cost: 0, shotSell: 0 }); sortInventory(); autoSaveInv(); }
 
 function removeEl(btn) {
   const row = btn.closest('tr'); deletedStack.push({ row: row, parent: row.parentElement, nextSibling: row.nextElementSibling });
@@ -533,8 +572,13 @@ function renderMarginDashboard() {
         const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; const rawSize = parseFloat(row.querySelector('.i-size').value) || 1;
         const unit = row.querySelector('.i-unit').value; const sizeOz = convertToOz(rawSize, unit);
         const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0;
-        const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
         
+        const well = parseFloat(row.querySelector('.i-well').value) || 0;
+        const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
+        const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
+        const count = well + backbar + storage;
+
+        const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
         const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0; 
         
         const usageBtls = (start + received) - count; const usageCost = usageBtls * cost;
@@ -590,7 +634,7 @@ function filterDashboard() {
 }
 
 /* ==========================================
-   DELIVERIES
+   DELIVERIES & HISTORY
    ========================================== */
 function autoFillDelivery(input) {
     const val = input.value.trim().toLowerCase();
@@ -656,26 +700,17 @@ function confirmBatchReceive() {
         targetRow.setAttribute('data-received', currentRec + amount); 
         targetRow.querySelector('.calc-received').innerText = currentRec + amount; 
         
-        const countInput = targetRow.querySelector('.i-count');
-        const currentCount = parseFloat(countInput.value) || 0;
-        countInput.value = (currentCount + amount).toFixed(1);
+        // Push delivery directly to the Storage count
+        const storageInput = targetRow.querySelector('.i-storage');
+        const currentStorage = parseFloat(storageInput.value) || 0;
+        storageInput.value = (currentStorage + amount).toFixed(1);
 
         targetRow.querySelector('.i-category').value = cat;
         if (!isNaN(size)) targetRow.querySelector('.i-size').value = size;
         targetRow.querySelector('.i-unit').value = unit;
         if (!isNaN(cost)) targetRow.querySelector('.i-cost').value = cost;
       } else {
-        injectInventoryRow({
-            category: cat,
-            brand: brand,
-            size: size,
-            unit: unit,
-            start: 0,
-            received: amount,
-            count: amount, 
-            cost: cost,
-            shotSell: 0
-        });
+        injectInventoryRow({ category: cat, brand: brand, size: size, unit: unit, start: 0, received: amount, well: 0, backbar: 0, storage: amount, count: amount, cost: cost, shotSell: 0 });
       }
     }
   }); 
@@ -687,7 +722,17 @@ function confirmBatchReceive() {
 function openSummaryModal() {
   const list = document.getElementById('weekly-summary-list'); list.innerHTML = ''; let totalUsageCost = 0;
   document.querySelectorAll('.inv-row').forEach(row => {
-    const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0; const count = parseFloat(row.querySelector('.i-count').value) || 0; const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
+    const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; 
+    const start = parseFloat(row.getAttribute('data-start')) || 0; 
+    const received = parseFloat(row.getAttribute('data-received')) || 0; 
+    
+    const well = parseFloat(row.querySelector('.i-well').value) || 0;
+    const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
+    const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
+    const count = well + backbar + storage;
+    
+    const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
+    
     const usageBtls = (start + received) - count; const lineCost = usageBtls * cost;
     if (usageBtls > 0) {
       totalUsageCost += lineCost; const li = document.createElement('li'); li.style.padding = '10px 0'; li.style.borderBottom = '1px solid var(--glass-border)';
@@ -702,16 +747,19 @@ function closeSummaryModal() { document.getElementById('summary-modal').style.di
 function confirmResetWeek() {
   const today = new Date().toISOString().split('T')[0]; 
   const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
-  
   const snapshotData = { date: today, totalCost: 0, posSales: posSales, items: [] };
 
   document.querySelectorAll('.inv-row').forEach(row => {
     const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; 
     const start = parseFloat(row.getAttribute('data-start')) || 0; 
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
-    const count = parseFloat(row.querySelector('.i-count').value) || 0; 
-    const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     
+    const well = parseFloat(row.querySelector('.i-well').value) || 0;
+    const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
+    const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
+    const count = well + backbar + storage;
+    
+    const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     const usageBtls = (start + received) - count; 
     const lineCost = usageBtls * cost;
 
@@ -789,10 +837,7 @@ function closeHistoryModal() {
 
 function exportHistoryToCSV() {
     const dateSelected = document.getElementById('history-date-select').value;
-    if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) {
-        alert("Please select a valid history week first.");
-        return;
-    }
+    if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) { alert("Please select a valid history week first."); return; }
     
     const data = window.tempHistoryData[dateSelected];
     let csvContent = "data:text/csv;charset=utf-8,";
@@ -809,11 +854,7 @@ function exportHistoryToCSV() {
     
     if (data.items) {
         data.items.forEach(item => {
-            let rowData = [
-                `"${item.brand}"`,
-                `"${item.used.toFixed(1)}"`,
-                `"${item.cost.toFixed(2)}"`
-            ];
+            let rowData = [ `"${item.brand}"`, `"${item.used.toFixed(1)}"`, `"${item.cost.toFixed(2)}"` ];
             csvContent += rowData.join(",") + "\r\n";
         });
     }
@@ -828,7 +869,7 @@ function exportHistoryToCSV() {
 
 function exportToCSV() {
   let csvContent = "data:text/csv;charset=utf-8,"; 
-  csvContent += '"Category","Brand","Size","Start Count (Hidden)","Received","Current Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost ($)","Potential Sales ($)","Shot Cost","Shot Profit","Shot Pour %"\r\n';
+  csvContent += '"Category","Brand","Size","Start Count","Received","Well Count","Backbar Count","Storage Count","Total Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost ($)","Potential Sales ($)","Shot Cost","Shot Profit","Shot Pour %"\r\n';
   
   document.querySelectorAll('.inv-row').forEach(row => {
     const cat = row.querySelector('.i-category').value; 
@@ -837,7 +878,12 @@ function exportToCSV() {
     const unit = row.querySelector('.i-unit').value;
     const start = parseFloat(row.getAttribute('data-start')) || 0; 
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
-    const count = parseFloat(row.querySelector('.i-count').value) || 0; 
+    
+    const well = parseFloat(row.querySelector('.i-well').value) || 0;
+    const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
+    const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
+    const count = well + backbar + storage;
+    
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0; 
     const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
     
@@ -852,7 +898,8 @@ function exportToCSV() {
     
     let rowData = [ 
         `"${cat}"`, `"${brand}"`, `"${rawSize} ${unit}"`, `"${start}"`, `"${received}"`, 
-        `"${count}"`, `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, 
+        `"${well}"`, `"${backbar}"`, `"${storage}"`, `"${count.toFixed(1)}"`, 
+        `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, 
         `"${usageCost.toFixed(2)}"`, `"${potentialSales.toFixed(2)}"`, `"${shotCost.toFixed(2)}"`, 
         `"${shotProfit.toFixed(2)}"`, `"${pourCostPct.toFixed(2)}%"` 
     ]; 
