@@ -133,9 +133,6 @@ function openTab(event, tabId) {
   }
 }
 
-/* ==========================================
-   BUILDER MODAL CONFIG & CASE PACK MATH
-   ========================================== */
 function showBuilder(type, id = null, isDuplicate = false) {
     currentBuilderType = type;
     const isCocktail = (type === 'cocktail');
@@ -395,9 +392,6 @@ function renderBatchVault() {
     });
 }
 
-/* ==========================================
-   INVENTORY COUNT & SLIDER SYNC METRICS
-   ========================================== */
 window.syncSlider = function(inputEl) {
     let val = parseFloat(inputEl.value) || 0;
     let whole = Math.floor(val);
@@ -428,11 +422,7 @@ function autoSaveInv() {
          const cost = parseFloat(row.querySelector('.i-cost').value) || 0; 
          const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
          
-         const well = parseFloat(row.querySelector('.i-well').value) || 0;
-         const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
-         const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
-         const totalCount = well + backbar + storage;
-         row.querySelector('.calc-total-count').innerText = totalCount.toFixed(1);
+         const count = parseFloat(row.querySelector('.i-count').value) || 0;
          
          if(cost === 0 || sell === 0) { row.classList.add('price-warning'); } else { row.classList.remove('price-warning'); }
          const checkKey = `${brand.trim().toLowerCase()}|${size}|${unit}`;
@@ -443,7 +433,7 @@ function autoSaveInv() {
             category: cat, brand: brand, size: size, unit: unit, 
             start: parseFloat(row.getAttribute('data-start')) || 0, 
             received: parseFloat(row.getAttribute('data-received')) || 0, 
-            well: well, backbar: backbar, storage: storage, count: totalCount, 
+            count: count, 
             cost: cost, shotSell: sell 
          });
     });
@@ -492,14 +482,9 @@ function injectInventoryRow(item) {
     let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
     if(isInitialLoad && (item.cost === 0 || item.shotSell === 0)) { tr.classList.add('price-warning'); }
 
-    // Fallback logic so old total 'count' isn't lost if well/backbar/storage don't exist yet
-    let w = item.well || 0;
-    let b = item.backbar || 0;
-    let s = item.storage || (item.well === undefined && item.backbar === undefined && item.storage === undefined ? (item.count || 0) : 0);
-    let t = w + b + s;
-
-    let wDec = (w - Math.floor(w)).toFixed(1);
-    let bDec = (b - Math.floor(b)).toFixed(1);
+    // Fallback if they were using the old well/backbar/storage splits to prevent losing count
+    let c = item.count !== undefined ? item.count : ((item.well || 0) + (item.backbar || 0) + (item.storage || 0));
+    let cDec = (c - Math.floor(c)).toFixed(1);
 
     tr.innerHTML = `
       <td data-label="Category"><select class="i-category clean-input col-med" onchange="autoSaveInv(); sortInventory()">${catHtml}</select></td>
@@ -508,23 +493,10 @@ function injectInventoryRow(item) {
         <input type="number" class="clean-input i-size col-small" value="${item.size || 750}" oninput="autoSaveInv()">
         <select class="clean-input i-unit" onchange="autoSaveInv()" style="width: 70px; padding: 10px 5px;">${unitHtml}</select>
       </td>
-      <td data-label="Location Counts">
-        <div class="count-split-container">
-            <div class="count-row">
-                <label>Well</label>
-                <input type="number" class="clean-input count-input i-well" value="${w}" step="0.1" min="0" oninput="syncSlider(this); autoSaveInv()">
-                <input type="range" class="tenthing-slider" min="0" max="0.9" step="0.1" value="${wDec}" oninput="syncInput(this, '.i-well'); autoSaveInv()">
-            </div>
-            <div class="count-row">
-                <label>Back</label>
-                <input type="number" class="clean-input count-input i-backbar" value="${b}" step="0.1" min="0" oninput="syncSlider(this); autoSaveInv()">
-                <input type="range" class="tenthing-slider" min="0" max="0.9" step="0.1" value="${bDec}" oninput="syncInput(this, '.i-backbar'); autoSaveInv()">
-            </div>
-            <div class="count-row">
-                <label>Store</label>
-                <input type="number" class="clean-input count-input i-storage" value="${s}" step="1" min="0" oninput="autoSaveInv()" placeholder="Full Btls">
-            </div>
-            <div class="count-total-display">Total: <span class="calc-total-count">${t.toFixed(1)}</span></div>
+      <td data-label="Live Count">
+        <div class="count-row">
+            <input type="number" class="clean-input count-input i-count" value="${c}" step="0.1" min="0" oninput="syncSlider(this); autoSaveInv()">
+            <input type="range" class="tenthing-slider" min="0" max="0.9" step="0.1" value="${cDec}" oninput="syncInput(this, '.i-count'); autoSaveInv()">
         </div>
       </td>
       <td data-label="Received Btls" class="data-highlight calc-received" style="color: var(--neon-blue); padding-left:15px;">${item.received || 0}</td>
@@ -535,7 +507,7 @@ function injectInventoryRow(item) {
     tbody.appendChild(tr); filterInventory(); 
 }
 
-function addInventoryRow() { injectInventoryRow({ category: 'Tequila', unit: 'ml', size: 750, start: 0, received: 0, well: 0, backbar: 0, storage: 0, count: 0, cost: 0, shotSell: 0 }); sortInventory(); autoSaveInv(); }
+function addInventoryRow() { injectInventoryRow({ category: 'Tequila', unit: 'ml', size: 750, start: 0, received: 0, count: 0, cost: 0, shotSell: 0 }); sortInventory(); autoSaveInv(); }
 
 function removeEl(btn) {
   const row = btn.closest('tr'); deletedStack.push({ row: row, parent: row.parentElement, nextSibling: row.nextElementSibling });
@@ -573,10 +545,7 @@ function renderMarginDashboard() {
         const unit = row.querySelector('.i-unit').value; const sizeOz = convertToOz(rawSize, unit);
         const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0;
         
-        const well = parseFloat(row.querySelector('.i-well').value) || 0;
-        const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
-        const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
-        const count = well + backbar + storage;
+        const count = parseFloat(row.querySelector('.i-count').value) || 0;
 
         const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
         const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0; 
@@ -633,9 +602,6 @@ function filterDashboard() {
   for (let i = 0; i < rows.length; i++) { const brand = rows[i].getElementsByTagName('td')[0].innerText.toUpperCase(); rows[i].style.display = brand.includes(filter) ? "" : "none"; }
 }
 
-/* ==========================================
-   DELIVERIES & HISTORY
-   ========================================== */
 function autoFillDelivery(input) {
     const val = input.value.trim().toLowerCase();
     if (inventoryLookup[val]) {
@@ -700,17 +666,17 @@ function confirmBatchReceive() {
         targetRow.setAttribute('data-received', currentRec + amount); 
         targetRow.querySelector('.calc-received').innerText = currentRec + amount; 
         
-        // Push delivery directly to the Storage count
-        const storageInput = targetRow.querySelector('.i-storage');
-        const currentStorage = parseFloat(storageInput.value) || 0;
-        storageInput.value = (currentStorage + amount).toFixed(1);
+        // Push delivery directly to the main count
+        const countInput = targetRow.querySelector('.i-count');
+        const currentCount = parseFloat(countInput.value) || 0;
+        countInput.value = (currentCount + amount).toFixed(1);
 
         targetRow.querySelector('.i-category').value = cat;
         if (!isNaN(size)) targetRow.querySelector('.i-size').value = size;
         targetRow.querySelector('.i-unit').value = unit;
         if (!isNaN(cost)) targetRow.querySelector('.i-cost').value = cost;
       } else {
-        injectInventoryRow({ category: cat, brand: brand, size: size, unit: unit, start: 0, received: amount, well: 0, backbar: 0, storage: amount, count: amount, cost: cost, shotSell: 0 });
+        injectInventoryRow({ category: cat, brand: brand, size: size, unit: unit, start: 0, received: amount, count: amount, cost: cost, shotSell: 0 });
       }
     }
   }); 
@@ -726,10 +692,7 @@ function openSummaryModal() {
     const start = parseFloat(row.getAttribute('data-start')) || 0; 
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
     
-    const well = parseFloat(row.querySelector('.i-well').value) || 0;
-    const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
-    const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
-    const count = well + backbar + storage;
+    const count = parseFloat(row.querySelector('.i-count').value) || 0;
     
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     
@@ -754,10 +717,7 @@ function confirmResetWeek() {
     const start = parseFloat(row.getAttribute('data-start')) || 0; 
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
     
-    const well = parseFloat(row.querySelector('.i-well').value) || 0;
-    const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
-    const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
-    const count = well + backbar + storage;
+    const count = parseFloat(row.querySelector('.i-count').value) || 0;
     
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     const usageBtls = (start + received) - count; 
@@ -869,7 +829,7 @@ function exportHistoryToCSV() {
 
 function exportToCSV() {
   let csvContent = "data:text/csv;charset=utf-8,"; 
-  csvContent += '"Category","Brand","Size","Start Count","Received","Well Count","Backbar Count","Storage Count","Total Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost ($)","Potential Sales ($)","Shot Cost","Shot Profit","Shot Pour %"\r\n';
+  csvContent += '"Category","Brand","Size","Start Count","Received","Total Count","Btls Used","Cost/Btl","Shot Sell","Usage Cost ($)","Potential Sales ($)","Shot Cost","Shot Profit","Shot Pour %"\r\n';
   
   document.querySelectorAll('.inv-row').forEach(row => {
     const cat = row.querySelector('.i-category').value; 
@@ -879,10 +839,7 @@ function exportToCSV() {
     const start = parseFloat(row.getAttribute('data-start')) || 0; 
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
     
-    const well = parseFloat(row.querySelector('.i-well').value) || 0;
-    const backbar = parseFloat(row.querySelector('.i-backbar').value) || 0;
-    const storage = parseFloat(row.querySelector('.i-storage').value) || 0;
-    const count = well + backbar + storage;
+    const count = parseFloat(row.querySelector('.i-count').value) || 0;
     
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0; 
     const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
@@ -898,7 +855,7 @@ function exportToCSV() {
     
     let rowData = [ 
         `"${cat}"`, `"${brand}"`, `"${rawSize} ${unit}"`, `"${start}"`, `"${received}"`, 
-        `"${well}"`, `"${backbar}"`, `"${storage}"`, `"${count.toFixed(1)}"`, 
+        `"${count.toFixed(1)}"`, 
         `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, 
         `"${usageCost.toFixed(2)}"`, `"${potentialSales.toFixed(2)}"`, `"${shotCost.toFixed(2)}"`, 
         `"${shotProfit.toFixed(2)}"`, `"${pourCostPct.toFixed(2)}%"` 
@@ -914,9 +871,6 @@ function exportToCSV() {
   document.body.removeChild(link);
 }
 
-/* ==========================================
-   UTILITY FUNCTIONS (Dropdowns & Saving)
-   ========================================== */
 function toggleCategory(cat) {
     collapsedCats[cat] = !collapsedCats[cat];
     filterInventory();
