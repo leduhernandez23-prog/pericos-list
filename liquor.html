@@ -7,12 +7,10 @@
   
   <link rel="stylesheet" href="liquor.css?v=17">
 
-  <!-- Custom CSS for 10-Point Sliders and Location Splits -->
+  <!-- Custom CSS for 10-Point Sliders -->
   <style>
-    .count-split-container { display: flex; flex-direction: column; gap: 8px; min-width: 220px; }
-    .count-row { display: flex; align-items: center; gap: 8px; }
-    .count-row label { width: 45px; color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
-    .count-input { width: 65px !important; padding: 6px !important; text-align: center; font-size: 0.9rem; }
+    .count-row { display: flex; align-items: center; gap: 8px; min-width: 160px; }
+    .count-input { width: 65px !important; padding: 6px !important; text-align: center; font-size: 0.9rem; font-weight: bold; }
     
     .tenthing-slider { 
         flex: 1; 
@@ -26,16 +24,13 @@
     .tenthing-slider::-webkit-slider-thumb { 
         -webkit-appearance: none; 
         appearance: none; 
-        width: 18px; 
-        height: 18px; 
+        width: 20px; 
+        height: 20px; 
         border-radius: 50%; 
         background: var(--neon-blue); 
         cursor: pointer; 
         box-shadow: 0 0 5px var(--neon-blue);
     }
-    
-    .count-total-display { margin-top: 5px; padding-top: 5px; border-top: 1px dashed var(--glass-border); text-align: right; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
-    .calc-total-count { font-size: 1.1rem; font-weight: bold; color: var(--neon-green); margin-left: 8px; font-family: monospace; }
   </style>
 
   <!-- Firebase Integration -->
@@ -242,7 +237,7 @@
               <th>Category</th>
               <th>Brand</th>
               <th>Size</th>
-              <th>Location Counts</th>
+              <th>Live Count</th>
               <th style="color: var(--neon-blue);">Rec'd</th>
               <th>Cost ($)</th>
               <th>Shot Sell ($)</th>
@@ -328,6 +323,6 @@
     </div>
   </div>
 
-  <script src="liquor.js?v=17"></script>
+  <script src="liquor.js?v=18"></script>
 </body>
 </html>
