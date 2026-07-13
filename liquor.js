@@ -926,7 +926,7 @@ function loadUsageAnalytics() {
         
         // --- THE EXCLUSION FILTER ---
         // Add any other words here you want to hide from the Top 10 list
-        const excludeList = ['tortilla', 'triple sec', '3ple sec'];
+        const excludeList = ['tortilla', 'torada 3ple sec', '3ple sec'];
         
         function shouldInclude(brandName) {
             const nameLower = brandName.toLowerCase();
