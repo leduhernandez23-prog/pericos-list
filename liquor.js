@@ -23,7 +23,7 @@ let globalBatches = {};
 let currentBuilderType = 'cocktail'; 
 let currentBuilderId = null;
 
-// --- NEW GLOBALS FOR TOP 10 ANALYTICS ---
+// --- GLOBALS FOR TOP 10 ANALYTICS ---
 let globalTopWeek = [];
 let globalTopMonth = [];
 // ----------------------------------------
@@ -69,7 +69,7 @@ function loadFirebaseData() {
         } else { addInventoryRow(); }
         isInitialLoad = true;
         renderMarginDashboard();
-        loadUsageAnalytics(); // <--- NEW AUTO-LOAD TRIGGER ADDED HERE
+        loadUsageAnalytics(); // <--- AUTO-LOAD TRIGGER
     });
 
     db.ref(currentLocation + '/liquor_menu_cocktails').on('value', snap => {
@@ -924,9 +924,20 @@ function loadUsageAnalytics() {
         const latestDate = dates[0]; 
         const latestData = historyData[latestDate].items || [];
         
+        // --- THE EXCLUSION FILTER ---
+        // Add any other words here you want to hide from the Top 10 list
+        const excludeList = ['tortilla', 'triple sec', '3ple sec'];
+        
+        function shouldInclude(brandName) {
+            const nameLower = brandName.toLowerCase();
+            return !excludeList.some(excludedWord => nameLower.includes(excludedWord));
+        }
+
         // --- PROCESS THIS WEEK (TOP 10) ---
-        latestData.sort((a, b) => b.used - a.used);
-        globalTopWeek = latestData.slice(0, 10); // Grab top 10
+        // Filter the data first, then sort it
+        let filteredWeekData = latestData.filter(item => shouldInclude(item.brand));
+        filteredWeekData.sort((a, b) => b.used - a.used);
+        globalTopWeek = filteredWeekData.slice(0, 10); 
         
         if(weekList) {
             weekList.innerHTML = '';
@@ -947,8 +958,11 @@ function loadUsageAnalytics() {
         dates.forEach(date => {
             if (date.startsWith(currentMonthPrefix) && historyData[date].items) {
                 historyData[date].items.forEach(item => {
-                    if (!monthTotals[item.brand]) monthTotals[item.brand] = 0;
-                    monthTotals[item.brand] += item.used;
+                    // Only add to month totals if it passes the filter
+                    if (shouldInclude(item.brand)) {
+                        if (!monthTotals[item.brand]) monthTotals[item.brand] = 0;
+                        monthTotals[item.brand] += item.used;
+                    }
                 });
             }
         });
@@ -958,7 +972,7 @@ function loadUsageAnalytics() {
         });
         
         monthArray.sort((a, b) => b.used - a.used);
-        globalTopMonth = monthArray.slice(0, 10); // Grab top 10
+        globalTopMonth = monthArray.slice(0, 10); 
 
         if(monthList) {
             monthList.innerHTML = '';
