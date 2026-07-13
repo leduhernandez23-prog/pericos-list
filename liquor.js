@@ -23,6 +23,11 @@ let globalBatches = {};
 let currentBuilderType = 'cocktail'; 
 let currentBuilderId = null;
 
+// --- NEW GLOBALS FOR TOP 10 ANALYTICS ---
+let globalTopWeek = [];
+let globalTopMonth = [];
+// ----------------------------------------
+
 const catColors = {
     'Tequila': '#10b981', 'Vodka': '#3b82f6', 'Whiskey': '#f59e0b',
     'Rum': '#ef4444', 'Gin': '#06b6d4', 'Liqueur': '#a855f7',
@@ -64,6 +69,7 @@ function loadFirebaseData() {
         } else { addInventoryRow(); }
         isInitialLoad = true;
         renderMarginDashboard();
+        loadUsageAnalytics(); // <--- NEW AUTO-LOAD TRIGGER ADDED HERE
     });
 
     db.ref(currentLocation + '/liquor_menu_cocktails').on('value', snap => {
@@ -896,4 +902,108 @@ function autoSaveMeta() {
     });
     calculateGlobalMetrics();
     flashSync();
+}
+
+/* ==========================================
+   TOP 10 USAGE ANALYTICS & CSV EXPORT
+   ========================================== */
+function loadUsageAnalytics() {
+    db.ref(currentLocation + '/liquor_history').once('value', snap => {
+        const historyData = snap.val();
+        const weekList = document.getElementById('top-week-list');
+        const monthList = document.getElementById('top-month-list');
+        
+        if (!historyData) {
+            if(weekList) weekList.innerHTML = '<li style="color:var(--text-muted);">No history saved yet.</li>';
+            if(monthList) monthList.innerHTML = '<li style="color:var(--text-muted);">No history saved yet.</li>';
+            return;
+        }
+
+        // Sort dates to find the most recent
+        const dates = Object.keys(historyData).sort((a, b) => b.localeCompare(a));
+        const latestDate = dates[0]; 
+        const latestData = historyData[latestDate].items || [];
+        
+        // --- PROCESS THIS WEEK (TOP 10) ---
+        latestData.sort((a, b) => b.used - a.used);
+        globalTopWeek = latestData.slice(0, 10); // Grab top 10
+        
+        if(weekList) {
+            weekList.innerHTML = '';
+            globalTopWeek.forEach((item, index) => {
+                weekList.innerHTML += `
+                    <li style="padding: 6px 0; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
+                        <span>${index + 1}. ${item.brand}</span>
+                        <strong style="color: var(--neon-blue);">${item.used.toFixed(1)} btls</strong>
+                    </li>`;
+            });
+        }
+
+        // --- PROCESS THIS MONTH (TOP 10) ---
+        const currentMonthPrefix = latestDate.substring(0, 7); 
+        let monthTotals = {};
+
+        // Loop through all saved weeks that fall in the current month
+        dates.forEach(date => {
+            if (date.startsWith(currentMonthPrefix) && historyData[date].items) {
+                historyData[date].items.forEach(item => {
+                    if (!monthTotals[item.brand]) monthTotals[item.brand] = 0;
+                    monthTotals[item.brand] += item.used;
+                });
+            }
+        });
+
+        let monthArray = Object.keys(monthTotals).map(brand => {
+            return { brand: brand, used: monthTotals[brand] };
+        });
+        
+        monthArray.sort((a, b) => b.used - a.used);
+        globalTopMonth = monthArray.slice(0, 10); // Grab top 10
+
+        if(monthList) {
+            monthList.innerHTML = '';
+            globalTopMonth.forEach((item, index) => {
+                monthList.innerHTML += `
+                    <li style="padding: 6px 0; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
+                        <span>${index + 1}. ${item.brand}</span>
+                        <strong style="color: var(--neon-orange);">${item.used.toFixed(1)} btls</strong>
+                    </li>`;
+            });
+        }
+    });
+}
+
+// Generates a side-by-side CSV of the week and month top 10
+function exportTopPoursToCSV() {
+    if (globalTopWeek.length === 0 && globalTopMonth.length === 0) {
+        alert("No data to export yet!");
+        return;
+    }
+
+    // CSV Header row
+    let csv = "Rank,Top This Week (Brand),Weekly Btls Used,,Rank,Top This Month (Brand),Monthly Btls Used\n";
+    
+    // Build the 10 rows
+    for (let i = 0; i < 10; i++) {
+        let weekBrand = globalTopWeek[i] ? `"${globalTopWeek[i].brand}"` : "";
+        let weekUsed = globalTopWeek[i] ? globalTopWeek[i].used.toFixed(1) : "";
+        
+        let monthBrand = globalTopMonth[i] ? `"${globalTopMonth[i].brand}"` : "";
+        let monthUsed = globalTopMonth[i] ? globalTopMonth[i].used.toFixed(1) : "";
+
+        csv += `${i + 1},${weekBrand},${weekUsed},,${i + 1},${monthBrand},${monthUsed}\n`;
+    }
+
+    // Trigger standard browser download
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    
+    const dateStr = new Date().toISOString().split('T')[0];
+    a.setAttribute('download', `Los_Pericos_Top_10_Pours_${dateStr}.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
