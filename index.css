@@ -11,11 +11,12 @@
     --shadow-hover: 0 20px 35px rgba(0, 0, 0, 0.08);
     
     /* Professional Muted Icon Tints - Light Mode */
-    --food-icon-bg: #e0f2fe; --food-icon-txt: #0284c7;
-    --bar-icon-bg: #f3e8ff;  --bar-icon-txt: #9333ea;
+    --food-icon-bg: #e0f2fe;  --food-icon-txt: #0284c7;
+    --bar-icon-bg: #f3e8ff;   --bar-icon-txt: #9333ea;
     --check-icon-bg: #d1fae5; --check-icon-txt: #059669;
     --play-icon-bg: #ffedd5;  --play-icon-txt: #ea580c;
     --event-icon-bg: #ffe4e6; --event-icon-txt: #e11d48;
+    --shield-icon-bg: #e0e7ff; --shield-icon-txt: #4f46e5; /* NEW SHIELD LIGHT MODE */
     
     --logout-color: #ef4444;
     --date-color: #2563eb;
@@ -41,6 +42,7 @@ body.dark-mode {
     --check-icon-bg: rgba(5, 150, 105, 0.2);  --check-icon-txt: #34d399;
     --play-icon-bg: rgba(234, 88, 12, 0.2);   --play-icon-txt: #fb923c;
     --event-icon-bg: rgba(225, 29, 72, 0.2);  --event-icon-txt: #fb7185;
+    --shield-icon-bg: rgba(79, 70, 229, 0.2); --shield-icon-txt: #818cf8; /* NEW SHIELD DARK MODE */
     
     --date-color: #60a5fa;
     --alert-bg: rgba(245, 158, 11, 0.15); --alert-text: #fcd34d;
@@ -120,26 +122,48 @@ body.dark-mode .pin-btn { background: #fff; color: #000; }
 .add-note-btn:active { transform: scale(0.95); }
 body.dark-mode .add-note-btn { background: #fff; color: #000; }
 
-/* 5-APP CLEAN GRID */
-.app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; }
+/* RE-ENGINEERED PERFECT SQUARE GRID */
+.app-grid { 
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 15px; 
+    width: 100%; 
+}
 
-.app-btn { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 20px; border-radius: 20px; text-decoration: none; background: var(--container-bg); border: 1px solid var(--container-border); box-shadow: var(--shadow-soft); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.app-btn { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;  /* Centered for the square look */
+    justify-content: center; /* Centered for the square look */
+    text-align: center; /* Centered text */
+    padding: 15px; 
+    border-radius: 20px; 
+    text-decoration: none; 
+    background: var(--container-bg); 
+    border: 1px solid var(--container-border); 
+    box-shadow: var(--shadow-soft); 
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
+    animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; 
+    
+    /* FORCE PERFECT SQUARES */
+    aspect-ratio: 1 / 1; 
+}
+
 .app-btn:nth-child(1) { animation-delay: 0.15s; }
 .app-btn:nth-child(2) { animation-delay: 0.2s; }
 .app-btn:nth-child(3) { animation-delay: 0.25s; }
 .app-btn:nth-child(4) { animation-delay: 0.3s; }
 .app-btn:nth-child(5) { animation-delay: 0.35s; }
+.app-btn:nth-child(6) { animation-delay: 0.40s; }
 
 .app-btn:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--text-sub); }
 .app-btn:active { transform: scale(0.97); }
 
 .app-icon { font-size: 26px; margin-bottom: 12px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 14px; }
-.app-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 2px;}
-.app-subtext { font-size: 12px; font-weight: 500; color: var(--text-sub);}
+.app-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; line-height: 1.2;}
+.app-subtext { font-size: 12px; font-weight: 500; color: var(--text-sub); line-height: 1.3;}
 
-/* Make Events span full width at bottom */
-.btn-event { grid-column: span 2; flex-direction: row; justify-content: flex-start; padding: 25px; }
-.btn-event .app-icon { margin-bottom: 0; margin-right: 20px; }
+/* REMOVED .btn-event overrides so the Events button matches the rest as a square */
 
 /* Clean Icon Coloring */
 .icon-food { background: var(--food-icon-bg); color: var(--food-icon-txt); }
@@ -147,9 +171,10 @@ body.dark-mode .add-note-btn { background: #fff; color: #000; }
 .icon-check { background: var(--check-icon-bg); color: var(--check-icon-txt); }
 .icon-play { background: var(--play-icon-bg); color: var(--play-icon-txt); }
 .icon-event { background: var(--event-icon-bg); color: var(--event-icon-txt); }
+.icon-shield { background: var(--shield-icon-bg); color: var(--shield-icon-txt); } /* NEW SHIELD ICON CLASS */
 
 /* CONTROLS */
-.controls { margin-top: 35px; display: flex; gap: 15px; justify-content: center; width: 100%; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.4s; }
+.controls { margin-top: 35px; display: flex; gap: 15px; justify-content: center; width: 100%; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.45s; }
 .control-btn { flex: 1; background: var(--container-bg); color: var(--text-main); border: 1px solid var(--container-border); padding: 14px 20px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; box-shadow: var(--shadow-soft); transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
 .control-btn:active { transform: scale(0.95); }
 .control-btn.logout { color: var(--logout-color); }
@@ -160,8 +185,8 @@ body.dark-mode .add-note-btn { background: #fff; color: #000; }
 
 @media (max-width: 400px) {
     .app-grid { grid-template-columns: 1fr; }
-    .btn-event { grid-column: span 1; }
-    .app-btn { flex-direction: row; justify-content: flex-start; padding: 20px; }
+    /* Overrides aspect ratio on tiny screens to stack them nicely instead of making huge squares */
+    .app-btn { aspect-ratio: auto; flex-direction: row; justify-content: flex-start; text-align: left; padding: 20px; }
     .app-icon { margin-bottom: 0; margin-right: 15px; }
     .controls { flex-direction: column; }
     .owner-grid { grid-template-columns: 1fr; }
