@@ -1,29 +1,168 @@
-/* Custom Scrollbar for Light Mode */
+/* --- COMPLIANCE CSS (OPTION 3: POLISHED HOSPITALITY MANAGER) --- */
+
+/* 1. Global Hospitality Overrides */
+:root {
+    --bg-canvas: #FAF7F2; /* Soft off-white hospitality background */
+    --accent-gold-trim: #F59E0B; /* Bronze/Gold (amber-300) border accent */
+    --accent-forest-green: #15803D; /* Deep management Emerald (emerald-700) */
+    --text-hospitality-main: #111827; /* Near black (slate-900) data text */
+    --text-hospitality-sub: #6B7280; /* Gray (slate-500) text */
+}
+
+body.hospitality-theme {
+    background-color: var(--bg-canvas) !important;
+}
+
+/* 2. Header & Profile ( Option 3 Anchored Structure ) */
+header.border-amber-300 {
+    background-color: #FFFFFF !important;
+    position: fixed !important;
+    top: 0; left: 0; right: 0;
+    border-bottom: 2px solid var(--accent-gold-trim) !important;
+}
+
+/* 3. Containers & Data Cards ( Narrower, Small Rounded ) */
+.shadow-soft {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03) !important;
+}
+
+.hospitality-stat-card,
+.hospitality-container,
+.hospitality-modal {
+    border-radius: 12px !important; /* Smaller hospitality corners (rounded-lg) */
+    border-color: #E7E5E4 !important; /* Refined stone-200 borders */
+}
+
+/* 4. Polished Typography & Structure */
+
+/* Table Header ( Polished Uppercase ) */
+.hospitality-table-header {
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important; /* Tracking-wider */
+    font-size: 11px !important; /* Refined uppercase size */
+    font-weight: 700 !important; /* Sophisticated bold weight */
+    color: #44403C !important; /* Deep neutral (stone-800) headers */
+    padding-top: 18px !important;
+    padding-bottom: 18px !important;
+}
+
+/* Sub-labels ( Stats & Form Labels ) */
+.hospitality-stat-label,
+.hospitality-label {
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    font-weight: 700 !important;
+    color: #57534E !important; /* Medium stone-700 sub-text */
+    margin-bottom: 6px !important;
+}
+
+/* 5. Clean Data Display ( Option 3 Badges & Hover ) */
+
+/* Streamlined text badges with integrated icon */
+.badge-hospitality {
+    display: inline-flex !important;
+    align-items: center !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important;
+}
+
+/* Valid (Deep Green Icon) */
+.badge-valid-h {
+    color: var(--accent-forest-green) !important;
+    background-color: #ECFDF5 !important; /* Soft emerald-50 bg */
+}
+.badge-valid-h i {
+    color: var(--accent-forest-green) !important;
+    margin-right: 6px !important;
+}
+
+/* Soon (Deep Yellow Icon) */
+.badge-soon-h {
+    color: #B45309 !important; /* Deep amber-700 text */
+    background-color: #FFFBEB !important; /* Soft amber-50 bg */
+}
+.badge-soon-h i {
+    color: #F59E0B) !important; /* Bright amber-500 icon */
+    margin-right: 6px !important;
+}
+
+/* Expired (Rose Icon) */
+.badge-expired-h {
+    color: #BE123C !important; /* Deep rose-700 text */
+    background-color: #FFF1F2 !important; /* Soft rose-50 bg */
+}
+.badge-expired-h i {
+    color: #E11D48 !important; /* Bright rose-600 icon */
+    margin-right: 6px !important;
+}
+
+/* Table Row Hover (Soft warm hover state) */
+.hospitality-table-body tr.cursor-default:hover {
+    background-color: #FAF7F5 !important; /* Soft off-white warm neutral (stone-50/bone mix) */
+}
+
+/* Form Inputs (Warmer border, Green focus) */
+.hospitality-input,
+.hospitality-search {
+    background-color: #FFFFFF !important;
+    border-color: #D6D3D1 !important; /* Stone-300 borders */
+}
+.hospitality-input:focus,
+.hospitality-search:focus {
+    border-color: var(--accent-forest-green) !important;
+    box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.1) !important; /* Emerald-50 shadow ring */
+}
+
+/* Buttons (Polished hospitality emerald) */
+.hospitality-add-btn,
+.hospitality-save-btn {
+    background-color: var(--accent-forest-green) !important;
+}
+.hospitality-add-btn:hover,
+.hospitality-save-btn:hover {
+    background-color: #166534 !important; /* Emerald-800 hover */
+}
+
+/* Back Button ( Option 3 Hospitality Look ) */
+.hospitality-back-btn {
+    color: #44403C !important; /* stone-800 text */
+    background-color: #F5F5F4 !important; /* stone-100 bg */
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+.hospitality-back-btn:hover {
+    color: var(--accent-forest-green) !important;
+    background-color: #F0FDF4 !important; /* emerald-50 hover */
+}
+
+/* 6. Custom Scrollbar for Warm Neutral Canvas */
 .custom-scrollbar::-webkit-scrollbar {
-    height: 8px;
-    width: 8px;
+    height: 8px; width: 8px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: #f8fafc; /* slate-50 */
+    background: #F5F5F4; /* stone-100 */
     border-radius: 4px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #cbd5e1; /* slate-300 */
+    background: #D6D3D1; /* stone-300 */
     border-radius: 4px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8; /* slate-400 */
+    background: #A8A29E; /* stone-400 */
 }
 
-/* Smooth Modal Pop-in */
-#staff-modal:not(.hidden) > div {
-    animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Modal Animation (Smooth and Pop-in) */
+#staff-modal:not(.hidden) > .hospitality-modal {
+    animation: modalPop Hospitality 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes modalPop {
-    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+@keyframes modalPopHospitality {
+    from { opacity: 0; transform: scale(0.9) translateY(15px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
 }
