@@ -234,10 +234,11 @@
                         <div>
                             <label class="block text-sm font-semibold hospitality-label mb-1.5">Position</label>
                             <select id="role-input" class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm cursor-pointer">
-                                <option value="Manager">Manager</option>
-                                <option value="Server">Server</option>
                                 <option value="Host">Host</option>
-                                <option value="Busboy">Busboy</option> <option value="Kitchen">Kitchen</option>
+                                <option value="Busboy">Busboy</option> 
+                                <option value="Server">Server</option>
+                                <option value="Kitchen">Kitchen</option>
+                                <option value="Manager">Manager</option>
                             </select>
                         </div>
                         <div>
@@ -331,8 +332,8 @@
                 return groups;
             }, {});
 
-            // Define the specific display order you requested
-            const roleOrder = ['Manager', 'Server', 'Host', 'Busboy', 'Kitchen'];
+            // Define the specific display order requested: Host, Busboy, Server, Kitchen, Manager
+            const roleOrder = ['Host', 'Busboy', 'Server', 'Kitchen', 'Manager'];
 
             roleOrder.forEach(role => {
                 if (groupedStaff[role] && groupedStaff[role].length > 0) {
