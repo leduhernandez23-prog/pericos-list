@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- COMPLIANCE TRACKER LOGIC ---
 let staffList = JSON.parse(localStorage.getItem('pericos_compliance')) || [
-    { id: '1', name: 'Example Bartender', role: 'Bartender', tabc: '2026-10-15', fhc: '2027-05-20' },
-    { id: '2', name: 'Example Server', role: 'Server', tabc: '2026-09-01', fhc: '2026-08-10' }
+    { id: '1', name: 'Example Host', role: 'Host', phone: '936-555-0123', tabc: '2026-10-15', fhc: '2027-05-20' },
+    { id: '2', name: 'Example Server', role: 'Server', phone: '936-555-9876', tabc: '2026-09-01', fhc: '2026-08-10' }
 ];
 
 function getStatusBadge(dateString) {
@@ -64,7 +64,8 @@ function renderTable(filter = '') {
 
     const filtered = staffList.filter(s => 
         s.name.toLowerCase().includes(filter.toLowerCase()) || 
-        s.role.toLowerCase().includes(filter.toLowerCase())
+        s.role.toLowerCase().includes(filter.toLowerCase()) ||
+        (s.phone && s.phone.includes(filter)) // Allows searching by phone number
     );
 
     filtered.forEach(staff => {
@@ -84,6 +85,7 @@ function renderTable(filter = '') {
         tr.innerHTML = `
             <td class="py-4 px-6 font-semibold text-slate-800">${staff.name}</td>
             <td class="py-4 px-6 text-slate-500">${staff.role}</td>
+            <td class="py-4 px-6 text-slate-500">${staff.phone || '<span class="italic opacity-50">N/A</span>'}</td>
             <td class="py-4 px-6">${getStatusBadge(staff.tabc)}</td>
             <td class="py-4 px-6">${getStatusBadge(staff.fhc)}</td>
             <td class="py-4 px-6 text-right space-x-3">
@@ -116,14 +118,15 @@ document.getElementById('staff-form').addEventListener('submit', function(e) {
     const id = document.getElementById('staff-id').value || Date.now().toString();
     const name = document.getElementById('name-input').value;
     const role = document.getElementById('role-input').value;
+    const phone = document.getElementById('phone-input').value;
     const tabc = document.getElementById('tabc-input').value;
     const fhc = document.getElementById('fhc-input').value;
 
     const existingIndex = staffList.findIndex(s => s.id === id);
     if (existingIndex > -1) {
-        staffList[existingIndex] = { id, name, role, tabc, fhc };
+        staffList[existingIndex] = { id, name, role, phone, tabc, fhc };
     } else {
-        staffList.push({ id, name, role, tabc, fhc });
+        staffList.push({ id, name, role, phone, tabc, fhc });
     }
 
     localStorage.setItem('pericos_compliance', JSON.stringify(staffList));
@@ -138,6 +141,7 @@ function editStaff(id) {
     document.getElementById('staff-id').value = staff.id;
     document.getElementById('name-input').value = staff.name;
     document.getElementById('role-input').value = staff.role;
+    document.getElementById('phone-input').value = staff.phone || '';
     document.getElementById('tabc-input').value = staff.tabc;
     document.getElementById('fhc-input').value = staff.fhc;
     
