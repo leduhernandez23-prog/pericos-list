@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- COMPLIANCE TRACKER LOGIC ---
 let staffList = JSON.parse(localStorage.getItem('pericos_compliance')) || [
-    { id: '1', name: 'Example Host', role: 'Host', phone: '936-555-0123', tabc: '2026-10-15', fhc: '2027-05-20' },
-    { id: '2', name: 'Example Server', role: 'Server', phone: '936-555-9876', tabc: '2026-09-01', fhc: '2026-08-10' }
+    { id: '1', name: 'Example Host', role: 'Host', phone: '(936) 555-0123', tabc: '2026-10-15', fhc: '2027-05-20' },
+    { id: '2', name: 'Example Server', role: 'Server', phone: '(936) 555-9876', tabc: '2026-09-01', fhc: '2026-08-10' }
 ];
 
 function getStatusBadge(dateString) {
@@ -65,7 +65,7 @@ function renderTable(filter = '') {
     const filtered = staffList.filter(s => 
         s.name.toLowerCase().includes(filter.toLowerCase()) || 
         s.role.toLowerCase().includes(filter.toLowerCase()) ||
-        (s.phone && s.phone.includes(filter)) // Allows searching by phone number
+        (s.phone && s.phone.includes(filter)) // Search by phone number
     );
 
     filtered.forEach(staff => {
@@ -80,12 +80,17 @@ function renderTable(filter = '') {
             }
         });
 
+        // If a staff member was saved before we added the phone feature, show N/A
+        const phoneDisplay = staff.phone ? staff.phone : '<span class="italic text-slate-400">N/A</span>';
+
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition cursor-default"; 
+        
+        // Exactly 6 columns to match the 6 headers in HTML
         tr.innerHTML = `
             <td class="py-4 px-6 font-semibold text-slate-800">${staff.name}</td>
             <td class="py-4 px-6 text-slate-500">${staff.role}</td>
-            <td class="py-4 px-6 text-slate-500">${staff.phone || '<span class="italic opacity-50">N/A</span>'}</td>
+            <td class="py-4 px-6 text-slate-500">${phoneDisplay}</td>
             <td class="py-4 px-6">${getStatusBadge(staff.tabc)}</td>
             <td class="py-4 px-6">${getStatusBadge(staff.fhc)}</td>
             <td class="py-4 px-6 text-right space-x-3">
