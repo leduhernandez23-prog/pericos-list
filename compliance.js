@@ -1,10 +1,36 @@
-// Sample state data (can be synced with Firebase later)
+// --- SECURITY & USER AUTHENTICATION ---
+let activeUser = localStorage.getItem('pericos_active_user');
+let activeRole = localStorage.getItem('pericos_active_role');
+let currentLocation = localStorage.getItem('pericos_location');
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Kick out unauthorized users back to the login screen
+    if (!activeUser) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    // 2. Display User Info in Header
+    document.getElementById('user-display-name').innerText = activeUser;
+    
+    if (activeRole === 'Owner') {
+        document.getElementById('user-display-role').innerText = 'Owner Access';
+    } else {
+        let displayLoc = currentLocation ? currentLocation.replace('LP_', '') : '';
+        document.getElementById('user-display-role').innerText = `${activeRole} • ${displayLoc}`;
+    }
+
+    // 3. Load the table data
+    renderTable();
+});
+
+
+// --- COMPLIANCE TRACKER LOGIC ---
 let staffList = JSON.parse(localStorage.getItem('pericos_compliance')) || [
     { id: '1', name: 'Example Bartender', role: 'Bartender', tabc: '2026-10-15', fhc: '2027-05-20' },
     { id: '2', name: 'Example Server', role: 'Server', tabc: '2026-09-01', fhc: '2026-08-10' }
 ];
 
-// Generates the colored status badge based on date math
 function getStatusBadge(dateString) {
     if (!dateString) return '<span class="text-slate-400 italic">N/A</span>';
     
@@ -25,7 +51,6 @@ function getStatusBadge(dateString) {
     }
 }
 
-// Renders the main table and updates top counters
 function renderTable(filter = '') {
     const tbody = document.getElementById('staff-table-body');
     tbody.innerHTML = '';
@@ -37,14 +62,12 @@ function renderTable(filter = '') {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Filter list based on search bar input
     const filtered = staffList.filter(s => 
         s.name.toLowerCase().includes(filter.toLowerCase()) || 
         s.role.toLowerCase().includes(filter.toLowerCase())
     );
 
     filtered.forEach(staff => {
-        // Calculate total alerts
         [staff.tabc, staff.fhc].forEach(dateString => {
             if (dateString) {
                 const expDate = new Date(dateString);
@@ -71,13 +94,11 @@ function renderTable(filter = '') {
         tbody.appendChild(tr);
     });
 
-    // Update DOM stats
     document.getElementById('total-staff').innerText = total;
     document.getElementById('expiring-soon').innerText = expiring;
     document.getElementById('expired-count').innerText = expired;
 }
 
-// Modal Controls
 function openAddModal() {
     document.getElementById('staff-id').value = '';
     document.getElementById('staff-form').reset();
@@ -89,7 +110,6 @@ function closeAddModal() {
     document.getElementById('staff-modal').classList.add('hidden');
 }
 
-// Save or Update Record
 document.getElementById('staff-form').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -101,10 +121,8 @@ document.getElementById('staff-form').addEventListener('submit', function(e) {
 
     const existingIndex = staffList.findIndex(s => s.id === id);
     if (existingIndex > -1) {
-        // Update existing
         staffList[existingIndex] = { id, name, role, tabc, fhc };
     } else {
-        // Create new
         staffList.push({ id, name, role, tabc, fhc });
     }
 
@@ -113,7 +131,6 @@ document.getElementById('staff-form').addEventListener('submit', function(e) {
     renderTable();
 });
 
-// Edit existing record
 function editStaff(id) {
     const staff = staffList.find(s => s.id === id);
     if (!staff) return;
@@ -128,7 +145,6 @@ function editStaff(id) {
     document.getElementById('staff-modal').classList.remove('hidden');
 }
 
-// Delete record
 function deleteStaff(id) {
     if (confirm('Are you sure you want to remove this employee from the tracker?')) {
         staffList = staffList.filter(s => s.id !== id);
@@ -137,12 +153,6 @@ function deleteStaff(id) {
     }
 }
 
-// Live Search Listener
 document.getElementById('search-staff').addEventListener('input', (e) => {
     renderTable(e.target.value);
-});
-
-// Initial Render on Page Load
-document.addEventListener('DOMContentLoaded', () => {
-    renderTable();
 });
