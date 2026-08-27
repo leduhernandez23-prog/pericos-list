@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Los Pericos - Compliance</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Configure Tailwind to use Inter -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 text-white p-2 rounded-lg">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Los Pericos <span class="font-normal text-slate-500">Bar Vault</span></h1>
+        </div>
+        <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition flex items-center">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Dashboard
+        </a>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Top Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Total Staff</p>
+                    <h3 id="total-staff" class="text-3xl font-bold text-slate-900 mt-1">--</h3>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-xl text-indigo-600"><i class="fa-solid fa-users text-2xl"></i></div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Expiring Soon</p>
+                    <h3 id="expiring-soon" class="text-3xl font-bold text-amber-600 mt-1">--</h3>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl text-amber-600"><i class="fa-solid fa-clock-rotate-left text-2xl"></i></div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Expired</p>
+                    <h3 id="expired-count" class="text-3xl font-bold text-rose-600 mt-1">--</h3>
+                </div>
+                <div class="bg-rose-50 p-4 rounded-xl text-rose-600"><i class="fa-solid fa-triangle-exclamation text-2xl"></i></div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <!-- Toolbar -->
+            <div class="p-5 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
+                <div class="w-full md:w-80 relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="search-staff" placeholder="Search staff..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm">
+                </div>
+                <button onclick="openAddModal()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Member</span>
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50">
+                        <tr class="border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider font-semibold">
+                            <th class="py-4 px-6">Employee</th>
+                            <th class="py-4 px-6">Role</th>
+                            <th class="py-4 px-6">TABC Status</th>
+                            <th class="py-4 px-6">FHC Status</th>
+                            <th class="py-4 px-6 text-right">Manage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staff-table-body" class="divide-y divide-slate-100 text-sm">
+                        <!-- Dynamic Rows Injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Background -->
+    <div id="staff-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50">
+        <!-- Modal Panel -->
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h3 id="modal-title" class="text-lg font-bold text-slate-800">Add New Staff Member</h3>
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <form id="staff-form" class="p-6">
+                <input type="hidden" id="staff-id">
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Full Name</label>
+                        <input type="text" id="name-input" required class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Position</label>
+                        <select id="role-input" class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                            <option value="Bartender">Bartender</option>
+                            <option value="Server">Server</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Kitchen">Kitchen</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">TABC Expires</label>
+                            <input type="date" id="tabc-input" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">FHC Expires</label>
+                            <input type="date" id="fhc-input" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-8">
+                    <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-semibold transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold shadow-sm transition">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="compliance.js"></script>
+</body>
+</html>
