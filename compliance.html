@@ -3,102 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Los Pericos - Compliance</title>
+    <title>Los Pericos - Compliance (All-In-One)</title>
     
-    <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Connected CSS File -->
-    <link rel="stylesheet" href="compliance.css?v=3">
-    
-    <!-- Configure Tailwind to use Inter -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    boxShadow: { 'soft': '0 10px 25px rgba(0, 0, 0, 0.03)' }
                 }
             }
         }
     </script>
-</head>
-<body class="bg-slate-50 text-slate-800 antialiased">
 
-    <!-- Navigation Header -->
-    <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
-        <div class="flex items-center space-x-3">
-            <div class="bg-indigo-600 text-white p-2 rounded-lg">
-                <i class="fa-solid fa-shield-halved"></i>
+    <style>
+        :root {
+            --bg-canvas: #FAF7F2; 
+            --accent-gold-trim: #F59E0B; 
+            --accent-forest-green: #15803D; 
+            --text-hospitality-main: #111827; 
+            --text-hospitality-sub: #6B7280; 
+        }
+
+        body.hospitality-theme { background-color: var(--bg-canvas) !important; }
+
+        header.border-amber-300 {
+            background-color: #FFFFFF !important;
+            position: fixed !important;
+            top: 0; left: 0; right: 0;
+            border-bottom: 2px solid var(--accent-gold-trim) !important;
+        }
+
+        .shadow-soft { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03) !important; }
+
+        .hospitality-stat-card,
+        .hospitality-container,
+        .hospitality-modal {
+            border-radius: 12px !important;
+            border-color: #E7E5E4 !important; 
+        }
+
+        .hospitality-table-header {
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important; 
+            font-size: 11px !important; 
+            font-weight: 700 !important; 
+            color: #44403C !important; 
+            padding-top: 18px !important;
+            padding-bottom: 18px !important;
+        }
+
+        .hospitality-stat-label,
+        .hospitality-label {
+            font-size: 11px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            font-weight: 700 !important;
+            color: #57534E !important; 
+            margin-bottom: 6px !important;
+        }
+
+        .badge-hospitality {
+            display: inline-flex !important;
+            align-items: center !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            padding: 4px 8px !important;
+            border-radius: 6px !important;
+            white-space: nowrap !important;
+        }
+
+        .badge-valid-h { color: var(--accent-forest-green) !important; background-color: #ECFDF5 !important; }
+        .badge-valid-h i { color: var(--accent-forest-green) !important; margin-right: 6px !important; }
+
+        .badge-soon-h { color: #B45309 !important; background-color: #FFFBEB !important; }
+        .badge-soon-h i { color: #F59E0B !important; margin-right: 6px !important; }
+
+        .badge-expired-h { color: #BE123C !important; background-color: #FFF1F2 !important; }
+        .badge-expired-h i { color: #E11D48 !important; margin-right: 6px !important; }
+
+        .hospitality-table-body tr.cursor-default:hover { background-color: #FAF7F5 !important; }
+
+        .hospitality-input,
+        .hospitality-search { background-color: #FFFFFF !important; border-color: #D6D3D1 !important; }
+        .hospitality-input:focus,
+        .hospitality-search:focus {
+            border-color: var(--accent-forest-green) !important;
+            box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.1) !important; 
+        }
+
+        .hospitality-add-btn,
+        .hospitality-save-btn { background-color: var(--accent-forest-green) !important; }
+        .hospitality-add-btn:hover,
+        .hospitality-save-btn:hover { background-color: #166534 !important; }
+
+        .hospitality-back-btn {
+            color: #44403C !important; 
+            background-color: #F5F5F4 !important; 
+            border-radius: 8px !important;
+            padding: 8px 16px !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+        }
+        .hospitality-back-btn:hover { color: var(--accent-forest-green) !important; background-color: #F0FDF4 !important; }
+
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #F5F5F4; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #D6D3D1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #A8A29E; }
+
+        #staff-modal:not(.hidden) > .hospitality-modal { animation: modalPopHospitality 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes modalPopHospitality {
+            from { opacity: 0; transform: scale(0.9) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-800 antialiased hospitality-theme">
+
+    <header class="bg-white px-6 py-3.5 border-b-2 border-amber-300 shadow-soft flex justify-between items-center fixed top-0 left-0 right-0 z-40">
+        <div class="flex items-center space-x-3.5">
+            <div class="bg-emerald-100 text-teal-800 p-2.5 rounded-md hospitality-nav-icon">
+                <i class="fa-solid fa-shield-halved text-xl"></i>
             </div>
-            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Los Pericos <span class="font-normal text-slate-500">Bar Vault</span></h1>
+            <h1 class="text-xl font-bold hospitality-nav-title">
+                Los Pericos <span class="font-normal text-slate-500">Master Vault</span>
+            </h1>
         </div>
-        
-        <!-- User Profile & Back Button -->
         <div class="flex items-center space-x-6">
-            <div class="text-right hidden sm:block">
-                <p id="user-display-name" class="text-sm font-bold text-slate-800">Loading...</p>
-                <p id="user-display-role" class="text-xs text-slate-500">Loading...</p>
+            <div class="text-right hidden sm:block hospitality-profile-block">
+                <p id="user-display-name" class="text-sm font-bold text-slate-800">Test User</p>
+                <p id="user-display-role" class="text-xs text-slate-500">Admin</p>
             </div>
-            <a href="index.html" class="text-sm font-medium text-slate-600 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 px-4 py-2 rounded-lg transition flex items-center">
+            <a href="index.html" class="hospitality-back-btn transition flex items-center">
                 <i class="fa-solid fa-arrow-left mr-2"></i> Dashboard
             </a>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        
-        <!-- Top Stats Cards -->
+    <main class="max-w-7xl mx-auto px-4 pt-28 pb-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+            <div class="bg-white border border-stone-200 hospitality-stat-card shadow-soft p-6 flex items-center justify-between">
                 <div>
-                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Total Staff</p>
-                    <h3 id="total-staff" class="text-3xl font-bold text-slate-900 mt-1">--</h3>
+                    <p class="text-slate-500 hospitality-stat-label">Total Staff</p>
+                    <h3 id="total-staff" class="hospitality-stat-value mt-1 text-3xl font-bold">--</h3>
                 </div>
-                <div class="bg-indigo-50 p-4 rounded-xl text-indigo-600"><i class="fa-solid fa-users text-2xl"></i></div>
+                <div class="bg-emerald-50 p-4 rounded-xl text-emerald-700 hospitality-stat-icon">
+                    <i class="fa-solid fa-users text-2xl"></i>
+                </div>
             </div>
-            
-            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+            <div class="bg-white border border-stone-200 hospitality-stat-card shadow-soft p-6 flex items-center justify-between">
                 <div>
-                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Expiring Soon</p>
-                    <h3 id="expiring-soon" class="text-3xl font-bold text-amber-600 mt-1">--</h3>
+                    <p class="text-slate-500 hospitality-stat-label">Expiring Soon</p>
+                    <h3 id="expiring-soon" class="hospitality-stat-value mt-1 text-amber-600 text-3xl font-bold">--</h3>
                 </div>
-                <div class="bg-amber-50 p-4 rounded-xl text-amber-600"><i class="fa-solid fa-clock-rotate-left text-2xl"></i></div>
+                <div class="bg-amber-50 p-4 rounded-xl text-amber-600 hospitality-stat-icon">
+                    <i class="fa-solid fa-clock-rotate-left text-2xl"></i>
+                </div>
             </div>
-            
-            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+            <div class="bg-white border border-stone-200 hospitality-stat-card shadow-soft p-6 flex items-center justify-between">
                 <div>
-                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Expired</p>
-                    <h3 id="expired-count" class="text-3xl font-bold text-rose-600 mt-1">--</h3>
+                    <p class="text-slate-500 hospitality-stat-label">Expired</p>
+                    <h3 id="expired-count" class="hospitality-stat-value mt-1 text-rose-600 text-3xl font-bold">--</h3>
                 </div>
-                <div class="bg-rose-50 p-4 rounded-xl text-rose-600"><i class="fa-solid fa-triangle-exclamation text-2xl"></i></div>
+                <div class="bg-rose-50 p-4 rounded-xl text-rose-600 hospitality-stat-icon">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                </div>
             </div>
         </div>
 
-        <!-- Table Section -->
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-            <!-- Toolbar -->
-            <div class="p-5 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
+        <div class="bg-white border border-stone-200 hospitality-container shadow-soft overflow-hidden">
+            <div class="p-5 border-b border-stone-200 flex flex-col md:flex-row justify-between items-center gap-4 bg-stone-50/50">
                 <div class="w-full md:w-80 relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                        <i class="fa-solid fa-search"></i>
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                        <i class="fa-solid fa-search text-sm"></i>
                     </span>
-                    <input type="text" id="search-staff" placeholder="Search name or role..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm">
+                    <input type="text" id="search-staff" placeholder="Search by name, role, or phone..." class="w-full pl-11 pr-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-search focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
                 </div>
-                <button onclick="openAddModal()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Add Member</span>
+                <button onclick="openAddModal()" class="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-2.5 rounded-lg hospitality-add-btn transition flex items-center justify-center space-x-2.5">
+                    <i class="fa-solid fa-plus text-sm"></i>
+                    <span>Add Employee</span>
                 </button>
             </div>
 
-            <!-- Table -->
-            <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50">
-                        <tr class="border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider font-semibold">
+            <div class="overflow-x-auto custom-scrollbar hospitality-table-scroll">
+                <table class="w-full text-left border-collapse hospitality-table">
+                    <thead class="bg-stone-50">
+                        <tr class="border-b border-stone-200 hospitality-table-header">
                             <th class="py-4 px-6">Employee</th>
                             <th class="py-4 px-6">Role</th>
                             <th class="py-4 px-6">Phone</th>
@@ -107,65 +202,188 @@
                             <th class="py-4 px-6 text-right">Manage</th>
                         </tr>
                     </thead>
-                    <tbody id="staff-table-body" class="divide-y divide-slate-100 text-sm">
-                        <!-- Dynamic Rows Injected via JS -->
-                    </tbody>
+                    <tbody id="staff-table-body" class="divide-y divide-stone-100 text-sm hospitality-table-body">
+                        </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- Modal Background -->
-    <div id="staff-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50">
-        <!-- Modal Panel -->
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                <h3 id="modal-title" class="text-lg font-bold text-slate-800">Add New Staff Member</h3>
-                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <div id="staff-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity duration-300">
+        <div class="bg-white rounded-xl w-full max-w-md hospitality-modal shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300">
+            <div class="px-6 py-4 border-b border-stone-100 bg-stone-50 flex justify-between items-center hospitality-modal-header">
+                <h3 id="modal-title" class="text-lg font-bold text-slate-900">Add New Staff Member</h3>
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 hospitality-modal-close"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
-            <form id="staff-form" class="p-6">
+            <form id="staff-form" class="p-6 hospitality-form">
                 <input type="hidden" id="staff-id">
                 <div class="space-y-5">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Full Name</label>
-                        <input type="text" id="name-input" required class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                        <label class="block text-sm font-semibold hospitality-label mb-1.5">Full Name</label>
+                        <input type="text" id="name-input" required class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Position</label>
-                            <select id="role-input" class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
-                                <option value="Host">Host</option>
+                            <label class="block text-sm font-semibold hospitality-label mb-1.5">Position</label>
+                            <select id="role-input" class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm cursor-pointer">
+                                <option value="Manager">Manager</option>
                                 <option value="Server">Server</option>
                                 <option value="Kitchen">Kitchen</option>
-                                <option value="Manager">Manager</option>
+                                <option value="Host">Host</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Phone Number</label>
-                            <input type="tel" id="phone-input" placeholder="(555) 555-5555" class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                            <label class="block text-sm font-semibold hospitality-label mb-1.5">Phone Number</label>
+                            <input type="tel" id="phone-input" placeholder="(936) 555-5555" class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">TABC Expires</label>
-                            <input type="date" id="tabc-input" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                            <label class="block text-sm font-semibold hospitality-label mb-1.5">TABC Expires</label>
+                            <input type="date" id="tabc-input" required class="w-full px-3 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">FHC Expires</label>
-                            <input type="date" id="fhc-input" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                            <label class="block text-sm font-semibold hospitality-label mb-1.5">FHC Expires</label>
+                            <input type="date" id="fhc-input" required class="w-full px-3 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
                         </div>
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 mt-8">
-                    <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-semibold transition">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold shadow-sm transition">Save Record</button>
+                    <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 bg-white border border-stone-300 hover:bg-stone-50 text-slate-700 rounded-lg hospitality-cancel-btn transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg hospitality-save-btn shadow-sm transition">Save Record</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Connected JS File -->
-    <script src="compliance.js?v=3"></script>
+    <script>
+        // Data refined for Hospitality Manager 
+        let staffList = JSON.parse(localStorage.getItem('pericos_compliance')) || [
+            { id: '1', name: 'Example Host', role: 'Host', phone: '(936) 555-0123', tabc: '2026-10-15', fhc: '2027-05-20' },
+            { id: '2', name: 'Example Server', role: 'Server', phone: '(936) 555-9876', tabc: '2026-09-01', fhc: '2026-08-10' },
+            { id: '3', name: 'Example Kitchen', role: 'Kitchen', phone: '(936) 555-1122', tabc: '2026-08-25', fhc: '2027-01-10' }
+        ];
+
+        function getStatusBadge(dateString) {
+            if (!dateString) return '<span class="text-slate-400 italic">N/A</span>';
+            const today = new Date(); today.setHours(0, 0, 0, 0); 
+            const expDate = new Date(dateString); expDate.setHours(0, 0, 0, 0);
+            const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) {
+                return `<span class="badge-hospitality badge-expired-h"><i class="fa-solid fa-circle-xmark mr-1.5"></i> Expired (${dateString})</span>`;
+            } else if (diffDays <= 30) {
+                return `<span class="badge-hospitality badge-soon-h"><i class="fa-solid fa-clock mr-1.5"></i> Soon (${dateString})</span>`;
+            } else {
+                return `<span class="badge-hospitality badge-valid-h"><i class="fa-solid fa-circle-check mr-1.5"></i> Valid (${dateString})</span>`;
+            }
+        }
+
+        function renderTable(filter = '') {
+            const tbody = document.getElementById('staff-table-body');
+            tbody.innerHTML = '';
+            
+            let total = staffList.length; let expiring = 0; let expired = 0;
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+
+            const filtered = staffList.filter(s => 
+                s.name.toLowerCase().includes(filter.toLowerCase()) || 
+                s.role.toLowerCase().includes(filter.toLowerCase()) ||
+                (s.phone && s.phone.includes(filter))
+            );
+
+            filtered.forEach(staff => {
+                [staff.tabc, staff.fhc].forEach(dateString => {
+                    if (dateString) {
+                        const expDate = new Date(dateString); expDate.setHours(0,0,0,0);
+                        const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                        if (diffDays < 0) expired++; else if (diffDays <= 30) expiring++;
+                    }
+                });
+
+                const phoneDisplay = staff.phone ? staff.phone : '<span class="italic text-slate-400">N/A</span>';
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition cursor-default"; 
+                tr.innerHTML = `
+                    <td class="py-4 px-6 font-semibold text-slate-800">${staff.name}</td>
+                    <td class="py-4 px-6 text-slate-500">${staff.role}</td>
+                    <td class="py-4 px-6 text-slate-500">${phoneDisplay}</td>
+                    <td class="py-4 px-6">${getStatusBadge(staff.tabc)}</td>
+                    <td class="py-4 px-6">${getStatusBadge(staff.fhc)}</td>
+                    <td class="py-4 px-6 text-right space-x-3">
+                        <button onclick="editStaff('${staff.id}')" class="text-slate-400 hover:text-emerald-700 transition"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                        <button onclick="deleteStaff('${staff.id}')" class="text-slate-400 hover:text-rose-600 transition"><i class="fa-solid fa-trash text-lg"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('total-staff').innerText = total;
+            document.getElementById('expiring-soon').innerText = expiring;
+            document.getElementById('expired-count').innerText = expired;
+        }
+
+        function openAddModal() {
+            document.getElementById('staff-id').value = '';
+            document.getElementById('staff-form').reset();
+            document.getElementById('modal-title').innerText = 'Add New Staff Member';
+            const modal = document.getElementById('staff-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.querySelector('.hospitality-modal').classList.remove('scale-95', 'opacity-0'), 10);
+        }
+
+        function closeAddModal() {
+            const modal = document.getElementById('staff-modal');
+            modal.querySelector('.hospitality-modal').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        document.getElementById('staff-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('staff-id').value || Date.now().toString();
+            const name = document.getElementById('name-input').value;
+            const role = document.getElementById('role-input').value;
+            const phone = document.getElementById('phone-input').value; 
+            const tabc = document.getElementById('tabc-input').value;
+            const fhc = document.getElementById('fhc-input').value;
+
+            const existingIndex = staffList.findIndex(s => s.id === id);
+            if (existingIndex > -1) staffList[existingIndex] = { id, name, role, phone, tabc, fhc };
+            else staffList.push({ id, name, role, phone, tabc, fhc });
+
+            localStorage.setItem('pericos_compliance', JSON.stringify(staffList));
+            closeAddModal(); renderTable();
+        });
+
+        function editStaff(id) {
+            const staff = staffList.find(s => s.id === id);
+            if (!staff) return;
+            document.getElementById('staff-id').value = staff.id;
+            document.getElementById('name-input').value = staff.name;
+            document.getElementById('role-input').value = staff.role;
+            document.getElementById('phone-input').value = staff.phone || ''; 
+            document.getElementById('tabc-input').value = staff.tabc;
+            document.getElementById('fhc-input').value = staff.fhc;
+            
+            document.getElementById('modal-title').innerText = 'Edit Employee Record';
+            const modal = document.getElementById('staff-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.querySelector('.hospitality-modal').classList.remove('scale-95', 'opacity-0'), 10);
+        }
+
+        function deleteStaff(id) {
+            if (confirm('Are you sure you want to securely remove this employee record from the tracker?')) {
+                staffList = staffList.filter(s => s.id !== id);
+                localStorage.setItem('pericos_compliance', JSON.stringify(staffList));
+                renderTable();
+            }
+        }
+
+        document.getElementById('search-staff').addEventListener('input', (e) => renderTable(e.target.value));
+        
+        // Render on load
+        renderTable();
+    </script>
 </body>
 </html>
