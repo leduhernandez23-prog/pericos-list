@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Los Pericos - Compliance</title>
     
-    <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="compliance.css">
     
-    <!-- Configure Tailwind to use Inter -->
     <script>
         tailwind.config = {
             theme: {
@@ -26,7 +23,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased">
 
-    <!-- Navigation Header -->
     <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
         <div class="flex items-center space-x-3">
             <div class="bg-indigo-600 text-white p-2 rounded-lg">
@@ -34,15 +30,13 @@
             </div>
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">Los Pericos <span class="font-normal text-slate-500">Bar Vault</span></h1>
         </div>
-        <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition flex items-center">
+        <a href="#" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition flex items-center">
             <i class="fa-solid fa-arrow-left mr-2"></i> Dashboard
         </a>
     </header>
 
-    <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 py-8">
         
-        <!-- Top Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
                 <div>
@@ -69,9 +63,7 @@
             </div>
         </div>
 
-        <!-- Table Section -->
         <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-            <!-- Toolbar -->
             <div class="p-5 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
                 <div class="w-full md:w-80 relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
@@ -85,7 +77,6 @@
                 </button>
             </div>
 
-            <!-- Table -->
             <div class="overflow-x-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-50">
@@ -98,16 +89,13 @@
                         </tr>
                     </thead>
                     <tbody id="staff-table-body" class="divide-y divide-slate-100 text-sm">
-                        <!-- Dynamic Rows Injected via JS -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- Modal Background -->
     <div id="staff-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50">
-        <!-- Modal Panel -->
         <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                 <h3 id="modal-title" class="text-lg font-bold text-slate-800">Add New Staff Member</h3>
