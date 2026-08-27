@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Los Pericos - Compliance (All-In-One)</title>
+    <title>Los Pericos - Compliance (Grouped)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -88,6 +88,13 @@
 
         .hospitality-table-body tr.cursor-default:hover { background-color: #FAF7F5 !important; }
 
+        /* Group Separator Row Styling */
+        .group-separator {
+            background-color: #F5F5F4 !important; /* Stone-100 */
+            border-top: 1px solid #E7E5E4 !important;
+            border-bottom: 1px solid #E7E5E4 !important;
+        }
+
         .hospitality-input,
         .hospitality-search { background-color: #FFFFFF !important; border-color: #D6D3D1 !important; }
         .hospitality-input:focus,
@@ -136,8 +143,8 @@
         </div>
         <div class="flex items-center space-x-6">
             <div class="text-right hidden sm:block hospitality-profile-block">
-                <p id="user-display-name" class="text-sm font-bold text-slate-800">Test User</p>
-                <p id="user-display-role" class="text-xs text-slate-500">Admin</p>
+                <p id="user-display-name" class="text-sm font-bold text-slate-800">Team</p>
+                <p id="user-display-role" class="text-xs text-slate-500">Access</p>
             </div>
             <a href="index.html" class="hospitality-back-btn transition flex items-center">
                 <i class="fa-solid fa-arrow-left mr-2"></i> Dashboard
@@ -229,13 +236,13 @@
                             <select id="role-input" class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm cursor-pointer">
                                 <option value="Manager">Manager</option>
                                 <option value="Server">Server</option>
-                                <option value="Kitchen">Kitchen</option>
                                 <option value="Host">Host</option>
+                                <option value="Busboy">Busboy</option> <option value="Kitchen">Kitchen</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold hospitality-label mb-1.5">Phone Number</label>
-                            <input type="tel" id="phone-input" placeholder="(936) 555-5555" class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
+                            <input type="tel" id="phone-input" placeholder="(555) 555-5555" maxlength="14" class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
@@ -258,11 +265,32 @@
     </div>
 
     <script>
-        // Data refined for Hospitality Manager 
+        // Setup User Info
+        let activeUser = localStorage.getItem('pericos_active_user');
+        let activeRole = localStorage.getItem('pericos_active_role');
+        let currentLocation = localStorage.getItem('pericos_location');
+        if (activeUser) {
+            document.getElementById('user-display-name').innerText = activeUser;
+            if (activeRole === 'Owner') {
+                document.getElementById('user-display-role').innerText = 'Owner Access';
+            } else {
+                let displayLoc = currentLocation ? currentLocation.replace('LP_', '') : '';
+                document.getElementById('user-display-role').innerText = `${activeRole} • ${displayLoc}`;
+            }
+        }
+
+        // Auto-Format Phone Number as user types
+        document.getElementById('phone-input').addEventListener('input', function (e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+
+        // Sample Data with Busboy
         let staffList = JSON.parse(localStorage.getItem('pericos_compliance')) || [
-            { id: '1', name: 'Example Host', role: 'Host', phone: '(936) 555-0123', tabc: '2026-10-15', fhc: '2027-05-20' },
-            { id: '2', name: 'Example Server', role: 'Server', phone: '(936) 555-9876', tabc: '2026-09-01', fhc: '2026-08-10' },
-            { id: '3', name: 'Example Kitchen', role: 'Kitchen', phone: '(936) 555-1122', tabc: '2026-08-25', fhc: '2027-01-10' }
+            { id: '1', name: 'Example Manager', role: 'Manager', phone: '(936) 555-1111', tabc: '2026-12-01', fhc: '2027-01-15' },
+            { id: '2', name: 'Example Server', role: 'Server', phone: '(936) 555-2222', tabc: '2026-09-01', fhc: '2026-08-10' },
+            { id: '3', name: 'Example Host', role: 'Host', phone: '(936) 555-3333', tabc: '2026-10-15', fhc: '2027-05-20' },
+            { id: '4', name: 'Example Busboy', role: 'Busboy', phone: '(936) 555-4444', tabc: '2026-11-20', fhc: '2026-11-25' }
         ];
 
         function getStatusBadge(dateString) {
@@ -280,6 +308,7 @@
             }
         }
 
+        // Updated Table Renderer with Grouping
         function renderTable(filter = '') {
             const tbody = document.getElementById('staff-table-body');
             tbody.innerHTML = '';
@@ -287,36 +316,64 @@
             let total = staffList.length; let expiring = 0; let expired = 0;
             const today = new Date(); today.setHours(0, 0, 0, 0);
 
+            // Filter logic
             const filtered = staffList.filter(s => 
                 s.name.toLowerCase().includes(filter.toLowerCase()) || 
                 s.role.toLowerCase().includes(filter.toLowerCase()) ||
                 (s.phone && s.phone.includes(filter))
             );
 
-            filtered.forEach(staff => {
-                [staff.tabc, staff.fhc].forEach(dateString => {
-                    if (dateString) {
-                        const expDate = new Date(dateString); expDate.setHours(0,0,0,0);
-                        const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-                        if (diffDays < 0) expired++; else if (diffDays <= 30) expiring++;
-                    }
-                });
+            // Grouping logic
+            const groupedStaff = filtered.reduce((groups, staff) => {
+                const role = staff.role || 'Unassigned';
+                if (!groups[role]) groups[role] = [];
+                groups[role].push(staff);
+                return groups;
+            }, {});
 
-                const phoneDisplay = staff.phone ? staff.phone : '<span class="italic text-slate-400">N/A</span>';
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition cursor-default"; 
-                tr.innerHTML = `
-                    <td class="py-4 px-6 font-semibold text-slate-800">${staff.name}</td>
-                    <td class="py-4 px-6 text-slate-500">${staff.role}</td>
-                    <td class="py-4 px-6 text-slate-500">${phoneDisplay}</td>
-                    <td class="py-4 px-6">${getStatusBadge(staff.tabc)}</td>
-                    <td class="py-4 px-6">${getStatusBadge(staff.fhc)}</td>
-                    <td class="py-4 px-6 text-right space-x-3">
-                        <button onclick="editStaff('${staff.id}')" class="text-slate-400 hover:text-emerald-700 transition"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
-                        <button onclick="deleteStaff('${staff.id}')" class="text-slate-400 hover:text-rose-600 transition"><i class="fa-solid fa-trash text-lg"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+            // Define the specific display order you requested
+            const roleOrder = ['Manager', 'Server', 'Host', 'Busboy', 'Kitchen'];
+
+            roleOrder.forEach(role => {
+                if (groupedStaff[role] && groupedStaff[role].length > 0) {
+                    
+                    // 1. Create the Group Separator Header Row
+                    const sepRow = document.createElement('tr');
+                    sepRow.className = "group-separator";
+                    sepRow.innerHTML = `
+                        <td colspan="6" class="py-2.5 px-6 text-xs font-bold text-stone-500 uppercase tracking-wider">
+                            <i class="fa-solid fa-layer-group mr-2 opacity-50"></i> ${role}s
+                        </td>
+                    `;
+                    tbody.appendChild(sepRow);
+
+                    // 2. Loop through staff in this specific group
+                    groupedStaff[role].forEach(staff => {
+                        [staff.tabc, staff.fhc].forEach(dateString => {
+                            if (dateString) {
+                                const expDate = new Date(dateString); expDate.setHours(0,0,0,0);
+                                const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                                if (diffDays < 0) expired++; else if (diffDays <= 30) expiring++;
+                            }
+                        });
+
+                        const phoneDisplay = staff.phone ? staff.phone : '<span class="italic text-slate-400">N/A</span>';
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-slate-50 transition cursor-default"; 
+                        tr.innerHTML = `
+                            <td class="py-4 px-6 font-semibold text-slate-800 pl-10">${staff.name}</td>
+                            <td class="py-4 px-6 text-slate-500">${staff.role}</td>
+                            <td class="py-4 px-6 text-slate-500">${phoneDisplay}</td>
+                            <td class="py-4 px-6">${getStatusBadge(staff.tabc)}</td>
+                            <td class="py-4 px-6">${getStatusBadge(staff.fhc)}</td>
+                            <td class="py-4 px-6 text-right space-x-3">
+                                <button onclick="editStaff('${staff.id}')" class="text-slate-400 hover:text-emerald-700 transition"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                                <button onclick="deleteStaff('${staff.id}')" class="text-slate-400 hover:text-rose-600 transition"><i class="fa-solid fa-trash text-lg"></i></button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
             });
 
             document.getElementById('total-staff').innerText = total;
@@ -324,6 +381,7 @@
             document.getElementById('expired-count').innerText = expired;
         }
 
+        // Modal Controls
         function openAddModal() {
             document.getElementById('staff-id').value = '';
             document.getElementById('staff-form').reset();
