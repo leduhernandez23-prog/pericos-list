@@ -1,288 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Los Pericos - Compliance Tracker</title>
-    
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS (CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- FIREBASE SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-
-    <!-- Configure Tailwind -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    boxShadow: { 'soft': '0 10px 25px rgba(0, 0, 0, 0.03)' }
-                }
-            }
-        }
-    </script>
-
-    <!-- CSS STYLING -->
-    <style>
-        :root {
-            --bg-canvas: #FAF7F2; 
-            --accent-gold-trim: #F59E0B; 
-            --accent-forest-green: #15803D; 
-            --text-hospitality-main: #111827; 
-            --text-hospitality-sub: #6B7280; 
-        }
-
-        body.hospitality-theme { background-color: var(--bg-canvas) !important; }
-
-        header.border-amber-300 {
-            background-color: #FFFFFF !important;
-            position: fixed !important;
-            top: 0; left: 0; right: 0;
-            border-bottom: 2px solid var(--accent-gold-trim) !important;
-        }
-
-        .shadow-soft { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03) !important; }
-
-        .hospitality-stat-card,
-        .hospitality-container,
-        .hospitality-modal {
-            border-radius: 12px !important;
-            border-color: #E7E5E4 !important; 
-        }
-
-        .hospitality-table-header {
-            text-transform: uppercase !important;
-            letter-spacing: 1px !important; 
-            font-size: 11px !important; 
-            font-weight: 700 !important; 
-            color: #44403C !important; 
-            padding-top: 18px !important;
-            padding-bottom: 18px !important;
-        }
-
-        .hospitality-stat-label,
-        .hospitality-label {
-            font-size: 11px !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            font-weight: 700 !important;
-            color: #57534E !important; 
-            margin-bottom: 6px !important;
-        }
-
-        .badge-hospitality {
-            display: inline-flex !important;
-            align-items: center !important;
-            font-size: 12px !important;
-            font-weight: 600 !important;
-            padding: 4px 8px !important;
-            border-radius: 6px !important;
-            white-space: nowrap !important;
-        }
-
-        .badge-valid-h { color: var(--accent-forest-green) !important; background-color: #ECFDF5 !important; }
-        .badge-valid-h i { color: var(--accent-forest-green) !important; margin-right: 6px !important; }
-
-        .badge-soon-h { color: #B45309 !important; background-color: #FFFBEB !important; }
-        .badge-soon-h i { color: #F59E0B !important; margin-right: 6px !important; }
-
-        .badge-expired-h { color: #BE123C !important; background-color: #FFF1F2 !important; }
-        .badge-expired-h i { color: #E11D48 !important; margin-right: 6px !important; }
-
-        .hospitality-table-body tr.cursor-default:hover { background-color: #FAF7F5 !important; }
-
-        .group-separator {
-            background-color: #F5F5F4 !important; 
-            border-top: 1px solid #E7E5E4 !important;
-            border-bottom: 1px solid #E7E5E4 !important;
-        }
-
-        .hospitality-input,
-        .hospitality-search { background-color: #FFFFFF !important; border-color: #D6D3D1 !important; }
-        .hospitality-input:focus,
-        .hospitality-search:focus {
-            border-color: var(--accent-forest-green) !important;
-            box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.1) !important; 
-        }
-
-        .hospitality-add-btn,
-        .hospitality-save-btn { background-color: var(--accent-forest-green) !important; }
-        .hospitality-add-btn:hover,
-        .hospitality-save-btn:hover { background-color: #166534 !important; }
-
-        .hospitality-back-btn {
-            color: #44403C !important; 
-            background-color: #F5F5F4 !important; 
-            border-radius: 8px !important;
-            padding: 8px 16px !important;
-            font-size: 13px !important;
-            font-weight: 500 !important;
-        }
-        .hospitality-back-btn:hover { color: var(--accent-forest-green) !important; background-color: #F0FDF4 !important; }
-
-        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #F5F5F4; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #D6D3D1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #A8A29E; }
-
-        #staff-modal:not(.hidden) > .hospitality-modal { animation: modalPopHospitality 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes modalPopHospitality {
-            from { opacity: 0; transform: scale(0.9) translateY(15px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-    </style>
-</head>
-<body class="bg-stone-50 text-slate-800 antialiased hospitality-theme">
-
-    <header class="bg-white px-6 py-3.5 border-b-2 border-amber-300 shadow-soft flex justify-between items-center fixed top-0 left-0 right-0 z-40">
-        <div class="flex items-center space-x-3.5">
-            <div class="bg-emerald-100 text-teal-800 p-2.5 rounded-md hospitality-nav-icon">
-                <i class="fa-solid fa-shield-halved text-xl"></i>
-            </div>
-            <div>
-                <h1 class="text-xl font-bold hospitality-nav-title leading-tight">
-                    Los Pericos <span class="font-normal text-slate-500">Master Vault</span>
-                </h1>
-                <!-- CONNECTION STATUS BADGE -->
-                <div id="connection-status" class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-rose-100 text-rose-700 transition-colors duration-300">
-                    <i id="connection-icon" class="fa-solid fa-circle-xmark mr-1.5"></i>
-                    <span id="connection-text">Connecting...</span>
-                </div>
-            </div>
-        </div>
-        <div class="flex items-center space-x-6">
-            <div class="text-right hidden sm:block hospitality-profile-block">
-                <p id="user-display-name" class="text-sm font-bold text-slate-800">Team</p>
-                <p id="user-display-role" class="text-xs text-slate-500">Access</p>
-            </div>
-            <a href="index.html" class="hospitality-back-btn transition flex items-center">
-                <i class="fa-solid fa-arrow-left mr-2"></i> Dashboard
-            </a>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 pt-28 pb-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white border border-stone-200 hospitality-stat-card shadow-soft p-6 flex items-center justify-between">
-                <div>
-                    <p class="text-slate-500 hospitality-stat-label">Total Staff</p>
-                    <h3 id="total-staff" class="hospitality-stat-value mt-1 text-3xl font-bold">--</h3>
-                </div>
-                <div class="bg-emerald-50 p-4 rounded-xl text-emerald-700 hospitality-stat-icon">
-                    <i class="fa-solid fa-users text-2xl"></i>
-                </div>
-            </div>
-            <div class="bg-white border border-stone-200 hospitality-stat-card shadow-soft p-6 flex items-center justify-between">
-                <div>
-                    <p class="text-slate-500 hospitality-stat-label">Expiring Soon</p>
-                    <h3 id="expiring-soon" class="hospitality-stat-value mt-1 text-amber-600 text-3xl font-bold">--</h3>
-                </div>
-                <div class="bg-amber-50 p-4 rounded-xl text-amber-600 hospitality-stat-icon">
-                    <i class="fa-solid fa-clock-rotate-left text-2xl"></i>
-                </div>
-            </div>
-            <div class="bg-white border border-stone-200 hospitality-stat-card shadow-soft p-6 flex items-center justify-between">
-                <div>
-                    <p class="text-slate-500 hospitality-stat-label">Expired</p>
-                    <h3 id="expired-count" class="hospitality-stat-value mt-1 text-rose-600 text-3xl font-bold">--</h3>
-                </div>
-                <div class="bg-rose-50 p-4 rounded-xl text-rose-600 hospitality-stat-icon">
-                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white border border-stone-200 hospitality-container shadow-soft overflow-hidden">
-            <div class="p-5 border-b border-stone-200 flex flex-col md:flex-row justify-between items-center gap-4 bg-stone-50/50">
-                <div class="w-full md:w-80 relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                        <i class="fa-solid fa-search text-sm"></i>
-                    </span>
-                    <input type="text" id="search-staff" placeholder="Search by name, role, or phone..." class="w-full pl-11 pr-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-search focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
-                </div>
-                <button onclick="openAddModal()" class="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-2.5 rounded-lg hospitality-add-btn transition flex items-center justify-center space-x-2.5">
-                    <i class="fa-solid fa-plus text-sm"></i>
-                    <span>Add Employee</span>
-                </button>
-            </div>
-
-            <div class="overflow-x-auto custom-scrollbar hospitality-table-scroll">
-                <table class="w-full text-left border-collapse hospitality-table">
-                    <thead class="bg-stone-50">
-                        <tr class="border-b border-stone-200 hospitality-table-header">
-                            <th class="py-4 px-6">Employee</th>
-                            <th class="py-4 px-6">Role</th>
-                            <th class="py-4 px-6">Phone</th>
-                            <th class="py-4 px-6">TABC Status</th>
-                            <th class="py-4 px-6">FHC Status</th>
-                            <th class="py-4 px-6 text-right">Manage</th>
-                        </tr>
-                    </thead>
-                    <tbody id="staff-table-body" class="divide-y divide-stone-100 text-sm hospitality-table-body">
-                        <!-- Dynamic Rows Injected via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <div id="staff-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity duration-300">
-        <div class="bg-white rounded-xl w-full max-w-md hospitality-modal shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300">
-            <div class="px-6 py-4 border-b border-stone-100 bg-stone-50 flex justify-between items-center hospitality-modal-header">
-                <h3 id="modal-title" class="text-lg font-bold text-slate-900">Add New Staff Member</h3>
-                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 hospitality-modal-close"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
-            <form id="staff-form" class="p-6 hospitality-form">
-                <input type="hidden" id="staff-id">
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-semibold hospitality-label mb-1.5">Full Name</label>
-                        <input type="text" id="name-input" required class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold hospitality-label mb-1.5">Position</label>
-                            <select id="role-input" class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm cursor-pointer">
-                                <option value="Host">Host</option>
-                                <option value="Busboy">Busboy</option> 
-                                <option value="Server">Server</option>
-                                <option value="Kitchen">Kitchen</option>
-                                <option value="Manager">Manager</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold hospitality-label mb-1.5">Phone Number</label>
-                            <input type="tel" id="phone-input" placeholder="(555) 555-5555" maxlength="14" class="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div id="tabc-container">
-                            <label class="block text-sm font-semibold hospitality-label mb-1.5">TABC Expires</label>
-                            <input type="date" id="tabc-input" required class="w-full px-3 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold hospitality-label mb-1.5">FHC Expires</label>
-                            <input type="date" id="fhc-input" required class="w-full px-3 py-2.5 bg-white border border-stone-300 rounded-lg hospitality-input focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm">
-                        </div>
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-3 mt-8">
-                    <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 bg-white border border-stone-300 hover:bg-stone-50 text-slate-700 rounded-lg hospitality-cancel-btn transition">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg hospitality-save-btn shadow-sm transition">Save Record</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- FIREBASE & JAVASCRIPT LOGIC -->
-    <script>
+<script>
         // --- 1. FIREBASE INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
@@ -296,7 +12,7 @@
         }
         const db = firebase.database();
 
-        // --- 2. AUTHENTICATION CHECK ---
+        // --- 2. LOCAL STORAGE CHECK ---
         let activeUser = localStorage.getItem('pericos_active_user');
         let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location');
@@ -313,7 +29,23 @@
             }
         }
 
-        // --- 3. LIVE CONNECTION STATUS ---
+        let staffList = [];
+        let currentFilter = '';
+        let isFirstLoad = true;
+
+        // --- 3. FIREBASE AUTHENTICATION CHECK (THE FIX) ---
+        // This forces the page to wait for security clearance before loading or saving data
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // Security passed! Start listening to the database
+                startDatabaseSync();
+            } else {
+                // If security dropped, silently log them back in
+                firebase.auth().signInAnonymously();
+            }
+        });
+
+        // --- 4. LIVE CONNECTION STATUS ---
         const connStatus = document.getElementById('connection-status');
         const connIcon = document.getElementById('connection-icon');
         const connText = document.getElementById('connection-text');
@@ -334,7 +66,7 @@
             }
         });
 
-        // --- 4. UI EVENT LISTENERS ---
+        // --- 5. UI EVENT LISTENERS ---
         document.getElementById('phone-input').addEventListener('input', function (e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
@@ -359,39 +91,34 @@
             renderTable();
         });
 
-        // --- 5. REALTIME DATA SYNC & MIGRATION ---
-        let staffList = [];
-        let currentFilter = '';
-        let isFirstLoad = true;
+        // --- 6. REALTIME DATA SYNC & MIGRATION ---
+        function startDatabaseSync() {
+            db.ref(currentLocation + '/compliance').on('value', (snapshot) => {
+                staffList = [];
+                snapshot.forEach((child) => {
+                    staffList.push({ id: child.key, ...child.val() });
+                });
 
-        db.ref(currentLocation + '/compliance').on('value', (snapshot) => {
-            staffList = [];
-            snapshot.forEach((child) => {
-                staffList.push({ id: child.key, ...child.val() });
-            });
-
-            // Auto-Migration: If Firebase is empty, check for old local data and push it up
-            if (isFirstLoad && staffList.length === 0) {
-                let localData = JSON.parse(localStorage.getItem('pericos_compliance'));
-                if (localData && localData.length > 0) {
-                    console.log("Migrating old local records to Firebase Cloud...");
-                    localData.forEach(staff => {
-                        db.ref(currentLocation + '/compliance').push({
-                            name: staff.name,
-                            role: staff.role,
-                            phone: staff.phone || '',
-                            tabc: staff.tabc || '',
-                            fhc: staff.fhc || ''
+                if (isFirstLoad && staffList.length === 0) {
+                    let localData = JSON.parse(localStorage.getItem('pericos_compliance'));
+                    if (localData && localData.length > 0) {
+                        localData.forEach(staff => {
+                            db.ref(currentLocation + '/compliance').push({
+                                name: staff.name,
+                                role: staff.role,
+                                phone: staff.phone || '',
+                                tabc: staff.tabc || '',
+                                fhc: staff.fhc || ''
+                            });
                         });
-                    });
-                    // Remove local backup so we don't migrate twice
-                    localStorage.removeItem('pericos_compliance'); 
+                        localStorage.removeItem('pericos_compliance'); 
+                    }
                 }
-            }
-            
-            isFirstLoad = false;
-            renderTable();
-        });
+                
+                isFirstLoad = false;
+                renderTable();
+            });
+        }
 
         function getStatusBadge(dateString) {
             if (!dateString) return '<span class="text-slate-400 italic">N/A</span>';
@@ -400,14 +127,11 @@
             const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
 
             if (diffDays < 0) {
-                // Already expired
                 return `<span class="badge-hospitality badge-expired-h"><i class="fa-solid fa-circle-xmark mr-1.5"></i> Expired (${dateString})</span>`;
             } else if (diffDays <= 31) {
-                // 1 Month Warning Window (31 Days)
                 let countdown = diffDays === 0 ? "Expires Today!" : `In ${diffDays} Days`;
                 return `<span class="badge-hospitality badge-soon-h"><i class="fa-solid fa-clock mr-1.5"></i> ${countdown}</span>`;
             } else {
-                // Still valid (more than a month out)
                 return `<span class="badge-hospitality badge-valid-h"><i class="fa-solid fa-circle-check mr-1.5"></i> Valid (${dateString})</span>`;
             }
         }
@@ -451,7 +175,7 @@
                             if (dateString) {
                                 const expDate = new Date(dateString); expDate.setHours(0,0,0,0);
                                 const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-                                if (diffDays < 0) expired++; else if (diffDays <= 30) expiring++;
+                                if (diffDays < 0) expired++; else if (diffDays <= 31) expiring++;
                             }
                         });
 
@@ -479,7 +203,7 @@
             document.getElementById('expired-count').innerText = expired;
         }
 
-        // --- 6. MODAL & DATA SAVING ---
+        // --- 7. MODAL & DATA SAVING ---
         function openAddModal() {
             document.getElementById('staff-id').value = '';
             document.getElementById('staff-form').reset();
@@ -500,6 +224,12 @@
         document.getElementById('staff-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Double check security clearance right before saving
+            if (!firebase.auth().currentUser) {
+                alert("Security Error: Not fully logged in. Please refresh the page.");
+                return;
+            }
+
             const name = document.getElementById('name-input').value;
             const role = document.getElementById('role-input').value;
             const phone = document.getElementById('phone-input').value; 
@@ -541,6 +271,10 @@
         }
 
         function deleteStaff(id) {
+            if (!firebase.auth().currentUser) {
+                alert("Security Error: Not fully logged in. Please refresh the page.");
+                return;
+            }
             if (confirm('Are you sure you want to securely remove this employee record from the database?')) {
                 db.ref(currentLocation + '/compliance/' + id).remove().catch((error) => {
                     alert("Error deleting record: " + error.message);
@@ -548,5 +282,3 @@
             }
         }
     </script>
-</body>
-</html>
