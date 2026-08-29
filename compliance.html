@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Los Pericos - Compliance (Grouped & Dynamic)</title>
+    <title>Los Pericos - Compliance Tracker</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -88,9 +92,8 @@
 
         .hospitality-table-body tr.cursor-default:hover { background-color: #FAF7F5 !important; }
 
-        /* Group Separator Row Styling */
         .group-separator {
-            background-color: #F5F5F4 !important; /* Stone-100 */
+            background-color: #F5F5F4 !important; 
             border-top: 1px solid #E7E5E4 !important;
             border-bottom: 1px solid #E7E5E4 !important;
         }
@@ -266,27 +269,44 @@
     </div>
 
     <script>
-        // Setup User Info
+        // --- 1. FIREBASE INITIALIZATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
+            authDomain: "los-pericos-46378.firebaseapp.com",
+            databaseURL: "https://los-pericos-46378-default-rtdb.firebaseio.com",
+            projectId: "los-pericos-46378"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        // --- 2. AUTHENTICATION CHECK ---
         let activeUser = localStorage.getItem('pericos_active_user');
         let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location');
-        if (activeUser) {
+        
+        if (!activeUser || !currentLocation) {
+            window.location.href = 'index.html'; // Kick out if not logged in
+        } else {
             document.getElementById('user-display-name').innerText = activeUser;
             if (activeRole === 'Owner') {
                 document.getElementById('user-display-role').innerText = 'Owner Access';
             } else {
-                let displayLoc = currentLocation ? currentLocation.replace('LP_', '') : '';
+                let displayLoc = currentLocation.replace('LP_', '');
                 document.getElementById('user-display-role').innerText = `${activeRole} • ${displayLoc}`;
             }
         }
 
-        // Auto-Format Phone Number as user types
+        // --- 3. UI EVENT LISTENERS ---
+        // Auto-Format Phone Number
         document.getElementById('phone-input').addEventListener('input', function (e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
         });
 
-        // Dynamic Role Listener: Hide/Show TABC based on Kitchen Role
+        // Hide TABC for Kitchen Staff
         document.getElementById('role-input').addEventListener('change', function(e) {
             const tabcContainer = document.getElementById('tabc-container');
             const tabcInput = document.getElementById('tabc-input');
@@ -294,21 +314,31 @@
             if (e.target.value === 'Kitchen') {
                 tabcContainer.style.display = 'none';
                 tabcInput.removeAttribute('required');
-                tabcInput.value = ''; // Clear out any existing value just in case
+                tabcInput.value = ''; 
             } else {
                 tabcContainer.style.display = 'block';
                 tabcInput.setAttribute('required', 'required');
             }
         });
 
-        // Sample Data
-        let staffList = JSON.parse(localStorage.getItem('pericos_compliance')) || [
-            { id: '1', name: 'Example Manager', role: 'Manager', phone: '(936) 555-1111', tabc: '2026-12-01', fhc: '2027-01-15' },
-            { id: '2', name: 'Example Server', role: 'Server', phone: '(936) 555-2222', tabc: '2026-09-01', fhc: '2026-08-10' },
-            { id: '3', name: 'Example Host', role: 'Host', phone: '(936) 555-3333', tabc: '2026-10-15', fhc: '2027-05-20' },
-            { id: '4', name: 'Example Busboy', role: 'Busboy', phone: '(936) 555-4444', tabc: '2026-11-20', fhc: '2026-11-25' },
-            { id: '5', name: 'Example Kitchen', role: 'Kitchen', phone: '(936) 555-5555', tabc: '', fhc: '2027-02-10' }
-        ];
+        // Live Search
+        document.getElementById('search-staff').addEventListener('input', (e) => {
+            currentFilter = e.target.value;
+            renderTable();
+        });
+
+        // --- 4. REALTIME DATA SYNC ---
+        let staffList = [];
+        let currentFilter = '';
+
+        // Listen for live updates from Firebase
+        db.ref(currentLocation + '/compliance').on('value', (snapshot) => {
+            staffList = [];
+            snapshot.forEach((child) => {
+                staffList.push({ id: child.key, ...child.val() });
+            });
+            renderTable();
+        });
 
         function getStatusBadge(dateString) {
             if (!dateString) return '<span class="text-slate-400 italic">N/A</span>';
@@ -325,22 +355,19 @@
             }
         }
 
-        // Updated Table Renderer with Grouping
-        function renderTable(filter = '') {
+        function renderTable() {
             const tbody = document.getElementById('staff-table-body');
             tbody.innerHTML = '';
             
             let total = staffList.length; let expiring = 0; let expired = 0;
             const today = new Date(); today.setHours(0, 0, 0, 0);
 
-            // Filter logic
             const filtered = staffList.filter(s => 
-                s.name.toLowerCase().includes(filter.toLowerCase()) || 
-                s.role.toLowerCase().includes(filter.toLowerCase()) ||
-                (s.phone && s.phone.includes(filter))
+                s.name.toLowerCase().includes(currentFilter.toLowerCase()) || 
+                s.role.toLowerCase().includes(currentFilter.toLowerCase()) ||
+                (s.phone && s.phone.includes(currentFilter))
             );
 
-            // Grouping logic
             const groupedStaff = filtered.reduce((groups, staff) => {
                 const role = staff.role || 'Unassigned';
                 if (!groups[role]) groups[role] = [];
@@ -348,13 +375,11 @@
                 return groups;
             }, {});
 
-            // Define the specific display order requested: Host, Busboy, Server, Kitchen, Manager
             const roleOrder = ['Host', 'Busboy', 'Server', 'Kitchen', 'Manager'];
 
             roleOrder.forEach(role => {
                 if (groupedStaff[role] && groupedStaff[role].length > 0) {
                     
-                    // 1. Create the Group Separator Header Row
                     const sepRow = document.createElement('tr');
                     sepRow.className = "group-separator";
                     sepRow.innerHTML = `
@@ -364,7 +389,6 @@
                     `;
                     tbody.appendChild(sepRow);
 
-                    // 2. Loop through staff in this specific group
                     groupedStaff[role].forEach(staff => {
                         [staff.tabc, staff.fhc].forEach(dateString => {
                             if (dateString) {
@@ -398,13 +422,11 @@
             document.getElementById('expired-count').innerText = expired;
         }
 
-        // Modal Controls
+        // --- 5. MODAL & DATA SAVING ---
         function openAddModal() {
             document.getElementById('staff-id').value = '';
             document.getElementById('staff-form').reset();
             document.getElementById('modal-title').innerText = 'Add New Staff Member';
-            
-            // Trigger the change event so the TABC field resets its visibility properly
             document.getElementById('role-input').dispatchEvent(new Event('change'));
 
             const modal = document.getElementById('staff-modal');
@@ -420,19 +442,30 @@
 
         document.getElementById('staff-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const id = document.getElementById('staff-id').value || Date.now().toString();
+            
+            // Get values
             const name = document.getElementById('name-input').value;
             const role = document.getElementById('role-input').value;
             const phone = document.getElementById('phone-input').value; 
             const tabc = document.getElementById('tabc-input').value;
             const fhc = document.getElementById('fhc-input').value;
+            
+            // Use existing ID if editing, otherwise let Firebase generate a new unique key
+            let id = document.getElementById('staff-id').value;
+            let recordRef = id ? db.ref(currentLocation + '/compliance/' + id) : db.ref(currentLocation + '/compliance').push();
 
-            const existingIndex = staffList.findIndex(s => s.id === id);
-            if (existingIndex > -1) staffList[existingIndex] = { id, name, role, phone, tabc, fhc };
-            else staffList.push({ id, name, role, phone, tabc, fhc });
-
-            localStorage.setItem('pericos_compliance', JSON.stringify(staffList));
-            closeAddModal(); renderTable();
+            // Save to Firebase
+            recordRef.set({
+                name: name,
+                role: role,
+                phone: phone,
+                tabc: tabc,
+                fhc: fhc
+            }).then(() => {
+                closeAddModal(); 
+            }).catch((error) => {
+                alert("Error saving record: " + error.message);
+            });
         });
 
         function editStaff(id) {
@@ -445,27 +478,22 @@
             document.getElementById('tabc-input').value = staff.tabc || '';
             document.getElementById('fhc-input').value = staff.fhc;
             
-            // Trigger the change event so the TABC field hides if the role is Kitchen
             document.getElementById('role-input').dispatchEvent(new Event('change'));
-
             document.getElementById('modal-title').innerText = 'Edit Employee Record';
+            
             const modal = document.getElementById('staff-modal');
             modal.classList.remove('hidden');
             setTimeout(() => modal.querySelector('.hospitality-modal').classList.remove('scale-95', 'opacity-0'), 10);
         }
 
         function deleteStaff(id) {
-            if (confirm('Are you sure you want to securely remove this employee record from the tracker?')) {
-                staffList = staffList.filter(s => s.id !== id);
-                localStorage.setItem('pericos_compliance', JSON.stringify(staffList));
-                renderTable();
+            if (confirm('Are you sure you want to securely remove this employee record from the database?')) {
+                // Delete from Firebase
+                db.ref(currentLocation + '/compliance/' + id).remove().catch((error) => {
+                    alert("Error deleting record: " + error.message);
+                });
             }
         }
-
-        document.getElementById('search-staff').addEventListener('input', (e) => renderTable(e.target.value));
-        
-        // Render on load
-        renderTable();
     </script>
 </body>
 </html>
