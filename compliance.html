@@ -5,14 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Los Pericos - Compliance Tracker</title>
     
+    <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
+    <!-- Configure Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -24,6 +28,7 @@
         }
     </script>
 
+    <!-- CSS STYLING -->
     <style>
         :root {
             --bg-canvas: #FAF7F2; 
@@ -140,9 +145,16 @@
             <div class="bg-emerald-100 text-teal-800 p-2.5 rounded-md hospitality-nav-icon">
                 <i class="fa-solid fa-shield-halved text-xl"></i>
             </div>
-            <h1 class="text-xl font-bold hospitality-nav-title">
-                Los Pericos <span class="font-normal text-slate-500">Master Vault</span>
-            </h1>
+            <div>
+                <h1 class="text-xl font-bold hospitality-nav-title leading-tight">
+                    Los Pericos <span class="font-normal text-slate-500">Master Vault</span>
+                </h1>
+                <!-- CONNECTION STATUS BADGE -->
+                <div id="connection-status" class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-rose-100 text-rose-700 transition-colors duration-300">
+                    <i id="connection-icon" class="fa-solid fa-circle-xmark mr-1.5"></i>
+                    <span id="connection-text">Connecting...</span>
+                </div>
+            </div>
         </div>
         <div class="flex items-center space-x-6">
             <div class="text-right hidden sm:block hospitality-profile-block">
@@ -213,7 +225,8 @@
                         </tr>
                     </thead>
                     <tbody id="staff-table-body" class="divide-y divide-stone-100 text-sm hospitality-table-body">
-                        </tbody>
+                        <!-- Dynamic Rows Injected via JS -->
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -268,6 +281,7 @@
         </div>
     </div>
 
+    <!-- FIREBASE & JAVASCRIPT LOGIC -->
     <script>
         // --- 1. FIREBASE INITIALIZATION ---
         const firebaseConfig = {
@@ -288,7 +302,7 @@
         let currentLocation = localStorage.getItem('pericos_location');
         
         if (!activeUser || !currentLocation) {
-            window.location.href = 'index.html'; // Kick out if not logged in
+            window.location.href = 'index.html'; 
         } else {
             document.getElementById('user-display-name').innerText = activeUser;
             if (activeRole === 'Owner') {
@@ -299,14 +313,33 @@
             }
         }
 
-        // --- 3. UI EVENT LISTENERS ---
-        // Auto-Format Phone Number
+        // --- 3. LIVE CONNECTION STATUS ---
+        const connStatus = document.getElementById('connection-status');
+        const connIcon = document.getElementById('connection-icon');
+        const connText = document.getElementById('connection-text');
+
+        db.ref('.info/connected').on('value', function(snap) {
+            if (snap.val() === true) {
+                connStatus.classList.remove('bg-rose-100', 'text-rose-700');
+                connStatus.classList.add('bg-emerald-100', 'text-emerald-700');
+                connIcon.classList.remove('fa-circle-xmark');
+                connIcon.classList.add('fa-signal');
+                connText.innerText = 'Live Sync';
+            } else {
+                connStatus.classList.remove('bg-emerald-100', 'text-emerald-700');
+                connStatus.classList.add('bg-rose-100', 'text-rose-700');
+                connIcon.classList.remove('fa-signal');
+                connIcon.classList.add('fa-circle-xmark');
+                connText.innerText = 'Offline';
+            }
+        });
+
+        // --- 4. UI EVENT LISTENERS ---
         document.getElementById('phone-input').addEventListener('input', function (e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
         });
 
-        // Hide TABC for Kitchen Staff
         document.getElementById('role-input').addEventListener('change', function(e) {
             const tabcContainer = document.getElementById('tabc-container');
             const tabcInput = document.getElementById('tabc-input');
@@ -321,22 +354,42 @@
             }
         });
 
-        // Live Search
         document.getElementById('search-staff').addEventListener('input', (e) => {
             currentFilter = e.target.value;
             renderTable();
         });
 
-        // --- 4. REALTIME DATA SYNC ---
+        // --- 5. REALTIME DATA SYNC & MIGRATION ---
         let staffList = [];
         let currentFilter = '';
+        let isFirstLoad = true;
 
-        // Listen for live updates from Firebase
         db.ref(currentLocation + '/compliance').on('value', (snapshot) => {
             staffList = [];
             snapshot.forEach((child) => {
                 staffList.push({ id: child.key, ...child.val() });
             });
+
+            // Auto-Migration: If Firebase is empty, check for old local data and push it up
+            if (isFirstLoad && staffList.length === 0) {
+                let localData = JSON.parse(localStorage.getItem('pericos_compliance'));
+                if (localData && localData.length > 0) {
+                    console.log("Migrating old local records to Firebase Cloud...");
+                    localData.forEach(staff => {
+                        db.ref(currentLocation + '/compliance').push({
+                            name: staff.name,
+                            role: staff.role,
+                            phone: staff.phone || '',
+                            tabc: staff.tabc || '',
+                            fhc: staff.fhc || ''
+                        });
+                    });
+                    // Remove local backup so we don't migrate twice
+                    localStorage.removeItem('pericos_compliance'); 
+                }
+            }
+            
+            isFirstLoad = false;
             renderTable();
         });
 
@@ -422,7 +475,7 @@
             document.getElementById('expired-count').innerText = expired;
         }
 
-        // --- 5. MODAL & DATA SAVING ---
+        // --- 6. MODAL & DATA SAVING ---
         function openAddModal() {
             document.getElementById('staff-id').value = '';
             document.getElementById('staff-form').reset();
@@ -443,18 +496,15 @@
         document.getElementById('staff-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get values
             const name = document.getElementById('name-input').value;
             const role = document.getElementById('role-input').value;
             const phone = document.getElementById('phone-input').value; 
-            const tabc = document.getElementById('tabc-input').value;
+            const tabc = document.getElementById('tabc-input').value || '';
             const fhc = document.getElementById('fhc-input').value;
             
-            // Use existing ID if editing, otherwise let Firebase generate a new unique key
             let id = document.getElementById('staff-id').value;
             let recordRef = id ? db.ref(currentLocation + '/compliance/' + id) : db.ref(currentLocation + '/compliance').push();
 
-            // Save to Firebase
             recordRef.set({
                 name: name,
                 role: role,
@@ -476,7 +526,7 @@
             document.getElementById('role-input').value = staff.role;
             document.getElementById('phone-input').value = staff.phone || ''; 
             document.getElementById('tabc-input').value = staff.tabc || '';
-            document.getElementById('fhc-input').value = staff.fhc;
+            document.getElementById('fhc-input').value = staff.fhc || '';
             
             document.getElementById('role-input').dispatchEvent(new Event('change'));
             document.getElementById('modal-title').innerText = 'Edit Employee Record';
@@ -488,7 +538,6 @@
 
         function deleteStaff(id) {
             if (confirm('Are you sure you want to securely remove this employee record from the database?')) {
-                // Delete from Firebase
                 db.ref(currentLocation + '/compliance/' + id).remove().catch((error) => {
                     alert("Error deleting record: " + error.message);
                 });
