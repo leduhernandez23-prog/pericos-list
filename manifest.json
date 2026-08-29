@@ -1,8 +1,8 @@
 {
   "name": "Los Pericos Master Hub",
   "short_name": "Pericos Hub",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
