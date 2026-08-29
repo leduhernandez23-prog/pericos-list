@@ -1,7 +1,8 @@
 // Register Service Worker for Android Install
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(registration => {
+        // APPLE FIX 1: Removed the '/' before sw.js so it finds the file on GitHub Pages
+        navigator.serviceWorker.register('sw.js').then(registration => {
             console.log('ServiceWorker registered');
         }).catch(err => {
             console.log('ServiceWorker registration failed: ', err);
@@ -325,4 +326,15 @@ function toggleDarkMode() {
     const isDark = document.body.classList.contains('dark-mode');
     document.getElementById('darkModeBtn').innerText = isDark ? '☀️ Light Theme' : '🌙 Dark Theme';
     localStorage.setItem('pericos_dark', isDark);
+}
+
+// APPLE FIX 2: Force iOS to keep links inside the Web App instead of booting to Safari
+if (("standalone" in window.navigator) && window.navigator.standalone) {
+    let aTags = document.querySelectorAll("a");
+    for (let i = 0; i < aTags.length; i++) {
+        aTags[i].addEventListener("click", function(e) {
+            e.preventDefault();
+            window.location = this.getAttribute("href");
+        });
+    }
 }
