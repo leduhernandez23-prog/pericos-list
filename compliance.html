@@ -400,10 +400,14 @@
             const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
 
             if (diffDays < 0) {
+                // Already expired
                 return `<span class="badge-hospitality badge-expired-h"><i class="fa-solid fa-circle-xmark mr-1.5"></i> Expired (${dateString})</span>`;
-            } else if (diffDays <= 30) {
-                return `<span class="badge-hospitality badge-soon-h"><i class="fa-solid fa-clock mr-1.5"></i> Soon (${dateString})</span>`;
+            } else if (diffDays <= 31) {
+                // 1 Month Warning Window (31 Days)
+                let countdown = diffDays === 0 ? "Expires Today!" : `In ${diffDays} Days`;
+                return `<span class="badge-hospitality badge-soon-h"><i class="fa-solid fa-clock mr-1.5"></i> ${countdown}</span>`;
             } else {
+                // Still valid (more than a month out)
                 return `<span class="badge-hospitality badge-valid-h"><i class="fa-solid fa-circle-check mr-1.5"></i> Valid (${dateString})</span>`;
             }
         }
