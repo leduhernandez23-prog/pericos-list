@@ -165,7 +165,6 @@
                 <h1 class="text-xl font-bold hospitality-nav-title leading-tight">
                     Los Pericos <span class="font-normal text-slate-500">Master Vault</span>
                 </h1>
-                <!-- CONNECTION STATUS BADGE -->
                 <div id="connection-status" class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-rose-100 text-rose-700 transition-colors duration-300">
                     <i id="connection-icon" class="fa-solid fa-circle-xmark mr-1.5"></i>
                     <span id="connection-text">Connecting...</span>
@@ -248,7 +247,7 @@
         </div>
     </main>
 
-    <!-- NEW EMPLOYEE MODAL (Only used for adding now) -->
+    <!-- NEW EMPLOYEE MODAL -->
     <div id="staff-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity duration-300">
         <div class="bg-white rounded-xl w-full max-w-md hospitality-modal shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300">
             <div class="px-6 py-4 border-b border-stone-100 bg-stone-50 flex justify-between items-center hospitality-modal-header">
@@ -299,7 +298,6 @@
 
     <!-- FIREBASE & JAVASCRIPT LOGIC -->
     <script>
-        // --- 1. FIREBASE INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
             authDomain: "los-pericos-46378.firebaseapp.com",
@@ -312,7 +310,6 @@
         }
         const db = firebase.database();
 
-        // --- 2. LOCAL STORAGE CHECK ---
         let activeUser = localStorage.getItem('pericos_active_user');
         let activeRole = localStorage.getItem('pericos_active_role');
         let currentLocation = localStorage.getItem('pericos_location');
@@ -332,11 +329,8 @@
         let staffList = [];
         let currentFilter = '';
         let isFirstLoad = true;
-        
-        // Tracks which row is currently being edited directly in the table
         let editingRowId = null;
 
-        // --- 3. FIREBASE AUTHENTICATION CHECK ---
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 startDatabaseSync();
@@ -345,7 +339,6 @@
             }
         });
 
-        // --- 4. LIVE CONNECTION STATUS ---
         const connStatus = document.getElementById('connection-status');
         const connIcon = document.getElementById('connection-icon');
         const connText = document.getElementById('connection-text');
@@ -366,7 +359,6 @@
             }
         });
 
-        // --- 5. UI EVENT LISTENERS ---
         document.getElementById('phone-input').addEventListener('input', function (e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
@@ -388,12 +380,10 @@
 
         document.getElementById('search-staff').addEventListener('input', (e) => {
             currentFilter = e.target.value;
-            // Clear edit mode when searching so inputs don't jump around
             editingRowId = null;
             renderTable();
         });
 
-        // --- 6. REALTIME DATA SYNC ---
         function startDatabaseSync() {
             db.ref(currentLocation + '/compliance').on('value', (snapshot) => {
                 staffList = [];
@@ -438,13 +428,11 @@
             }
         }
 
-        // Used by the inline editor to format phone numbers as you type
         function formatInlinePhone(inputElement) {
             let x = inputElement.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
             inputElement.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
         }
 
-        // Hides/Shows the TABC inline input if you switch their role to Kitchen while editing
         function toggleInlineTABC(id, newRole) {
             const tabcInput = document.getElementById(`edit-tabc-${id}`);
             const tabcNA = document.getElementById(`edit-tabc-na-${id}`);
@@ -466,15 +454,27 @@
             let total = staffList.length; let expiring = 0; let expired = 0;
             const today = new Date(); today.setHours(0, 0, 0, 0);
 
-            // Filter logic
             let filtered = staffList.filter(s => 
                 s.name.toLowerCase().includes(currentFilter.toLowerCase()) || 
                 s.role.toLowerCase().includes(currentFilter.toLowerCase()) ||
                 (s.phone && s.phone.includes(currentFilter))
             );
 
-            // UPGRADE: Sort Alphabetically by Name
-            filtered.sort((a, b) => a.name.localeCompare(b.name));
+            // UPGRADE: Sort Alphabetically by Last Name
+            filtered.sort((a, b) => {
+                const getLastName = (name) => {
+                    if (!name) return "";
+                    const parts = name.trim().split(/\s+/);
+                    return parts[parts.length - 1];
+                };
+                const lastA = getLastName(a.name);
+                const lastB = getLastName(b.name);
+                
+                if (lastA.toLowerCase() === lastB.toLowerCase()) {
+                    return a.name.localeCompare(b.name);
+                }
+                return lastA.localeCompare(lastB);
+            });
 
             const groupedStaff = filtered.reduce((groups, staff) => {
                 const role = staff.role || 'Unassigned';
@@ -498,7 +498,6 @@
                     tbody.appendChild(sepRow);
 
                     groupedStaff[role].forEach(staff => {
-                        // Track expirations for metrics
                         [staff.tabc, staff.fhc].forEach(dateString => {
                             if (dateString) {
                                 const expDate = new Date(dateString); expDate.setHours(0,0,0,0);
@@ -510,11 +509,8 @@
                         const tr = document.createElement('tr');
                         tr.className = "hover:bg-slate-50 transition cursor-default"; 
                         
-                        // UPGRADE: Inline Row Editing Logic
                         if (staff.id === editingRowId) {
-                            // Render row as editable text boxes
                             const isKitchen = staff.role === 'Kitchen';
-                            
                             tr.innerHTML = `
                                 <td class="py-3 px-4 pl-10">
                                     <input type="text" id="edit-name-${staff.id}" class="inline-edit-input" value="${staff.name}">
@@ -544,7 +540,6 @@
                                 </td>
                             `;
                         } else {
-                            // Render standard read-only row
                             const phoneDisplay = staff.phone ? staff.phone : '<span class="italic text-slate-400">N/A</span>';
                             tr.innerHTML = `
                                 <td class="py-4 px-6 font-semibold text-slate-800 pl-10">${staff.name}</td>
@@ -569,16 +564,14 @@
             document.getElementById('expired-count').innerText = expired;
         }
 
-        // --- 7. INLINE EDITING LOGIC ---
-        
         function startInlineEdit(id) {
             editingRowId = id;
-            renderTable(); // Re-draws the table with inputs active on this row
+            renderTable(); 
         }
 
         function cancelInlineEdit() {
             editingRowId = null;
-            renderTable(); // Re-draws table normally
+            renderTable(); 
         }
 
         function saveInlineEdit(id) {
@@ -593,7 +586,6 @@
             const tabc = role === 'Kitchen' ? '' : document.getElementById(`edit-tabc-${id}`).value;
             const fhc = document.getElementById(`edit-fhc-${id}`).value;
 
-            // Push the update to Firebase
             db.ref(currentLocation + '/compliance/' + id).update({
                 name: name,
                 role: role,
@@ -602,13 +594,11 @@
                 fhc: fhc
             }).then(() => {
                 editingRowId = null; 
-                // Firebase will automatically trigger renderTable() via our .on('value') listener above
             }).catch((error) => {
                 alert("Error updating record: " + error.message);
             });
         }
 
-        // --- 8. NEW HIRE MODAL LOGIC (Only used for ADDING now) ---
         function openAddModal() {
             document.getElementById('staff-form').reset();
             document.getElementById('role-input').dispatchEvent(new Event('change'));
@@ -638,7 +628,6 @@
             const tabc = document.getElementById('tabc-input').value || '';
             const fhc = document.getElementById('fhc-input').value;
             
-            // Generate new entry
             db.ref(currentLocation + '/compliance').push().set({
                 name: name,
                 role: role,
@@ -652,7 +641,6 @@
             });
         });
 
-        // --- 9. DELETING ---
         function deleteStaff(id) {
             if (!firebase.auth().currentUser) {
                 alert("Security Error: Not fully logged in. Please refresh the page.");
