@@ -5,14 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Los Pericos - Compliance Tracker</title>
     
+    <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
+    <!-- Configure Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -24,6 +28,7 @@
         }
     </script>
 
+    <!-- CSS STYLING -->
     <style>
         :root {
             --bg-canvas: #FAF7F2; 
@@ -131,6 +136,22 @@
             from { opacity: 0; transform: scale(0.9) translateY(15px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
+
+        /* Inline Edit Input Styling */
+        .inline-edit-input {
+            width: 100%;
+            padding: 6px 10px;
+            font-size: 13px;
+            border: 1px solid #D6D3D1;
+            border-radius: 6px;
+            background-color: #FFFFFF;
+            transition: all 0.2s;
+        }
+        .inline-edit-input:focus {
+            outline: none;
+            border-color: var(--accent-forest-green);
+            box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-slate-800 antialiased hospitality-theme">
@@ -144,6 +165,7 @@
                 <h1 class="text-xl font-bold hospitality-nav-title leading-tight">
                     Los Pericos <span class="font-normal text-slate-500">Master Vault</span>
                 </h1>
+                <!-- CONNECTION STATUS BADGE -->
                 <div id="connection-status" class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-rose-100 text-rose-700 transition-colors duration-300">
                     <i id="connection-icon" class="fa-solid fa-circle-xmark mr-1.5"></i>
                     <span id="connection-text">Connecting...</span>
@@ -219,12 +241,14 @@
                         </tr>
                     </thead>
                     <tbody id="staff-table-body" class="divide-y divide-stone-100 text-sm hospitality-table-body">
-                        </tbody>
+                        <!-- Dynamic Rows Injected via JS -->
+                    </tbody>
                 </table>
             </div>
         </div>
     </main>
 
+    <!-- NEW EMPLOYEE MODAL (Only used for adding now) -->
     <div id="staff-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity duration-300">
         <div class="bg-white rounded-xl w-full max-w-md hospitality-modal shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300">
             <div class="px-6 py-4 border-b border-stone-100 bg-stone-50 flex justify-between items-center hospitality-modal-header">
@@ -233,7 +257,6 @@
             </div>
             
             <form id="staff-form" class="p-6 hospitality-form">
-                <input type="hidden" id="staff-id">
                 <div class="space-y-5">
                     <div>
                         <label class="block text-sm font-semibold hospitality-label mb-1.5">Full Name</label>
@@ -274,6 +297,7 @@
         </div>
     </div>
 
+    <!-- FIREBASE & JAVASCRIPT LOGIC -->
     <script>
         // --- 1. FIREBASE INITIALIZATION ---
         const firebaseConfig = {
@@ -308,6 +332,9 @@
         let staffList = [];
         let currentFilter = '';
         let isFirstLoad = true;
+        
+        // Tracks which row is currently being edited directly in the table
+        let editingRowId = null;
 
         // --- 3. FIREBASE AUTHENTICATION CHECK ---
         firebase.auth().onAuthStateChanged((user) => {
@@ -361,10 +388,12 @@
 
         document.getElementById('search-staff').addEventListener('input', (e) => {
             currentFilter = e.target.value;
+            // Clear edit mode when searching so inputs don't jump around
+            editingRowId = null;
             renderTable();
         });
 
-        // --- 6. REALTIME DATA SYNC & MIGRATION ---
+        // --- 6. REALTIME DATA SYNC ---
         function startDatabaseSync() {
             db.ref(currentLocation + '/compliance').on('value', (snapshot) => {
                 staffList = [];
@@ -409,6 +438,27 @@
             }
         }
 
+        // Used by the inline editor to format phone numbers as you type
+        function formatInlinePhone(inputElement) {
+            let x = inputElement.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+            inputElement.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        }
+
+        // Hides/Shows the TABC inline input if you switch their role to Kitchen while editing
+        function toggleInlineTABC(id, newRole) {
+            const tabcInput = document.getElementById(`edit-tabc-${id}`);
+            const tabcNA = document.getElementById(`edit-tabc-na-${id}`);
+            
+            if (newRole === 'Kitchen') {
+                tabcInput.style.display = 'none';
+                tabcInput.value = '';
+                if(tabcNA) tabcNA.style.display = 'inline-block';
+            } else {
+                tabcInput.style.display = 'block';
+                if(tabcNA) tabcNA.style.display = 'none';
+            }
+        }
+
         function renderTable() {
             const tbody = document.getElementById('staff-table-body');
             tbody.innerHTML = '';
@@ -416,11 +466,15 @@
             let total = staffList.length; let expiring = 0; let expired = 0;
             const today = new Date(); today.setHours(0, 0, 0, 0);
 
-            const filtered = staffList.filter(s => 
+            // Filter logic
+            let filtered = staffList.filter(s => 
                 s.name.toLowerCase().includes(currentFilter.toLowerCase()) || 
                 s.role.toLowerCase().includes(currentFilter.toLowerCase()) ||
                 (s.phone && s.phone.includes(currentFilter))
             );
+
+            // UPGRADE: Sort Alphabetically by Name
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
 
             const groupedStaff = filtered.reduce((groups, staff) => {
                 const role = staff.role || 'Unassigned';
@@ -444,6 +498,7 @@
                     tbody.appendChild(sepRow);
 
                     groupedStaff[role].forEach(staff => {
+                        // Track expirations for metrics
                         [staff.tabc, staff.fhc].forEach(dateString => {
                             if (dateString) {
                                 const expDate = new Date(dateString); expDate.setHours(0,0,0,0);
@@ -452,20 +507,58 @@
                             }
                         });
 
-                        const phoneDisplay = staff.phone ? staff.phone : '<span class="italic text-slate-400">N/A</span>';
                         const tr = document.createElement('tr');
                         tr.className = "hover:bg-slate-50 transition cursor-default"; 
-                        tr.innerHTML = `
-                            <td class="py-4 px-6 font-semibold text-slate-800 pl-10">${staff.name}</td>
-                            <td class="py-4 px-6 text-slate-500">${staff.role}</td>
-                            <td class="py-4 px-6 text-slate-500">${phoneDisplay}</td>
-                            <td class="py-4 px-6">${getStatusBadge(staff.tabc)}</td>
-                            <td class="py-4 px-6">${getStatusBadge(staff.fhc)}</td>
-                            <td class="py-4 px-6 text-right space-x-3">
-                                <button onclick="editStaff('${staff.id}')" class="text-slate-400 hover:text-emerald-700 transition"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
-                                <button onclick="deleteStaff('${staff.id}')" class="text-slate-400 hover:text-rose-600 transition"><i class="fa-solid fa-trash text-lg"></i></button>
-                            </td>
-                        `;
+                        
+                        // UPGRADE: Inline Row Editing Logic
+                        if (staff.id === editingRowId) {
+                            // Render row as editable text boxes
+                            const isKitchen = staff.role === 'Kitchen';
+                            
+                            tr.innerHTML = `
+                                <td class="py-3 px-4 pl-10">
+                                    <input type="text" id="edit-name-${staff.id}" class="inline-edit-input" value="${staff.name}">
+                                </td>
+                                <td class="py-3 px-4">
+                                    <select id="edit-role-${staff.id}" class="inline-edit-input" onchange="toggleInlineTABC('${staff.id}', this.value)">
+                                        <option value="Host" ${staff.role==='Host'?'selected':''}>Host</option>
+                                        <option value="Busboy" ${staff.role==='Busboy'?'selected':''}>Busboy</option>
+                                        <option value="Server" ${staff.role==='Server'?'selected':''}>Server</option>
+                                        <option value="Kitchen" ${staff.role==='Kitchen'?'selected':''}>Kitchen</option>
+                                        <option value="Manager" ${staff.role==='Manager'?'selected':''}>Manager</option>
+                                    </select>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <input type="tel" id="edit-phone-${staff.id}" class="inline-edit-input" value="${staff.phone || ''}" oninput="formatInlinePhone(this)" maxlength="14">
+                                </td>
+                                <td class="py-3 px-4">
+                                    <input type="date" id="edit-tabc-${staff.id}" class="inline-edit-input" value="${staff.tabc || ''}" style="display: ${isKitchen ? 'none' : 'block'};">
+                                    <span id="edit-tabc-na-${staff.id}" class="text-slate-400 italic text-sm ml-2" style="display: ${isKitchen ? 'inline-block' : 'none'};">N/A</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <input type="date" id="edit-fhc-${staff.id}" class="inline-edit-input" value="${staff.fhc || ''}">
+                                </td>
+                                <td class="py-3 px-4 text-right space-x-3 whitespace-nowrap">
+                                    <button onclick="saveInlineEdit('${staff.id}')" class="text-emerald-600 hover:text-emerald-800 transition bg-emerald-50 px-2 py-1 rounded" title="Save Changes"><i class="fa-solid fa-check"></i></button>
+                                    <button onclick="cancelInlineEdit()" class="text-stone-500 hover:text-stone-700 transition bg-stone-100 px-2 py-1 rounded" title="Cancel"><i class="fa-solid fa-xmark"></i></button>
+                                </td>
+                            `;
+                        } else {
+                            // Render standard read-only row
+                            const phoneDisplay = staff.phone ? staff.phone : '<span class="italic text-slate-400">N/A</span>';
+                            tr.innerHTML = `
+                                <td class="py-4 px-6 font-semibold text-slate-800 pl-10">${staff.name}</td>
+                                <td class="py-4 px-6 text-slate-500">${staff.role}</td>
+                                <td class="py-4 px-6 text-slate-500">${phoneDisplay}</td>
+                                <td class="py-4 px-6">${getStatusBadge(staff.tabc)}</td>
+                                <td class="py-4 px-6">${getStatusBadge(staff.fhc)}</td>
+                                <td class="py-4 px-6 text-right space-x-3">
+                                    <button onclick="startInlineEdit('${staff.id}')" class="text-slate-400 hover:text-emerald-700 transition" title="Edit Employee Inline"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                                    <button onclick="deleteStaff('${staff.id}')" class="text-slate-400 hover:text-rose-600 transition" title="Delete Employee"><i class="fa-solid fa-trash text-lg"></i></button>
+                                </td>
+                            `;
+                        }
+                        
                         tbody.appendChild(tr);
                     });
                 }
@@ -476,11 +569,48 @@
             document.getElementById('expired-count').innerText = expired;
         }
 
-        // --- 7. MODAL & DATA SAVING ---
+        // --- 7. INLINE EDITING LOGIC ---
+        
+        function startInlineEdit(id) {
+            editingRowId = id;
+            renderTable(); // Re-draws the table with inputs active on this row
+        }
+
+        function cancelInlineEdit() {
+            editingRowId = null;
+            renderTable(); // Re-draws table normally
+        }
+
+        function saveInlineEdit(id) {
+            if (!firebase.auth().currentUser) {
+                alert("Security Error: Not fully logged in. Please refresh the page.");
+                return;
+            }
+
+            const name = document.getElementById(`edit-name-${id}`).value;
+            const role = document.getElementById(`edit-role-${id}`).value;
+            const phone = document.getElementById(`edit-phone-${id}`).value;
+            const tabc = role === 'Kitchen' ? '' : document.getElementById(`edit-tabc-${id}`).value;
+            const fhc = document.getElementById(`edit-fhc-${id}`).value;
+
+            // Push the update to Firebase
+            db.ref(currentLocation + '/compliance/' + id).update({
+                name: name,
+                role: role,
+                phone: phone,
+                tabc: tabc,
+                fhc: fhc
+            }).then(() => {
+                editingRowId = null; 
+                // Firebase will automatically trigger renderTable() via our .on('value') listener above
+            }).catch((error) => {
+                alert("Error updating record: " + error.message);
+            });
+        }
+
+        // --- 8. NEW HIRE MODAL LOGIC (Only used for ADDING now) ---
         function openAddModal() {
-            document.getElementById('staff-id').value = '';
             document.getElementById('staff-form').reset();
-            document.getElementById('modal-title').innerText = 'Add New Staff Member';
             document.getElementById('role-input').dispatchEvent(new Event('change'));
 
             const modal = document.getElementById('staff-modal');
@@ -508,10 +638,8 @@
             const tabc = document.getElementById('tabc-input').value || '';
             const fhc = document.getElementById('fhc-input').value;
             
-            let id = document.getElementById('staff-id').value;
-            let recordRef = id ? db.ref(currentLocation + '/compliance/' + id) : db.ref(currentLocation + '/compliance').push();
-
-            recordRef.set({
+            // Generate new entry
+            db.ref(currentLocation + '/compliance').push().set({
                 name: name,
                 role: role,
                 phone: phone,
@@ -524,24 +652,7 @@
             });
         });
 
-        function editStaff(id) {
-            const staff = staffList.find(s => s.id === id);
-            if (!staff) return;
-            document.getElementById('staff-id').value = staff.id;
-            document.getElementById('name-input').value = staff.name;
-            document.getElementById('role-input').value = staff.role;
-            document.getElementById('phone-input').value = staff.phone || ''; 
-            document.getElementById('tabc-input').value = staff.tabc || '';
-            document.getElementById('fhc-input').value = staff.fhc || '';
-            
-            document.getElementById('role-input').dispatchEvent(new Event('change'));
-            document.getElementById('modal-title').innerText = 'Edit Employee Record';
-            
-            const modal = document.getElementById('staff-modal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.querySelector('.hospitality-modal').classList.remove('scale-95', 'opacity-0'), 10);
-        }
-
+        // --- 9. DELETING ---
         function deleteStaff(id) {
             if (!firebase.auth().currentUser) {
                 alert("Security Error: Not fully logged in. Please refresh the page.");
