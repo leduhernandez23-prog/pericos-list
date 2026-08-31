@@ -152,21 +152,54 @@
             box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
         }
 
-        /* PRINT STYLING: Hides UI controls and prints clean white table */
+        /* 1-PAGE PRINT STYLING */
         @media print {
-            header, .p-5, .hospitality-add-btn, .action-buttons-col, .fa-pen-to-square, .fa-trash, th:last-child, td:last-child {
+            /* Widen margins to fit more horizontally and vertically */
+            @page { margin: 0.3in; }
+            
+            /* Hides Header, Search Bar, Action Buttons, AND Top Stat Cards (.grid) */
+            header, .p-5, .hospitality-add-btn, .action-buttons-col, .fa-pen-to-square, .fa-trash, th:last-child, td:last-child, .grid {
                 display: none !important;
             }
+            
             body {
                 background-color: #FFFFFF !important;
+                -webkit-print-color-adjust: exact;
             }
+            
             main {
                 padding: 0 !important;
+                margin: 0 !important;
                 max-width: 100% !important;
             }
+            
             .hospitality-container {
                 box-shadow: none !important;
                 border: none !important;
+            }
+            
+            /* Ultra-compress table cells to fit dozens of rows on one page */
+            .hospitality-table th {
+                padding-top: 6px !important;
+                padding-bottom: 6px !important;
+                font-size: 10px !important;
+            }
+            
+            .hospitality-table td {
+                padding-top: 4px !important;
+                padding-bottom: 4px !important;
+                font-size: 11px !important;
+            }
+            
+            .group-separator td {
+                padding-top: 2px !important;
+                padding-bottom: 2px !important;
+            }
+            
+            .badge-hospitality {
+                font-size: 10px !important;
+                padding: 1px 4px !important;
+                border: 1px solid #E7E5E4 !important; /* Ensures outline remains if colors drop */
             }
         }
     </style>
@@ -204,6 +237,7 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 pt-28 pb-8">
+        <!-- The 'grid' class container gets hidden completely when printed -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white border border-stone-200 hospitality-stat-card shadow-soft p-6 flex items-center justify-between">
                 <div>
@@ -432,7 +466,7 @@
         }
 
         function getStatusBadge(dateString) {
-            if (!dateString) return ''; // Completely blank if no data so you can write on it when printed
+            if (!dateString) return ''; 
             const today = new Date(); today.setHours(0, 0, 0, 0); 
             const expDate = new Date(dateString); expDate.setHours(0, 0, 0, 0);
             const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
@@ -585,6 +619,10 @@
 
         function cancelAndRemoveInlineEdit(id) {
             // Discards any typed changes by simply resetting editing state to null and redrawing from original data
+            const target = staffList.find(s => s.id === id);
+            if (target && !target.name.trim()) {
+                db.ref(currentLocation + '/compliance/' + id).remove();
+            }
             editingRowId = null;
             renderTable(); 
         }
