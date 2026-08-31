@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Los Pericos - Compliance Tracker</title>
     
-    <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-    <!-- Configure Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -28,7 +24,6 @@
         }
     </script>
 
-    <!-- CSS STYLING -->
     <style>
         :root {
             --bg-canvas: #FAF7F2; 
@@ -240,19 +235,17 @@
                         </tr>
                     </thead>
                     <tbody id="staff-table-body" class="divide-y divide-stone-100 text-sm hospitality-table-body">
-                        <!-- Dynamic Rows Injected via JS -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- NEW EMPLOYEE MODAL -->
     <div id="staff-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity duration-300">
         <div class="bg-white rounded-xl w-full max-w-md hospitality-modal shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300">
             <div class="px-6 py-4 border-b border-stone-100 bg-stone-50 flex justify-between items-center hospitality-modal-header">
                 <h3 id="modal-title" class="text-lg font-bold text-slate-900">Add New Staff Member</h3>
-                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 hospitality-modal-close"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 hospitality-modal-close"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
             <form id="staff-form" class="p-6 hospitality-form">
@@ -296,7 +289,6 @@
         </div>
     </div>
 
-    <!-- FIREBASE & JAVASCRIPT LOGIC -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAOO73pfw9yyyukquyOJfjs2nPNQn__XLM",
@@ -413,7 +405,7 @@
         }
 
         function getStatusBadge(dateString) {
-            if (!dateString) return '<span class="text-slate-400 italic">N/A</span>';
+            if (!dateString) return ''; // Completely blank if no data so you can write on it
             const today = new Date(); today.setHours(0, 0, 0, 0); 
             const expDate = new Date(dateString); expDate.setHours(0, 0, 0, 0);
             const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
@@ -435,15 +427,11 @@
 
         function toggleInlineTABC(id, newRole) {
             const tabcInput = document.getElementById(`edit-tabc-${id}`);
-            const tabcNA = document.getElementById(`edit-tabc-na-${id}`);
-            
             if (newRole === 'Kitchen') {
                 tabcInput.style.display = 'none';
                 tabcInput.value = '';
-                if(tabcNA) tabcNA.style.display = 'inline-block';
             } else {
                 tabcInput.style.display = 'block';
-                if(tabcNA) tabcNA.style.display = 'none';
             }
         }
 
@@ -460,7 +448,7 @@
                 (s.phone && s.phone.includes(currentFilter))
             );
 
-            // UPGRADE: Sort Alphabetically by Last Name
+            // Sort Alphabetically by Last Name
             filtered.sort((a, b) => {
                 const getLastName = (name) => {
                     if (!name) return "";
@@ -513,10 +501,10 @@
                             const isKitchen = staff.role === 'Kitchen';
                             tr.innerHTML = `
                                 <td class="py-3 px-4 pl-10">
-                                    <input type="text" id="edit-name-${staff.id}" class="inline-edit-input" value="${staff.name}">
+                                    <input type="text" id="edit-name-${staff.id}" class="inline-edit-input" value="${staff.name}" onkeydown="if(event.key === 'Enter') saveInlineEdit('${staff.id}')">
                                 </td>
                                 <td class="py-3 px-4">
-                                    <select id="edit-role-${staff.id}" class="inline-edit-input" onchange="toggleInlineTABC('${staff.id}', this.value)">
+                                    <select id="edit-role-${staff.id}" class="inline-edit-input" onchange="toggleInlineTABC('${staff.id}', this.value)" onkeydown="if(event.key === 'Enter') saveInlineEdit('${staff.id}')">
                                         <option value="Host" ${staff.role==='Host'?'selected':''}>Host</option>
                                         <option value="Busboy" ${staff.role==='Busboy'?'selected':''}>Busboy</option>
                                         <option value="Server" ${staff.role==='Server'?'selected':''}>Server</option>
@@ -525,22 +513,22 @@
                                     </select>
                                 </td>
                                 <td class="py-3 px-4">
-                                    <input type="tel" id="edit-phone-${staff.id}" class="inline-edit-input" value="${staff.phone || ''}" oninput="formatInlinePhone(this)" maxlength="14">
+                                    <input type="tel" id="edit-phone-${staff.id}" class="inline-edit-input" value="${staff.phone || ''}" oninput="formatInlinePhone(this)" maxlength="14" onkeydown="if(event.key === 'Enter') saveInlineEdit('${staff.id}')">
                                 </td>
                                 <td class="py-3 px-4">
-                                    <input type="date" id="edit-tabc-${staff.id}" class="inline-edit-input" value="${staff.tabc || ''}" style="display: ${isKitchen ? 'none' : 'block'};">
-                                    <span id="edit-tabc-na-${staff.id}" class="text-slate-400 italic text-sm ml-2" style="display: ${isKitchen ? 'inline-block' : 'none'};">N/A</span>
+                                    <input type="date" id="edit-tabc-${staff.id}" class="inline-edit-input" value="${staff.tabc || ''}" style="display: ${isKitchen ? 'none' : 'block'};" onkeydown="if(event.key === 'Enter') saveInlineEdit('${staff.id}')">
                                 </td>
                                 <td class="py-3 px-4">
-                                    <input type="date" id="edit-fhc-${staff.id}" class="inline-edit-input" value="${staff.fhc || ''}">
+                                    <input type="date" id="edit-fhc-${staff.id}" class="inline-edit-input" value="${staff.fhc || ''}" onkeydown="if(event.key === 'Enter') saveInlineEdit('${staff.id}')">
                                 </td>
                                 <td class="py-3 px-4 text-right space-x-3 whitespace-nowrap">
                                     <button onclick="saveInlineEdit('${staff.id}')" class="text-emerald-600 hover:text-emerald-800 transition bg-emerald-50 px-2 py-1 rounded" title="Save Changes"><i class="fa-solid fa-check"></i></button>
-                                    <button onclick="cancelInlineEdit()" class="text-stone-500 hover:text-stone-700 transition bg-stone-100 px-2 py-1 rounded" title="Cancel"><i class="fa-solid fa-xmark"></i></button>
+                                    <button onclick="cancelInlineEdit()" class="text-stone-500 hover:text-stone-700 transition bg-stone-100 px-2 py-1 rounded" title="Discard Updates"><i class="fa-solid fa-xmark"></i></button>
                                 </td>
                             `;
                         } else {
-                            const phoneDisplay = staff.phone ? staff.phone : '<span class="italic text-slate-400">N/A</span>';
+                            // Phone completely blank if missing
+                            const phoneDisplay = staff.phone ? staff.phone : '';
                             tr.innerHTML = `
                                 <td class="py-4 px-6 font-semibold text-slate-800 pl-10">${staff.name}</td>
                                 <td class="py-4 px-6 text-slate-500">${staff.role}</td>
@@ -570,6 +558,7 @@
         }
 
         function cancelInlineEdit() {
+            // Instantly closes tab and discards any typed changes by redrawing original data
             editingRowId = null;
             renderTable(); 
         }
@@ -586,14 +575,26 @@
             const tabc = role === 'Kitchen' ? '' : document.getElementById(`edit-tabc-${id}`).value;
             const fhc = document.getElementById(`edit-fhc-${id}`).value;
 
+            // Optimistic UI Update: Update list locally so table snaps closed instantly without waiting on Cloud Ping
+            const staffIndex = staffList.findIndex(s => s.id === id);
+            if (staffIndex > -1) {
+                staffList[staffIndex].name = name;
+                staffList[staffIndex].role = role;
+                staffList[staffIndex].phone = phone;
+                staffList[staffIndex].tabc = tabc;
+                staffList[staffIndex].fhc = fhc;
+            }
+            
+            editingRowId = null; 
+            renderTable(); 
+
+            // Sync with Firebase in the background
             db.ref(currentLocation + '/compliance/' + id).update({
                 name: name,
                 role: role,
                 phone: phone,
                 tabc: tabc,
                 fhc: fhc
-            }).then(() => {
-                editingRowId = null; 
             }).catch((error) => {
                 alert("Error updating record: " + error.message);
             });
