@@ -131,10 +131,6 @@
         #imagePreviewContainer { display: none; margin-top: 15px; text-align: center; }
         #imagePreview { max-width: 100%; max-height: 200px; border-radius: 6px; }
 
-        .payment-toggle { width: 100%; padding: 15px; font-size: 16px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; color: white; text-transform: uppercase; }
-        .unpaid { background-color: var(--danger); }
-        .paid { background-color: var(--success); }
-
         .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; }
 
         .calendar-header { display: flex !important; flex-direction: row !important; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; width: 100%; }
@@ -288,11 +284,19 @@
                         <button type="button" class="remove-img-btn" id="removeImageBtn" style="color:var(--danger); background:none; border:none; font-weight:bold; margin-top:5px;">Remove Photo</button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Payment Status</label>
-                    <input type="hidden" id="isPaid" value="false">
-                    <button type="button" id="paymentBtn" class="payment-toggle unpaid">Unpaid</button>
+                
+                <!-- NEW FINANCIAL TRACKING FIELDS -->
+                <div class="row">
+                    <div class="form-group">
+                        <label>Total Cost ($)</label>
+                        <input type="number" id="totalCost" step="0.01" min="0" placeholder="0.00" oninput="calculateBalance()">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount Paid / Deposit ($)</label>
+                        <input type="number" id="amountPaid" step="0.01" min="0" placeholder="0.00" oninput="calculateBalance()">
+                    </div>
                 </div>
+                <div id="balanceWarning" style="display:none; padding:10px; border-radius:8px; text-align:center; font-weight:bold; margin-bottom:20px;"></div>
             </div>
 
             <div class="form-group">
@@ -400,6 +404,31 @@
             }
         }
 
+        // --- DYNAMIC BALANCE CALCULATOR ---
+        window.calculateBalance = () => {
+            const total = parseFloat(document.getElementById('totalCost').value) || 0;
+            const paid = parseFloat(document.getElementById('amountPaid').value) || 0;
+            const balance = total - paid;
+            const balDiv = document.getElementById('balanceWarning');
+            
+            if (total > 0) {
+                balDiv.style.display = 'block';
+                if (balance > 0) {
+                    balDiv.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                    balDiv.style.color = 'var(--danger)';
+                    balDiv.style.border = '1px dashed var(--danger)';
+                    balDiv.innerText = `Balance Due: $${balance.toFixed(2)}`;
+                } else {
+                    balDiv.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                    balDiv.style.color = 'var(--success)';
+                    balDiv.style.border = '1px dashed var(--success)';
+                    balDiv.innerText = `✅ Paid in Full`;
+                }
+            } else {
+                balDiv.style.display = 'none';
+            }
+        };
+
         // --- 3. DATA HANDLING ---
         let cachedEvents = [];
         function loadData() {
@@ -427,6 +456,8 @@
             
             const evType = document.querySelector('input[name="eventType"]:checked').value;
             const evRef = db.ref(currentLocation + '/events').push();
+            
+            // Generate Payload
             const evData = {
                 type: evType,
                 customer: document.getElementById('customerName').value,
@@ -434,11 +465,16 @@
                 guests: document.getElementById('headcount').value,
                 date: document.getElementById('eventDate').value,
                 start: document.getElementById('startTime').value,
-                isPaid: evType === 'Catering' ? (document.getElementById('isPaid').value === 'true') : false,
                 notes: document.getElementById('notes').value,
                 createdBy: activeUser,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             };
+
+            // Inject financial data if Catering
+            if (evType === 'Catering') {
+                evData.totalCost = parseFloat(document.getElementById('totalCost').value) || 0;
+                evData.amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+            }
 
             await evRef.set(evData);
             logAction(`Added ${evData.type} for ${evData.customer}`);
@@ -501,20 +537,64 @@
 
         window.changeMonth = (dir) => { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCalendar(); };
 
+        // MODAL WITH FINANCIAL DISPLAY
         window.openEventModal = (id) => {
             const ev = cachedEvents.find(e => e.id === id);
             const overlay = document.getElementById('eventModalOverlay');
+            
+            let financialHTML = '';
+            
+            // Build the Financial Block for Catering
+            if (ev.type === 'Catering') {
+                if (ev.totalCost !== undefined) {
+                    let total = parseFloat(ev.totalCost) || 0;
+                    let paid = parseFloat(ev.amountPaid) || 0;
+                    let bal = total - paid;
+                    
+                    if (bal > 0) {
+                        financialHTML = `
+                            <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger); padding:12px; border-radius:8px; margin-bottom:15px;">
+                                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; color:var(--text-main);">
+                                    <span><b>Total:</b> $${total.toFixed(2)}</span>
+                                    <span><b>Paid:</b> $${paid.toFixed(2)}</span>
+                                </div>
+                                <div style="color:var(--danger); font-size:15px; font-weight:bold; text-align:center; margin-bottom:10px;">
+                                    Balance Due: $${bal.toFixed(2)}
+                                </div>
+                                <button onclick="logNewPayment('${ev.id}', ${total}, ${paid})" class="submit-btn" style="padding:8px; font-size:13px; background:var(--primary); margin-top:0;">💳 Add Payment</button>
+                            </div>
+                        `;
+                    } else {
+                        financialHTML = `
+                            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success); padding:12px; border-radius:8px; margin-bottom:15px; text-align:center;">
+                                <div style="font-size:13px; margin-bottom:3px; color:var(--text-main);">Total: $${total.toFixed(2)}</div>
+                                <div style="color:var(--success); font-size:15px; font-weight:bold;">✅ Paid in Full</div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // Fallback block if viewing an old event that used the legacy Paid/Unpaid button
+                    let status = ev.isPaid ? '✅ Paid' : '❌ Unpaid';
+                    financialHTML = `<div style="background:var(--toggle-bg); padding:10px; border-radius:8px; margin-bottom:15px; font-weight:bold;">Legacy Status: ${status}</div>`;
+                }
+            }
+
             document.getElementById('modalContentDetails').innerHTML = `
                 <div style="font-size:12px; color:var(--primary); font-weight:800; margin-bottom:5px;">${ev.type.toUpperCase()}</div>
                 <b style="font-size:22px;">${ev.customer}</b>
                 <div style="font-size:14px; color:var(--text-muted); margin:10px 0;">📅 ${ev.date} @ ${ev.start}<br>👥 ${ev.guests} Guests<br>👤 By: ${ev.createdBy}</div>
+                
+                ${financialHTML}
+
                 ${ev.notes ? `<div style="background:var(--toggle-bg); padding:10px; border-radius:8px; font-size:13px; margin-bottom:15px;">${ev.notes}</div>` : ''}
+                
                 <div style="display:flex; gap:10px;">
                     <a href="tel:${ev.phone}" class="action-link">📞 Call</a>
                     <a href="sms:${ev.phone}" class="action-link">💬 Text</a>
                     ${ev.photo ? `<a href="${ev.photo}" target="_blank" class="action-link">📄 Ticket</a>` : ''}
                 </div>
                 <button onclick="deleteEvent('${ev.id}', '${ev.customer.replace(/'/g,"")}')" class="submit-btn" style="background:var(--danger); margin-top:15px;">🗑️ Delete Event</button>`;
+            
             overlay.style.display = 'flex';
             setTimeout(() => overlay.style.opacity = '1', 10);
         };
@@ -522,6 +602,24 @@
         window.closeEventModal = () => {
             document.getElementById('eventModalOverlay').style.opacity = '0';
             setTimeout(() => document.getElementById('eventModalOverlay').style.display = 'none', 300);
+        };
+
+        // NEW PAYMENT UPDATER FUNCTION
+        window.logNewPayment = (id, total, currentPaid) => {
+            let remaining = (total - currentPaid).toFixed(2);
+            let amount = prompt(`Balance remaining: $${remaining}\n\nHow much is the customer paying right now?`);
+            
+            if (amount !== null && amount.trim() !== '') {
+                amount = parseFloat(amount);
+                if (!isNaN(amount) && amount > 0) {
+                    let newPaid = currentPaid + amount;
+                    db.ref(currentLocation + '/events/' + id).update({ amountPaid: newPaid });
+                    logAction(`Added payment of $${amount.toFixed(2)} to ${id} account`);
+                    closeEventModal();
+                } else {
+                    alert("Invalid amount entered. Please enter numbers only.");
+                }
+            }
         };
 
         window.deleteEvent = (id, name) => {
@@ -562,14 +660,6 @@
             localStorage.setItem('pericos_notif_'+currentLocation, Date.now());
             document.getElementById('bellBadge').style.display = 'none';
             switchView('activity');
-        };
-
-        const pBtn = document.getElementById('paymentBtn');
-        pBtn.onclick = () => {
-            const isPaid = document.getElementById('isPaid').value === 'true';
-            document.getElementById('isPaid').value = !isPaid;
-            pBtn.innerText = !isPaid ? 'Paid' : 'Unpaid';
-            pBtn.className = `payment-toggle ${!isPaid ? 'paid' : 'unpaid'}`;
         };
 
         document.getElementById('ticketImage').onchange = (e) => {
