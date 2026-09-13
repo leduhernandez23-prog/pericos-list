@@ -907,40 +907,71 @@ function autoSaveMeta() {
 /* ==========================================
    TOP 10 USAGE ANALYTICS & CSV EXPORT
    ========================================== */
+let cachedHistoryData = null;
+
 function loadUsageAnalytics() {
     db.ref(currentLocation + '/liquor_history').once('value', snap => {
-        const historyData = snap.val();
+        cachedHistoryData = snap.val();
         const weekList = document.getElementById('top-week-list');
         const monthList = document.getElementById('top-month-list');
+        const select = document.getElementById('analytics-month-select');
         
-        if (!historyData) {
+        if (!cachedHistoryData) {
             if(weekList) weekList.innerHTML = '<li style="color:var(--text-muted);">No history saved yet.</li>';
             if(monthList) monthList.innerHTML = '<li style="color:var(--text-muted);">No history saved yet.</li>';
+            if(select) select.innerHTML = '<option value="">No Data</option>';
             return;
         }
 
-        // Sort dates to find the most recent
-        const dates = Object.keys(historyData).sort((a, b) => b.localeCompare(a));
-        const latestDate = dates[0]; 
-        const latestData = historyData[latestDate].items || [];
+        // Get dates, newest first
+        const dates = Object.keys(cachedHistoryData).sort((a, b) => b.localeCompare(a));
         
-        // --- THE EXCLUSION FILTER ---
-        // Add any other words here you want to hide from the Top 10 list
-        const excludeList = ['tortilla', 'Torada 3plecsec', '3ple sec'];
-        
-        function shouldInclude(brandName) {
-            const nameLower = brandName.toLowerCase();
-            return !excludeList.some(excludedWord => nameLower.includes(excludedWord));
+        // Extract up to 12 unique months (YYYY-MM format)
+        let monthsSet = new Set();
+        dates.forEach(d => monthsSet.add(d.substring(0, 7)));
+        let availableMonths = Array.from(monthsSet).slice(0, 12); // Limits data processing to 12 months max
+
+        // Populate the dropdown menu
+        if(select) {
+            select.innerHTML = '';
+            availableMonths.forEach(m => {
+                // Convert YYYY-MM into a readable format like "Aug 2026"
+                const dateObj = new Date(m + '-02'); 
+                const monthName = dateObj.toLocaleString('default', { month: 'short', year: 'numeric' });
+                select.innerHTML += `<option value="${m}">${monthName}</option>`;
+            });
         }
 
-        // --- PROCESS THIS WEEK (TOP 10) ---
-        // Filter the data first, then sort it
-        let filteredWeekData = latestData.filter(item => shouldInclude(item.brand));
-        filteredWeekData.sort((a, b) => b.used - a.used);
-        globalTopWeek = filteredWeekData.slice(0, 10); 
+        // Process the absolute latest week for the left column
+        renderLatestWeekAnalytics(dates[0]);
         
-        if(weekList) {
-            weekList.innerHTML = '';
+        // Process the month currently selected in the dropdown for the right column
+        updateMonthAnalytics();
+    });
+}
+
+function renderLatestWeekAnalytics(latestDate) {
+    const latestData = cachedHistoryData[latestDate].items || [];
+    
+    // --- THE EXCLUSION FILTER ---
+    // Added Torada variations to exclude them from the Top 10
+    const excludeList = ['torada', '3ple sec', 'triple sec', 'tortilla'];
+    
+    const shouldInclude = (brandName) => {
+        const nameLower = brandName.toLowerCase();
+        return !excludeList.some(excludedWord => nameLower.includes(excludedWord));
+    };
+
+    let filteredWeekData = latestData.filter(item => shouldInclude(item.brand));
+    filteredWeekData.sort((a, b) => b.used - a.used);
+    globalTopWeek = filteredWeekData.slice(0, 10); 
+    
+    const weekList = document.getElementById('top-week-list');
+    if(weekList) {
+        weekList.innerHTML = '';
+        if(globalTopWeek.length === 0) {
+            weekList.innerHTML = '<li style="color:var(--text-muted);">No data.</li>';
+        } else {
             globalTopWeek.forEach((item, index) => {
                 weekList.innerHTML += `
                     <li style="padding: 6px 0; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
@@ -949,33 +980,49 @@ function loadUsageAnalytics() {
                     </li>`;
             });
         }
+    }
+}
 
-        // --- PROCESS THIS MONTH (TOP 10) ---
-        const currentMonthPrefix = latestDate.substring(0, 7); 
-        let monthTotals = {};
+// Triggered automatically when the dropdown changes
+window.updateMonthAnalytics = function() {
+    const select = document.getElementById('analytics-month-select');
+    if(!select || !cachedHistoryData) return;
+    
+    const selectedMonth = select.value;
+    if(!selectedMonth) return;
 
-        // Loop through all saved weeks that fall in the current month
-        dates.forEach(date => {
-            if (date.startsWith(currentMonthPrefix) && historyData[date].items) {
-                historyData[date].items.forEach(item => {
-                    // Only add to month totals if it passes the filter
-                    if (shouldInclude(item.brand)) {
-                        if (!monthTotals[item.brand]) monthTotals[item.brand] = 0;
-                        monthTotals[item.brand] += item.used;
-                    }
-                });
-            }
-        });
+    const excludeList = ['torada', '3ple sec', 'triple sec', 'tortilla'];
+    const shouldInclude = (brandName) => {
+        const nameLower = brandName.toLowerCase();
+        return !excludeList.some(excludedWord => nameLower.includes(excludedWord));
+    };
 
-        let monthArray = Object.keys(monthTotals).map(brand => {
-            return { brand: brand, used: monthTotals[brand] };
-        });
-        
-        monthArray.sort((a, b) => b.used - a.used);
-        globalTopMonth = monthArray.slice(0, 10); 
+    let monthTotals = {};
+    
+    // Loop through all saved weeks that start with the chosen month (e.g., '2026-08')
+    Object.keys(cachedHistoryData).forEach(date => {
+        if (date.startsWith(selectedMonth) && cachedHistoryData[date].items) {
+            cachedHistoryData[date].items.forEach(item => {
+                if (shouldInclude(item.brand)) {
+                    if (!monthTotals[item.brand]) monthTotals[item.brand] = 0;
+                    monthTotals[item.brand] += item.used;
+                }
+            });
+        }
+    });
 
-        if(monthList) {
-            monthList.innerHTML = '';
+    let monthArray = Object.keys(monthTotals).map(brand => {
+        return { brand: brand, used: monthTotals[brand] };
+    });
+    monthArray.sort((a, b) => b.used - a.used);
+    globalTopMonth = monthArray.slice(0, 10); 
+
+    const monthList = document.getElementById('top-month-list');
+    if(monthList) {
+        monthList.innerHTML = '';
+        if(globalTopMonth.length === 0) {
+            monthList.innerHTML = '<li style="color:var(--text-muted);">No data for this month.</li>';
+        } else {
             globalTopMonth.forEach((item, index) => {
                 monthList.innerHTML += `
                     <li style="padding: 6px 0; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
@@ -984,20 +1031,27 @@ function loadUsageAnalytics() {
                     </li>`;
             });
         }
-    });
-}
+    }
 
-// Generates a side-by-side CSV of the week and month top 10
+    // Update column title to match selected month
+    const titleElem = document.getElementById('monthly-top-title');
+    if(titleElem) {
+        const dateObj = new Date(selectedMonth + '-02');
+        titleElem.innerText = dateObj.toLocaleString('default', { month: 'long' }) + ' Top 10';
+    }
+};
+
 function exportTopPoursToCSV() {
     if (globalTopWeek.length === 0 && globalTopMonth.length === 0) {
         alert("No data to export yet!");
         return;
     }
 
-    // CSV Header row
-    let csv = "Rank,Top This Week (Brand),Weekly Btls Used,,Rank,Top This Month (Brand),Monthly Btls Used\n";
+    const select = document.getElementById('analytics-month-select');
+    const monthLabel = select ? select.options[select.selectedIndex].text : "Month";
+
+    let csv = `Rank,Latest Week (Brand),Weekly Btls Used,,Rank,${monthLabel} (Brand),Monthly Btls Used\n`;
     
-    // Build the 10 rows
     for (let i = 0; i < 10; i++) {
         let weekBrand = globalTopWeek[i] ? `"${globalTopWeek[i].brand}"` : "";
         let weekUsed = globalTopWeek[i] ? globalTopWeek[i].used.toFixed(1) : "";
@@ -1008,7 +1062,6 @@ function exportTopPoursToCSV() {
         csv += `${i + 1},${weekBrand},${weekUsed},,${i + 1},${monthBrand},${monthUsed}\n`;
     }
 
-    // Trigger standard browser download
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
