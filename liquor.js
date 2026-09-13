@@ -23,9 +23,10 @@ let globalBatches = {};
 let currentBuilderType = 'cocktail'; 
 let currentBuilderId = null;
 
-// --- GLOBALS FOR TOP 10 ANALYTICS ---
+// --- GLOBALS FOR TOP 10 ANALYTICS & SMART ORDER ---
 let globalTopWeek = [];
 let globalTopMonth = [];
+let globalOrderList = []; 
 // ----------------------------------------
 
 const catColors = {
@@ -69,7 +70,7 @@ function loadFirebaseData() {
         } else { addInventoryRow(); }
         isInitialLoad = true;
         renderMarginDashboard();
-        loadUsageAnalytics(); // <--- AUTO-LOAD TRIGGER
+        loadUsageAnalytics(); 
     });
 
     db.ref(currentLocation + '/liquor_menu_cocktails').on('value', snap => {
@@ -488,7 +489,6 @@ function injectInventoryRow(item) {
     let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
     if(isInitialLoad && (item.cost === 0 || item.shotSell === 0)) { tr.classList.add('price-warning'); }
 
-    // Fallback if they were using the old well/backbar/storage splits to prevent losing count
     let c = item.count !== undefined ? item.count : ((item.well || 0) + (item.backbar || 0) + (item.storage || 0));
     let cDec = (c - Math.floor(c)).toFixed(1);
 
@@ -691,27 +691,108 @@ function confirmBatchReceive() {
   closeReceiveModal();
 }
 
+// SMART ORDER SUMMARY SYSTEM
 function openSummaryModal() {
-  const list = document.getElementById('weekly-summary-list'); list.innerHTML = ''; let totalUsageCost = 0;
+  const list = document.getElementById('weekly-summary-list'); 
+  list.innerHTML = ''; 
+  let totalUsageCost = 0;
+  globalOrderList = []; 
+
   document.querySelectorAll('.inv-row').forEach(row => {
     const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; 
     const start = parseFloat(row.getAttribute('data-start')) || 0; 
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
     
     const count = parseFloat(row.querySelector('.i-count').value) || 0;
-    
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     
-    const usageBtls = (start + received) - count; const lineCost = usageBtls * cost;
-    if (usageBtls > 0) {
-      totalUsageCost += lineCost; const li = document.createElement('li'); li.style.padding = '10px 0'; li.style.borderBottom = '1px solid var(--glass-border)';
-      li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${brand}:</span> Used ${usageBtls.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${lineCost.toFixed(2)}</span>`; list.appendChild(li);
+    const usageBtls = (start + received) - count; 
+    const lineCost = usageBtls * cost;
+
+    // Only show items that were used or items that are completely out of stock
+    if (usageBtls > 0 || count === 0) { 
+      
+      let orderQty = 0;
+      if (usageBtls > 0) {
+          // Smart Par Math: 15% buffer on usage, minus current stock, rounded up to whole bottles
+          const par = usageBtls * 1.15; 
+          orderQty = Math.ceil(par - count);
+          if (orderQty < 0) orderQty = 0;
+      } else if (count === 0 && start > 0) {
+          // If we used none but are totally out (maybe transferred/broken), suggest 1 to get it back on the shelf
+          orderQty = 1;
+      }
+
+      if (usageBtls > 0) {
+          totalUsageCost += lineCost; 
+      }
+
+      if (usageBtls > 0 || orderQty > 0) {
+          if(orderQty > 0) {
+              globalOrderList.push({ brand, orderQty });
+          }
+
+          const li = document.createElement('li'); 
+          li.style.padding = '12px 0'; 
+          li.style.borderBottom = '1px solid var(--glass-border)';
+          li.style.display = 'flex';
+          li.style.justifyContent = 'space-between';
+          li.style.alignItems = 'center';
+          
+          let orderBadge = orderQty > 0 
+              ? `<div style="background: rgba(245, 158, 11, 0.1); color: var(--neon-orange); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 5px; font-weight: bold; border: 1px solid var(--neon-orange); display: inline-block;">🛒 Order: ${orderQty} btls</div>` 
+              : `<div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 5px;">✅ Fully Stocked</div>`;
+
+          li.innerHTML = `
+              <div>
+                  <div style="color: var(--neon-blue); font-weight: 600; font-size: 1rem;">${brand}</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Used: ${usageBtls.toFixed(1)} | Left: ${count.toFixed(1)}</div>
+              </div>
+              <div style="text-align: right;">
+                  <div style="color: var(--neon-green); font-family: monospace; font-size: 1rem;">+$${lineCost.toFixed(2)}</div>
+                  ${orderBadge}
+              </div>
+          `;
+          list.appendChild(li);
+      }
     }
-  }); if (list.innerHTML === '') list.innerHTML = `<li style="color: var(--text-muted); padding: 10px 0;">No usage recorded for this week yet.</li>`;
-  document.getElementById('weekly-summary-total').innerText = `$${totalUsageCost.toFixed(2)}`; document.getElementById('summary-modal').style.display = 'flex';
+  }); 
+  
+  if (list.innerHTML === '') {
+      list.innerHTML = `<li style="color: var(--text-muted); padding: 20px 0; text-align: center;">No usage recorded for this week.</li>`;
+  }
+  
+  document.getElementById('weekly-summary-total').innerText = `$${totalUsageCost.toFixed(2)}`; 
+  document.getElementById('summary-modal').style.display = 'flex';
 }
 
-function closeSummaryModal() { document.getElementById('summary-modal').style.display = 'none'; }
+function closeSummaryModal() { 
+    document.getElementById('summary-modal').style.display = 'none'; 
+}
+
+function exportOrderSheet() {
+    if (globalOrderList.length === 0) {
+        alert("Nothing to order this week! Your stock is healthy based on your volume.");
+        return;
+    }
+
+    let csv = "Spirit Brand,Full Bottles to Order\n";
+    globalOrderList.forEach(item => {
+        csv += `"${item.brand}",${item.orderQty}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    
+    const dateStr = new Date().toISOString().split('T')[0];
+    a.setAttribute('download', `Los_Pericos_Liquor_Order_${dateStr}.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
 
 function confirmResetWeek() {
   const today = new Date().toISOString().split('T')[0]; 
@@ -923,29 +1004,22 @@ function loadUsageAnalytics() {
             return;
         }
 
-        // Get dates, newest first
         const dates = Object.keys(cachedHistoryData).sort((a, b) => b.localeCompare(a));
         
-        // Extract up to 12 unique months (YYYY-MM format)
         let monthsSet = new Set();
         dates.forEach(d => monthsSet.add(d.substring(0, 7)));
-        let availableMonths = Array.from(monthsSet).slice(0, 12); // Limits data processing to 12 months max
+        let availableMonths = Array.from(monthsSet).slice(0, 12); 
 
-        // Populate the dropdown menu
         if(select) {
             select.innerHTML = '';
             availableMonths.forEach(m => {
-                // Convert YYYY-MM into a readable format like "Aug 2026"
                 const dateObj = new Date(m + '-02'); 
                 const monthName = dateObj.toLocaleString('default', { month: 'short', year: 'numeric' });
                 select.innerHTML += `<option value="${m}">${monthName}</option>`;
             });
         }
 
-        // Process the absolute latest week for the left column
         renderLatestWeekAnalytics(dates[0]);
-        
-        // Process the month currently selected in the dropdown for the right column
         updateMonthAnalytics();
     });
 }
@@ -953,8 +1027,6 @@ function loadUsageAnalytics() {
 function renderLatestWeekAnalytics(latestDate) {
     const latestData = cachedHistoryData[latestDate].items || [];
     
-    // --- THE EXCLUSION FILTER ---
-    // Added Torada variations to exclude them from the Top 10
     const excludeList = ['torada', '3ple sec', 'triple sec', 'tortilla'];
     
     const shouldInclude = (brandName) => {
@@ -983,7 +1055,6 @@ function renderLatestWeekAnalytics(latestDate) {
     }
 }
 
-// Triggered automatically when the dropdown changes
 window.updateMonthAnalytics = function() {
     const select = document.getElementById('analytics-month-select');
     if(!select || !cachedHistoryData) return;
@@ -999,7 +1070,6 @@ window.updateMonthAnalytics = function() {
 
     let monthTotals = {};
     
-    // Loop through all saved weeks that start with the chosen month (e.g., '2026-08')
     Object.keys(cachedHistoryData).forEach(date => {
         if (date.startsWith(selectedMonth) && cachedHistoryData[date].items) {
             cachedHistoryData[date].items.forEach(item => {
@@ -1033,7 +1103,6 @@ window.updateMonthAnalytics = function() {
         }
     }
 
-    // Update column title to match selected month
     const titleElem = document.getElementById('monthly-top-title');
     if(titleElem) {
         const dateObj = new Date(selectedMonth + '-02');
