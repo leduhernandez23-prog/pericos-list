@@ -23,11 +23,10 @@ let globalBatches = {};
 let currentBuilderType = 'cocktail'; 
 let currentBuilderId = null;
 
-// --- GLOBALS FOR TOP 10 ANALYTICS & SMART ORDER ---
+// --- GLOBALS FOR ANALYTICS ---
 let globalTopWeek = [];
 let globalTopMonth = [];
 let globalOrderList = []; 
-// ----------------------------------------
 
 const catColors = {
     'Tequila': '#10b981', 'Vodka': '#3b82f6', 'Whiskey': '#f59e0b',
@@ -672,7 +671,6 @@ function confirmBatchReceive() {
         targetRow.setAttribute('data-received', currentRec + amount); 
         targetRow.querySelector('.calc-received').innerText = currentRec + amount; 
         
-        // Push delivery directly to the main count
         const countInput = targetRow.querySelector('.i-count');
         const currentCount = parseFloat(countInput.value) || 0;
         countInput.value = (currentCount + amount).toFixed(1);
@@ -691,7 +689,6 @@ function confirmBatchReceive() {
   closeReceiveModal();
 }
 
-// SMART ORDER SUMMARY SYSTEM
 function openSummaryModal() {
   const list = document.getElementById('weekly-summary-list'); 
   list.innerHTML = ''; 
@@ -709,28 +706,20 @@ function openSummaryModal() {
     const usageBtls = (start + received) - count; 
     const lineCost = usageBtls * cost;
 
-    // Only show items that were used or items that are completely out of stock
     if (usageBtls > 0 || count === 0) { 
-      
       let orderQty = 0;
       if (usageBtls > 0) {
-          // Smart Par Math: 15% buffer on usage, minus current stock, rounded up to whole bottles
           const par = usageBtls * 1.15; 
           orderQty = Math.ceil(par - count);
           if (orderQty < 0) orderQty = 0;
       } else if (count === 0 && start > 0) {
-          // If we used none but are totally out (maybe transferred/broken), suggest 1 to get it back on the shelf
           orderQty = 1;
       }
 
-      if (usageBtls > 0) {
-          totalUsageCost += lineCost; 
-      }
+      if (usageBtls > 0) { totalUsageCost += lineCost; }
 
       if (usageBtls > 0 || orderQty > 0) {
-          if(orderQty > 0) {
-              globalOrderList.push({ brand, orderQty });
-          }
+          if(orderQty > 0) { globalOrderList.push({ brand, orderQty }); }
 
           const li = document.createElement('li'); 
           li.style.padding = '12px 0'; 
@@ -758,35 +747,25 @@ function openSummaryModal() {
     }
   }); 
   
-  if (list.innerHTML === '') {
-      list.innerHTML = `<li style="color: var(--text-muted); padding: 20px 0; text-align: center;">No usage recorded for this week.</li>`;
-  }
-  
+  if (list.innerHTML === '') { list.innerHTML = `<li style="color: var(--text-muted); padding: 20px 0; text-align: center;">No usage recorded for this week.</li>`; }
   document.getElementById('weekly-summary-total').innerText = `$${totalUsageCost.toFixed(2)}`; 
   document.getElementById('summary-modal').style.display = 'flex';
 }
 
-function closeSummaryModal() { 
-    document.getElementById('summary-modal').style.display = 'none'; 
-}
+function closeSummaryModal() { document.getElementById('summary-modal').style.display = 'none'; }
 
 function exportOrderSheet() {
     if (globalOrderList.length === 0) {
         alert("Nothing to order this week! Your stock is healthy based on your volume.");
         return;
     }
-
     let csv = "Spirit Brand,Full Bottles to Order\n";
-    globalOrderList.forEach(item => {
-        csv += `"${item.brand}",${item.orderQty}\n`;
-    });
-
+    globalOrderList.forEach(item => { csv += `"${item.brand}",${item.orderQty}\n`; });
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
     a.setAttribute('href', url);
-    
     const dateStr = new Date().toISOString().split('T')[0];
     a.setAttribute('download', `Los_Pericos_Liquor_Order_${dateStr}.csv`);
     document.body.appendChild(a);
@@ -805,7 +784,6 @@ function confirmResetWeek() {
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
     
     const count = parseFloat(row.querySelector('.i-count').value) || 0;
-    
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     const usageBtls = (start + received) - count; 
     const lineCost = usageBtls * cost;
@@ -878,9 +856,7 @@ function loadHistoryDetails() {
     container.style.display = 'block';
 }
 
-function closeHistoryModal() {
-    document.getElementById('history-modal').style.display = 'none';
-}
+function closeHistoryModal() { document.getElementById('history-modal').style.display = 'none'; }
 
 function exportHistoryToCSV() {
     const dateSelected = document.getElementById('history-date-select').value;
@@ -927,7 +903,6 @@ function exportToCSV() {
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
     
     const count = parseFloat(row.querySelector('.i-count').value) || 0;
-    
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0; 
     const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
     
@@ -961,26 +936,18 @@ function exportToCSV() {
 function toggleCategory(cat) {
     collapsedCats[cat] = !collapsedCats[cat];
     filterInventory();
-    
     const headerIcon = document.querySelector(`.cat-header[data-target-cat="${cat}"] .cat-icon`);
     if(headerIcon) headerIcon.innerText = collapsedCats[cat] ? '▶' : '▼';
 }
 
 function updateMeta() {
-    db.ref(currentLocation + '/liquor_meta').update({
-        lastEditedBy: activeUser,
-        lastEditedAt: firebase.database.ServerValue.TIMESTAMP
-    });
+    db.ref(currentLocation + '/liquor_meta').update({ lastEditedBy: activeUser, lastEditedAt: firebase.database.ServerValue.TIMESTAMP });
     flashSync();
 }
 
 function autoSaveMeta() {
     const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
-    db.ref(currentLocation + '/liquor_meta').update({
-        posSales: posSales,
-        lastEditedBy: activeUser,
-        lastEditedAt: firebase.database.ServerValue.TIMESTAMP
-    });
+    db.ref(currentLocation + '/liquor_meta').update({ posSales: posSales, lastEditedBy: activeUser, lastEditedAt: firebase.database.ServerValue.TIMESTAMP });
     calculateGlobalMetrics();
     flashSync();
 }
@@ -1005,7 +972,6 @@ function loadUsageAnalytics() {
         }
 
         const dates = Object.keys(cachedHistoryData).sort((a, b) => b.localeCompare(a));
-        
         let monthsSet = new Set();
         dates.forEach(d => monthsSet.add(d.substring(0, 7)));
         let availableMonths = Array.from(monthsSet).slice(0, 12); 
@@ -1018,7 +984,6 @@ function loadUsageAnalytics() {
                 select.innerHTML += `<option value="${m}">${monthName}</option>`;
             });
         }
-
         renderLatestWeekAnalytics(dates[0]);
         updateMonthAnalytics();
     });
@@ -1026,9 +991,7 @@ function loadUsageAnalytics() {
 
 function renderLatestWeekAnalytics(latestDate) {
     const latestData = cachedHistoryData[latestDate].items || [];
-    
     const excludeList = ['torada', '3ple sec', 'triple sec', 'tortilla'];
-    
     const shouldInclude = (brandName) => {
         const nameLower = brandName.toLowerCase();
         return !excludeList.some(excludedWord => nameLower.includes(excludedWord));
@@ -1069,7 +1032,6 @@ window.updateMonthAnalytics = function() {
     };
 
     let monthTotals = {};
-    
     Object.keys(cachedHistoryData).forEach(date => {
         if (date.startsWith(selectedMonth) && cachedHistoryData[date].items) {
             cachedHistoryData[date].items.forEach(item => {
@@ -1102,7 +1064,6 @@ window.updateMonthAnalytics = function() {
             });
         }
     }
-
     const titleElem = document.getElementById('monthly-top-title');
     if(titleElem) {
         const dateObj = new Date(selectedMonth + '-02');
@@ -1112,22 +1073,17 @@ window.updateMonthAnalytics = function() {
 
 function exportTopPoursToCSV() {
     if (globalTopWeek.length === 0 && globalTopMonth.length === 0) {
-        alert("No data to export yet!");
-        return;
+        alert("No data to export yet!"); return;
     }
-
     const select = document.getElementById('analytics-month-select');
     const monthLabel = select ? select.options[select.selectedIndex].text : "Month";
 
     let csv = `Rank,Latest Week (Brand),Weekly Btls Used,,Rank,${monthLabel} (Brand),Monthly Btls Used\n`;
-    
     for (let i = 0; i < 10; i++) {
         let weekBrand = globalTopWeek[i] ? `"${globalTopWeek[i].brand}"` : "";
         let weekUsed = globalTopWeek[i] ? globalTopWeek[i].used.toFixed(1) : "";
-        
         let monthBrand = globalTopMonth[i] ? `"${globalTopMonth[i].brand}"` : "";
         let monthUsed = globalTopMonth[i] ? globalTopMonth[i].used.toFixed(1) : "";
-
         csv += `${i + 1},${weekBrand},${weekUsed},,${i + 1},${monthBrand},${monthUsed}\n`;
     }
 
@@ -1136,7 +1092,6 @@ function exportTopPoursToCSV() {
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
     a.setAttribute('href', url);
-    
     const dateStr = new Date().toISOString().split('T')[0];
     a.setAttribute('download', `Los_Pericos_Top_10_Pours_${dateStr}.csv`);
     document.body.appendChild(a);
