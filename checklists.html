@@ -59,23 +59,19 @@
         .header-controls { width: 100%; max-width: 550px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         #location-switcher { padding: 6px 10px; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); color: var(--text-main); font-weight: bold; font-size: 13px; outline: none; cursor: pointer; }
 
-        /* VIEW TOGGLE (Checklist vs History) */
         .tab-nav { display: flex; background: var(--toggle-bg); padding: 5px; border-radius: 10px; margin-bottom: 20px; transition: var(--theme-transition); }
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 14px; transition: all 0.3s ease; }
         .tab-btn.active { background-color: var(--toggle-active); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
 
-        /* SHIFT TOGGLE (AM vs PM) */
         .shift-toggle { display: flex; background: var(--toggle-bg); border-radius: 10px; padding: 5px; margin-bottom: 20px; position: relative; }
         .radio-hidden { position: absolute; opacity: 0; width: 0; height: 0; }
         .radio-label { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-weight: bold; border-radius: 8px; color: var(--text-muted); transition: all 0.3s ease; font-size: 14px; }
         .radio-hidden:checked + .radio-label { background-color: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
 
-        /* ROLE SELECTOR SCROLL BAR */
         .role-nav { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
         .role-btn { white-space: nowrap; padding: 10px 16px; background: var(--toggle-bg); border: 1px solid var(--border); border-radius: 20px; font-weight: 700; color: var(--text-muted); cursor: pointer; font-size: 13px; transition: 0.2s; }
         .role-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
 
-        /* CHECKLIST STYLES */
         .task-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
         .task-item { display: flex; align-items: center; background: var(--input-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .task-item:active { transform: scale(0.98); }
@@ -85,14 +81,24 @@
         .checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; transition: 0.2s; flex-shrink: 0;}
         .task-item.checked .checkbox { background-color: var(--primary); border-color: var(--primary); }
         .task-item.checked .checkbox::after { content: '✓'; }
-
         .task-text { font-size: 15px; font-weight: 600; color: var(--text-main); flex: 1; user-select: none; }
 
+        /* EDIT MODE STYLES */
+        .edit-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn-edit-toggle { background: var(--toggle-bg); color: var(--text-muted); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; }
+        .btn-edit-toggle.active { background: var(--info); color: white; border-color: var(--info); }
+        
+        .task-input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 6px; font-size: 14px; font-weight: 600; outline: none; }
+        .task-input:focus { border-color: var(--info); }
+        .btn-remove { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; width: 32px; height: 32px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-left: 10px; }
+        .btn-add-task { background: var(--toggle-bg); color: var(--text-main); border: 2px dashed var(--border); width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; transition: 0.2s; }
+        .btn-add-task:hover { background: var(--border); }
+
         .submit-btn { width: 100%; background-color: var(--primary); color: white; padding: 16px; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .submit-btn.save-mode { background-color: var(--info); box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2); }
         .submit-btn:active { transform: scale(0.98); }
         .submit-btn:disabled { background-color: var(--border); color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
 
-        /* HISTORY FEED */
         .history-card { background: var(--toggle-bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
         .history-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .h-role { font-weight: 800; color: var(--text-main); font-size: 15px; }
@@ -102,7 +108,6 @@
 
         #toast { visibility: hidden; min-width: 250px; background-color: var(--primary); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1; bottom: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
-
     </style>
 </head>
 <body>
@@ -157,10 +162,16 @@
                 <button class="role-btn" onclick="selectRole('BussBoy', this)">BussBoy</button>
             </div>
 
-            <div id="dynamic-task-list" class="task-list">
-                </div>
+            <div class="edit-controls" id="edit-controls-container" style="display: none;">
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: bold;">Checklist Tasks</span>
+                <button id="btnEditToggle" class="btn-edit-toggle" onclick="toggleEditMode()">⚙️ Edit Template</button>
+            </div>
 
-            <button id="submitBtn" class="submit-btn" onclick="submitChecklist()" disabled>Complete All Tasks First</button>
+            <div id="dynamic-task-list" class="task-list"></div>
+            
+            <button id="addTaskBtn" class="btn-add-task" style="display: none;" onclick="addNewTaskInput()">+ Add New Task</button>
+
+            <button id="submitBtn" class="submit-btn" onclick="handleMainAction()" disabled>Complete All Tasks First</button>
         </div>
 
         <div id="view-history" style="display:none;">
@@ -191,9 +202,11 @@
         let currentLocation = localStorage.getItem('pericos_location') || 'LP_Willis';
         
         let currentSelectedRole = 'Manager';
+        let isEditMode = false;
+        let dbTemplates = {};
 
-        // THE DEFAULT CHECKLIST DATA
-        const standardTasks = {
+        // INITIAL FALLBACK TEMPLATES (Used to seed database if empty)
+        const defaultTasks = {
             "Manager": {
                 "AM": ["Unlock front doors & turn off alarm", "Count safe & setup registers", "Check employee labor & schedule", "Verify walk-in temps", "Do morning walk-through"],
                 "PM": ["Run End-of-Day POS reports", "Calculate server tip-outs", "Lock safe & drop deposits", "Verify all equipment is off", "Arm security system & lock doors"]
@@ -226,10 +239,16 @@
             
             let locSwitcher = document.getElementById('location-switcher');
             locSwitcher.value = currentLocation;
-            if (activeRole !== 'Owner') { locSwitcher.style.display = 'none'; } 
-            else { locSwitcher.style.display = 'inline-block'; }
+            
+            if (activeRole === 'Owner' || activeRole === 'Manager') {
+                document.getElementById('edit-controls-container').style.display = 'flex';
+                locSwitcher.style.display = activeRole === 'Owner' ? 'inline-block' : 'none';
+            } else {
+                document.getElementById('edit-controls-container').style.display = 'none';
+                locSwitcher.style.display = 'none';
+            }
 
-            renderChecklist();
+            fetchTemplates();
             loadHistory();
         }
 
@@ -246,45 +265,125 @@
         }
 
         function selectRole(role, btnElem) {
+            if (isEditMode) toggleEditMode(); // Exit edit mode when switching roles
             currentSelectedRole = role;
             document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
             btnElem.classList.add('active');
             renderChecklist();
         }
 
+        // --- TEMPLATE LOGIC ---
+        function fetchTemplates() {
+            db.ref(`${currentLocation}/checklists_templates`).on('value', snap => {
+                if (snap.exists()) {
+                    dbTemplates = snap.val();
+                    renderChecklist();
+                } else {
+                    // Seed the database with the default tasks if nothing exists yet
+                    db.ref(`${currentLocation}/checklists_templates`).set(defaultTasks);
+                }
+            });
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const btn = document.getElementById('btnEditToggle');
+            if (isEditMode) {
+                btn.classList.add('active');
+                btn.innerText = "Cancel Editing";
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = "⚙️ Edit Template";
+            }
+            renderChecklist();
+        }
+
         function renderChecklist() {
             const shift = document.querySelector('input[name="shiftType"]:checked').value;
-            const tasks = standardTasks[currentSelectedRole][shift];
-            const container = document.getElementById('dynamic-task-list');
+            // Safely fetch tasks from cloud DB, fallback to empty array
+            const tasks = dbTemplates[currentSelectedRole] ? (dbTemplates[currentSelectedRole][shift] || []) : [];
             
+            const container = document.getElementById('dynamic-task-list');
+            const addTaskBtn = document.getElementById('addTaskBtn');
             container.innerHTML = '';
             
-            tasks.forEach((task, index) => {
-                let div = document.createElement('div');
-                div.className = 'task-item';
-                div.onclick = function() { toggleTask(this); };
+            if (isEditMode) {
+                // RENDER AS EDITABLE INPUTS
+                addTaskBtn.style.display = 'block';
                 
-                div.innerHTML = `
-                    <div class="checkbox"></div>
-                    <div class="task-text">${task}</div>
-                `;
-                container.appendChild(div);
-            });
+                tasks.forEach((task, index) => {
+                    let div = document.createElement('div');
+                    div.className = 'task-item';
+                    div.style.cursor = 'default';
+                    div.innerHTML = `
+                        <div class="checkbox" style="opacity: 0.3;">=</div>
+                        <input type="text" class="task-input" value="${task}">
+                        <button class="btn-remove" onclick="this.parentElement.remove()">X</button>
+                    `;
+                    container.appendChild(div);
+                });
+            } else {
+                // RENDER AS STANDARD CHECKLIST
+                addTaskBtn.style.display = 'none';
+                
+                if (tasks.length === 0) {
+                    container.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-style:italic;">No tasks set up for this shift yet.</p>`;
+                } else {
+                    tasks.forEach((task) => {
+                        let div = document.createElement('div');
+                        div.className = 'task-item';
+                        div.onclick = function() { toggleTask(this); };
+                        
+                        div.innerHTML = `
+                            <div class="checkbox"></div>
+                            <div class="task-text">${task}</div>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            }
 
             checkSubmitStatus();
         }
 
+        function addNewTaskInput() {
+            const container = document.getElementById('dynamic-task-list');
+            let div = document.createElement('div');
+            div.className = 'task-item';
+            div.style.cursor = 'default';
+            div.innerHTML = `
+                <div class="checkbox" style="opacity: 0.3;">=</div>
+                <input type="text" class="task-input" placeholder="Enter new task..." value="">
+                <button class="btn-remove" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(div);
+            div.querySelector('.task-input').focus();
+        }
+
         function toggleTask(elem) {
+            if (isEditMode) return;
             elem.classList.toggle('checked');
             checkSubmitStatus();
         }
 
         function checkSubmitStatus() {
-            const totalTasks = document.querySelectorAll('.task-item').length;
-            const checkedTasks = document.querySelectorAll('.task-item.checked').length;
             const btn = document.getElementById('submitBtn');
             
-            if (totalTasks > 0 && totalTasks === checkedTasks) {
+            if (isEditMode) {
+                btn.disabled = false;
+                btn.innerText = "💾 Save New Template";
+                btn.className = "submit-btn save-mode";
+                return;
+            }
+
+            btn.className = "submit-btn";
+            const totalTasks = document.querySelectorAll('.task-item').length;
+            const checkedTasks = document.querySelectorAll('.task-item.checked').length;
+            
+            if (totalTasks === 0) {
+                btn.disabled = true;
+                btn.innerText = "No Tasks to Complete";
+            } else if (totalTasks === checkedTasks) {
                 btn.disabled = false;
                 btn.innerText = "✅ Submit & Sign Off";
             } else {
@@ -293,9 +392,32 @@
             }
         }
 
+        function handleMainAction() {
+            if (isEditMode) {
+                saveTemplateToCloud();
+            } else {
+                submitChecklist();
+            }
+        }
+
+        function saveTemplateToCloud() {
+            const shift = document.querySelector('input[name="shiftType"]:checked').value;
+            const inputs = document.querySelectorAll('.task-input');
+            
+            // Extract values and filter out empty ones
+            const newTasksArray = Array.from(inputs)
+                .map(inp => inp.value.trim())
+                .filter(val => val !== '');
+                
+            // Push exact array to Firebase
+            db.ref(`${currentLocation}/checklists_templates/${currentSelectedRole}/${shift}`).set(newTasksArray).then(() => {
+                toggleEditMode(); // Turns off edit mode and re-renders automatically
+            });
+        }
+
         function submitChecklist() {
             const shift = document.querySelector('input[name="shiftType"]:checked').value;
-            const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            const todayStr = new Date().toISOString().split('T')[0];
             
             const logData = {
                 role: currentSelectedRole,
@@ -305,15 +427,10 @@
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             };
 
-            // Save under today's date for easy auditing
             db.ref(`${currentLocation}/checklists_logs/${todayStr}`).push(logData).then(() => {
                 showToast();
-                
-                // Uncheck everything
                 document.querySelectorAll('.task-item').forEach(el => el.classList.remove('checked'));
                 checkSubmitStatus();
-                
-                // Switch to history to show proof of submission
                 setTimeout(() => switchView('history'), 1000);
             });
         }
@@ -321,17 +438,13 @@
         function loadHistory() {
             const todayStr = new Date().toISOString().split('T')[0];
             
-            // Only load today's checklists so it stays clean
             db.ref(`${currentLocation}/checklists_logs/${todayStr}`).on('value', snap => {
                 let html = '';
                 let logs = [];
-                
                 snap.forEach(child => { logs.push(child.val()); });
                 
-                // Reverse to show newest at top
                 logs.reverse().forEach(log => {
                     let icon = log.shift === 'AM' ? '☀️' : '🌙';
-                    
                     html += `
                         <div class="history-card">
                             <div class="history-header">
@@ -353,6 +466,7 @@
         function showToast() {
             let toast = document.getElementById("toast");
             toast.className = "show";
+            toast.innerText = "✅ Shift Logged Successfully!";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
     </script>
