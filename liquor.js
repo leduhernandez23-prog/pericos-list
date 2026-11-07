@@ -23,19 +23,36 @@ let globalBatches = {};
 let currentBuilderType = 'cocktail'; 
 let currentBuilderId = null;
 
-// --- GLOBALS FOR ANALYTICS ---
+// --- GLOBALS FOR TOP 10 ANALYTICS & PERIOD TRACKING ---
 let globalTopWeek = [];
 let globalTopMonth = [];
-let globalOrderList = []; 
+let currentPeriodStart = '';
+// ------------------------------------------------------
 
 const catColors = {
     'Tequila': '#10b981', 'Vodka': '#3b82f6', 'Whiskey': '#f59e0b',
     'Rum': '#ef4444', 'Gin': '#06b6d4', 'Liqueur': '#a855f7',
-    'Mixer': '#eab308', 'Beer': '#ca8a04', 'Wine': '#be185d'
+    'Flavor': '#eab308', 'Mixer': '#eab308', 'Beer': '#ca8a04', 'Wine': '#be185d'
 };
 const unitOptions = ['ml', 'oz', 'L'];
 const builderUnitOptions = ['ml', 'oz', 'L', 'dash', 'ea']; 
-const catOptionsList = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Mixer', 'Beer', 'Wine'];
+const catOptionsList = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Flavor', 'Beer', 'Wine'];
+const spiritCategories = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur'];
+
+// Local Texas Date Helper (Prevents UTC evening date-shift bug)
+function getLocalTodayStr(dateObj = new Date()) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function addDaysToDateStr(dateStr, daysToAdd) {
+    const parts = dateStr.split('-').map(Number);
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    d.setDate(d.getDate() + daysToAdd);
+    return getLocalTodayStr(d);
+}
 
 window.addEventListener('scroll', () => {
   const btn = document.getElementById('fab-top');
@@ -69,7 +86,7 @@ function loadFirebaseData() {
         } else { addInventoryRow(); }
         isInitialLoad = true;
         renderMarginDashboard();
-        loadUsageAnalytics(); 
+        loadUsageAnalytics();
     });
 
     db.ref(currentLocation + '/liquor_menu_cocktails').on('value', snap => {
@@ -84,15 +101,33 @@ function loadFirebaseData() {
 
     db.ref(currentLocation + '/liquor_meta').on('value', snap => {
         const meta = snap.val();
-        if(meta && meta.lastEditedBy) {
-            const time = new Date(meta.lastEditedAt).toLocaleTimeString();
-            document.getElementById('last-edited-by').innerHTML = `${meta.lastEditedBy} <br><span style="font-weight:normal; font-size:0.7rem;">${time}</span>`;
+        if(meta) {
+            if(meta.lastEditedBy) {
+                const time = new Date(meta.lastEditedAt).toLocaleTimeString();
+                document.getElementById('last-edited-by').innerHTML = `${meta.lastEditedBy} <br><span style="font-weight:normal; font-size:0.7rem;">${time}</span>`;
+            }
             if(meta.posSales !== undefined && document.getElementById('pos-sales').value === '') {
                 document.getElementById('pos-sales').value = meta.posSales;
                 calculateGlobalMetrics();
             }
+            if(meta.currentPeriodStart) {
+                currentPeriodStart = meta.currentPeriodStart;
+                const startInput = document.getElementById('current-period-start-input');
+                if(startInput) startInput.value = currentPeriodStart;
+            }
         }
     });
+}
+
+function updateCurrentPeriodStart(newDateVal) {
+    if (!newDateVal) return;
+    currentPeriodStart = newDateVal;
+    db.ref(currentLocation + '/liquor_meta').update({
+        currentPeriodStart: newDateVal,
+        lastEditedBy: activeUser,
+        lastEditedAt: firebase.database.ServerValue.TIMESTAMP
+    });
+    flashSync();
 }
 
 function flashSync() {
@@ -427,10 +462,11 @@ function autoSaveInv() {
          const unit = row.querySelector('.i-unit').value;
          const cost = parseFloat(row.querySelector('.i-cost').value) || 0; 
          const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
-         
          const count = parseFloat(row.querySelector('.i-count').value) || 0;
          
-         if(cost === 0 || sell === 0) { row.classList.add('price-warning'); } else { row.classList.remove('price-warning'); }
+         const isSpirit = spiritCategories.includes(cat);
+         if(cost === 0 || (isSpirit && sell === 0)) { row.classList.add('price-warning'); } else { row.classList.remove('price-warning'); }
+         
          const checkKey = `${brand.trim().toLowerCase()}|${size}|${unit}`;
          if(brand.trim() !== '' && seen.has(checkKey)) { row.style.background = 'rgba(239, 68, 68, 0.1)'; } 
          else { row.style.background = 'var(--glass-bg)'; seen.add(checkKey); }
@@ -484,9 +520,14 @@ function filterInventory() {
 function injectInventoryRow(item) {
     const tbody = document.getElementById('inventory-body'); const tr = document.createElement('tr'); tr.className = 'inv-row';
     tr.setAttribute('data-received', item.received || 0); tr.setAttribute('data-start', item.start || 0);
-    let catHtml = catOptionsList.map(c => `<option value="${c}" ${c === item.category ? 'selected' : ''}>${c}</option>`).join('');
+    
+    let normalizedCat = (item.category === 'Mixer') ? 'Flavor' : (item.category || 'Tequila');
+    
+    let catHtml = catOptionsList.map(c => `<option value="${c}" ${c === normalizedCat ? 'selected' : ''}>${c}</option>`).join('');
     let unitHtml = unitOptions.map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`).join('');
-    if(isInitialLoad && (item.cost === 0 || item.shotSell === 0)) { tr.classList.add('price-warning'); }
+    
+    const isSpirit = spiritCategories.includes(normalizedCat);
+    if(isInitialLoad && (item.cost === 0 || (isSpirit && item.shotSell === 0))) { tr.classList.add('price-warning'); }
 
     let c = item.count !== undefined ? item.count : ((item.well || 0) + (item.backbar || 0) + (item.storage || 0));
     let cDec = (c - Math.floor(c)).toFixed(1);
@@ -544,62 +585,105 @@ function updateInventoryDatalist() {
 }
 
 function renderMarginDashboard() {
-    const tbody = document.getElementById('dashboard-body'); tbody.innerHTML = ''; let totalUsageCost = 0;
-    document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
-        const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; const rawSize = parseFloat(row.querySelector('.i-size').value) || 1;
-        const unit = row.querySelector('.i-unit').value; const sizeOz = convertToOz(rawSize, unit);
-        const start = parseFloat(row.getAttribute('data-start')) || 0; const received = parseFloat(row.getAttribute('data-received')) || 0;
-        
-        const count = parseFloat(row.querySelector('.i-count').value) || 0;
+    const tbody = document.getElementById('dashboard-body'); 
+    tbody.innerHTML = ''; 
+    let spiritUsageCost = 0;
+    let nonSpiritUsageCost = 0;
 
+    document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
+        const cat = row.querySelector('.i-category').value;
+        const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; 
+        const rawSize = parseFloat(row.querySelector('.i-size').value) || 1;
+        const unit = row.querySelector('.i-unit').value; 
+        const sizeOz = convertToOz(rawSize, unit);
+        const start = parseFloat(row.getAttribute('data-start')) || 0; 
+        const received = parseFloat(row.getAttribute('data-received')) || 0;
+        const count = parseFloat(row.querySelector('.i-count').value) || 0;
         const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
         const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0; 
         
-        const usageBtls = (start + received) - count; const usageCost = usageBtls * cost;
-        if (usageCost > 0) totalUsageCost += usageCost;
+        const usageBtls = (start + received) - count; 
+        const usageCost = usageBtls * cost;
         
-        const shotCost = (cost / sizeOz) * 1.5; 
-        const recPrice20 = shotCost * 5;
-        const shotProfit = sell - shotCost;
+        const isSpirit = spiritCategories.includes(cat);
+
+        if (usageCost > 0) {
+            if (isSpirit) spiritUsageCost += usageCost;
+            else nonSpiritUsageCost += usageCost;
+        }
         
-        let pourCostPct = 0; let pourClass = ''; let profitClass = '';
+        let shotCost = 0;
+        let recPrice20 = 0;
+        let shotProfit = 0;
+        let pourCostPct = 0; 
+        let pourClass = ''; 
+        let profitClass = '';
         let priceDisplay = `$${sell.toFixed(2)}`;
         let priceStyle = "color: var(--neon-green);";
 
-        if (sell > 0) {
-            pourCostPct = (shotCost / sell) * 100;
-            if (pourCostPct <= 20) { 
-                pourClass = 'status-good'; 
-                profitClass = 'status-good'; 
-            } else { 
-                pourClass = 'status-warn'; 
-                profitClass = 'status-warn'; 
-                priceStyle = "color: var(--text-main);";
-                priceDisplay = `$${sell.toFixed(2)} <br><span style="color: var(--danger); font-size: 0.8rem; font-weight: normal;">Rec: $${recPrice20.toFixed(2)}</span>`;
+        if (isSpirit && sizeOz > 0) {
+            shotCost = (cost / sizeOz) * 1.5; 
+            recPrice20 = shotCost * 5;
+            shotProfit = sell - shotCost;
+
+            if (sell > 0) {
+                pourCostPct = (shotCost / sell) * 100;
+                if (pourCostPct <= 20) { 
+                    pourClass = 'status-good'; 
+                    profitClass = 'status-good'; 
+                } else { 
+                    pourClass = 'status-warn'; 
+                    profitClass = 'status-warn'; 
+                    priceStyle = "color: var(--text-main);";
+                    priceDisplay = `$${sell.toFixed(2)} <br><span style="color: var(--danger); font-size: 0.8rem; font-weight: normal;">Rec: $${recPrice20.toFixed(2)}</span>`;
+                }
             }
+        } else {
+            priceDisplay = sell > 0 ? `$${sell.toFixed(2)}` : '--';
         }
         
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td data-label="Brand" style="font-weight: bold; color: var(--text-main);">${brand}</td>
+            <td data-label="Brand" style="font-weight: bold; color: var(--text-main);">${brand} <span style="font-size:0.7rem; color:${catColors[cat] || 'var(--text-muted)'}; display:block;">${cat}</span></td>
             <td data-label="Btls Used" style="color: var(--neon-orange); font-family: monospace; font-size: 1.1rem;">${Math.max(0, usageBtls).toFixed(1)}</td>
             <td data-label="Usage Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${Math.max(0, usageCost).toFixed(2)}</td>
-            <td data-label="Shot Cost ($)" style="font-family: monospace; font-size: 1.1rem;">$${shotCost.toFixed(2)}</td>
+            <td data-label="Shot Cost ($)" style="font-family: monospace; font-size: 1.1rem;">${isSpirit ? '$' + shotCost.toFixed(2) : '--'}</td>
             <td data-label="Shot Price" style="font-family: monospace; font-size: 1.1rem; ${priceStyle} font-weight: 600;">${priceDisplay}</td>
-            <td data-label="Shot Profit ($)" class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">$${shotProfit.toFixed(2)}</td>
-            <td data-label="Pour Cost %" class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${sell > 0 ? pourCostPct.toFixed(2) + '%' : '0.00%'}</td>
+            <td data-label="Shot Profit ($)" class="${profitClass}" style="font-family: monospace; font-size: 1.1rem;">${isSpirit ? '$' + shotProfit.toFixed(2) : '--'}</td>
+            <td data-label="Pour Cost %" class="${pourClass}" style="font-family: monospace; font-size: 1.1rem;">${isSpirit && sell > 0 ? pourCostPct.toFixed(2) + '%' : '--'}</td>
         `;
         tbody.appendChild(tr);
-    }); document.getElementById('global-usage-cost').innerText = `$${totalUsageCost.toFixed(2)}`; calculateGlobalMetrics(totalUsageCost);
+    }); 
+    
+    document.getElementById('global-usage-cost').innerText = `$${spiritUsageCost.toFixed(2)}`; 
+    const nonSpiritNote = document.getElementById('non-spirit-usage-note');
+    if (nonSpiritNote) {
+        nonSpiritNote.innerText = `Beer/Wine/Flavor Cost: $${nonSpiritUsageCost.toFixed(2)}`;
+    }
+    calculateGlobalMetrics(spiritUsageCost);
 }
 
-function calculateGlobalMetrics(totalUsageCost) {
-  if (totalUsageCost === undefined) totalUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
-  const posSales = parseFloat(document.getElementById('pos-sales').value) || 0; const pourDisplay = document.getElementById('global-pour-cost'); const pourBox = document.getElementById('global-pour-box');
+function calculateGlobalMetrics(spiritUsageCost) {
+  if (spiritUsageCost === undefined) spiritUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
+  const posSales = parseFloat(document.getElementById('pos-sales').value) || 0; 
+  const pourDisplay = document.getElementById('global-pour-cost'); 
+  const pourBox = document.getElementById('global-pour-box');
+  
   if (posSales > 0) {
-    const globalPourPct = (totalUsageCost / posSales) * 100; pourDisplay.innerText = `${globalPourPct.toFixed(2)}%`;
-    if (globalPourPct <= 20) { pourDisplay.className = 'value status-good'; pourBox.style.borderLeftColor = 'var(--neon-green)'; } else { pourDisplay.className = 'value status-warn'; pourBox.style.borderLeftColor = 'var(--danger)'; }
-  } else { pourDisplay.innerText = '0.00%'; pourDisplay.className = 'value'; pourBox.style.borderLeftColor = 'var(--neon-green)'; }
+    const globalPourPct = (spiritUsageCost / posSales) * 100; 
+    pourDisplay.innerText = `${globalPourPct.toFixed(2)}%`;
+    if (globalPourPct <= 20) { 
+        pourDisplay.className = 'value status-good'; 
+        pourBox.style.borderLeftColor = 'var(--neon-green)'; 
+    } else { 
+        pourDisplay.className = 'value status-warn'; 
+        pourBox.style.borderLeftColor = 'var(--danger)'; 
+    }
+  } else { 
+    pourDisplay.innerText = '0.00%'; 
+    pourDisplay.className = 'value'; 
+    pourBox.style.borderLeftColor = 'var(--neon-green)'; 
+  }
 }
 
 function filterDashboard() {
@@ -612,7 +696,7 @@ function autoFillDelivery(input) {
     if (inventoryLookup[val]) {
         const data = inventoryLookup[val];
         const row = input.closest('.delivery-row');
-        row.querySelector('.d-cat').value = data.category;
+        row.querySelector('.d-cat').value = (data.category === 'Mixer') ? 'Flavor' : data.category;
         row.querySelector('.d-size').value = data.size;
         row.querySelector('.d-unit').value = data.unit;
         row.querySelector('.d-cost').value = parseFloat(data.cost).toFixed(2);
@@ -674,6 +758,7 @@ function confirmBatchReceive() {
         const countInput = targetRow.querySelector('.i-count');
         const currentCount = parseFloat(countInput.value) || 0;
         countInput.value = (currentCount + amount).toFixed(1);
+        syncSlider(countInput);
 
         targetRow.querySelector('.i-category').value = cat;
         if (!isNaN(size)) targetRow.querySelector('.i-size').value = size;
@@ -693,104 +778,89 @@ function openSummaryModal() {
   const list = document.getElementById('weekly-summary-list'); 
   list.innerHTML = ''; 
   let totalUsageCost = 0;
-  globalOrderList = []; 
 
   document.querySelectorAll('.inv-row').forEach(row => {
     const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; 
     const start = parseFloat(row.getAttribute('data-start')) || 0; 
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
-    
     const count = parseFloat(row.querySelector('.i-count').value) || 0;
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
     
     const usageBtls = (start + received) - count; 
     const lineCost = usageBtls * cost;
-
-    if (usageBtls > 0 || count === 0) { 
-      let orderQty = 0;
-      if (usageBtls > 0) {
-          const par = usageBtls * 1.15; 
-          orderQty = Math.ceil(par - count);
-          if (orderQty < 0) orderQty = 0;
-      } else if (count === 0 && start > 0) {
-          orderQty = 1;
-      }
-
-      if (usageBtls > 0) { totalUsageCost += lineCost; }
-
-      if (usageBtls > 0 || orderQty > 0) {
-          if(orderQty > 0) { globalOrderList.push({ brand, orderQty }); }
-
-          const li = document.createElement('li'); 
-          li.style.padding = '12px 0'; 
-          li.style.borderBottom = '1px solid var(--glass-border)';
-          li.style.display = 'flex';
-          li.style.justifyContent = 'space-between';
-          li.style.alignItems = 'center';
-          
-          let orderBadge = orderQty > 0 
-              ? `<div style="background: rgba(245, 158, 11, 0.1); color: var(--neon-orange); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 5px; font-weight: bold; border: 1px solid var(--neon-orange); display: inline-block;">🛒 Order: ${orderQty} btls</div>` 
-              : `<div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 5px;">✅ Fully Stocked</div>`;
-
-          li.innerHTML = `
-              <div>
-                  <div style="color: var(--neon-blue); font-weight: 600; font-size: 1rem;">${brand}</div>
-                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Used: ${usageBtls.toFixed(1)} | Left: ${count.toFixed(1)}</div>
-              </div>
-              <div style="text-align: right;">
-                  <div style="color: var(--neon-green); font-family: monospace; font-size: 1rem;">+$${lineCost.toFixed(2)}</div>
-                  ${orderBadge}
-              </div>
-          `;
-          list.appendChild(li);
-      }
+    if (usageBtls > 0) {
+      totalUsageCost += lineCost; 
+      const li = document.createElement('li'); 
+      li.style.padding = '10px 0'; 
+      li.style.borderBottom = '1px solid var(--glass-border)';
+      li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${brand}:</span> Used ${usageBtls.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${lineCost.toFixed(2)}</span>`; 
+      list.appendChild(li);
     }
   }); 
-  
-  if (list.innerHTML === '') { list.innerHTML = `<li style="color: var(--text-muted); padding: 20px 0; text-align: center;">No usage recorded for this week.</li>`; }
+
+  if (list.innerHTML === '') list.innerHTML = `<li style="color: var(--text-muted); padding: 10px 0;">No usage recorded for this period yet.</li>`;
   document.getElementById('weekly-summary-total').innerText = `$${totalUsageCost.toFixed(2)}`; 
+  
+  const endDateInput = document.getElementById('audit-end-date');
+  const startDateInput = document.getElementById('audit-start-date');
+  const todayStr = getLocalTodayStr();
+  
+  if (endDateInput) endDateInput.value = todayStr;
+  if (startDateInput) {
+      if (currentPeriodStart) {
+          startDateInput.value = currentPeriodStart;
+      } else {
+          startDateInput.value = addDaysToDateStr(todayStr, -7);
+      }
+  }
+
   document.getElementById('summary-modal').style.display = 'flex';
 }
 
 function closeSummaryModal() { document.getElementById('summary-modal').style.display = 'none'; }
 
-function exportOrderSheet() {
-    if (globalOrderList.length === 0) {
-        alert("Nothing to order this week! Your stock is healthy based on your volume.");
-        return;
-    }
-    let csv = "Spirit Brand,Full Bottles to Order\n";
-    globalOrderList.forEach(item => { csv += `"${item.brand}",${item.orderQty}\n`; });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    const dateStr = new Date().toISOString().split('T')[0];
-    a.setAttribute('download', `Los_Pericos_Liquor_Order_${dateStr}.csv`);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-}
-
 function confirmResetWeek() {
-  const today = new Date().toISOString().split('T')[0]; 
+  const endDateInput = document.getElementById('audit-end-date');
+  const startDateInput = document.getElementById('audit-start-date');
+  
+  const endDate = (endDateInput && endDateInput.value) ? endDateInput.value : getLocalTodayStr();
+  const startDate = (startDateInput && startDateInput.value) ? startDateInput.value : addDaysToDateStr(endDate, -7);
   const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
-  const snapshotData = { date: today, totalCost: 0, posSales: posSales, items: [] };
+  
+  const startParts = startDate.split('-').map(Number);
+  const endParts = endDate.split('-').map(Number);
+  const startMs = new Date(startParts[0], startParts[1] - 1, startParts[2]).getTime();
+  const endMs = new Date(endParts[0], endParts[1] - 1, endParts[2]).getTime();
+  const diffDays = Math.max(1, Math.round((endMs - startMs) / (1000 * 60 * 60 * 24)));
+
+  const snapshotData = { 
+      startDate: startDate,
+      endDate: endDate,
+      auditDays: diffDays,
+      totalCost: 0, 
+      spiritCost: 0,
+      nonSpiritCost: 0,
+      posSales: posSales, 
+      items: [] 
+  };
 
   document.querySelectorAll('.inv-row').forEach(row => {
+    const cat = row.querySelector('.i-category').value;
     const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; 
     const start = parseFloat(row.getAttribute('data-start')) || 0; 
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
-    
     const count = parseFloat(row.querySelector('.i-count').value) || 0;
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0;
+    
     const usageBtls = (start + received) - count; 
     const lineCost = usageBtls * cost;
+    const isSpirit = spiritCategories.includes(cat);
 
     if (usageBtls > 0) {
       snapshotData.totalCost += lineCost;
-      snapshotData.items.push({ brand: brand, used: usageBtls, cost: lineCost });
+      if (isSpirit) snapshotData.spiritCost += lineCost;
+      else snapshotData.nonSpiritCost += lineCost;
+      snapshotData.items.push({ category: cat, brand: brand, used: usageBtls, cost: lineCost });
     }
 
     row.setAttribute('data-start', count); 
@@ -798,33 +868,51 @@ function confirmResetWeek() {
     row.querySelector('.calc-received').innerText = '0'; 
   }); 
 
-  db.ref(currentLocation + '/liquor_history/' + today).set(snapshotData).then(() => {
+  // Next period starts on the Finish Date of this audit
+  currentPeriodStart = endDate;
+  const startInput = document.getElementById('current-period-start-input');
+  if (startInput) startInput.value = currentPeriodStart;
+
+  db.ref(currentLocation + '/liquor_history/' + endDate).set(snapshotData).then(() => {
+      db.ref(currentLocation + '/liquor_meta').update({
+          currentPeriodStart: endDate,
+          posSales: 0,
+          lastEditedBy: activeUser,
+          lastEditedAt: firebase.database.ServerValue.TIMESTAMP
+      });
       autoSaveInv(); 
       document.getElementById('pos-sales').value = '';
-      autoSaveMeta();
+      calculateGlobalMetrics();
       closeSummaryModal();
-      alert("Week closed out! Snapshot saved to History Vault.");
+      alert(`Audit closed out (${startDate} to ${endDate})! Next period started on ${endDate}.`);
+      loadUsageAnalytics();
   });
 }
 
 function openHistoryModal() {
     const select = document.getElementById('history-date-select');
-    select.innerHTML = '<option value="">Loading past weeks...</option>';
+    select.innerHTML = '<option value="">Loading past audits...</option>';
     document.getElementById('history-details-container').style.display = 'none';
     document.getElementById('history-modal').style.display = 'flex';
 
     db.ref(currentLocation + '/liquor_history').once('value', snap => {
         const historyData = snap.val();
-        select.innerHTML = '<option value="">Select a past week...</option>';
+        select.innerHTML = '<option value="">Select a past audit...</option>';
         if (historyData) {
             const dates = Object.keys(historyData).sort((a, b) => b.localeCompare(a));
-            dates.forEach(date => {
+            dates.forEach((date, idx) => {
+                const item = historyData[date];
                 const opt = document.createElement('option');
                 opt.value = date;
-                opt.innerText = "Week Ending: " + date; 
+                // Infer start date from previous audit if legacy entry doesn't have startDate
+                const prevDate = dates[idx + 1] ? (historyData[dates[idx + 1]].endDate || dates[idx + 1]) : addDaysToDateStr(date, -7);
+                const sDate = item.startDate || prevDate;
+                const eDate = item.endDate || date;
+                opt.innerText = `${sDate} to ${eDate}`;
                 select.appendChild(opt);
             });
             window.tempHistoryData = historyData; 
+            window.tempHistoryDates = dates;
         } else {
             select.innerHTML = '<option value="">No history saved yet.</option>';
         }
@@ -841,6 +929,17 @@ function loadHistoryDetails() {
     }
 
     const data = window.tempHistoryData[dateSelected];
+    const idx = window.tempHistoryDates ? window.tempHistoryDates.indexOf(dateSelected) : -1;
+    const prevDate = (idx >= 0 && window.tempHistoryDates[idx + 1]) ? window.tempHistoryDates[idx + 1] : addDaysToDateStr(dateSelected, -7);
+
+    const sDate = data.startDate || prevDate;
+    const eDate = data.endDate || dateSelected;
+
+    const editStart = document.getElementById('history-edit-start');
+    const editEnd = document.getElementById('history-edit-end');
+    if (editStart) editStart.value = sDate;
+    if (editEnd) editEnd.value = eDate;
+
     document.getElementById('history-total-cost').innerText = `$${(data.totalCost || 0).toFixed(2)}`;
     list.innerHTML = '';
 
@@ -856,22 +955,53 @@ function loadHistoryDetails() {
     container.style.display = 'block';
 }
 
-function closeHistoryModal() { document.getElementById('history-modal').style.display = 'none'; }
+function saveHistoryDateEdit() {
+    const dateSelected = document.getElementById('history-date-select').value;
+    if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) return;
+
+    const newStart = document.getElementById('history-edit-start').value;
+    const newEnd = document.getElementById('history-edit-end').value;
+    if (!newStart || !newEnd) { alert("Please select both Start and Finish dates."); return; }
+
+    const startParts = newStart.split('-').map(Number);
+    const endParts = newEnd.split('-').map(Number);
+    const diffDays = Math.max(1, Math.round((new Date(endParts[0], endParts[1]-1, endParts[2]) - new Date(startParts[0], startParts[1]-1, startParts[2])) / (1000 * 60 * 60 * 24)));
+
+    db.ref(currentLocation + '/liquor_history/' + dateSelected).update({
+        startDate: newStart,
+        endDate: newEnd,
+        auditDays: diffDays
+    }).then(() => {
+        flashSync();
+        openHistoryModal();
+        loadUsageAnalytics();
+        alert(`Updated audit dates to: ${newStart} to ${newEnd}`);
+    });
+}
+
+function closeHistoryModal() {
+    document.getElementById('history-modal').style.display = 'none';
+}
 
 function exportHistoryToCSV() {
     const dateSelected = document.getElementById('history-date-select').value;
-    if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) { alert("Please select a valid history week first."); return; }
+    if (!dateSelected || !window.tempHistoryData || !window.tempHistoryData[dateSelected]) { alert("Please select a valid history audit first."); return; }
     
     const data = window.tempHistoryData[dateSelected];
     let csvContent = "data:text/csv;charset=utf-8,";
     
-    csvContent += `"Week Ending:","${dateSelected}"\r\n`;
+    const sDate = document.getElementById('history-edit-start') ? document.getElementById('history-edit-start').value : (data.startDate || dateSelected);
+    const eDate = document.getElementById('history-edit-end') ? document.getElementById('history-edit-end').value : (data.endDate || dateSelected);
+
+    csvContent += `"Audit Period:","${sDate} to ${eDate}"\r\n`;
+    csvContent += `"Audit Span Days:","${data.auditDays || 7}"\r\n`;
     csvContent += `"POS Sales:","$${(data.posSales || 0).toFixed(2)}"\r\n`;
     csvContent += `"Total Usage Cost:","$${(data.totalCost || 0).toFixed(2)}"\r\n`;
     
+    const spiritCostForPour = data.spiritCost !== undefined ? data.spiritCost : data.totalCost;
     let pourCost = 0;
-    if (data.posSales > 0) pourCost = (data.totalCost / data.posSales) * 100;
-    csvContent += `"Global Pour Cost:","${pourCost.toFixed(2)}%"\r\n\r\n`;
+    if (data.posSales > 0) pourCost = (spiritCostForPour / data.posSales) * 100;
+    csvContent += `"Liquor Pour Cost:","${pourCost.toFixed(2)}%"\r\n\r\n`;
     
     csvContent += '"Brand","Bottles Used","Line Usage Cost ($)"\r\n';
     
@@ -884,7 +1014,7 @@ function exportHistoryToCSV() {
     
     const link = document.createElement("a");
     link.setAttribute("href", encodeURI(csvContent));
-    link.setAttribute("download", `Los_Pericos_Historical_Usage_${dateSelected}.csv`);
+    link.setAttribute("download", `Los_Pericos_Historical_Usage_${eDate}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -901,7 +1031,6 @@ function exportToCSV() {
     const unit = row.querySelector('.i-unit').value;
     const start = parseFloat(row.getAttribute('data-start')) || 0; 
     const received = parseFloat(row.getAttribute('data-received')) || 0; 
-    
     const count = parseFloat(row.querySelector('.i-count').value) || 0;
     const cost = parseFloat(row.querySelector('.i-cost').value) || 0; 
     const sell = parseFloat(row.querySelector('.i-shot-sell').value) || 0;
@@ -909,25 +1038,29 @@ function exportToCSV() {
     const btlsUsed = (start + received) - count; 
     const usageCost = btlsUsed * cost; 
     const sizeOz = convertToOz(rawSize, unit); 
-    const shotCost = sizeOz > 0 ? (cost / sizeOz) * 1.5 : 0; 
-    const shotProfit = sell - shotCost; 
-    const pourCostPct = sell > 0 ? (shotCost / sell) * 100 : 0;
+    const isSpirit = spiritCategories.includes(cat);
     
-    const potentialSales = sizeOz > 0 ? ((btlsUsed * sizeOz) / 1.5) * sell : 0;
+    const shotCost = (isSpirit && sizeOz > 0) ? (cost / sizeOz) * 1.5 : 0; 
+    const shotProfit = isSpirit ? (sell - shotCost) : 0; 
+    const pourCostPct = (isSpirit && sell > 0) ? (shotCost / sell) * 100 : 0;
+    const potentialSales = (isSpirit && sizeOz > 0) ? ((btlsUsed * sizeOz) / 1.5) * sell : 0;
     
     let rowData = [ 
         `"${cat}"`, `"${brand}"`, `"${rawSize} ${unit}"`, `"${start}"`, `"${received}"`, 
         `"${count.toFixed(1)}"`, 
         `"${btlsUsed.toFixed(1)}"`, `"${cost.toFixed(2)}"`, `"${sell.toFixed(2)}"`, 
-        `"${usageCost.toFixed(2)}"`, `"${potentialSales.toFixed(2)}"`, `"${shotCost.toFixed(2)}"`, 
-        `"${shotProfit.toFixed(2)}"`, `"${pourCostPct.toFixed(2)}%"` 
+        `"${usageCost.toFixed(2)}"`, 
+        isSpirit ? `"${potentialSales.toFixed(2)}"` : `"--"`, 
+        isSpirit ? `"${shotCost.toFixed(2)}"` : `"--"`, 
+        isSpirit ? `"${shotProfit.toFixed(2)}"` : `"--"`, 
+        isSpirit ? `"${pourCostPct.toFixed(2)}%"` : `"--"` 
     ]; 
     csvContent += rowData.join(",") + "\r\n";
   });
   
   const link = document.createElement("a"); 
   link.setAttribute("href", encodeURI(csvContent)); 
-  link.setAttribute("download", `Los_Pericos_Inventory_${new Date().toISOString().split('T')[0]}.csv`); 
+  link.setAttribute("download", `Los_Pericos_Inventory_${getLocalTodayStr()}.csv`); 
   document.body.appendChild(link); 
   link.click(); 
   document.body.removeChild(link);
@@ -936,18 +1069,26 @@ function exportToCSV() {
 function toggleCategory(cat) {
     collapsedCats[cat] = !collapsedCats[cat];
     filterInventory();
+    
     const headerIcon = document.querySelector(`.cat-header[data-target-cat="${cat}"] .cat-icon`);
     if(headerIcon) headerIcon.innerText = collapsedCats[cat] ? '▶' : '▼';
 }
 
 function updateMeta() {
-    db.ref(currentLocation + '/liquor_meta').update({ lastEditedBy: activeUser, lastEditedAt: firebase.database.ServerValue.TIMESTAMP });
+    db.ref(currentLocation + '/liquor_meta').update({
+        lastEditedBy: activeUser,
+        lastEditedAt: firebase.database.ServerValue.TIMESTAMP
+    });
     flashSync();
 }
 
 function autoSaveMeta() {
     const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
-    db.ref(currentLocation + '/liquor_meta').update({ posSales: posSales, lastEditedBy: activeUser, lastEditedAt: firebase.database.ServerValue.TIMESTAMP });
+    db.ref(currentLocation + '/liquor_meta').update({
+        posSales: posSales,
+        lastEditedBy: activeUser,
+        lastEditedAt: firebase.database.ServerValue.TIMESTAMP
+    });
     calculateGlobalMetrics();
     flashSync();
 }
@@ -955,58 +1096,77 @@ function autoSaveMeta() {
 /* ==========================================
    TOP 10 USAGE ANALYTICS & CSV EXPORT
    ========================================== */
-let cachedHistoryData = null;
-
 function loadUsageAnalytics() {
     db.ref(currentLocation + '/liquor_history').once('value', snap => {
-        cachedHistoryData = snap.val();
+        const historyData = snap.val();
         const weekList = document.getElementById('top-week-list');
         const monthList = document.getElementById('top-month-list');
-        const select = document.getElementById('analytics-month-select');
+        const monthSelect = document.getElementById('analytics-month-select');
+        const weekTitle = document.getElementById('top-week-title');
+        const monthTitle = document.getElementById('top-month-title');
         
-        if (!cachedHistoryData) {
+        if (!historyData) {
             if(weekList) weekList.innerHTML = '<li style="color:var(--text-muted);">No history saved yet.</li>';
             if(monthList) monthList.innerHTML = '<li style="color:var(--text-muted);">No history saved yet.</li>';
-            if(select) select.innerHTML = '<option value="">No Data</option>';
             return;
         }
 
-        const dates = Object.keys(cachedHistoryData).sort((a, b) => b.localeCompare(a));
-        let monthsSet = new Set();
-        dates.forEach(d => monthsSet.add(d.substring(0, 7)));
-        let availableMonths = Array.from(monthsSet).slice(0, 12); 
+        const dates = Object.keys(historyData).sort((a, b) => b.localeCompare(a));
+        const latestDate = dates[0]; 
+        const latestAudit = historyData[latestDate];
+        const latestData = latestAudit.items || [];
 
-        if(select) {
-            select.innerHTML = '';
-            availableMonths.forEach(m => {
-                const dateObj = new Date(m + '-02'); 
-                const monthName = dateObj.toLocaleString('default', { month: 'short', year: 'numeric' });
-                select.innerHTML += `<option value="${m}">${monthName}</option>`;
-            });
+        // Auto-populate currentPeriodStart if empty
+        if (!currentPeriodStart && latestDate) {
+            currentPeriodStart = latestAudit.endDate || latestDate;
+            const startInput = document.getElementById('current-period-start-input');
+            if(startInput) startInput.value = currentPeriodStart;
         }
-        renderLatestWeekAnalytics(dates[0]);
-        updateMonthAnalytics();
-    });
-}
 
-function renderLatestWeekAnalytics(latestDate) {
-    const latestData = cachedHistoryData[latestDate].items || [];
-    const excludeList = ['torada', '3ple sec', 'triple sec', 'tortilla'];
-    const shouldInclude = (brandName) => {
-        const nameLower = brandName.toLowerCase();
-        return !excludeList.some(excludedWord => nameLower.includes(excludedWord));
-    };
+        // Collect all available YYYY-MM months across history
+        const monthsSet = new Set();
+        dates.forEach((date, idx) => {
+            const item = historyData[date];
+            const prevDate = dates[idx + 1] ? (historyData[dates[idx + 1]].endDate || dates[idx + 1]) : addDaysToDateStr(date, -7);
+            const sDate = item.startDate || prevDate;
+            const eDate = item.endDate || date;
+            monthsSet.add(sDate.substring(0, 7));
+            monthsSet.add(eDate.substring(0, 7));
+        });
+        const availableMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
 
-    let filteredWeekData = latestData.filter(item => shouldInclude(item.brand));
-    filteredWeekData.sort((a, b) => b.used - a.used);
-    globalTopWeek = filteredWeekData.slice(0, 10); 
-    
-    const weekList = document.getElementById('top-week-list');
-    if(weekList) {
-        weekList.innerHTML = '';
-        if(globalTopWeek.length === 0) {
-            weekList.innerHTML = '<li style="color:var(--text-muted);">No data.</li>';
-        } else {
+        let selectedMonth = (monthSelect && monthSelect.value) ? monthSelect.value : availableMonths[0];
+        if (monthSelect) {
+            const prevVal = monthSelect.value;
+            monthSelect.innerHTML = '';
+            availableMonths.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.innerText = `Month: ${m}`;
+                if (m === (prevVal || selectedMonth)) opt.selected = true;
+                monthSelect.appendChild(opt);
+            });
+            selectedMonth = monthSelect.value || availableMonths[0];
+        }
+
+        // Exclusion filter: hides batch tequila, triple sec, and non-spirits if needed
+        const excludeList = ['tortilla', 'triple sec', '3ple sec'];
+        function shouldInclude(brandName) {
+            const nameLower = (brandName || '').toLowerCase();
+            return !excludeList.some(excludedWord => nameLower.includes(excludedWord));
+        }
+
+        // --- PROCESS LATEST AUDIT (TOP 10) ---
+        const latestStart = latestAudit.startDate || (dates[1] ? (historyData[dates[1]].endDate || dates[1]) : addDaysToDateStr(latestDate, -7));
+        const latestEnd = latestAudit.endDate || latestDate;
+        if (weekTitle) weekTitle.innerText = `Latest Audit (${latestStart} to ${latestEnd})`;
+
+        let filteredWeekData = latestData.filter(item => shouldInclude(item.brand));
+        filteredWeekData.sort((a, b) => b.used - a.used);
+        globalTopWeek = filteredWeekData.slice(0, 10); 
+        
+        if(weekList) {
+            weekList.innerHTML = '';
             globalTopWeek.forEach((item, index) => {
                 weekList.innerHTML += `
                     <li style="padding: 6px 0; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
@@ -1015,75 +1175,72 @@ function renderLatestWeekAnalytics(latestDate) {
                     </li>`;
             });
         }
-    }
+
+        // --- PROCESS SELECTED MONTH (TOP 10) ---
+        if (monthTitle) monthTitle.innerText = `Top 10 Monthly (${selectedMonth})`;
+        let monthTotals = {};
+
+        dates.forEach((date, idx) => {
+            const audit = historyData[date];
+            if (!audit.items) return;
+
+            const prevDate = dates[idx + 1] ? (historyData[dates[idx + 1]].endDate || dates[idx + 1]) : addDaysToDateStr(date, -7);
+            const sDate = audit.startDate || prevDate;
+            const eDate = audit.endDate || date;
+
+            // Group by Finish Date month (standard restaurant accounting)
+            if (eDate.startsWith(selectedMonth)) {
+                audit.items.forEach(item => {
+                    if (shouldInclude(item.brand)) {
+                        if (!monthTotals[item.brand]) monthTotals[item.brand] = 0;
+                        monthTotals[item.brand] += item.used;
+                    }
+                });
+            }
+        });
+
+        let monthArray = Object.keys(monthTotals).map(brand => {
+            return { brand: brand, used: monthTotals[brand] };
+        });
+        
+        monthArray.sort((a, b) => b.used - a.used);
+        globalTopMonth = monthArray.slice(0, 10); 
+
+        if(monthList) {
+            monthList.innerHTML = '';
+            if (globalTopMonth.length === 0) {
+                monthList.innerHTML = '<li style="color:var(--text-muted);">No audits closed in this month.</li>';
+            } else {
+                globalTopMonth.forEach((item, index) => {
+                    monthList.innerHTML += `
+                        <li style="padding: 6px 0; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
+                            <span>${index + 1}. ${item.brand}</span>
+                            <strong style="color: var(--neon-orange);">${item.used.toFixed(1)} btls</strong>
+                        </li>`;
+                });
+            }
+        }
+    });
 }
-
-window.updateMonthAnalytics = function() {
-    const select = document.getElementById('analytics-month-select');
-    if(!select || !cachedHistoryData) return;
-    
-    const selectedMonth = select.value;
-    if(!selectedMonth) return;
-
-    const excludeList = ['torada', '3ple sec', 'triple sec', 'tortilla'];
-    const shouldInclude = (brandName) => {
-        const nameLower = brandName.toLowerCase();
-        return !excludeList.some(excludedWord => nameLower.includes(excludedWord));
-    };
-
-    let monthTotals = {};
-    Object.keys(cachedHistoryData).forEach(date => {
-        if (date.startsWith(selectedMonth) && cachedHistoryData[date].items) {
-            cachedHistoryData[date].items.forEach(item => {
-                if (shouldInclude(item.brand)) {
-                    if (!monthTotals[item.brand]) monthTotals[item.brand] = 0;
-                    monthTotals[item.brand] += item.used;
-                }
-            });
-        }
-    });
-
-    let monthArray = Object.keys(monthTotals).map(brand => {
-        return { brand: brand, used: monthTotals[brand] };
-    });
-    monthArray.sort((a, b) => b.used - a.used);
-    globalTopMonth = monthArray.slice(0, 10); 
-
-    const monthList = document.getElementById('top-month-list');
-    if(monthList) {
-        monthList.innerHTML = '';
-        if(globalTopMonth.length === 0) {
-            monthList.innerHTML = '<li style="color:var(--text-muted);">No data for this month.</li>';
-        } else {
-            globalTopMonth.forEach((item, index) => {
-                monthList.innerHTML += `
-                    <li style="padding: 6px 0; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
-                        <span>${index + 1}. ${item.brand}</span>
-                        <strong style="color: var(--neon-orange);">${item.used.toFixed(1)} btls</strong>
-                    </li>`;
-            });
-        }
-    }
-    const titleElem = document.getElementById('monthly-top-title');
-    if(titleElem) {
-        const dateObj = new Date(selectedMonth + '-02');
-        titleElem.innerText = dateObj.toLocaleString('default', { month: 'long' }) + ' Top 10';
-    }
-};
 
 function exportTopPoursToCSV() {
     if (globalTopWeek.length === 0 && globalTopMonth.length === 0) {
-        alert("No data to export yet!"); return;
+        alert("No data to export yet!");
+        return;
     }
-    const select = document.getElementById('analytics-month-select');
-    const monthLabel = select ? select.options[select.selectedIndex].text : "Month";
 
-    let csv = `Rank,Latest Week (Brand),Weekly Btls Used,,Rank,${monthLabel} (Brand),Monthly Btls Used\n`;
+    const monthSelect = document.getElementById('analytics-month-select');
+    const selectedMonth = (monthSelect && monthSelect.value) ? monthSelect.value : "Current Month";
+
+    let csv = `Rank,Latest Audit (Brand),Audit Btls Used,,Rank,Month ${selectedMonth} (Brand),Monthly Btls Used\n`;
+    
     for (let i = 0; i < 10; i++) {
         let weekBrand = globalTopWeek[i] ? `"${globalTopWeek[i].brand}"` : "";
         let weekUsed = globalTopWeek[i] ? globalTopWeek[i].used.toFixed(1) : "";
+        
         let monthBrand = globalTopMonth[i] ? `"${globalTopMonth[i].brand}"` : "";
         let monthUsed = globalTopMonth[i] ? globalTopMonth[i].used.toFixed(1) : "";
+
         csv += `${i + 1},${weekBrand},${weekUsed},,${i + 1},${monthBrand},${monthUsed}\n`;
     }
 
@@ -1092,7 +1249,8 @@ function exportTopPoursToCSV() {
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
     a.setAttribute('href', url);
-    const dateStr = new Date().toISOString().split('T')[0];
+    
+    const dateStr = getLocalTodayStr();
     a.setAttribute('download', `Los_Pericos_Top_10_Pours_${dateStr}.csv`);
     document.body.appendChild(a);
     a.click();
