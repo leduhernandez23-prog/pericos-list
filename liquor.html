@@ -73,7 +73,7 @@
 
   <!-- 4-TAB SYSTEM -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="openTab(event, 'inventory')">1. Count Vault</button>
+    <button class="tab-btn" onclick="openTab(event, 'inventory')">1. Count Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'dashboard')">2. Margin Dashboard</button>
     <button class="tab-btn" onclick="openTab(event, 'cocktails')">3. Cocktail Vault</button>
     <button class="tab-btn" onclick="openTab(event, 'batches')">4. Batch Vault</button>
@@ -106,25 +106,30 @@
     </div>
   </div>
 
-  <!-- MODAL: WEEKLY SUMMARY & SMART ORDER -->
+  <!-- MODAL: WEEKLY SUMMARY -->
   <div id="summary-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 550px;">
+    <div class="modal-content" style="max-width: 500px;">
+      <h3 style="color: var(--neon-green); margin-top: 0;">Audit Summary & Date Range</h3>
       
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <h3 style="color: var(--neon-green); margin-top: 0; margin-bottom: 0;">Weekly Summary & Order</h3>
-          <button class="btn-export" style="padding: 6px 12px; font-size: 0.8rem;" onclick="exportOrderSheet()">↓ Export Order List</button>
+      <!-- Date Range Selectors -->
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <div style="flex: 1;">
+          <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Start Date</label>
+          <input type="date" id="audit-start-date" class="clean-input" style="background: rgba(0,0,0,0.5); width: 100%;">
+        </div>
+        <div style="flex: 1;">
+          <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Finish Date</label>
+          <input type="date" id="audit-end-date" class="clean-input" style="background: rgba(0,0,0,0.5); width: 100%;">
+        </div>
       </div>
 
-      <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; border: 1px solid var(--glass-border); line-height: 1.4;">
-          💡 <strong>Smart Order:</strong> Looks at what you poured this week, adds a 15% safety buffer, subtracts what you still have on hand, and tells you exactly how many full bottles to order.
-      </div>
-
-      <ul id="weekly-summary-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 40vh; overflow-y: auto;"></ul>
+      <ul id="weekly-summary-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 30vh; overflow-y: auto;"></ul>
       
       <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 15px; margin-bottom: 25px;">
         <strong style="color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem;">Total Usage Cost</strong>
         <strong id="weekly-summary-total" style="font-size: 1.5rem; color: var(--neon-green);">$0.00</strong>
       </div>
+      
       <div style="display: flex; gap: 15px;">
         <button class="btn-glow" style="flex: 1;" onclick="confirmResetWeek()">Confirm & Sync</button>
         <button class="btn-remove" style="flex: 1; padding: 12px;" onclick="closeSummaryModal()">Cancel</button>
@@ -138,13 +143,17 @@
       <h3 style="color: var(--neon-orange); margin-top: 0;">📜 History Vault</h3>
       
       <div style="margin-bottom: 20px;">
-        <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Select Past Week</label>
+        <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Select Past Audit</label>
         <select id="history-date-select" class="clean-input" style="background: rgba(0,0,0,0.5);" onchange="loadHistoryDetails()">
           <option value="">Loading...</option>
         </select>
       </div>
 
       <div id="history-details-container" style="display: none;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; margin-bottom: 8px;">
+              <strong style="color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem;">Audit Window</strong>
+              <strong id="history-period-display" style="font-size: 0.9rem; color: var(--neon-blue);">--</strong>
+          </div>
           <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; margin-bottom: 10px;">
               <strong style="color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem;">Total Usage Cost</strong>
               <strong id="history-total-cost" style="font-size: 1.2rem; color: var(--neon-green);">$0.00</strong>
@@ -220,12 +229,16 @@
     </div>
   </div>
 
-  <!-- ==================== TABS CONTAINER ==================== -->
-  
   <!-- TAB 1: MASTER INVENTORY -->
-  <div id="inventory" class="tab-content active" style="display: block;">
+  <div id="inventory" class="tab-content" style="display: none;">
     <div class="glass-card">
-      <h3>Live Inventory Count</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
+        <h3 style="margin: 0;">Live Inventory Count</h3>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          Current Period Started: <strong id="current-period-start-display" style="color: var(--neon-blue);">Loading...</strong>
+        </div>
+      </div>
+
       <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
         <input type="text" id="inventory-search" class="clean-input" placeholder="🔍 Search spirits..." onkeyup="filterInventory()" style="flex: 2; border-bottom: 1px solid var(--glass-border); border-radius: 0;">
         <select id="category-filter" class="clean-input" onchange="filterInventory()" style="flex: 1; border-bottom: 1px solid var(--glass-border); border-radius: 0; cursor: pointer;">
@@ -236,7 +249,7 @@
           <option value="RUM">Rum</option>
           <option value="GIN">Gin</option>
           <option value="LIQUEUR">Liqueur</option>
-          <option value="MIXER">Mixer</option>
+          <option value="FLAVOR">Flavor</option>
           <option value="BEER">Beer</option>
           <option value="WINE">Wine</option>
         </select>
@@ -276,37 +289,33 @@
       <h3>Global Shift Metrics</h3>
       <div class="dashboard-grid">
         <div class="metric-box">
-          <h4>Total POS Sales ($)</h4>
+          <h4>Total Liquor POS Sales ($)</h4>
           <input type="number" id="pos-sales" class="clean-input" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px; background: rgba(0,0,0,0.5);">
         </div>
         <div class="metric-box">
-          <h4>Total Usage Cost</h4>
+          <h4>Liquor Usage Cost</h4>
           <div class="value" id="global-usage-cost">$0.00</div>
+          <div id="non-spirit-usage-note" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Beer/Wine/Flavor Cost: $0.00</div>
         </div>
         <div class="metric-box" id="global-pour-box" style="border-left: 4px solid var(--neon-green);">
-          <h4>Gross Pour Cost %</h4>
+          <h4>Liquor Pour Cost %</h4>
           <div class="value" id="global-pour-cost">0.00%</div>
         </div>
       </div>
     </div>
 
-    <!-- NEW TOP 10 POURS SECTION -->
+    <!-- TOP 10 POURS SECTION -->
     <div class="glass-card">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <h3 style="margin-top: 0; margin-bottom: 0;">Top 10 Pours (Usage Analytics)</h3>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <select id="analytics-month-select" class="clean-input" style="padding: 6px 12px; font-size: 0.8rem; width: auto; background: rgba(0,0,0,0.5);" onchange="updateMonthAnalytics()">
-                <option value="">Loading...</option>
-            </select>
-            <button class="btn-export" style="padding: 6px 12px; font-size: 0.8rem;" onclick="exportTopPoursToCSV()">↓ Export CSV</button>
-        </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin-top: 0;">Top 10 Pours (Usage Analytics)</h3>
+        <button class="btn-export" style="padding: 6px 12px; font-size: 0.8rem;" onclick="exportTopPoursToCSV()">↓ Export CSV</button>
       </div>
       
       <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
         
-        <!-- Latest Week Top 10 -->
+        <!-- Weekly Top 10 -->
         <div class="metric-box" style="padding: 15px;">
-          <h4 style="color: var(--neon-blue);">Latest Week</h4>
+          <h4 style="color: var(--neon-blue);">Top 10 Latest Audit</h4>
           <ul id="top-week-list" style="list-style: none; padding: 0; margin-top: 10px; text-align: left; font-size: 0.9rem;">
             <li style="color:var(--text-muted);">Loading data...</li>
           </ul>
@@ -314,7 +323,7 @@
 
         <!-- Monthly Top 10 -->
         <div class="metric-box" style="padding: 15px; border-left: 4px solid var(--neon-orange);">
-          <h4 id="monthly-top-title" style="color: var(--neon-orange);">Monthly Top 10</h4>
+          <h4 style="color: var(--neon-orange);">Top 10 This Month</h4>
           <ul id="top-month-list" style="list-style: none; padding: 0; margin-top: 10px; text-align: left; font-size: 0.9rem;">
             <li style="color:var(--text-muted);">Loading data...</li>
           </ul>
@@ -369,6 +378,6 @@
     </div>
   </div>
 
-  <script src="liquor.js?v=18"></script>
+  <script src="liquor.js?v=19"></script>
 </body>
 </html>
