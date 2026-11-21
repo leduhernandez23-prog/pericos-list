@@ -87,14 +87,16 @@
 
   <!-- MODAL: RECEIVE DELIVERY -->
   <div id="receive-modal" class="modal-overlay">
-    <div class="modal-content" style="width: 900px; max-width: 98%;">
+    <div class="modal-content" style="width: 1000px; max-width: 98%;">
       <h3 style="color: var(--neon-blue); margin-top: 0;">Receive Delivery Order</h3>
+      <datalist id="provider-datalist"></datalist>
       <div class="form-group delivery-header-desktop" style="display: flex; gap: 10px; margin-bottom: 10px;">
         <label style="flex: 1; margin-bottom: 0;">Category</label>
-        <label style="flex: 2; margin-bottom: 0;">Spirit Brand</label>
-        <label style="flex: 0.8; margin-bottom: 0;">Qty</label>
-        <label style="flex: 1.5; margin-bottom: 0;">Size & Unit</label>
-        <label style="flex: 1; margin-bottom: 0;">Cost ($)</label>
+        <label style="flex: 1.8; margin-bottom: 0;">Brand</label>
+        <label style="flex: 1.3; margin-bottom: 0;">Provider</label>
+        <label style="flex: 0.7; margin-bottom: 0;">Qty</label>
+        <label style="flex: 1.4; margin-bottom: 0;">Size & Unit</label>
+        <label style="flex: 0.9; margin-bottom: 0;">Cost ($)</label>
         <div style="width: 38px;"></div>
       </div>
       <div id="delivery-batch-list"></div>
@@ -106,10 +108,13 @@
     </div>
   </div>
 
-  <!-- MODAL: WEEKLY SUMMARY -->
+  <!-- MODAL: WEEKLY SUMMARY & REORDER LIST -->
   <div id="summary-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 500px;">
-      <h3 style="color: var(--neon-green); margin-top: 0;">Audit Summary & Date Range</h3>
+    <div class="modal-content" style="max-width: 550px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="color: var(--neon-green); margin: 0;">Weekly Usage & Reorder List</h3>
+        <button class="btn-export" style="padding: 5px 10px; font-size: 0.75rem;" onclick="exportReorderCSV()">↓ Order CSV</button>
+      </div>
       
       <!-- Date Range Selectors -->
       <div style="display: flex; gap: 10px; margin-bottom: 15px;">
@@ -123,7 +128,7 @@
         </div>
       </div>
 
-      <ul id="weekly-summary-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 30vh; overflow-y: auto;"></ul>
+      <ul id="weekly-summary-list" style="list-style: none; padding: 0; margin-bottom: 20px; max-height: 35vh; overflow-y: auto;"></ul>
       
       <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 15px; margin-bottom: 25px;">
         <strong style="color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem;">Total Usage Cost</strong>
@@ -295,19 +300,38 @@
   <div id="dashboard" class="tab-content" style="display: none;">
     <div class="glass-card">
       <h3>Global Shift Metrics</h3>
-      <div class="dashboard-grid">
+      
+      <!-- Liquor & Flavors Row -->
+      <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--neon-blue); margin-bottom: 8px; font-weight: bold;">Liquor & Flavors</div>
+      <div class="dashboard-grid" style="margin-bottom: 20px;">
         <div class="metric-box">
-          <h4>Total Liquor POS Sales ($)</h4>
+          <h4>Liquor POS Sales ($)</h4>
           <input type="number" id="pos-sales" class="clean-input" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px; background: rgba(0,0,0,0.5);">
         </div>
         <div class="metric-box">
-          <h4>Liquor Usage Cost</h4>
+          <h4>Liquor & Flavor Usage Cost</h4>
           <div class="value" id="global-usage-cost">$0.00</div>
-          <div id="non-spirit-usage-note" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Beer/Wine/Flavor Cost: $0.00</div>
         </div>
         <div class="metric-box" id="global-pour-box" style="border-left: 4px solid var(--neon-green);">
           <h4>Liquor Pour Cost %</h4>
           <div class="value" id="global-pour-cost">0.00%</div>
+        </div>
+      </div>
+
+      <!-- Beer & Wine Row -->
+      <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--neon-orange); margin-bottom: 8px; font-weight: bold;">Beer & Wine</div>
+      <div class="dashboard-grid">
+        <div class="metric-box">
+          <h4>Beer & Wine POS Sales ($)</h4>
+          <input type="number" id="bw-pos-sales" class="clean-input" placeholder="Enter Sales..." oninput="autoSaveMeta()" style="font-size: 1.5rem; padding: 10px; background: rgba(0,0,0,0.5);">
+        </div>
+        <div class="metric-box">
+          <h4>Beer & Wine Usage Cost</h4>
+          <div class="value" id="bw-usage-cost">$0.00</div>
+        </div>
+        <div class="metric-box" id="bw-pour-box" style="border-left: 4px solid var(--neon-green);">
+          <h4>Beer & Wine Pour Cost %</h4>
+          <div class="value" id="bw-pour-cost">0.00%</div>
         </div>
       </div>
     </div>
@@ -391,6 +415,6 @@
     </div>
   </div>
 
-  <script src="liquor.js?v=20"></script>
+  <script src="liquor.js?v=21"></script>
 </body>
 </html>
