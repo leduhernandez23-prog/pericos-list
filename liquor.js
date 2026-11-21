@@ -23,11 +23,13 @@ let globalBatches = {};
 let currentBuilderType = 'cocktail'; 
 let currentBuilderId = null;
 
-// --- GLOBALS FOR TOP 10 ANALYTICS & PERIOD TRACKING ---
+// --- GLOBALS FOR ANALYTICS, PERIOD TRACKING & INVOICE PROVIDERS ---
 let globalTopWeek = [];
 let globalTopMonth = [];
 let currentPeriodStart = '';
-// ------------------------------------------------------
+let invoiceHistory = {};
+let currentReorderItems = [];
+// ------------------------------------------------------------------
 
 const catColors = {
     'Tequila': '#10b981', 'Vodka': '#3b82f6', 'Whiskey': '#f59e0b',
@@ -37,7 +39,10 @@ const catColors = {
 const unitOptions = ['ml', 'oz', 'L'];
 const builderUnitOptions = ['ml', 'oz', 'L', 'dash', 'ea']; 
 const catOptionsList = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Flavor', 'Beer', 'Wine'];
+
 const spiritCategories = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur'];
+const liquorAndFlavorCategories = ['Tequila', 'Vodka', 'Whiskey', 'Rum', 'Gin', 'Liqueur', 'Flavor', 'Mixer'];
+const beerWineCategories = ['Beer', 'Wine'];
 
 // Local Texas Date Helper (Prevents UTC evening date-shift bug)
 function getLocalTodayStr(dateObj = new Date()) {
@@ -89,6 +94,11 @@ function loadFirebaseData() {
         loadUsageAnalytics();
     });
 
+    db.ref(currentLocation + '/liquor_invoice_history').on('value', snap => {
+        invoiceHistory = snap.val() || {};
+        updateProviderDatalist();
+    });
+
     db.ref(currentLocation + '/liquor_menu_cocktails').on('value', snap => {
         globalCocktails = snap.val() || {};
         renderCocktailVault();
@@ -108,8 +118,11 @@ function loadFirebaseData() {
             }
             if(meta.posSales !== undefined && document.getElementById('pos-sales').value === '') {
                 document.getElementById('pos-sales').value = meta.posSales;
-                calculateGlobalMetrics();
             }
+            if(meta.bwPosSales !== undefined && document.getElementById('bw-pos-sales') && document.getElementById('bw-pos-sales').value === '') {
+                document.getElementById('bw-pos-sales').value = meta.bwPosSales;
+            }
+            calculateGlobalMetrics();
             if(meta.currentPeriodStart) {
                 currentPeriodStart = meta.currentPeriodStart;
                 const startInput = document.getElementById('current-period-start-input');
@@ -117,6 +130,45 @@ function loadFirebaseData() {
             }
         }
     });
+}
+
+function updateProviderDatalist() {
+    const datalist = document.getElementById('provider-datalist');
+    if (!datalist) return;
+    const providers = new Set();
+    Object.values(invoiceHistory).forEach(entry => {
+        if (entry && entry.provider) providers.add(entry.provider.trim());
+    });
+    datalist.innerHTML = '';
+    Array.from(providers).sort().forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        datalist.appendChild(opt);
+    });
+}
+
+// Scans past deliveries to find the cheapest provider on record for a brand
+function getBestProviderInfo(brandName) {
+    if (!brandName || !invoiceHistory) return null;
+    const target = brandName.trim().toLowerCase();
+    const providerLatest = {};
+
+    // Track the most recent price per provider for this brand
+    Object.values(invoiceHistory).forEach(entry => {
+        if (!entry || !entry.brand || !entry.provider || !entry.cost) return;
+        if (entry.brand.trim().toLowerCase() === target) {
+            const prov = entry.provider.trim();
+            const entryDate = entry.date || '';
+            if (!providerLatest[prov] || entryDate >= providerLatest[prov].date) {
+                providerLatest[prov] = { provider: prov, cost: parseFloat(entry.cost), date: entryDate };
+            }
+        }
+    });
+
+    const list = Object.values(providerLatest);
+    if (list.length === 0) return null;
+    list.sort((a, b) => a.cost - b.cost);
+    return { best: list[0], all: list };
 }
 
 function updateCurrentPeriodStart(newDateVal) {
@@ -587,8 +639,8 @@ function updateInventoryDatalist() {
 function renderMarginDashboard() {
     const tbody = document.getElementById('dashboard-body'); 
     tbody.innerHTML = ''; 
-    let spiritUsageCost = 0;
-    let nonSpiritUsageCost = 0;
+    let liquorFlavorUsageCost = 0;
+    let beerWineUsageCost = 0;
 
     document.querySelectorAll('#inventory-body .inv-row').forEach(row => {
         const cat = row.querySelector('.i-category').value;
@@ -606,10 +658,12 @@ function renderMarginDashboard() {
         const usageCost = usageBtls * cost;
         
         const isSpirit = spiritCategories.includes(cat);
+        const isLiquorOrFlavor = liquorAndFlavorCategories.includes(cat);
+        const isBeerOrWine = beerWineCategories.includes(cat);
 
         if (usageCost > 0) {
-            if (isSpirit) spiritUsageCost += usageCost;
-            else nonSpiritUsageCost += usageCost;
+            if (isLiquorOrFlavor) liquorFlavorUsageCost += usageCost;
+            else if (isBeerOrWine) beerWineUsageCost += usageCost;
         }
         
         let shotCost = 0;
@@ -655,22 +709,29 @@ function renderMarginDashboard() {
         tbody.appendChild(tr);
     }); 
     
-    document.getElementById('global-usage-cost').innerText = `$${spiritUsageCost.toFixed(2)}`; 
-    const nonSpiritNote = document.getElementById('non-spirit-usage-note');
-    if (nonSpiritNote) {
-        nonSpiritNote.innerText = `Beer/Wine/Flavor Cost: $${nonSpiritUsageCost.toFixed(2)}`;
-    }
-    calculateGlobalMetrics(spiritUsageCost);
+    document.getElementById('global-usage-cost').innerText = `$${liquorFlavorUsageCost.toFixed(2)}`; 
+    const bwCostEl = document.getElementById('bw-usage-cost');
+    if (bwCostEl) bwCostEl.innerText = `$${beerWineUsageCost.toFixed(2)}`;
+
+    calculateGlobalMetrics(liquorFlavorUsageCost, beerWineUsageCost);
 }
 
-function calculateGlobalMetrics(spiritUsageCost) {
-  if (spiritUsageCost === undefined) spiritUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
+function calculateGlobalMetrics(liquorFlavorUsageCost, beerWineUsageCost) {
+  if (liquorFlavorUsageCost === undefined) {
+      liquorFlavorUsageCost = parseFloat(document.getElementById('global-usage-cost').innerText.replace('$','')) || 0;
+  }
+  if (beerWineUsageCost === undefined) {
+      const bwEl = document.getElementById('bw-usage-cost');
+      beerWineUsageCost = bwEl ? (parseFloat(bwEl.innerText.replace('$','')) || 0) : 0;
+  }
+
+  // 1. Liquor & Flavors Pour Cost %
   const posSales = parseFloat(document.getElementById('pos-sales').value) || 0; 
   const pourDisplay = document.getElementById('global-pour-cost'); 
   const pourBox = document.getElementById('global-pour-box');
   
   if (posSales > 0) {
-    const globalPourPct = (spiritUsageCost / posSales) * 100; 
+    const globalPourPct = (liquorFlavorUsageCost / posSales) * 100; 
     pourDisplay.innerText = `${globalPourPct.toFixed(2)}%`;
     if (globalPourPct <= 20) { 
         pourDisplay.className = 'value status-good'; 
@@ -683,6 +744,29 @@ function calculateGlobalMetrics(spiritUsageCost) {
     pourDisplay.innerText = '0.00%'; 
     pourDisplay.className = 'value'; 
     pourBox.style.borderLeftColor = 'var(--neon-green)'; 
+  }
+
+  // 2. Beer & Wine Pour Cost %
+  const bwSalesEl = document.getElementById('bw-pos-sales');
+  const bwPourDisplay = document.getElementById('bw-pour-cost');
+  const bwPourBox = document.getElementById('bw-pour-box');
+  if (bwSalesEl && bwPourDisplay && bwPourBox) {
+      const bwSales = parseFloat(bwSalesEl.value) || 0;
+      if (bwSales > 0) {
+          const bwPct = (beerWineUsageCost / bwSales) * 100;
+          bwPourDisplay.innerText = `${bwPct.toFixed(2)}%`;
+          if (bwPct <= 25) {
+              bwPourDisplay.className = 'value status-good';
+              bwPourBox.style.borderLeftColor = 'var(--neon-green)';
+          } else {
+              bwPourDisplay.className = 'value status-warn';
+              bwPourBox.style.borderLeftColor = 'var(--danger)';
+          }
+      } else {
+          bwPourDisplay.innerText = '0.00%';
+          bwPourDisplay.className = 'value';
+          bwPourBox.style.borderLeftColor = 'var(--neon-green)';
+      }
   }
 }
 
@@ -713,13 +797,14 @@ function addDeliveryRow() {
 
   div.innerHTML = `
       <select class="clean-input d-cat" style="flex: 1; background:rgba(0,0,0,0.5);">${catHtml}</select>
-      <input class="clean-input d-brand" type="text" list="inventory-datalist" placeholder="Search or Type New..." style="flex: 2; background:rgba(0,0,0,0.5);" oninput="autoFillDelivery(this)">
-      <input class="clean-input d-qty" type="number" placeholder="Qty" min="0" step="1" style="flex: 0.8; background:rgba(0,0,0,0.5);">
-      <div style="display:flex; flex: 1.5; gap: 5px;">
+      <input class="clean-input d-brand" type="text" list="inventory-datalist" placeholder="Search or Type New..." style="flex: 1.8; background:rgba(0,0,0,0.5);" oninput="autoFillDelivery(this)">
+      <input class="clean-input d-provider" type="text" list="provider-datalist" placeholder="Provider (e.g. Spec's)" style="flex: 1.3; background:rgba(0,0,0,0.5);">
+      <input class="clean-input d-qty" type="number" placeholder="Qty" min="0" step="1" style="flex: 0.7; background:rgba(0,0,0,0.5);">
+      <div style="display:flex; flex: 1.4; gap: 5px;">
           <input class="clean-input d-size" type="number" placeholder="Size" style="width: 100%; background:rgba(0,0,0,0.5);">
           <select class="clean-input d-unit" style="padding: 10px 5px; background:rgba(0,0,0,0.5);">${unitHtml}</select>
       </div>
-      <input class="clean-input d-cost" type="number" placeholder="Cost ($)" step="0.01" style="flex: 1; background:rgba(0,0,0,0.5);">
+      <input class="clean-input d-cost" type="number" placeholder="Cost ($)" step="0.01" style="flex: 0.9; background:rgba(0,0,0,0.5);">
       <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
   `; 
   list.appendChild(div);
@@ -738,16 +823,29 @@ function closeReceiveModal() {
 function confirmBatchReceive() {
   const rows = document.querySelectorAll('.delivery-row'); 
   const invRows = Array.from(document.querySelectorAll('.inv-row'));
+  const todayStr = getLocalTodayStr();
   
   rows.forEach(dRow => {
     const cat = dRow.querySelector('.d-cat').value;
     const brand = dRow.querySelector('.d-brand').value.trim();
+    const provider = dRow.querySelector('.d-provider') ? dRow.querySelector('.d-provider').value.trim() : '';
     const amount = parseFloat(dRow.querySelector('.d-qty').value) || 0;
     const size = parseFloat(dRow.querySelector('.d-size').value) || 750;
     const unit = dRow.querySelector('.d-unit').value;
     const cost = parseFloat(dRow.querySelector('.d-cost').value) || 0;
     
     if (brand !== '' && amount > 0) {
+      // Save invoice price history for cheapest provider comparisons
+      if (provider !== '' && cost > 0) {
+          db.ref(currentLocation + '/liquor_invoice_history').push({
+              brand: brand,
+              provider: provider,
+              cost: cost,
+              qty: amount,
+              date: todayStr
+          });
+      }
+
       let targetRow = invRows.find(r => r.querySelector('.i-brand').value.trim().toLowerCase() === brand.toLowerCase());
       
       if (targetRow) {
@@ -763,7 +861,7 @@ function confirmBatchReceive() {
         targetRow.querySelector('.i-category').value = cat;
         if (!isNaN(size)) targetRow.querySelector('.i-size').value = size;
         targetRow.querySelector('.i-unit').value = unit;
-        if (!isNaN(cost)) targetRow.querySelector('.i-cost').value = cost;
+        if (!isNaN(cost) && cost > 0) targetRow.querySelector('.i-cost').value = cost;
       } else {
         injectInventoryRow({ category: cat, brand: brand, size: size, unit: unit, start: 0, received: amount, count: amount, cost: cost, shotSell: 0 });
       }
@@ -778,6 +876,7 @@ function openSummaryModal() {
   const list = document.getElementById('weekly-summary-list'); 
   list.innerHTML = ''; 
   let totalUsageCost = 0;
+  currentReorderItems = [];
 
   document.querySelectorAll('.inv-row').forEach(row => {
     const brand = row.querySelector('.i-brand').value || 'Unnamed Spirit'; 
@@ -790,10 +889,41 @@ function openSummaryModal() {
     const lineCost = usageBtls * cost;
     if (usageBtls > 0) {
       totalUsageCost += lineCost; 
+      const provInfo = getBestProviderInfo(brand);
+      let provHtml = '';
+      let bestProvText = 'No invoice history';
+      let bestCostVal = cost;
+
+      if (provInfo) {
+          bestProvText = `${provInfo.best.provider} ($${provInfo.best.cost.toFixed(2)})`;
+          bestCostVal = provInfo.best.cost;
+          let compareNote = '';
+          if (provInfo.all.length > 1) {
+              const nextBest = provInfo.all[1];
+              compareNote = ` <span style="color: var(--text-muted);">vs. ${nextBest.provider} ($${nextBest.cost.toFixed(2)})</span>`;
+          }
+          provHtml = `<div style="font-size: 0.78rem; color: var(--neon-orange); margin-top: 3px;">🏷️ Best: <strong>${provInfo.best.provider} ($${provInfo.best.cost.toFixed(2)})</strong>${compareNote}</div>`;
+      }
+
+      currentReorderItems.push({
+          brand: brand,
+          orderQty: Math.ceil(usageBtls),
+          exactUsed: usageBtls,
+          bestProvider: provInfo ? provInfo.best.provider : 'N/A',
+          bestCost: bestCostVal,
+          usageCost: lineCost
+      });
+
       const li = document.createElement('li'); 
       li.style.padding = '10px 0'; 
       li.style.borderBottom = '1px solid var(--glass-border)';
-      li.innerHTML = `<span style="color: var(--neon-blue); font-weight: 500;">${brand}:</span> Used ${usageBtls.toFixed(1)} btls <span style="float: right; color: var(--neon-green);">+$${lineCost.toFixed(2)}</span>`; 
+      li.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span><strong style="color: var(--neon-blue);">${brand}:</strong> Order ~${Math.ceil(usageBtls)} btls <span style="font-size: 0.8rem; color: var(--text-muted);">(${usageBtls.toFixed(1)} used)</span></span>
+              <span style="color: var(--neon-green); font-weight: bold;">+$${lineCost.toFixed(2)}</span>
+          </div>
+          ${provHtml}
+      `; 
       list.appendChild(li);
     }
   }); 
@@ -817,6 +947,26 @@ function openSummaryModal() {
   document.getElementById('summary-modal').style.display = 'flex';
 }
 
+function exportReorderCSV() {
+    if (currentReorderItems.length === 0) {
+        alert("No items to order yet!");
+        return;
+    }
+    let csv = '"Brand","Btls Used","Suggested Order (Whole Btls)","Cheapest Provider","Best Unit Cost ($)"\r\n';
+    currentReorderItems.forEach(item => {
+        csv += `"${item.brand}","${item.exactUsed.toFixed(1)}","${item.orderQty}","${item.bestProvider}","${item.bestCost.toFixed(2)}"\r\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `Los_Pericos_Order_List_${getLocalTodayStr()}.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
 function closeSummaryModal() { document.getElementById('summary-modal').style.display = 'none'; }
 
 function confirmResetWeek() {
@@ -826,6 +976,7 @@ function confirmResetWeek() {
   const endDate = (endDateInput && endDateInput.value) ? endDateInput.value : getLocalTodayStr();
   const startDate = (startDateInput && startDateInput.value) ? startDateInput.value : addDaysToDateStr(endDate, -7);
   const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
+  const bwPosSales = document.getElementById('bw-pos-sales') ? (parseFloat(document.getElementById('bw-pos-sales').value) || 0) : 0;
   
   const startParts = startDate.split('-').map(Number);
   const endParts = endDate.split('-').map(Number);
@@ -838,9 +989,10 @@ function confirmResetWeek() {
       endDate: endDate,
       auditDays: diffDays,
       totalCost: 0, 
-      spiritCost: 0,
-      nonSpiritCost: 0,
+      liquorFlavorCost: 0,
+      beerWineCost: 0,
       posSales: posSales, 
+      bwPosSales: bwPosSales,
       items: [] 
   };
 
@@ -854,12 +1006,11 @@ function confirmResetWeek() {
     
     const usageBtls = (start + received) - count; 
     const lineCost = usageBtls * cost;
-    const isSpirit = spiritCategories.includes(cat);
 
     if (usageBtls > 0) {
       snapshotData.totalCost += lineCost;
-      if (isSpirit) snapshotData.spiritCost += lineCost;
-      else snapshotData.nonSpiritCost += lineCost;
+      if (liquorAndFlavorCategories.includes(cat)) snapshotData.liquorFlavorCost += lineCost;
+      else if (beerWineCategories.includes(cat)) snapshotData.beerWineCost += lineCost;
       snapshotData.items.push({ category: cat, brand: brand, used: usageBtls, cost: lineCost });
     }
 
@@ -868,7 +1019,6 @@ function confirmResetWeek() {
     row.querySelector('.calc-received').innerText = '0'; 
   }); 
 
-  // Next period starts on the Finish Date of this audit
   currentPeriodStart = endDate;
   const startInput = document.getElementById('current-period-start-input');
   if (startInput) startInput.value = currentPeriodStart;
@@ -877,11 +1027,13 @@ function confirmResetWeek() {
       db.ref(currentLocation + '/liquor_meta').update({
           currentPeriodStart: endDate,
           posSales: 0,
+          bwPosSales: 0,
           lastEditedBy: activeUser,
           lastEditedAt: firebase.database.ServerValue.TIMESTAMP
       });
       autoSaveInv(); 
       document.getElementById('pos-sales').value = '';
+      if (document.getElementById('bw-pos-sales')) document.getElementById('bw-pos-sales').value = '';
       calculateGlobalMetrics();
       closeSummaryModal();
       alert(`Audit closed out (${startDate} to ${endDate})! Next period started on ${endDate}.`);
@@ -904,7 +1056,6 @@ function openHistoryModal() {
                 const item = historyData[date];
                 const opt = document.createElement('option');
                 opt.value = date;
-                // Infer start date from previous audit if legacy entry doesn't have startDate
                 const prevDate = dates[idx + 1] ? (historyData[dates[idx + 1]].endDate || dates[idx + 1]) : addDaysToDateStr(date, -7);
                 const sDate = item.startDate || prevDate;
                 const eDate = item.endDate || date;
@@ -995,13 +1146,17 @@ function exportHistoryToCSV() {
 
     csvContent += `"Audit Period:","${sDate} to ${eDate}"\r\n`;
     csvContent += `"Audit Span Days:","${data.auditDays || 7}"\r\n`;
-    csvContent += `"POS Sales:","$${(data.posSales || 0).toFixed(2)}"\r\n`;
+    csvContent += `"Liquor POS Sales:","$${(data.posSales || 0).toFixed(2)}"\r\n`;
+    csvContent += `"Beer & Wine POS Sales:","$${(data.bwPosSales || 0).toFixed(2)}"\r\n`;
     csvContent += `"Total Usage Cost:","$${(data.totalCost || 0).toFixed(2)}"\r\n`;
     
-    const spiritCostForPour = data.spiritCost !== undefined ? data.spiritCost : data.totalCost;
-    let pourCost = 0;
-    if (data.posSales > 0) pourCost = (spiritCostForPour / data.posSales) * 100;
-    csvContent += `"Liquor Pour Cost:","${pourCost.toFixed(2)}%"\r\n\r\n`;
+    const liqCost = data.liquorFlavorCost !== undefined ? data.liquorFlavorCost : (data.spiritCost !== undefined ? data.spiritCost : data.totalCost);
+    let liqPour = data.posSales > 0 ? (liqCost / data.posSales) * 100 : 0;
+    csvContent += `"Liquor & Flavor Pour Cost:","${liqPour.toFixed(2)}%"\r\n`;
+
+    const bwCost = data.beerWineCost || 0;
+    let bwPour = (data.bwPosSales && data.bwPosSales > 0) ? (bwCost / data.bwPosSales) * 100 : 0;
+    csvContent += `"Beer & Wine Pour Cost:","${bwPour.toFixed(2)}%"\r\n\r\n`;
     
     csvContent += '"Brand","Bottles Used","Line Usage Cost ($)"\r\n';
     
@@ -1084,8 +1239,10 @@ function updateMeta() {
 
 function autoSaveMeta() {
     const posSales = parseFloat(document.getElementById('pos-sales').value) || 0;
+    const bwPosSales = document.getElementById('bw-pos-sales') ? (parseFloat(document.getElementById('bw-pos-sales').value) || 0) : 0;
     db.ref(currentLocation + '/liquor_meta').update({
         posSales: posSales,
+        bwPosSales: bwPosSales,
         lastEditedBy: activeUser,
         lastEditedAt: firebase.database.ServerValue.TIMESTAMP
     });
@@ -1116,14 +1273,12 @@ function loadUsageAnalytics() {
         const latestAudit = historyData[latestDate];
         const latestData = latestAudit.items || [];
 
-        // Auto-populate currentPeriodStart if empty
         if (!currentPeriodStart && latestDate) {
             currentPeriodStart = latestAudit.endDate || latestDate;
             const startInput = document.getElementById('current-period-start-input');
             if(startInput) startInput.value = currentPeriodStart;
         }
 
-        // Collect all available YYYY-MM months across history
         const monthsSet = new Set();
         dates.forEach((date, idx) => {
             const item = historyData[date];
@@ -1149,7 +1304,6 @@ function loadUsageAnalytics() {
             selectedMonth = monthSelect.value || availableMonths[0];
         }
 
-        // Exclusion filter: hides batch tequila, triple sec, and non-spirits if needed
         const excludeList = ['tortilla', 'triple sec', '3ple sec'];
         function shouldInclude(brandName) {
             const nameLower = (brandName || '').toLowerCase();
@@ -1184,11 +1338,8 @@ function loadUsageAnalytics() {
             const audit = historyData[date];
             if (!audit.items) return;
 
-            const prevDate = dates[idx + 1] ? (historyData[dates[idx + 1]].endDate || dates[idx + 1]) : addDaysToDateStr(date, -7);
-            const sDate = audit.startDate || prevDate;
             const eDate = audit.endDate || date;
 
-            // Group by Finish Date month (standard restaurant accounting)
             if (eDate.startsWith(selectedMonth)) {
                 audit.items.forEach(item => {
                     if (shouldInclude(item.brand)) {
